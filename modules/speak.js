@@ -1,16 +1,6 @@
 // Speaking: Web Speech recognition. User repeats target sentence, score by similarity.
 window.SpeakModule = (function () {
-  const SETS = {
-    greetings: { title: 'Greetings', items: ['Bonjour, comment ça va ?', 'Je m\'appelle Alex.', 'Enchanté de te rencontrer.', 'Merci beaucoup.', 'Au revoir, à demain.'] },
-    day: { title: 'Describe Your Day', items: ['Aujourd\'hui, je suis allé au parc.', 'J\'ai mangé une salade au déjeuner.', 'Je travaille de neuf heures à dix-sept heures.', 'Le soir, j\'ai regardé un film.'] },
-    mock: { title: 'CLB 6 Mock Speaking', items: [
-      'Pouvez-vous me dire où se trouve la gare la plus proche ?',
-      'Quand j\'étais petit, je passais mes étés chez ma grand-mère.',
-      'Si je gagne à la loterie, je voyagerai partout dans le monde.',
-      'Je voudrais réserver une table pour deux personnes vendredi soir.',
-      'Merci de votre temps. Je vous recontacterai la semaine prochaine.',
-    ] },
-  };
+  const SETS = window.SPEAK_SETS;
 
   function lev(a, b) {
     a = a.toLowerCase().replace(/[^a-zà-ÿ ]/gi, '').trim();

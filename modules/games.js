@@ -162,14 +162,7 @@ window.GamesModule = (function () {
 
   // -------- Sentence Builder --------
   function sentenceBuilder(container) {
-    const sentences = [
-      { fr: ['Je', 'mange', 'une', 'pomme', 'rouge'], en: 'I eat a red apple.' },
-      { fr: ['Nous', 'allons', 'au', 'parc', 'demain'], en: 'We are going to the park tomorrow.' },
-      { fr: ['Elle', 'a', 'deux', 'frères'], en: 'She has two brothers.' },
-      { fr: ['Le', 'chat', 'noir', 'dort', 'sur', 'le', 'lit'], en: 'The black cat sleeps on the bed.' },
-      { fr: ['Hier', "j'", 'ai', 'mangé', 'au', 'restaurant'], en: 'Yesterday I ate at the restaurant.' },
-      { fr: ['Quand', 'j\'étais', 'petit', 'je', 'jouais', 'au', 'football'], en: 'When I was little I played football.' },
-    ];
+    const sentences = window.SENTENCES;
     let i = 0, correct = 0;
     function show() {
       if (i >= sentences.length) return finish();
