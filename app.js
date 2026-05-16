@@ -3,8 +3,6 @@ window.App = (function () {
   const STATE_KEY = 'fr_app_state_v1';
   const state = {
     xp: 0,
-    streak: 0,
-    lastActiveDay: null,
     lessons: {}, // { 'vocab:greetings': true, ... }
   };
 
@@ -16,16 +14,6 @@ window.App = (function () {
   }
   function save() { localStorage.setItem(STATE_KEY, JSON.stringify(state)); }
 
-  function updateStreak() {
-    const today = new Date().toDateString();
-    if (state.lastActiveDay === today) return;
-    const yest = new Date(); yest.setDate(yest.getDate() - 1);
-    if (state.lastActiveDay === yest.toDateString()) state.streak += 1;
-    else state.streak = 1;
-    state.lastActiveDay = today;
-    save();
-  }
-
   function levelFor(xp) {
     if (xp >= 2500) return 'B2 · CLB 6+';
     if (xp >= 1500) return 'B1 · CLB 5';
@@ -36,7 +24,6 @@ window.App = (function () {
 
   function refreshTopbar() {
     const x = document.getElementById('xp'); if (x) x.textContent = state.xp;
-    const s = document.getElementById('streak'); if (s) s.textContent = state.streak;
     const l = document.getElementById('level'); if (l) l.textContent = levelFor(state.xp);
   }
 
@@ -171,7 +158,6 @@ window.App = (function () {
   // -------- Init --------
   function init() {
     load();
-    updateStreak();
     refreshTopbar();
     document.querySelectorAll('[data-route]').forEach(el => {
       el.onclick = () => go(el.dataset.route);
