@@ -20,8 +20,8 @@ window.WriteModule = (function () {
 
   function renderPrompt(container, key) {
     const t = WRITING[key];
-    const draftKey = 'fr_draft_' + key;
-    const saved = localStorage.getItem(draftKey) || '';
+    const draftKey = 'draft_' + key;
+    const saved = window.Storage.getItem(draftKey) || '';
 
     container.innerHTML = `
       <div class="lesson">
@@ -57,7 +57,7 @@ window.WriteModule = (function () {
     const updateWC = () => {
       const n = (ta.value.match(/\b\w+\b/g) || []).length;
       wc.textContent = `${n} word${n === 1 ? '' : 's'}`;
-      localStorage.setItem(draftKey, ta.value);
+      window.Storage.setItem(draftKey, ta.value);
     };
     ta.addEventListener('input', updateWC);
     updateWC();

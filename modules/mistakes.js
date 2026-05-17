@@ -1,9 +1,7 @@
 // Mistakes / Weak Spots — items the learner got wrong, re-surfaced for spaced review.
 window.MistakesModule = (function () {
-  const KEY = 'fr_mistakes_v1';
-
-  function load() { try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch { return []; } }
-  function save(m) { localStorage.setItem(KEY, JSON.stringify(m)); }
+  function load() { try { return JSON.parse(window.Storage.getItem('mistakes')) || []; } catch { return []; } }
+  function save(m) { window.Storage.setItem('mistakes', JSON.stringify(m)); }
 
   // Public: record an error. Auto-deduplicates by signature.
   function record(item) {

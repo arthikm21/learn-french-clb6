@@ -1,8 +1,7 @@
 // Simple SM-2 spaced repetition. Persists per-card state in localStorage.
 window.SRS = (function () {
-  const KEY = 'fr_srs_v1';
-  function load() { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch { return {}; } }
-  function save(s) { localStorage.setItem(KEY, JSON.stringify(s)); }
+  function load() { try { return JSON.parse(window.Storage.getItem('srs')) || {}; } catch { return {}; } }
+  function save(s) { window.Storage.setItem('srs', JSON.stringify(s)); }
 
   function cardId(deck, fr) { return deck + ':' + fr; }
 
