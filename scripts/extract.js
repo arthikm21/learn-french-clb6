@@ -6,9 +6,9 @@ global.window = global;
 
 const ROOT = path.join(__dirname, '..');
 // Load base + extra data files so extractor sees everything.
-['vocab', 'vocab_extra', 'grammar', 'grammar_extra', 'lessons',
- 'reading', 'reading_extra', 'listening', 'listening_extra',
- 'writing', 'spoken', 'phonics'].forEach(n => {
+['vocab', 'vocab_extra', 'vocab_more', 'grammar', 'grammar_extra', 'grammar_more', 'lessons',
+ 'reading', 'reading_extra', 'reading_more', 'listening', 'listening_extra', 'listening_more',
+ 'writing', 'spoken', 'phonics', 'minpairs', 'dialogues', 'speaktasks', 'pcvsimp'].forEach(n => {
   require(path.join(ROOT, 'data', n + '.js'));
 });
 
@@ -77,6 +77,33 @@ for (const s of window.SENTENCES) {
 if (window.PHONICS) for (const u of window.PHONICS) {
   for (const s of u.sounds) {
     if (s.word) add(s.word);
+  }
+}
+
+// MIN_PAIRS — both words in each pair
+if (window.MIN_PAIRS) for (const k of Object.keys(window.MIN_PAIRS)) {
+  for (const p of window.MIN_PAIRS[k].pairs) {
+    add(p.a); add(p.b);
+  }
+}
+
+// DIALOGUES — every line of every dialogue
+if (window.DIALOGUES) for (const k of Object.keys(window.DIALOGUES)) {
+  for (const line of window.DIALOGUES[k].lines) add(line.text);
+}
+
+// SPEAK_TASKS — Q&A questions + role-play other-lines
+if (window.SPEAK_TASKS) for (const k of Object.keys(window.SPEAK_TASKS)) {
+  const t = window.SPEAK_TASKS[k];
+  if (t.questions) for (const q of t.questions) add(q.q);
+  if (t.turns) for (const turn of t.turns) add(turn.other);
+}
+
+// PC_VS_IMP — drill sentences and rule examples
+if (window.PC_VS_IMP) {
+  for (const d of (window.PC_VS_IMP.drills || [])) add(d.sentence);
+  for (const f of (window.PC_VS_IMP.framework || [])) {
+    if (f.examples) for (const e of f.examples) add(e);
   }
 }
 
