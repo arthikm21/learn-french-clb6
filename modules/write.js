@@ -83,13 +83,16 @@ window.WriteModule = (function () {
     }).join('');
     const rubricPct = Math.round((rubricPassed / task.checks.length) * 100);
 
-    // 2. Error pattern detection
-    const errors = [];
+    // 2. Real grammar errors via GrammarCheck
+    const grammarErrors = (window.GrammarCheck ? GrammarCheck.check(txt) : []);
+    // Legacy supplemental patterns
+    const legacyErrors = [];
     for (const e of (window.WRITING_ERRORS || [])) {
       if (e.positive) continue;
       const m = txt.match(e.pattern);
-      if (m) errors.push({ message: e.message, sample: m[0] });
+      if (m) legacyErrors.push({ span: m[0], type: 'pattern', message: e.message });
     }
+    const errors = [...grammarErrors, ...legacyErrors];
 
     // 3. Word count score
     const wcPct = Math.min(100, Math.round((wordCount / minWords) * 100));
@@ -132,12 +135,13 @@ window.WriteModule = (function () {
 
     // Record errors as weak spots
     for (const err of errors.slice(0, 3)) {
+      const span = err.span || err.sample || '';
       MistakesModule.record({
         type: 'write',
-        sig: `write:${key}:${err.sample}`,
-        prompt: `Error in your writing: <code>${err.sample}</code>`,
+        sig: `write:${key}:${span}`,
+        prompt: `Error in your writing: <code>${escapeHTML(span)}</code>`,
         correct: err.message,
-        your: err.sample,
+        your: span,
       });
     }
 
@@ -168,7 +172,12 @@ window.WriteModule = (function () {
       ${errors.length > 0 ? `
       <div class="grammar-box" style="background:#fee2e2;border-left-color:var(--bad)">
         <h3>⚠️ Errors detected (${errors.length})</h3>
-        <ul style="margin-left:20px;line-height:1.7">${errors.map(e => `<li><code>${escapeHTML(e.sample)}</code> — ${e.message}</li>`).join('')}</ul>
+        <ul style="margin-left:20px;line-height:1.8">${errors.map(e => {
+          const span = e.span || e.sample || '';
+          const sug = e.suggestion ? ` → try <b>${escapeHTML(e.suggestion)}</b>` : '';
+          const tag = e.type ? `<span class="tag" style="font-size:10px">${e.type}</span> ` : '';
+          return `<li>${tag}<code>${escapeHTML(span)}</code> — ${e.message}${sug}</li>`;
+        }).join('')}</ul>
         <p style="margin-top:10px;color:var(--mute);font-size:14px">These are added to your <a onclick="App.go('mistakes')" style="color:var(--bleu);cursor:pointer"><b>Weak Spots</b></a> for review.</p>
       </div>` : ''}
 

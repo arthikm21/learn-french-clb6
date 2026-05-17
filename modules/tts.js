@@ -115,7 +115,44 @@ window.TTS = (function () {
     fallbackSpeak(text, rate * 0.9);
   }
 
+  // Sequential playback with onDone callback. Voice = 'fr-CA-SylvieNeural' (default) or 'fr-CA-JeanNeural'.
+  async function speakLine(text, voice, onDone) {
+    stop();
+    const key = normalize(text);
+    if (!key) { onDone && onDone(); return; }
+    if (IS_IOS && !audioUnlocked) { onDone && onDone(); return; }
+    const m = await loadManifest();
+    // Look up voice-tagged first, then default (Sylvie)
+    const voiceKey = voice && voice !== 'fr-CA-SylvieNeural' ? (voice + '|' + key) : null;
+    const src = (voiceKey && m[voiceKey]) || m[key];
+    if (src) {
+      try {
+        const a = new Audio(src);
+        a.playbackRate = 1.0;
+        a.preload = 'auto';
+        currentAudio = a;
+        a.onended = () => { onDone && onDone(); };
+        a.onerror = () => { onDone && onDone(); };
+        await a.play();
+        return;
+      } catch (e) {
+        // fall through to SpeechSynthesis
+      }
+    }
+    // Fallback: SpeechSynthesis with different voice
+    if (!('speechSynthesis' in window)) { onDone && onDone(); return; }
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'fr-CA';
+    if (voice === 'fr-CA-JeanNeural') {
+      u.pitch = 0.7; // male-ish
+    }
+    u.rate = 0.9;
+    if (fallbackVoice) u.voice = fallbackVoice;
+    u.onend = () => { onDone && onDone(); };
+    speechSynthesis.speak(u);
+  }
+
   function available() { return true; }
 
-  return { speak, stop, available, isIOS: () => IS_IOS };
+  return { speak, speakLine, stop, available, isIOS: () => IS_IOS };
 })();

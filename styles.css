@@ -881,3 +881,34 @@ body.dark .mem-card.flipped { background: #4d8bd5; color: white; }
 
 body.dark #wordpop { background: #1e293b; }
 body.dark .wp-play, body.dark .wp-close { background: #0f172a; color: #e2e8f0; }
+
+/* ============ DIALOGUE LINES ============ */
+.dialogue-line {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin: 10px 0;
+  padding: 10px 12px;
+  background: #f9fafb;
+  border-radius: 10px;
+  transition: background .2s, transform .2s;
+}
+.dialogue-line.active {
+  background: #fef3c7;
+  transform: scale(1.02);
+  box-shadow: var(--shadow);
+}
+.dl-speaker {
+  flex-shrink: 0;
+  font-weight: 700;
+  font-size: 14px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.dl-A { background: #dbeafe; color: var(--bleu); }
+.dl-B { background: #fee2e2; color: var(--rouge); }
+.dl-NARR { background: #f3e8ff; color: var(--accent); }
+.dl-text { flex: 1; line-height: 1.5; word-break: break-word; }
+body.dark .dialogue-line { background: #0f172a; }
+body.dark .dialogue-line.active { background: #1e293b; border: 1px solid var(--bleu); }
