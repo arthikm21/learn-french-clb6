@@ -23,10 +23,18 @@ window.ReadModule = (function () {
     let phase = 'read', qi = 0, correct = 0;
 
     function showText() {
+      // Split into sentences for highlight playback
+      const sentences = t.text.split(/(?<=[.!?])\s+/).filter(s => s.trim());
+      const sentenceHTML = sentences.map((s, i) => `<span class="r-sent" data-i="${i}">${s}</span>`).join(' ');
       container.innerHTML = `
         <div class="lesson">
           <h2>📖 ${t.title} <span class="tag">${t.level}</span></h2>
-          <div style="background:#fffdf7;border:2px solid #fcd34d;padding:20px;border-radius:12px;line-height:1.8;font-size:17px;white-space:pre-wrap">${t.text}</div>
+          <div class="reading-text" id="r-text" style="background:#fffdf7;border:2px solid #fcd34d;padding:20px;border-radius:12px;line-height:1.9;font-size:17px;white-space:pre-wrap">${sentenceHTML}</div>
+          <div class="reading-player" id="r-player">
+            <button class="btn" id="r-play">▶ Listen to text</button>
+            <button class="btn secondary" id="r-stop" disabled>⏸</button>
+            <span style="color:var(--mute);font-size:13px;margin-left:8px" id="r-progress">— / ${sentences.length}</span>
+          </div>
           <div class="spacer"></div>
           <div class="row" style="justify-content:space-between">
             <button class="btn ghost" onclick="App.go('read')">← Texts</button>
@@ -34,6 +42,57 @@ window.ReadModule = (function () {
           </div>
         </div>`;
       container.querySelector('#start').onclick = () => { phase = 'quiz'; showQ(); };
+
+      // Audio player
+      let idx = 0;
+      let stopped = false;
+      const playBtn = container.querySelector('#r-play');
+      const stopBtn = container.querySelector('#r-stop');
+      const progress = container.querySelector('#r-progress');
+      function highlight(i) {
+        container.querySelectorAll('.r-sent').forEach(el => el.classList.remove('active'));
+        const el = container.querySelector(`.r-sent[data-i="${i}"]`);
+        if (el) {
+          el.classList.add('active');
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        progress.textContent = `${i + 1} / ${sentences.length}`;
+      }
+      function play() {
+        stopped = false;
+        playBtn.disabled = true;
+        stopBtn.disabled = false;
+        function next() {
+          if (stopped || idx >= sentences.length) {
+            playBtn.disabled = false;
+            stopBtn.disabled = true;
+            playBtn.textContent = '▶ Listen again';
+            container.querySelectorAll('.r-sent').forEach(el => el.classList.remove('active'));
+            idx = 0;
+            return;
+          }
+          highlight(idx);
+          TTS.speakLine(sentences[idx].trim(), 'fr-CA-SylvieNeural', () => { idx++; setTimeout(next, 200); });
+        }
+        next();
+      }
+      function stop() {
+        stopped = true;
+        TTS.stop();
+        playBtn.disabled = false;
+        stopBtn.disabled = true;
+      }
+      playBtn.onclick = play;
+      stopBtn.onclick = stop;
+
+      // Click any sentence to play just that one
+      container.querySelectorAll('.r-sent').forEach((el, i) => {
+        el.addEventListener('click', (e) => {
+          if (e.target.closest('a, button')) return;
+          // Only if user didn't trigger wordpop
+          if (e.detail === 2) return; // double-click
+        });
+      });
     }
 
     function showQ() {

@@ -244,6 +244,23 @@ window.App = (function () {
         <p>Static site. No accounts. No tracking. All your progress lives in your browser's localStorage, keyed by the username you pick. Multiple users on the same browser supported. Clear browser data → progress resets.</p>
         <p>Source code on GitHub. Pull requests welcome.</p>
       </div>
+
+      <div class="grammar-box" style="background:#fef3c7;border-left-color:var(--warn)">
+        <h3>🎓 Realistic expectations</h3>
+        <p>This site provides roughly <b>70-80%</b> of what an immigrant or professional needs to pass CLB 6 on the TEF Canada / TCF Canada. For the remaining 20-30%:</p>
+        <ul style="margin-left:20px;line-height:1.9;margin-top:6px">
+          <li><b>Daily input</b>: 30 minutes of Radio-Canada news or Téléjournal. Free, native-speed, current affairs vocabulary.</li>
+          <li><b>Weekly conversation</b>: an iTalki / Preply tutor (~$15-25/hr). One hour per week of pure speaking with a human is irreplaceable.</li>
+          <li><b>Last month before exam</b>: buy the official TEF Canada or TCF Canada practice book. Familiarity with the exam format itself adds 1-2 CLB points on test day.</li>
+          <li><b>Immersion</b>: change phone to French, watch a Quebec series (<em>District 31</em>, <em>STAT</em>) with French subtitles, listen to a French podcast on your commute.</li>
+        </ul>
+        <p style="margin-top:10px">This site replaces the textbook. It does NOT replace human conversation. Use both.</p>
+      </div>
+
+      <div class="grammar-box">
+        <h3>💬 Found a typo or have a suggestion?</h3>
+        <p>Open an issue on GitHub: <a href="https://github.com/arthikm21/learn-french-clb6/issues" target="_blank" rel="noopener" style="color:var(--bleu)">github.com/arthikm21/learn-french-clb6/issues</a></p>
+      </div>
       <div class="center" style="margin-top:24px">
         <button class="btn big" onclick="App.go('home')">← Home</button>
       </div>`;
@@ -348,6 +365,8 @@ window.App = (function () {
     document.addEventListener('click', (e) => {
       const chip = e.target.closest('#user-chip');
       if (chip) go('profile');
+      const sBtn = e.target.closest('#search-btn');
+      if (sBtn && window.SearchModule) SearchModule.open();
     });
     window.addEventListener('hashchange', renderActive);
     renderActive();
