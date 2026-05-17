@@ -365,8 +365,6 @@ window.App = (function () {
     document.addEventListener('click', (e) => {
       const chip = e.target.closest('#user-chip');
       if (chip) go('profile');
-      const sBtn = e.target.closest('#search-btn');
-      if (sBtn && window.SearchModule) SearchModule.open();
     });
     window.addEventListener('hashchange', renderActive);
     renderActive();
