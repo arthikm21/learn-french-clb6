@@ -45,6 +45,7 @@ window.App = (function () {
   const routes = {
     home: renderHome,
     path: (c) => PathModule.render(c),
+    phonics: (c, p) => PhonicsModule.render(c, p),
     vocab: (c, p) => VocabModule.render(c, p),
     grammar: (c, p) => GrammarModule.render(c, p),
     listen: (c, p) => ListenModule.render(c, p),
@@ -52,6 +53,9 @@ window.App = (function () {
     read: (c, p) => ReadModule.render(c, p),
     write: (c, p) => WriteModule.render(c, p),
     games: (c, p) => GamesModule.render(c, p),
+    mistakes: (c) => MistakesModule.render(c),
+    about: renderAbout,
+    privacy: renderPrivacy,
   };
 
   function parseHash() {
@@ -105,29 +109,90 @@ window.App = (function () {
 
       <h2 style="font-family:'Fredoka';color:var(--bleu);margin-bottom:12px">Explore</h2>
       <div class="grid">
-        <div class="card" onclick="App.go('path')"><div class="icon">🗺️</div><h3>Learning Path</h3><p>Follow the 38-step path designed for CLB 6 mastery in 3-4 months.</p></div>
-        <div class="card" onclick="App.go('vocab')"><div class="icon">🃏</div><h3>Vocabulary Garden</h3><p>Themed decks with spaced repetition. The system schedules your reviews.</p></div>
-        <div class="card" onclick="App.go('grammar')"><div class="icon">📐</div><h3>Grammar Quests</h3><p>From articles to subjunctive — explicit rules + practice.</p></div>
-        <div class="card" onclick="App.go('listen')"><div class="icon">🎧</div><h3>Listening Lab</h3><p>Hear, then type. CLB Listening prep.</p></div>
-        <div class="card" onclick="App.go('speak')"><div class="icon">🎙️</div><h3>Speaking Mirror</h3><p>Mic + pronunciation scoring. CLB Speaking prep.</p></div>
-        <div class="card" onclick="App.go('read')"><div class="icon">📖</div><h3>Reading Quests</h3><p>Graded French texts + comprehension Qs.</p></div>
-        <div class="card" onclick="App.go('write')"><div class="icon">✍️</div><h3>Writing Workshop</h3><p>Prompts with rubric feedback. Builds CLB Writing.</p></div>
-        <div class="card" onclick="App.go('games')"><div class="icon">🎮</div><h3>Games</h3><p>Gender Sort · Conjugation Race · Sentence Builder · Memory Match.</p></div>
+        <div class="card" onclick="App.go('path')"><div class="icon">🗺️</div><h3>Learning Path</h3><p>92-step ordered path. Each milestone unlocks the next, building CLB 6 systematically.</p></div>
+        <div class="card" onclick="App.go('phonics')"><div class="icon">🔊</div><h3>Phonics & Sounds</h3><p>Master French sounds first — vowels, nasals, R, liaison, elision. 7 units.</p></div>
+        <div class="card" onclick="App.go('vocab')"><div class="icon">🃏</div><h3>Vocabulary Garden</h3><p>20 themed decks, ~500 cards. Spaced repetition schedules your reviews.</p></div>
+        <div class="card" onclick="App.go('grammar')"><div class="icon">📐</div><h3>Grammar Quests</h3><p>22 units from articles to subjunctive. Patterns + rules + quizzes with explanations.</p></div>
+        <div class="card" onclick="App.go('listen')"><div class="icon">🎧</div><h3>Listening Lab</h3><p>10 sets, native Canadian voice. Slow / normal / natural speed control.</p></div>
+        <div class="card" onclick="App.go('speak')"><div class="icon">🎙️</div><h3>Speaking Mirror</h3><p>Mic + word-by-word feedback. See exactly which words to fix.</p></div>
+        <div class="card" onclick="App.go('read')"><div class="icon">📖</div><h3>Reading Quests</h3><p>12 graded texts CLB 3 → 6. Realistic Canadian contexts.</p></div>
+        <div class="card" onclick="App.go('write')"><div class="icon">✍️</div><h3>Writing Workshop</h3><p>8 prompts. Heuristic grader detects errors, estimates CLB band.</p></div>
+        <div class="card" onclick="App.go('games')"><div class="icon">🎮</div><h3>Games</h3><p>Gender Sort, Conjugation Race, Sentence Builder, Memory, Quick Translate, Tense Picker.</p></div>
+        <div class="card" onclick="App.go('mistakes')"><div class="icon">🎯</div><h3>Weak Spots</h3><p>Every wrong answer logged. Review until mastered, then dismissed.</p></div>
       </div>
 
       <div class="spacer"></div>
       <div class="grammar-box">
         <h3>🎯 How CLB 6 is achieved here</h3>
-        <p><b>4 skills tracked.</b> Each module of the path strengthens one or more CLB modules:</p>
+        <p>4 CLB skills, each trained by a dedicated module:</p>
         <ul style="margin-left:20px;line-height:1.8;margin-top:6px">
-          <li><b>Listening</b> → Listening Lab (dictation, dialogues, mock test)</li>
-          <li><b>Speaking</b> → Speaking Mirror (pronunciation scoring against target)</li>
-          <li><b>Reading</b> → Reading Quests (graded CLB 4 → 6 texts + Qs)</li>
-          <li><b>Writing</b> → Writing Workshop (prompts checked against a rubric)</li>
+          <li><b>Listening</b> → Listening Lab (dictation, dialogues, news, mock test)</li>
+          <li><b>Speaking</b> → Speaking Mirror (word-level pronunciation diff)</li>
+          <li><b>Reading</b> → Reading Quests (CLB 3 → 6 graded texts + Qs)</li>
+          <li><b>Writing</b> → Writing Workshop (heuristic grader + CLB band estimate)</li>
         </ul>
-        <p style="margin-top:10px"><b>Method:</b> 30-45 min daily. Vocab + grammar in the morning. Games at midday. Listen/speak/read/write rotation in the evening. Streaks reinforce habit.</p>
+        <p style="margin-top:10px"><b>Method:</b> 30-45 min daily. Phonics + vocab + grammar in the morning. Games at midday. Listen/speak/read/write rotation in the evening. Review <b>Weak Spots</b> twice a week.</p>
+        <p style="margin-top:8px"><a onclick="App.go('about')" style="color:var(--bleu);cursor:pointer">About · </a><a onclick="App.go('privacy')" style="color:var(--bleu);cursor:pointer">Privacy</a></p>
       </div>
     `;
+  }
+
+  function renderAbout(container) {
+    container.innerHTML = `
+      <div class="hero"><div class="flag-stripes"></div>
+        <h1>À propos · About Bonjour!</h1>
+        <p>An interactive French learning site engineered for one outcome: passing <b>CLB 6</b> in all four modules.</p>
+      </div>
+      <div class="grammar-box">
+        <h3>🎯 What is CLB 6?</h3>
+        <p>The Canadian Language Benchmark (CLB) is the national standard for adult second-language proficiency in Canada. CLB 6 is "Intermediate Initial" — equivalent to roughly B1 on the European CEFR scale. It is the threshold most commonly required for federal job competitions, professional licensing, and Express Entry immigration points.</p>
+        <p>CLB 6 means you can:</p>
+        <ul style="margin-left:20px;line-height:1.8;margin-top:6px">
+          <li><b>Listen</b> — understand moderately complex routine instructions and short discussions on familiar topics.</li>
+          <li><b>Speak</b> — communicate on routine social, work, and study situations; narrate past events and describe future plans.</li>
+          <li><b>Read</b> — understand short routine business letters, advertisements, instructions, and short factual texts on familiar topics.</li>
+          <li><b>Write</b> — write short, simple paragraphs (50-150 words) on familiar topics; fill out forms; write personal emails.</li>
+        </ul>
+      </div>
+      <div class="grammar-box">
+        <h3>📐 The method</h3>
+        <p><b>Pattern first, rule second.</b> Each grammar unit shows examples with the pattern highlighted, THEN states the explicit rule. This matches how children acquire language while keeping the rigor adults need to self-correct.</p>
+        <p><b>Spaced repetition (SM-2).</b> Vocabulary you struggle with is shown more often; mastered words drop into long intervals. No wasted time on what you already know.</p>
+        <p><b>Audio-first vocabulary.</b> Every French word and phrase plays in a neural Canadian French voice (fr-CA-SylvieNeural). Hear it before you read it.</p>
+        <p><b>Weak Spots tracking.</b> Every quiz error is logged. The Mistakes tab surfaces what you got wrong so you can review specifically those items.</p>
+        <p><b>Calibrated to CLB 6 ceiling.</b> No subjunctive imparfait, no passé simple, no literary tenses. Everything in this site is what an immigrant in Quebec or a professional in a francophone workplace actually uses.</p>
+      </div>
+      <div class="grammar-box">
+        <h3>🛤️ The path</h3>
+        <p>The Path is ordered so that each step builds on the previous. Start at lesson 1, work through. If you already know early material, skim it — but the quizzes still need to pass to unlock further units.</p>
+        <p>Daily 30-45 min on the Path → CLB 6 in 3-4 months. Faster if you also consume French media (Radio-Canada, France 24, Quebec series like <em>District 31</em>).</p>
+      </div>
+      <div class="grammar-box">
+        <h3>🔧 Tech</h3>
+        <p>Static site. No accounts. No tracking. All your progress lives in your browser's localStorage. Clear browser data → progress resets. Use the same browser to keep your save.</p>
+        <p>Source code on GitHub. Pull requests welcome.</p>
+      </div>
+      <div class="center" style="margin-top:24px">
+        <button class="btn big" onclick="App.go('home')">← Home</button>
+      </div>`;
+  }
+
+  function renderPrivacy(container) {
+    container.innerHTML = `
+      <div class="hero"><div class="flag-stripes"></div>
+        <h1>🔒 Privacy</h1>
+        <p>What we collect: nothing.</p>
+      </div>
+      <div class="grammar-box">
+        <h3>No accounts. No tracking. No analytics.</h3>
+        <p>This site does not require an account. We do not collect, store, or transmit any personal information to any server.</p>
+        <p>Your progress (XP, lesson completion, SRS schedule, weak-spot mistakes, writing drafts) is stored entirely in your browser's <b>localStorage</b>. It never leaves your device. If you clear your browser data, your progress resets — there is no backup, because there is no server.</p>
+        <p>The audio MP3s for French pronunciation are served from the same domain (Vercel CDN). Standard request logs from the CDN apply per Vercel's privacy policy.</p>
+        <p>Speech recognition for the Speaking module runs entirely in your browser via the Web Speech API. Your microphone audio is processed by your browser's recognition service — usually Google's on Chrome/Edge, Apple's on Safari. We never see or store it.</p>
+      </div>
+      <div class="center" style="margin-top:24px">
+        <button class="btn big" onclick="App.go('home')">← Home</button>
+      </div>`;
   }
 
   function continueNext() {
@@ -147,6 +212,7 @@ window.App = (function () {
     return ({
       vocab: `vocab:${n.deck}`,
       grammar: `grammar:${n.unit}`,
+      phonics: `phonics:${n.unit}`,
       games: `games:${n.game}`,
       listen: `listen:${n.set}`,
       speak: `speak:${n.set}`,

@@ -1,4 +1,4 @@
-// Listening: TTS plays, user types what they hear. Levenshtein-tolerant.
+// Listening Lab: TTS plays, user types. Variable speed (slow/normal/fast).
 window.ListenModule = (function () {
   function lev(a, b) {
     a = a.toLowerCase().replace(/[^a-zà-ÿ0-9 ]/gi, '').trim();
@@ -23,7 +23,7 @@ window.ListenModule = (function () {
     container.innerHTML = `
       <div class="hero"><div class="flag-stripes"></div>
         <h1>🎧 Listening Lab</h1>
-        <p>Hear native-style French. Type what you hear. Improves ear training for CLB Listening.</p>
+        <p>Hear native Canadian French. Type what you hear. Use 🐢 slow first, then build up to 🐇 natural pace.</p>
       </div>
       <div class="grid" id="l-grid"></div>`;
     const grid = container.querySelector('#l-grid');
@@ -48,12 +48,16 @@ window.ListenModule = (function () {
           <h2>🎧 ${s.title}</h2>
           <div class="progress"><div style="width:${(i / s.items.length) * 100}%"></div></div>
           <div class="center">
-            <button class="btn big" id="play">🔊 Play (again)</button>
-            <button class="btn ghost" id="slow">🐢 Slow</button>
+            <div class="row" style="justify-content:center;gap:8px;margin-bottom:8px;flex-wrap:wrap">
+              <button class="btn secondary" data-rate="0.6">🐢 Slow</button>
+              <button class="btn big" data-rate="0.85">🔊 Normal</button>
+              <button class="btn secondary" data-rate="1.0">🐇 Natural</button>
+            </div>
+            <p style="color:var(--mute);font-size:13px">Press a speed to replay the audio.</p>
           </div>
           <div class="spacer"></div>
-          <label>Type what you hear:</label>
-          <input class="input" id="ans" autocomplete="off" autocapitalize="off" spellcheck="false" />
+          <label style="font-weight:600">Type what you hear:</label>
+          <input class="input" id="ans" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="..." />
           <div id="fb"></div>
           <div class="spacer"></div>
           <div class="row" style="justify-content:space-between">
@@ -66,9 +70,10 @@ window.ListenModule = (function () {
         </div>`;
       const inp = container.querySelector('#ans');
       const fb = container.querySelector('#fb');
-      container.querySelector('#play').onclick = () => TTS.speak(it.audio, 0.9);
-      container.querySelector('#slow').onclick = () => TTS.speak(it.audio, 0.6);
-      setTimeout(() => { TTS.speak(it.audio, 0.9); inp.focus(); }, 300);
+      container.querySelectorAll('[data-rate]').forEach(b => {
+        b.onclick = () => TTS.speak(it.audio, parseFloat(b.dataset.rate));
+      });
+      setTimeout(() => { TTS.speak(it.audio, 0.85); inp.focus(); }, 300);
       const check = () => {
         const ans = inp.value.trim();
         if (!ans) return;
@@ -78,14 +83,21 @@ window.ListenModule = (function () {
           App.addXP(8);
           fb.innerHTML = `<div class="feedback good">✓ Correct! <small>${it.audio}</small></div>`;
         } else {
-          fb.innerHTML = `<div class="feedback bad">✗ Not quite. <small>You wrote: <b>${ans}</b><br>Correct: <b>${it.audio}</b></small></div>`;
+          fb.innerHTML = `<div class="feedback bad">✗ Not quite. <small>You wrote: <b>${escapeHTML(ans)}</b><br>Correct: <b>${escapeHTML(it.audio)}</b></small></div>`;
+          MistakesModule.record({
+            type: 'listen',
+            sig: `listen:${setKey}:${i}`,
+            prompt: `Listen and type: <em>(audio)</em>`,
+            correct: it.audio,
+            your: ans,
+          });
         }
-        setTimeout(() => { i++; show(); }, 1800);
+        setTimeout(() => { i++; show(); }, 2000);
       };
       container.querySelector('#submit').onclick = check;
       container.querySelector('#skip').onclick = () => {
-        fb.innerHTML = `<div class="feedback bad">Answer: <b>${it.audio}</b></div>`;
-        setTimeout(() => { i++; show(); }, 1800);
+        fb.innerHTML = `<div class="feedback bad">Answer: <b>${escapeHTML(it.audio)}</b></div>`;
+        setTimeout(() => { i++; show(); }, 2000);
       };
       inp.onkeydown = (e) => { if (e.key === 'Enter') check(); };
     }
@@ -98,6 +110,7 @@ window.ListenModule = (function () {
             <div class="big-icon">${pct >= 70 ? '🎯' : '👂'}</div>
             <h2>Listening Done</h2>
             <p>Score: <b>${correct}/${s.items.length}</b> (${pct}%)</p>
+            <p style="color:var(--mute);margin-top:6px">${pct >= 80 ? 'Your ear is sharp. Try the natural-speed sets next.' : pct >= 50 ? 'Re-listen to the misses at slow speed, then natural.' : 'Slow it down. Build up. Repetition wins this.'}</p>
             <div class="spacer"></div>
             <button class="btn big" onclick="App.go('listen')">More Listening</button>
             <button class="btn ghost big" onclick="App.go('path')">Back to Path</button>
@@ -105,6 +118,10 @@ window.ListenModule = (function () {
         </div>`;
     }
     show();
+  }
+
+  function escapeHTML(s) {
+    return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   }
 
   return {

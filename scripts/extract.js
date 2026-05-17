@@ -5,7 +5,10 @@ const path = require('path');
 global.window = global;
 
 const ROOT = path.join(__dirname, '..');
-['vocab', 'grammar', 'lessons', 'reading', 'listening', 'writing', 'spoken'].forEach(n => {
+// Load base + extra data files so extractor sees everything.
+['vocab', 'vocab_extra', 'grammar', 'grammar_extra', 'lessons',
+ 'reading', 'reading_extra', 'listening', 'listening_extra',
+ 'writing', 'spoken', 'phonics'].forEach(n => {
   require(path.join(ROOT, 'data', n + '.js'));
 });
 
@@ -68,6 +71,13 @@ for (const k of Object.keys(window.SPEAK_SETS)) {
 for (const s of window.SENTENCES) {
   add(s.fr.join(' '));
   s.fr.forEach(add);
+}
+
+// PHONICS — words used in phonics examples
+if (window.PHONICS) for (const u of window.PHONICS) {
+  for (const s of u.sounds) {
+    if (s.word) add(s.word);
+  }
 }
 
 // All sources are curated French content — include everything > 0 chars.

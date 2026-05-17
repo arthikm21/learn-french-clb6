@@ -85,6 +85,13 @@ window.GrammarModule = (function () {
             el.classList.add('wrong');
             container.querySelectorAll('.option')[q.a].classList.add('correct');
             container.querySelector('#fb').innerHTML = `<div class="feedback bad">✗ Not quite. Right answer: <b>${q.opts[q.a]}</b>. ${q.why ? '<small>' + q.why + '</small>' : ''}</div>`;
+            MistakesModule.record({
+              type: 'grammar',
+              sig: `grammar:${u.id}:${qi}`,
+              prompt: `[${u.title}] ${q.q}`,
+              correct: q.opts[q.a],
+              your: q.opts[i],
+            });
           }
           setTimeout(() => {
             qi++;

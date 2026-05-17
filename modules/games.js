@@ -1,85 +1,97 @@
-// Interactive mini-games: gender sort, conjugation race, sentence builder, memory match.
+// Interactive games — all click/tap-based for mobile compatibility.
 window.GamesModule = (function () {
   function renderList(container) {
     container.innerHTML = `
       <div class="hero"><div class="flag-stripes"></div>
         <h1>🎮 Games</h1>
-        <p>Drill the patterns through play. Faster, stickier, more fun than rote review.</p>
+        <p>Drill the patterns through play. All games work on phone, tablet, and desktop.</p>
       </div>
       <div class="grid">
-        <div class="card" onclick="App.go('games', { game: 'gender' })"><div class="icon">⚖️</div><h3>Gender Sort</h3><p>Drag nouns to masculine or feminine. Fastest gender-mastery drill.</p></div>
+        <div class="card" onclick="App.go('games', { game: 'gender' })"><div class="icon">⚖️</div><h3>Gender Sort</h3><p>Tap noun, tap masculin or féminin. Fastest gender-mastery drill.</p></div>
         <div class="card" onclick="App.go('games', { game: 'conjrace' })"><div class="icon">🏁</div><h3>Conjugation Race</h3><p>Type the right verb form before time runs out.</p></div>
         <div class="card" onclick="App.go('games', { game: 'sentence' })"><div class="icon">🧩</div><h3>Sentence Builder</h3><p>Arrange words into correct French sentences.</p></div>
         <div class="card" onclick="App.go('games', { game: 'memory' })"><div class="icon">🧠</div><h3>Memory Match</h3><p>Match French to English. Builds recognition speed.</p></div>
+        <div class="card" onclick="App.go('games', { game: 'translate' })"><div class="icon">🌐</div><h3>Quick Translate</h3><p>See French → pick English meaning. Speed-builds vocab.</p></div>
+        <div class="card" onclick="App.go('games', { game: 'verb' })"><div class="icon">⚡</div><h3>Tense Picker</h3><p>Which tense fits? Pick passé composé, imparfait, futur...</p></div>
       </div>`;
   }
 
-  // -------- Gender Sort --------
+  // -------- Gender Sort (click-to-place) --------
   function genderSort(container) {
     const pool = [];
-    for (const k of ['family', 'food', 'home', 'body', 'time', 'places']) {
-      VOCAB[k].cards.forEach(c => { if (c.g) pool.push({ ...c, deck: k }); });
+    for (const k of Object.keys(VOCAB)) {
+      (VOCAB[k].cards || []).forEach(c => { if (c.g) pool.push({ ...c, deck: k }); });
     }
-    let round = pool.sort(() => Math.random() - 0.5).slice(0, 10);
-    let placed = 0, correct = 0;
+    let round = pool.sort(() => Math.random() - 0.5).slice(0, 12);
+    let i = 0, correct = 0;
 
-    function render() {
+    function show() {
+      if (i >= round.length) return finish();
+      const c = round[i];
+      const noun = c.fr.replace(/^(le |la |l'|les |un |une |des )/, '');
       container.innerHTML = `
         <div class="lesson">
           <h2>⚖️ Gender Sort</h2>
-          <p style="color:var(--mute);margin-bottom:14px">Drag each noun into the correct gender bucket. ${placed}/${round.length} placed.</p>
-          <div class="row" style="gap:14px;align-items:stretch">
-            <div class="dnd-zone" data-g="m" style="flex:1"><h4>🔵 Masculin (le / un)</h4></div>
-            <div class="dnd-zone" data-g="f" style="flex:1"><h4>🔴 Féminin (la / une)</h4></div>
+          <div class="progress"><div style="width:${(i / round.length) * 100}%"></div></div>
+          <div class="row" style="justify-content:space-between;margin-bottom:10px">
+            <span>Score: <b>${correct}</b></span>
+            <span>${i + 1} / ${round.length}</span>
+          </div>
+          <div class="center">
+            <p style="color:var(--mute);font-size:14px">Is this noun masculine or feminine?</p>
+            <div style="font-family:'Fredoka';font-size:48px;margin:20px 0;color:var(--ink)">${c.emoji || '🇫🇷'} ${noun}</div>
+            <button class="btn secondary" id="hear">🔊 Hear pronunciation</button>
           </div>
           <div class="spacer"></div>
-          <div class="dnd-zone" id="pool"><h4>Drag from here</h4>
-            ${round.map((c, i) => `<div class="token ${c.g === 'f' ? 'fem' : ''}" draggable="true" data-i="${i}">${c.fr.replace(/^(le |la |l'|les )/, '')}</div>`).join('')}
+          <div class="row" style="justify-content:center;gap:14px">
+            <button class="btn big" data-g="m" style="background:var(--bleu);min-width:180px;font-size:18px">🔵 Le / un (masc)</button>
+            <button class="btn big" data-g="f" style="background:var(--rouge);min-width:180px;font-size:18px">🔴 La / une (fém)</button>
           </div>
           <div id="fb"></div>
           <div class="spacer"></div>
           <div class="row" style="justify-content:space-between">
-            <button class="btn ghost" onclick="App.go('games')">← Games</button>
-            <button class="btn" id="reset">Reset</button>
+            <button class="btn ghost" onclick="App.go('games')">← Quit</button>
+            <span style="color:var(--mute)">${c.en}</span>
           </div>
         </div>`;
-      container.querySelector('#reset').onclick = () => { placed = 0; correct = 0; round = pool.sort(() => Math.random() - 0.5).slice(0, 10); render(); };
-
-      let dragging = null;
-      container.querySelectorAll('.token').forEach(t => {
-        t.ondragstart = (e) => { dragging = t; e.dataTransfer.effectAllowed = 'move'; };
-      });
-      container.querySelectorAll('.dnd-zone').forEach(z => {
-        z.ondragover = (e) => { e.preventDefault(); z.classList.add('over'); };
-        z.ondragleave = () => z.classList.remove('over');
-        z.ondrop = (e) => {
-          e.preventDefault();
-          z.classList.remove('over');
-          if (!dragging || !z.dataset.g) return;
-          const i = parseInt(dragging.dataset.i);
-          const c = round[i];
-          if (z.dataset.g === c.g) {
-            z.appendChild(dragging);
-            dragging.style.borderColor = 'var(--good)';
+      container.querySelector('#hear').onclick = () => TTS.speak(c.fr);
+      setTimeout(() => TTS.speak(c.fr), 300);
+      container.querySelectorAll('[data-g]').forEach(b => {
+        b.onclick = () => {
+          container.querySelectorAll('[data-g]').forEach(x => x.disabled = true);
+          if (b.dataset.g === c.g) {
             correct++;
             App.addXP(3);
+            container.querySelector('#fb').innerHTML = `<div class="feedback good">✓ Correct! <b>${c.g === 'f' ? 'la' : 'le'} ${noun}</b> — ${c.en}</div>`;
           } else {
-            dragging.style.borderColor = 'var(--bad)';
-            container.querySelector('#fb').innerHTML = `<div class="feedback bad">❌ "${c.fr}" is ${c.g === 'f' ? 'féminin' : 'masculin'} — ${c.en}</div>`;
-            setTimeout(() => { container.querySelector('#fb').innerHTML = ''; }, 1800);
+            container.querySelector('#fb').innerHTML = `<div class="feedback bad">✗ It's ${c.g === 'f' ? '<b>féminin</b>: la' : '<b>masculin</b>: le'} ${noun}</div>`;
+            MistakesModule.record({
+              type: 'gender',
+              sig: `gender:${c.fr}`,
+              prompt: `Gender of <b>${noun}</b>?`,
+              correct: c.g === 'f' ? `la ${noun} (féminin)` : `le ${noun} (masculin)`,
+              your: c.g === 'f' ? `le ${noun}` : `la ${noun}`,
+            });
           }
-          placed++;
-          if (placed >= round.length) {
-            setTimeout(() => {
-              container.querySelector('#fb').innerHTML = `<div class="feedback good">🎉 Round done! ${correct}/${round.length} correct.</div>`;
-              if (correct / round.length >= 0.7) App.markLessonDone('games:gender');
-            }, 300);
-          }
-          dragging = null;
+          setTimeout(() => { i++; show(); }, 1500);
         };
       });
     }
-    render();
+    function finish() {
+      if (correct / round.length >= 0.7) App.markLessonDone('games:gender');
+      container.innerHTML = `
+        <div class="lesson center">
+          <div class="empty">
+            <div class="big-icon">⚖️</div>
+            <h2>Round Complete</h2>
+            <p>Correct: <b>${correct}/${round.length}</b></p>
+            <div class="spacer"></div>
+            <button class="btn big" onclick="App.go('games', { game: 'gender' })">Play Again</button>
+            <button class="btn ghost big" onclick="App.go('games')">Other Games</button>
+          </div>
+        </div>`;
+    }
+    show();
   }
 
   // -------- Conjugation Race --------
@@ -89,14 +101,17 @@ window.GamesModule = (function () {
       { inf: 'manger', subj: 'tu', a: 'manges' }, { inf: 'manger', subj: 'ils', a: 'mangent' },
       { inf: 'aimer', subj: 'elle', a: 'aime' }, { inf: 'aimer', subj: 'vous', a: 'aimez' },
       { inf: 'être', subj: 'je', a: 'suis' }, { inf: 'être', subj: 'nous', a: 'sommes' },
-      { inf: 'être', subj: 'ils', a: 'sont' }, { inf: 'avoir', subj: 'j\'', a: 'ai' },
+      { inf: 'être', subj: 'ils', a: 'sont' }, { inf: 'avoir', subj: "j'", a: 'ai' },
       { inf: 'avoir', subj: 'vous', a: 'avez' }, { inf: 'avoir', subj: 'elles', a: 'ont' },
       { inf: 'aller', subj: 'je', a: 'vais' }, { inf: 'aller', subj: 'nous', a: 'allons' },
       { inf: 'aller', subj: 'tu', a: 'vas' }, { inf: 'faire', subj: 'je', a: 'fais' },
       { inf: 'faire', subj: 'nous', a: 'faisons' }, { inf: 'faire', subj: 'ils', a: 'font' },
+      { inf: 'pouvoir', subj: 'je', a: 'peux' }, { inf: 'pouvoir', subj: 'nous', a: 'pouvons' },
+      { inf: 'vouloir', subj: 'tu', a: 'veux' }, { inf: 'vouloir', subj: 'ils', a: 'veulent' },
+      { inf: 'venir', subj: 'je', a: 'viens' }, { inf: 'venir', subj: 'nous', a: 'venons' },
     ];
     let queue = drills.sort(() => Math.random() - 0.5);
-    let i = 0, correct = 0, time = 60, timer = null;
+    let i = 0, correct = 0, time = 75, timer = null;
 
     function tick() {
       time--;
@@ -116,8 +131,8 @@ window.GamesModule = (function () {
             <span>⏱ <b id="time">${time}</b>s</span>
             <span>${i + 1} / ${queue.length}</span>
           </div>
-          <div class="q-prompt center" style="font-size:28px"><b>${d.subj}</b> ___ <i>(${d.inf})</i></div>
-          <input class="input" id="ans" placeholder="Type the verb..." autocomplete="off" autocapitalize="off" />
+          <div class="q-prompt center" style="font-size:32px"><b>${d.subj}</b> ___ <i style="color:var(--mute);font-size:20px">(${d.inf})</i></div>
+          <input class="input" id="ans" placeholder="Type the verb form..." autocomplete="off" autocapitalize="off" />
           <div id="fb"></div>
           <div class="spacer"></div>
           <div class="row" style="justify-content:space-between">
@@ -135,6 +150,13 @@ window.GamesModule = (function () {
           container.querySelector('#fb').innerHTML = `<div class="feedback good">✓</div>`;
         } else {
           container.querySelector('#fb').innerHTML = `<div class="feedback bad">✗ ${d.subj} <b>${d.a}</b></div>`;
+          MistakesModule.record({
+            type: 'verb',
+            sig: `conj:${d.inf}:${d.subj}`,
+            prompt: `${d.subj} ___ (${d.inf})`,
+            correct: d.a,
+            your: v || '(blank)',
+          });
         }
         setTimeout(() => { i++; show(); }, 700);
       };
@@ -143,13 +165,13 @@ window.GamesModule = (function () {
     }
     function finish() {
       clearInterval(timer);
-      if (correct >= 8) App.markLessonDone('games:conjrace');
+      if (correct >= 10) App.markLessonDone('games:conjrace');
       container.innerHTML = `
         <div class="lesson center">
           <div class="empty">
             <div class="big-icon">🏆</div>
             <h2>Race Done!</h2>
-            <p>Correct: <b>${correct}</b> / ${i || queue.length}</p>
+            <p>Correct: <b>${correct}</b> in ${75 - time}s</p>
             <div class="spacer"></div>
             <button class="btn big" onclick="App.go('games', { game: 'conjrace' })">Race Again</button>
             <button class="btn ghost big" onclick="App.go('games')">Other Games</button>
@@ -160,7 +182,7 @@ window.GamesModule = (function () {
     timer = setInterval(tick, 1000);
   }
 
-  // -------- Sentence Builder --------
+  // -------- Sentence Builder (click-to-move, no drag) --------
   function sentenceBuilder(container) {
     const sentences = window.SENTENCES;
     let i = 0, correct = 0;
@@ -174,10 +196,10 @@ window.GamesModule = (function () {
           <div class="progress"><div style="width:${(i / sentences.length) * 100}%"></div></div>
           <p><b>Translate:</b> "${s.en}"</p>
           <div class="spacer"></div>
-          <div class="dnd-zone" id="answer"><h4>Your sentence</h4></div>
+          <div class="dnd-zone" id="answer"><h4>Your sentence (tap word to remove)</h4></div>
           <div class="spacer"></div>
-          <div class="dnd-zone" id="pool"><h4>Word bank</h4>
-            ${shuffled.map((w, k) => `<div class="token" data-w="${w}" data-k="${k}">${w}</div>`).join('')}
+          <div class="dnd-zone" id="pool"><h4>Word bank (tap to add)</h4>
+            ${shuffled.map((w, k) => `<div class="token" data-w="${escapeAttr(w)}" data-k="${k}">${w}</div>`).join('')}
           </div>
           <div id="fb"></div>
           <div class="spacer"></div>
@@ -195,14 +217,22 @@ window.GamesModule = (function () {
         };
       });
       container.querySelector('#check').onclick = () => {
-        const built = Array.from(answer.querySelectorAll('.token')).map(t => t.dataset.w).join(' ');
+        const built = Array.from(answer.querySelectorAll('.token')).map(t => t.dataset.w).join(' ').replace(/\s+/g, ' ').trim();
         const target = s.fr.join(' ');
-        if (built.toLowerCase() === target.toLowerCase()) {
+        if (built.toLowerCase().replace(/\s+/g, ' ') === target.toLowerCase().replace(/\s+/g, ' ')) {
           correct++;
           App.addXP(10);
-          container.querySelector('#fb').innerHTML = `<div class="feedback good">✓ Parfait! "${target}"</div>`;
+          container.querySelector('#fb').innerHTML = `<div class="feedback good">✓ Parfait!</div>`;
+          TTS.speak(target);
         } else {
-          container.querySelector('#fb').innerHTML = `<div class="feedback bad">✗ You: "${built}"<br>Correct: "${target}"</div>`;
+          container.querySelector('#fb').innerHTML = `<div class="feedback bad">✗ Correct: <b>${target}</b></div>`;
+          MistakesModule.record({
+            type: 'sentence',
+            sig: `sent:${i}`,
+            prompt: `Translate: ${s.en}`,
+            correct: target,
+            your: built || '(empty)',
+          });
         }
         setTimeout(() => { i++; show(); }, 1800);
       };
@@ -216,12 +246,13 @@ window.GamesModule = (function () {
 
   // -------- Memory Match --------
   function memoryMatch(container) {
-    const pool = VOCAB.food.cards.concat(VOCAB.body.cards).concat(VOCAB.colors.cards);
+    const pool = [];
+    for (const k of Object.keys(VOCAB)) (VOCAB[k].cards || []).forEach(c => pool.push(c));
     const pairs = pool.sort(() => Math.random() - 0.5).slice(0, 8);
     const tiles = [];
     pairs.forEach((c, idx) => {
-      tiles.push({ id: idx, side: 'fr', text: c.fr, match: idx });
-      tiles.push({ id: idx, side: 'en', text: c.en, match: idx });
+      tiles.push({ id: idx, side: 'fr', text: c.fr, match: idx, audio: c.fr });
+      tiles.push({ id: idx, side: 'en', text: c.en, match: idx, audio: null });
     });
     tiles.sort(() => Math.random() - 0.5);
     let flipped = [], matched = 0, attempts = 0;
@@ -253,10 +284,11 @@ window.GamesModule = (function () {
       if (flipped.length === 2) return;
       el.classList.add('flipped');
       el.textContent = tiles[k].text;
+      if (tiles[k].audio) TTS.speak(tiles[k].audio);
       flipped.push({ k, el });
       if (flipped.length === 2) {
         attempts++;
-        container.querySelector('#att').textContent = attempts;
+        const att = container.querySelector('#att'); if (att) att.textContent = attempts;
         const [a, b] = flipped;
         if (tiles[a.k].match === tiles[b.k].match && tiles[a.k].side !== tiles[b.k].side) {
           setTimeout(() => {
@@ -280,6 +312,115 @@ window.GamesModule = (function () {
     render();
   }
 
+  // -------- Quick Translate --------
+  function quickTranslate(container) {
+    const pool = [];
+    for (const k of Object.keys(VOCAB)) (VOCAB[k].cards || []).forEach(c => pool.push(c));
+    let queue = pool.sort(() => Math.random() - 0.5).slice(0, 15);
+    let i = 0, correct = 0;
+    function show() {
+      if (i >= queue.length) return finish();
+      const c = queue[i];
+      // 3 wrong distractors
+      const others = pool.filter(p => p.en !== c.en).sort(() => Math.random() - 0.5).slice(0, 3);
+      const opts = [...others.map(o => o.en), c.en].sort(() => Math.random() - 0.5);
+      const correctIdx = opts.indexOf(c.en);
+      container.innerHTML = `
+        <div class="lesson">
+          <h2>🌐 Quick Translate</h2>
+          <div class="progress"><div style="width:${(i / queue.length) * 100}%"></div></div>
+          <div class="row" style="justify-content:space-between"><span>${correct} / ${queue.length}</span><span>${i + 1}</span></div>
+          <div class="center"><div style="font-family:'Fredoka';font-size:40px;margin:20px 0;color:var(--bleu)">${c.fr}</div><button class="btn secondary" id="hear">🔊</button></div>
+          <div class="spacer"></div>
+          <div class="options">${opts.map((o, k) => `<div class="option" data-i="${k}">${o}</div>`).join('')}</div>
+          <div id="fb"></div>
+          <div class="spacer"></div>
+          <div class="row"><button class="btn ghost" onclick="App.go('games')">← Quit</button></div>
+        </div>`;
+      container.querySelector('#hear').onclick = () => TTS.speak(c.fr);
+      setTimeout(() => TTS.speak(c.fr), 200);
+      container.querySelectorAll('.option').forEach(el => {
+        el.onclick = () => {
+          container.querySelectorAll('.option').forEach(x => x.classList.add('disabled'));
+          const sel = parseInt(el.dataset.i);
+          if (sel === correctIdx) {
+            el.classList.add('correct'); correct++; App.addXP(4);
+            container.querySelector('#fb').innerHTML = `<div class="feedback good">✓</div>`;
+          } else {
+            el.classList.add('wrong');
+            container.querySelectorAll('.option')[correctIdx].classList.add('correct');
+            container.querySelector('#fb').innerHTML = `<div class="feedback bad">✗ ${c.fr} = <b>${c.en}</b></div>`;
+            MistakesModule.record({ type: 'vocab', sig: `vocab:${c.fr}`, prompt: `What does <b>${c.fr}</b> mean?`, correct: c.en, your: opts[sel] });
+          }
+          setTimeout(() => { i++; show(); }, 1100);
+        };
+      });
+    }
+    function finish() {
+      if (correct >= queue.length * 0.7) App.markLessonDone('games:translate');
+      container.innerHTML = `<div class="lesson center"><div class="empty"><div class="big-icon">🌐</div><h2>Round Done</h2><p>${correct}/${queue.length} correct</p><div class="spacer"></div><button class="btn big" onclick="App.go('games', { game: 'translate' })">Play Again</button><button class="btn ghost big" onclick="App.go('games')">Other Games</button></div></div>`;
+    }
+    show();
+  }
+
+  // -------- Tense Picker --------
+  function tensePicker(container) {
+    const drills = [
+      { fr: 'Hier, je ___ au parc.', opts: ['vais', 'suis allé', 'irai'], a: 1, why: 'Hier → passé composé.' },
+      { fr: 'Demain je ___ mes parents.', opts: ['visite', 'visitais', 'vais visiter'], a: 2, why: 'Demain → futur proche.' },
+      { fr: 'Quand j\'étais petit, je ___ au foot.', opts: ['joue', 'jouais', 'ai joué'], a: 1, why: 'Habit in past → imparfait.' },
+      { fr: 'Si j\'avais le temps, je ___ plus.', opts: ['lirai', 'lirais', 'lis'], a: 1, why: 'Si + imparfait → conditionnel.' },
+      { fr: 'Il faut que je ___ tôt.', opts: ['pars', 'parte', 'partirai'], a: 1, why: 'Il faut que → subjonctif.' },
+      { fr: 'Quand je suis arrivé, le film ___ commencé.', opts: ['a', 'avait', 'aura'], a: 1, why: 'Earlier-past → plus-que-parfait.' },
+      { fr: 'En ce moment, je ___ la télé.', opts: ['regarde', 'regardais', 'ai regardé'], a: 0, why: 'En ce moment → présent.' },
+      { fr: 'L\'année prochaine, je ___ français couramment.', opts: ['parle', 'parlerai', 'parlerais'], a: 1, why: 'L\'année prochaine → futur simple.' },
+      { fr: 'Il ___ tous les soirs avant 2020.', opts: ['lit', 'lisait', 'a lu'], a: 1, why: 'Tous les soirs (past) → imparfait.' },
+      { fr: 'Si tu étudies, tu ___.', opts: ['réussis', 'réussiras', 'réussirais'], a: 1, why: 'Si + présent → futur simple.' },
+    ];
+    let queue = drills.sort(() => Math.random() - 0.5);
+    let i = 0, correct = 0;
+    function show() {
+      if (i >= queue.length) return finish();
+      const d = queue[i];
+      container.innerHTML = `
+        <div class="lesson">
+          <h2>⚡ Tense Picker</h2>
+          <div class="progress"><div style="width:${(i / queue.length) * 100}%"></div></div>
+          <div class="row" style="justify-content:space-between"><span>Score: <b>${correct}</b></span><span>${i+1}/${queue.length}</span></div>
+          <div class="q-prompt">${d.fr}</div>
+          <div class="options">${d.opts.map((o, k) => `<div class="option" data-i="${k}">${o}</div>`).join('')}</div>
+          <div id="fb"></div>
+          <div class="spacer"></div>
+          <div class="row"><button class="btn ghost" onclick="App.go('games')">← Quit</button></div>
+        </div>`;
+      container.querySelectorAll('.option').forEach(el => {
+        el.onclick = () => {
+          container.querySelectorAll('.option').forEach(x => x.classList.add('disabled'));
+          const sel = parseInt(el.dataset.i);
+          if (sel === d.a) {
+            el.classList.add('correct'); correct++; App.addXP(5);
+            container.querySelector('#fb').innerHTML = `<div class="feedback good">✓ ${d.why}</div>`;
+          } else {
+            el.classList.add('wrong');
+            container.querySelectorAll('.option')[d.a].classList.add('correct');
+            container.querySelector('#fb').innerHTML = `<div class="feedback bad">✗ ${d.why}</div>`;
+            MistakesModule.record({ type: 'tense', sig: `tense:${i}`, prompt: d.fr, correct: d.opts[d.a], your: d.opts[sel] });
+          }
+          setTimeout(() => { i++; show(); }, 1800);
+        };
+      });
+    }
+    function finish() {
+      if (correct >= queue.length * 0.7) App.markLessonDone('games:verb');
+      container.innerHTML = `<div class="lesson center"><div class="empty"><div class="big-icon">⚡</div><h2>Done</h2><p>${correct}/${queue.length}</p><div class="spacer"></div><button class="btn big" onclick="App.go('games', { game: 'verb' })">Again</button><button class="btn ghost big" onclick="App.go('games')">Other</button></div></div>`;
+    }
+    show();
+  }
+
+  function escapeAttr(s) {
+    return String(s).replace(/[&"<>']/g, c => ({'&':'&amp;','"':'&quot;',"'":'&#39;','<':'&lt;','>':'&gt;'}[c]));
+  }
+
   return {
     render(container, params) {
       const g = params && params.game;
@@ -287,6 +428,8 @@ window.GamesModule = (function () {
       if (g === 'conjrace') return conjRace(container);
       if (g === 'sentence') return sentenceBuilder(container);
       if (g === 'memory') return memoryMatch(container);
+      if (g === 'translate') return quickTranslate(container);
+      if (g === 'verb') return tensePicker(container);
       return renderList(container);
     }
   };

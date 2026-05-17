@@ -69,6 +69,13 @@ window.ReadModule = (function () {
             el.classList.add('wrong');
             container.querySelectorAll('.option')[q.a].classList.add('correct');
             container.querySelector('#fb').innerHTML = `<div class="feedback bad">✗ Right answer: <b>${q.opts[q.a]}</b></div>`;
+            MistakesModule.record({
+              type: 'reading',
+              sig: `read:${key}:${qi}`,
+              prompt: `[${t.title}] ${q.q}`,
+              correct: q.opts[q.a],
+              your: q.opts[i],
+            });
           }
           setTimeout(() => { qi++; qi >= t.questions.length ? finish() : showQ(); }, 1300);
         };
