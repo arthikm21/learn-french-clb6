@@ -1,0 +1,75 @@
+// Passé Composé vs Imparfait Decider — the #1 CLB 6 grammar failure point.
+// Dedicated training unit: explains the distinction, then drills mixed contexts.
+window.PC_VS_IMP = {
+  id: 'g30-pc-vs-imp',
+  title: 'Passé Composé vs Imparfait',
+  icon: '⚔️',
+  level: 'B1',
+  intro: `These two past tenses cover different past meanings. <b>Picking the wrong one is the #1 CLB 6 grammar mistake.</b> Master this and your past-tense writing/speaking instantly sounds native.`,
+  framework: [
+    {
+      h: '🟦 Imparfait — the BACKGROUND',
+      use: 'Description, ongoing action, habit in the past, "was/were ...-ing", set the scene.',
+      cues: ['quand j\'étais petit', 'tous les jours', 'autrefois', 'd\'habitude', 'pendant que', 'chaque matin', 'souvent', 'toujours'],
+      examples: [
+        'Quand j\'<em>étais</em> jeune, j\'<em>habitais</em> à Paris. (description)',
+        'Il <em>faisait</em> beau, les oiseaux <em>chantaient</em>. (scene)',
+        'Tous les matins, je <em>buvais</em> un café. (habit)',
+        'Je <em>lisais</em> quand le téléphone a sonné. (ongoing → interrupted)',
+      ],
+    },
+    {
+      h: '🟥 Passé Composé — the EVENT',
+      use: 'Completed action, specific moment, "what happened next" in a story, foreground.',
+      cues: ['hier', 'soudain', 'tout à coup', 'd\'abord', 'puis', 'finalement', 'la semaine dernière', 'l\'année dernière', 'une fois', 'deux fois'],
+      examples: [
+        'Hier, j\'<em>ai mangé</em> au restaurant. (specific event)',
+        'Soudain, le téléphone <em>a sonné</em>. (event)',
+        'Elle <em>est arrivée</em> à 8 h précises. (specific moment)',
+        'L\'année dernière, je <em>suis allé</em> en Italie. (one-time)',
+      ],
+    },
+    {
+      h: '⚔️ Combined: scene + event',
+      use: 'In stories, imparfait paints the picture, passé composé moves the plot.',
+      cues: [],
+      examples: [
+        'Il <em>pleuvait</em> [scene] quand je <em>suis sorti</em> [event].',
+        'J\'<em>étais</em> [scene] fatigué, alors je <em>suis allé</em> [event] au lit.',
+        'Pendant qu\'elle <em>cuisinait</em> [scene], le chat <em>a mangé</em> [event] le poisson.',
+      ],
+    },
+    {
+      h: '🧠 Quick test',
+      use: 'For each verb, ask: "Was this a completed event (PC) or a description/habit (Imp)?"',
+      cues: [],
+      examples: [
+        '"Quand je <b>suis arrivé</b> [event], il <b>regardait</b> [scene] la télé."',
+        '"J\'<b>avais</b> [feeling/state] faim, alors j\'<b>ai mangé</b> [event]."',
+        '"Tous les étés, nous <b>allions</b> [habit] à la mer."',
+      ],
+    },
+  ],
+  drills: [
+    { sentence: 'Hier, je ___ au cinéma. (aller)', pc: 'suis allé', imp: 'allais', correct: 'pc', why: '"Hier" = specific completed event.' },
+    { sentence: 'Quand j\'étais petit, je ___ au foot. (jouer)', pc: 'ai joué', imp: 'jouais', correct: 'imp', why: '"Quand j\'étais petit" + repeated habit.' },
+    { sentence: 'Il ___ beau, alors nous sommes sortis. (faire)', pc: 'a fait', imp: 'faisait', correct: 'imp', why: 'Weather/scene description.' },
+    { sentence: 'Soudain, la porte ___. (s\'ouvrir)', pc: 's\'est ouverte', imp: 's\'ouvrait', correct: 'pc', why: '"Soudain" = punctual event.' },
+    { sentence: 'Je ___ la télé quand tu as appelé. (regarder)', pc: 'ai regardé', imp: 'regardais', correct: 'imp', why: 'Ongoing action interrupted by the call.' },
+    { sentence: 'Hier soir, mon frère ___ deux gâteaux. (manger)', pc: 'a mangé', imp: 'mangeait', correct: 'pc', why: '"Hier soir" + completed quantity.' },
+    { sentence: 'Tous les matins, ma grand-mère ___ son thé. (boire)', pc: 'a bu', imp: 'buvait', correct: 'imp', why: '"Tous les matins" = habit.' },
+    { sentence: 'Quand j\'avais 10 ans, ma famille ___ en Italie. (déménager)', pc: 'a déménagé', imp: 'déménageait', correct: 'pc', why: 'One-time completed move.' },
+    { sentence: 'Le ciel ___ gris et il faisait froid. (être)', pc: 'a été', imp: 'était', correct: 'imp', why: 'Description of the scene.' },
+    { sentence: 'L\'année dernière, je ___ mon diplôme. (obtenir)', pc: 'ai obtenu', imp: 'obtenais', correct: 'pc', why: '"L\'année dernière" + specific event.' },
+    { sentence: 'Pendant qu\'elle dormait, le chat ___ le poisson. (manger)', pc: 'a mangé', imp: 'mangeait', correct: 'pc', why: 'Action that happened while she slept = event.' },
+    { sentence: 'Quand j\'étais étudiant, je ___ peu d\'argent. (avoir)', pc: 'ai eu', imp: 'avais', correct: 'imp', why: 'Description of a past state.' },
+    { sentence: 'Soudain, il ___ qu\'il avait oublié ses clés. (réaliser)', pc: 'a réalisé', imp: 'réalisait', correct: 'pc', why: '"Soudain" + sudden mental event.' },
+    { sentence: 'Avant 2020, mes parents ___ à Montréal. (habiter)', pc: 'ont habité', imp: 'habitaient', correct: 'imp', why: 'Past ongoing state — they lived there for a duration.' },
+    { sentence: 'Je ___ en retard parce qu\'il y avait du trafic. (arriver)', pc: 'suis arrivé', imp: 'arrivais', correct: 'pc', why: 'Specific arrival event.' },
+    { sentence: 'Marie ___ très heureuse de te voir hier. (être)', pc: 'a été', imp: 'était', correct: 'imp', why: 'Description of feeling — even with "hier" because it\'s a state.' },
+    { sentence: 'Pendant les vacances, nous ___ trois musées. (visiter)', pc: 'avons visité', imp: 'visitions', correct: 'pc', why: 'Specific completed activities, even if multiple.' },
+    { sentence: 'Mon grand-père ___ toujours des histoires. (raconter)', pc: 'a raconté', imp: 'racontait', correct: 'imp', why: '"toujours" = repeated/habitual.' },
+    { sentence: 'En arrivant, j\'ai vu qu\'il ___ déjà. (partir)', pc: 'est parti', imp: 'partait', correct: 'pc', why: 'Completed past action before another past — actually plus-que-parfait normally, but PC works as "had left" colloquially.' },
+    { sentence: 'À l\'époque, je ne ___ pas le français. (parler)', pc: 'ai pas parlé', imp: 'parlais', correct: 'imp', why: '"À l\'époque" = state, not event.' },
+  ],
+};

@@ -13,6 +13,9 @@ window.GamesModule = (function () {
         <div class="card" onclick="App.go('games', { game: 'memory' })"><div class="icon">🧠</div><h3>Memory Match</h3><p>Match French to English. Builds recognition speed.</p></div>
         <div class="card" onclick="App.go('games', { game: 'translate' })"><div class="icon">🌐</div><h3>Quick Translate</h3><p>See French → pick English meaning. Speed-builds vocab.</p></div>
         <div class="card" onclick="App.go('games', { game: 'verb' })"><div class="icon">⚡</div><h3>Tense Picker</h3><p>Which tense fits? Pick passé composé, imparfait, futur...</p></div>
+        <div class="card" onclick="App.go('games', { game: 'dictation' })"><div class="icon">📝</div><h3>Dictation Race</h3><p>Hear a sentence, type it within the time limit. Builds ear+spelling.</p></div>
+        <div class="card" onclick="App.go('games', { game: 'errorspot' })"><div class="icon">🔍</div><h3>Spot the Error</h3><p>See a sentence with one mistake — find and fix it.</p></div>
+        <div class="card" onclick="App.go('games', { game: 'anagram' })"><div class="icon">🔤</div><h3>Verb Anagram</h3><p>Scrambled letters → spell the correct verb conjugation.</p></div>
       </div>`;
   }
 
@@ -434,6 +437,217 @@ window.GamesModule = (function () {
     return String(s).replace(/[&"<>']/g, c => ({'&':'&amp;','"':'&quot;',"'":'&#39;','<':'&lt;','>':'&gt;'}[c]));
   }
 
+  // -------- Dictation Race --------
+  function dictationRace(container) {
+    // Pull sentences from listening + dialogue
+    const pool = [];
+    if (window.LISTENING) for (const k of Object.keys(window.LISTENING)) {
+      for (const it of window.LISTENING[k].items) pool.push(it.audio);
+    }
+    if (pool.length === 0) { container.innerHTML = '<div class="lesson"><p>No sentences available.</p></div>'; return; }
+    let queue = pool.sort(() => Math.random() - 0.5).slice(0, 10);
+    let i = 0, correct = 0, time = 120, timer = null, aborted = false;
+    const onHash = () => { if (!location.hash.startsWith('#games')) { aborted = true; clearInterval(timer); window.removeEventListener('hashchange', onHash); } };
+    window.addEventListener('hashchange', onHash);
+
+    function tick() {
+      if (aborted) return;
+      time--;
+      const el = container.querySelector('#dtime');
+      if (el) el.textContent = time;
+      if (time <= 0) { clearInterval(timer); finish(); }
+    }
+    function show() {
+      if (i >= queue.length) return finish();
+      const target = queue[i];
+      container.innerHTML = `
+        <div class="lesson">
+          <h2>📝 Dictation Race</h2>
+          <div class="row" style="justify-content:space-between"><span>Score: <b>${correct}</b></span><span>⏱ <b id="dtime">${time}</b>s</span><span>${i+1}/${queue.length}</span></div>
+          <div class="spacer"></div>
+          <div class="center">
+            <button class="btn big" id="play">🔊 Play (again)</button>
+            <button class="btn secondary" id="slow">🐢 Slow</button>
+          </div>
+          <div class="spacer"></div>
+          <input class="input" id="ans" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Type what you hear..."/>
+          <div id="fb"></div>
+          <div class="spacer"></div>
+          <div class="row" style="justify-content:space-between">
+            <button class="btn ghost" onclick="App.go('games')">← Quit</button>
+            <button class="btn" id="submit">Check (Enter)</button>
+          </div>
+        </div>`;
+      container.querySelector('#play').onclick = () => TTS.speak(target, 0.95);
+      container.querySelector('#slow').onclick = () => TTS.speak(target, 0.65);
+      setTimeout(() => TTS.speak(target, 0.9), 200);
+      const inp = container.querySelector('#ans');
+      inp.focus();
+      const submit = () => {
+        const ans = inp.value.trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9 ]/g,'').replace(/\s+/g,' ').trim();
+        const targ = target.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9 ]/g,'').replace(/\s+/g,' ').trim();
+        if (ans === targ) {
+          correct++;
+          container.querySelector('#fb').innerHTML = `<div class="feedback good">✓ Correct! <small>${target}</small></div>`;
+        } else {
+          container.querySelector('#fb').innerHTML = `<div class="feedback bad">✗ Was: <b>${target}</b></div>`;
+        }
+        setTimeout(() => { i++; show(); }, 1600);
+      };
+      container.querySelector('#submit').onclick = submit;
+      inp.onkeydown = (e) => { if (e.key === 'Enter') submit(); };
+    }
+    function finish() {
+      clearInterval(timer);
+      window.removeEventListener('hashchange', onHash);
+      if (aborted) return;
+      if (correct >= 7) App.markLessonDone('games:dictation');
+      container.innerHTML = `<div class="lesson center"><div class="empty"><div class="big-icon">📝</div><h2>Dictation Done</h2><p>Correct: <b>${correct}/${queue.length}</b> in ${120 - time}s</p><div class="spacer"></div><button class="btn big" onclick="App.go('games', { game: 'dictation' })">Race Again</button><button class="btn ghost big" onclick="App.go('games')">Other Games</button></div></div>`;
+    }
+    show();
+    timer = setInterval(tick, 1000);
+  }
+
+  // -------- Spot the Error --------
+  function errorSpot(container) {
+    const drills = [
+      { wrong: 'Je ai un livre rouge.', correct: "J'ai un livre rouge.", hint: 'Elision required: je + vowel → j\'.' },
+      { wrong: 'Hier, j\'ai allé au parc.', correct: 'Hier, je suis allé au parc.', hint: 'Aller uses être in passé composé.' },
+      { wrong: 'Si je serai riche, je voyagerai.', correct: 'Si je suis riche, je voyagerai.', hint: 'Never use futur after si of condition — use present.' },
+      { wrong: 'Je suis 25 ans.', correct: "J'ai 25 ans.", hint: 'For age, French uses AVOIR.' },
+      { wrong: 'Elle est venu hier.', correct: 'Elle est venue hier.', hint: 'Past participle agrees with subject for être verbs.' },
+      { wrong: 'Un femme habite ici.', correct: 'Une femme habite ici.', hint: 'Femme is feminine — use "une".' },
+      { wrong: 'Le école est fermée.', correct: "L'école est fermée.", hint: 'Elision before vowel: le + é → l\'.' },
+      { wrong: 'Je ne mange.', correct: 'Je ne mange pas.', hint: 'Negation needs both ne AND pas (or jamais/rien/plus).' },
+      { wrong: 'Des chats noir dorment.', correct: 'Des chats noirs dorment.', hint: 'Adjective must agree with plural noun.' },
+      { wrong: 'Quand j\'étais petit, j\'ai joué au foot tous les jours.', correct: 'Quand j\'étais petit, je jouais au foot tous les jours.', hint: 'Tous les jours = habit → imparfait, not passé composé.' },
+      { wrong: 'C\'est meilleur que l\'autre.', correct: 'Il est meilleur que l\'autre.', hint: 'Comparing two things → il/elle est, not c\'est.' },
+      { wrong: 'Il y a un homme qui je connais.', correct: 'Il y a un homme que je connais.', hint: 'Relative pronoun as direct object → que (not qui).' },
+    ];
+    let queue = drills.sort(() => Math.random() - 0.5).slice(0, 8);
+    let i = 0, correct = 0;
+    function show() {
+      if (i >= queue.length) return finish();
+      const d = queue[i];
+      container.innerHTML = `
+        <div class="lesson">
+          <h2>🔍 Spot the Error</h2>
+          <div class="progress"><div style="width:${(i / queue.length) * 100}%"></div></div>
+          <div class="row" style="justify-content:space-between"><span>Score: <b>${correct}</b></span><span>${i+1}/${queue.length}</span></div>
+          <p style="color:var(--mute);margin:14px 0">This sentence has ONE error. Type the corrected sentence below.</p>
+          <div class="grammar-box" style="background:#fee2e2;border-left-color:var(--bad)">
+            <p style="font-size:19px;font-family:'Fredoka',sans-serif;color:var(--bad)">${d.wrong}</p>
+          </div>
+          <input class="input" id="ans" placeholder="Type the corrected version..." autocomplete="off"/>
+          <div class="row" style="margin-top:8px"><button class="btn secondary" id="hint">💡 Hint</button></div>
+          <div id="fb"></div>
+          <div class="spacer"></div>
+          <div class="row" style="justify-content:space-between">
+            <button class="btn ghost" onclick="App.go('games')">← Quit</button>
+            <button class="btn" id="submit">Check</button>
+          </div>
+        </div>`;
+      const inp = container.querySelector('#ans');
+      inp.focus();
+      container.querySelector('#hint').onclick = () => { Toast.info(d.hint, 5000); };
+      const submit = () => {
+        const norm = s => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9 ]/g,'').replace(/\s+/g,' ').trim();
+        if (norm(inp.value) === norm(d.correct)) {
+          correct++;
+          container.querySelector('#fb').innerHTML = `<div class="feedback good">✓ ${d.correct} <br><small>${d.hint}</small></div>`;
+        } else {
+          container.querySelector('#fb').innerHTML = `<div class="feedback bad">✗ Correct: <b>${d.correct}</b><br><small>${d.hint}</small></div>`;
+          MistakesModule.record({ type: 'error-spot', sig: `errspot:${i}`, prompt: d.wrong, correct: d.correct, your: inp.value || '(empty)' });
+        }
+        setTimeout(() => { i++; show(); }, 2400);
+      };
+      container.querySelector('#submit').onclick = submit;
+      inp.onkeydown = (e) => { if (e.key === 'Enter') submit(); };
+    }
+    function finish() {
+      if (correct >= queue.length * 0.6) App.markLessonDone('games:errorspot');
+      container.innerHTML = `<div class="lesson center"><div class="empty"><div class="big-icon">🔍</div><h2>Done</h2><p>${correct}/${queue.length} fixed correctly.</p><div class="spacer"></div><button class="btn big" onclick="App.go('games', { game: 'errorspot' })">Play Again</button><button class="btn ghost big" onclick="App.go('games')">Other Games</button></div></div>`;
+    }
+    show();
+  }
+
+  // -------- Verb Anagram --------
+  function verbAnagram(container) {
+    const drills = [
+      { subj: 'je', inf: 'être', target: 'suis' },
+      { subj: 'tu', inf: 'avoir', target: 'as' },
+      { subj: 'nous', inf: 'aller', target: 'allons' },
+      { subj: 'ils', inf: 'faire', target: 'font' },
+      { subj: 'elle', inf: 'prendre', target: 'prend' },
+      { subj: 'vous', inf: 'venir', target: 'venez' },
+      { subj: 'je', inf: 'pouvoir', target: 'peux' },
+      { subj: 'nous', inf: 'vouloir', target: 'voulons' },
+      { subj: 'il', inf: 'savoir', target: 'sait' },
+      { subj: 'tu', inf: 'voir', target: 'vois' },
+      { subj: 'ils', inf: 'parler', target: 'parlent' },
+      { subj: 'elle', inf: 'finir', target: 'finit' },
+    ];
+    let queue = drills.sort(() => Math.random() - 0.5).slice(0, 8);
+    let i = 0, correct = 0;
+    function show() {
+      if (i >= queue.length) return finish();
+      const d = queue[i];
+      const letters = d.target.split('').sort(() => Math.random() - 0.5);
+      container.innerHTML = `
+        <div class="lesson">
+          <h2>🔤 Verb Anagram</h2>
+          <div class="progress"><div style="width:${(i / queue.length) * 100}%"></div></div>
+          <div class="row" style="justify-content:space-between"><span>Score: <b>${correct}</b></span><span>${i+1}/${queue.length}</span></div>
+          <div class="center" style="margin:18px 0">
+            <p style="font-size:18px;color:var(--mute)">Conjugate:</p>
+            <p style="font-family:'Fredoka',sans-serif;font-size:30px;color:var(--bleu)">${d.subj} ___ <i style="color:var(--mute);font-size:20px">(${d.inf})</i></p>
+          </div>
+          <div class="dnd-zone" id="answer" style="min-height:60px;justify-content:center"><h4 style="text-align:center">Your answer (tap letter to remove)</h4></div>
+          <div class="spacer"></div>
+          <div class="dnd-zone" id="pool" style="justify-content:center"><h4 style="text-align:center">Letters (tap to add)</h4>
+            ${letters.map((l, k) => `<div class="token" data-l="${l}" data-k="${k}" style="min-width:44px;justify-content:center;font-family:'Fredoka';font-size:20px">${l}</div>`).join('')}
+          </div>
+          <div id="fb"></div>
+          <div class="spacer"></div>
+          <div class="row" style="justify-content:space-between">
+            <button class="btn ghost" onclick="App.go('games')">← Quit</button>
+            <div class="row">
+              <button class="btn secondary" id="reset">↺ Reset</button>
+              <button class="btn" id="check">Check</button>
+            </div>
+          </div>
+        </div>`;
+      const pool = container.querySelector('#pool');
+      const answer = container.querySelector('#answer');
+      container.querySelectorAll('.token').forEach(t => {
+        t.onclick = () => {
+          if (t.parentElement === pool) answer.appendChild(t);
+          else pool.appendChild(t);
+        };
+      });
+      container.querySelector('#reset').onclick = () => {
+        container.querySelectorAll('#answer .token').forEach(t => pool.appendChild(t));
+      };
+      container.querySelector('#check').onclick = () => {
+        const built = Array.from(answer.querySelectorAll('.token')).map(t => t.dataset.l).join('');
+        if (built === d.target) {
+          correct++;
+          container.querySelector('#fb').innerHTML = `<div class="feedback good">✓ ${d.subj} ${d.target}</div>`;
+          TTS.speak(d.subj + ' ' + d.target);
+        } else {
+          container.querySelector('#fb').innerHTML = `<div class="feedback bad">✗ Should be <b>${d.target}</b>. (You: ${built || '(empty)'})</div>`;
+          MistakesModule.record({ type: 'verb', sig: `anagram:${d.inf}:${d.subj}`, prompt: `${d.subj} ___ (${d.inf})`, correct: d.target, your: built || '(empty)' });
+        }
+        setTimeout(() => { i++; show(); }, 1700);
+      };
+    }
+    function finish() {
+      if (correct >= queue.length * 0.7) App.markLessonDone('games:anagram');
+      container.innerHTML = `<div class="lesson center"><div class="empty"><div class="big-icon">🔤</div><h2>Done</h2><p>${correct}/${queue.length} correct.</p><div class="spacer"></div><button class="btn big" onclick="App.go('games', { game: 'anagram' })">Play Again</button><button class="btn ghost big" onclick="App.go('games')">Other Games</button></div></div>`;
+    }
+    show();
+  }
+
   return {
     render(container, params) {
       const g = params && params.game;
@@ -443,6 +657,9 @@ window.GamesModule = (function () {
       if (g === 'memory') return memoryMatch(container);
       if (g === 'translate') return quickTranslate(container);
       if (g === 'verb') return tensePicker(container);
+      if (g === 'dictation') return dictationRace(container);
+      if (g === 'errorspot') return errorSpot(container);
+      if (g === 'anagram') return verbAnagram(container);
       return renderList(container);
     }
   };

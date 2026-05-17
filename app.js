@@ -47,6 +47,7 @@ window.App = (function () {
     speak: (c, p) => SpeakModule.render(c, p),
     speaktasks: (c, p) => SpeakTasksModule.render(c, p),
     mock: (c) => MockModule.render(c),
+    pcvsimp: (c) => PCvsImpModule.render(c),
     read: (c, p) => ReadModule.render(c, p),
     write: (c, p) => WriteModule.render(c, p),
     games: (c, p) => GamesModule.render(c, p),
@@ -146,19 +147,33 @@ window.App = (function () {
       </div>
       <div class="spacer"></div>
 
+      <div class="card" onclick="App.go('mock')" style="background:linear-gradient(135deg,#fee2e2,#fef3c7);border:2px solid var(--rouge);cursor:pointer">
+        <div class="row" style="justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px">
+          <div>
+            <h3 style="color:var(--rouge)">🎯 Take the CLB 6 Mock Test</h3>
+            <p style="margin-top:6px">~90 minutes · 4 skills · CLB band estimate at the end. Simulates the real TEF Canada exam structure.</p>
+          </div>
+          <span class="tag" style="background:var(--rouge);color:white">New</span>
+        </div>
+      </div>
+      <div class="spacer"></div>
+
       <h2 style="font-family:'Fredoka';color:var(--bleu);margin-bottom:12px">Explore</h2>
       <div class="grid">
-        <div class="card" onclick="App.go('path')"><div class="icon">🗺️</div><h3>Learning Path</h3><p>92-step ordered path. Each milestone unlocks the next, building CLB 6 systematically.</p></div>
-        <div class="card" onclick="App.go('phonics')"><div class="icon">🔊</div><h3>Phonics & Sounds</h3><p>Master French sounds first — vowels, nasals, R, liaison, elision. 7 units.</p></div>
-        <div class="card" onclick="App.go('vocab')"><div class="icon">🃏</div><h3>Vocabulary Garden</h3><p>20 themed decks, ~365 cards. Spaced repetition schedules your reviews.</p></div>
-        <div class="card" onclick="App.go('grammar')"><div class="icon">📐</div><h3>Grammar Quests</h3><p>22 units from articles to subjunctive. Patterns + rules + quizzes with explanations.</p></div>
-        <div class="card" onclick="App.go('listen')"><div class="icon">🎧</div><h3>Listening Lab</h3><p>10 sets, native Canadian voice. Slow / normal / natural speed control.</p></div>
-        <div class="card" onclick="App.go('speak')"><div class="icon">🎙️</div><h3>Speaking Mirror</h3><p>Mic + word-by-word feedback. See exactly which words to fix.</p></div>
-        <div class="card" onclick="App.go('read')"><div class="icon">📖</div><h3>Reading Quests</h3><p>12 graded texts CLB 3 → 6. Realistic Canadian contexts.</p></div>
-        <div class="card" onclick="App.go('write')"><div class="icon">✍️</div><h3>Writing Workshop</h3><p>8 prompts. Heuristic grader detects errors, estimates CLB band.</p></div>
-        <div class="card" onclick="App.go('games')"><div class="icon">🎮</div><h3>Games</h3><p>Gender Sort, Conjugation Race, Sentence Builder, Memory, Quick Translate, Tense Picker.</p></div>
+        <div class="card" onclick="App.go('path')"><div class="icon">🗺️</div><h3>Learning Path</h3><p>Ordered path through 8 phases. Recommended next step highlighted.</p></div>
+        <div class="card" onclick="App.go('phonics')"><div class="icon">🔊</div><h3>Phonics & Sounds</h3><p>7 units + minimal-pair ear drills (u vs ou, nasals, é vs è, liaison).</p></div>
+        <div class="card" onclick="App.go('vocab')"><div class="icon">🃏</div><h3>Vocabulary Garden</h3><p>28 themed decks, ~570 cards. SRS schedules your reviews automatically.</p></div>
+        <div class="card" onclick="App.go('grammar')"><div class="icon">📐</div><h3>Grammar Quests</h3><p>29 units, A1 → B1. From articles to subjunctive + connectors.</p></div>
+        <div class="card" onclick="App.go('pcvsimp')"><div class="icon">⚔️</div><h3>Passé Composé vs Imparfait</h3><p>The #1 CLB 6 grammar trap. Dedicated decider drill with 12 mixed contexts.</p></div>
+        <div class="card" onclick="App.go('listen')"><div class="icon">🎧</div><h3>Listening Lab</h3><p>15 dictation sets. Slow / normal / natural speed.</p></div>
+        <div class="card" onclick="App.go('dialogue')"><div class="icon">💬</div><h3>Listening Dialogues</h3><p>8 multi-speaker conversations with comprehension questions. CLB exam format.</p></div>
+        <div class="card" onclick="App.go('speak')"><div class="icon">🎙️</div><h3>Speaking Mirror</h3><p>Repeat-the-sentence with word-by-word pronunciation diff.</p></div>
+        <div class="card" onclick="App.go('speaktasks')"><div class="icon">🎤</div><h3>Speaking Tasks</h3><p>Picture description, Q&A, role-play. Open-ended speaking — CLB exam format.</p></div>
+        <div class="card" onclick="App.go('read')"><div class="icon">📖</div><h3>Reading Quests</h3><p>30 graded texts CLB 3 → 6. Emails, ads, news, brochures, fiction.</p></div>
+        <div class="card" onclick="App.go('write')"><div class="icon">✍️</div><h3>Writing Workshop</h3><p>8 prompts. Real grammar checker detects gender, tense, elision errors.</p></div>
+        <div class="card" onclick="App.go('games')"><div class="icon">🎮</div><h3>Games (9)</h3><p>Gender Sort · Conjugation Race · Sentence Builder · Memory · Quick Translate · Tense Picker · Dictation Race · Spot the Error · Verb Anagram.</p></div>
         <div class="card" onclick="App.go('mistakes')"><div class="icon">🎯</div><h3>Weak Spots</h3><p>Every wrong answer logged. Review until mastered, then dismissed.</p></div>
-        <div class="card" onclick="App.go('profile')"><div class="icon">👤</div><h3>Profile</h3><p>Switch user, reset progress, manage your profile on this browser.</p></div>
+        <div class="card" onclick="App.go('profile')"><div class="icon">👤</div><h3>Profile</h3><p>Switch user · reset · dark mode · font size. All saved on this browser.</p></div>
       </div>
 
       <div class="spacer"></div>

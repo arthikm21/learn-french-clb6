@@ -59,6 +59,90 @@ window.PhonicsModule = (function () {
       App.markLessonDone(`phonics:${u.id}`);
       App.go('phonics');
     };
+    // If this unit has a minimal-pair drill, add a button to launch it
+    const mp = window.MIN_PAIRS && window.MIN_PAIRS[u.id];
+    if (mp) {
+      const btnRow = container.querySelector('.row:last-child');
+      const btn = document.createElement('button');
+      btn.className = 'btn secondary';
+      btn.textContent = '🎧 Minimal-pair ear drill';
+      btn.onclick = () => renderMinPairDrill(container, u.id);
+      btnRow.insertBefore(btn, btnRow.querySelector('#done'));
+    }
+  }
+
+  // Minimal-pair ear drill: hear one word, pick which one.
+  function renderMinPairDrill(container, unitId) {
+    const mp = window.MIN_PAIRS[unitId];
+    let i = 0, correct = 0;
+    let queue = [...mp.pairs].sort(() => Math.random() - 0.5);
+    function show() {
+      if (i >= queue.length) return finish();
+      const p = queue[i];
+      const isA = Math.random() < 0.5;
+      const target = isA ? p.a : p.b;
+      container.innerHTML = `
+        <div class="lesson">
+          <h2>🎧 ${mp.title}</h2>
+          <p style="color:var(--mute);font-size:14px">${mp.desc}</p>
+          <div class="progress"><div style="width:${(i / queue.length) * 100}%"></div></div>
+          <div class="row" style="justify-content:space-between"><span>Score: <b>${correct}</b></span><span>${i + 1}/${queue.length}</span></div>
+          <div class="spacer"></div>
+          <p class="center" style="color:var(--mute);font-size:14px">Which word do you hear?</p>
+          <div class="center">
+            <button class="btn big" id="replay">🔊 Hear again</button>
+          </div>
+          <div class="spacer"></div>
+          <div class="options" style="grid-template-columns:1fr 1fr">
+            <div class="option" data-pick="a">
+              <div style="font-family:'Fredoka',sans-serif;font-size:26px;color:var(--bleu)">${p.a}</div>
+              <div style="font-size:12px;color:var(--mute);margin-top:4px">${p.meanA}</div>
+            </div>
+            <div class="option" data-pick="b">
+              <div style="font-family:'Fredoka',sans-serif;font-size:26px;color:var(--rouge)">${p.b}</div>
+              <div style="font-size:12px;color:var(--mute);margin-top:4px">${p.meanB}</div>
+            </div>
+          </div>
+          <div id="fb"></div>
+          <div class="spacer"></div>
+          <div class="row"><button class="btn ghost" onclick="App.go('phonics', { unit: '${unitId}' })">← Back</button></div>
+        </div>`;
+      container.querySelector('#replay').onclick = () => TTS.speak(target, 0.85);
+      setTimeout(() => TTS.speak(target, 0.85), 300);
+      container.querySelectorAll('.option').forEach(el => {
+        el.onclick = () => {
+          container.querySelectorAll('.option').forEach(x => x.classList.add('disabled'));
+          const pick = el.dataset.pick;
+          const right = (pick === 'a' && isA) || (pick === 'b' && !isA);
+          if (right) {
+            el.classList.add('correct');
+            correct++;
+            container.querySelector('#fb').innerHTML = `<div class="feedback good">✓ Correct: <b>${target}</b></div>`;
+          } else {
+            el.classList.add('wrong');
+            container.querySelectorAll('.option').forEach(x => { if ((x.dataset.pick === 'a' && isA) || (x.dataset.pick === 'b' && !isA)) x.classList.add('correct'); });
+            container.querySelector('#fb').innerHTML = `<div class="feedback bad">✗ Was actually <b>${target}</b></div>`;
+          }
+          setTimeout(() => { i++; show(); }, 1700);
+        };
+      });
+    }
+    function finish() {
+      const pct = Math.round((correct / queue.length) * 100);
+      if (pct >= 75) App.markLessonDone(`phonics:${unitId}-minpairs`);
+      container.innerHTML = `
+        <div class="lesson center">
+          <div class="empty">
+            <div class="big-icon">${pct >= 75 ? '👂' : '🔁'}</div>
+            <h2>${pct >= 75 ? 'Sharp ear!' : 'More practice needed'}</h2>
+            <p>${correct}/${queue.length} correct (${pct}%)</p>
+            <div class="spacer"></div>
+            <button class="btn big" onclick="App.go('phonics', { unit: '${unitId}' })">Back to unit</button>
+            <button class="btn ghost big" onclick="App.go('phonics')">All phonics</button>
+          </div>
+        </div>`;
+    }
+    show();
   }
 
   return {
