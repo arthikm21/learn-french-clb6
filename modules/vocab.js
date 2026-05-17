@@ -18,7 +18,7 @@ window.VocabModule = (function () {
         <h3>${d.name}</h3>
         <p>${d.cards.length} cards · ${p.learned}/${p.total} learned</p>
         <div class="meter"><div style="width:${p.pct}%"></div></div>`;
-      card.onclick = () => renderStudy(container, key);
+      card.onclick = () => App.go('vocab', { deck: key });
       grid.appendChild(card);
     }
   }
@@ -80,7 +80,7 @@ window.VocabModule = (function () {
       container.querySelector('#play').onclick = (e) => { e.stopPropagation(); TTS.speak(c.fr); };
       // auto-play on appear
       setTimeout(() => TTS.speak(c.fr), 250);
-      container.querySelector('#back').onclick = () => renderDeckPicker(container);
+      container.querySelector('#back').onclick = () => App.go('vocab');
       container.querySelectorAll('[data-q]').forEach(b => b.onclick = () => {
         SRS.review(deckKey, c.fr, parseInt(b.dataset.q));
         App.addXP(b.dataset.q >= '4' ? 5 : 2);

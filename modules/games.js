@@ -111,9 +111,20 @@ window.GamesModule = (function () {
       { inf: 'venir', subj: 'je', a: 'viens' }, { inf: 'venir', subj: 'nous', a: 'venons' },
     ];
     let queue = drills.sort(() => Math.random() - 0.5);
-    let i = 0, correct = 0, time = 75, timer = null;
+    let i = 0, correct = 0, time = 75, timer = null, aborted = false;
+
+    // Stop timer if user navigates away mid-race.
+    const onHash = () => {
+      if (!location.hash.startsWith('#games')) {
+        aborted = true;
+        clearInterval(timer);
+        window.removeEventListener('hashchange', onHash);
+      }
+    };
+    window.addEventListener('hashchange', onHash);
 
     function tick() {
+      if (aborted) return;
       time--;
       const el = container.querySelector('#time');
       if (el) el.textContent = time;
@@ -165,6 +176,8 @@ window.GamesModule = (function () {
     }
     function finish() {
       clearInterval(timer);
+      window.removeEventListener('hashchange', onHash);
+      if (aborted) return; // user navigated away — don't overwrite their current view
       if (correct >= 10) App.markLessonDone('games:conjrace');
       container.innerHTML = `
         <div class="lesson center">

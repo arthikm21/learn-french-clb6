@@ -13,7 +13,7 @@ window.WriteModule = (function () {
       const card = document.createElement('div');
       card.className = 'card';
       card.innerHTML = `<div class="icon">✍️</div><h3>${t.title}</h3><p><span class="tag">${t.level}</span></p>`;
-      card.onclick = () => renderPrompt(container, k);
+      card.onclick = () => App.go('write', { prompt: k });
       grid.appendChild(card);
     }
   }

@@ -51,7 +51,7 @@ window.SpeakModule = (function () {
       const card = document.createElement('div');
       card.className = 'card';
       card.innerHTML = `<div class="icon">🎙️</div><h3>${s.title}</h3><p><span class="tag">${s.level || ''}</span></p><p style="margin-top:8px">${s.items.length} sentences</p>`;
-      card.onclick = () => renderSet(container, k);
+      card.onclick = () => App.go('speak', { set: k });
       grid.appendChild(card);
     }
   }

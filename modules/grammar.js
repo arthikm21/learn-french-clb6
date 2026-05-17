@@ -17,7 +17,7 @@ window.GrammarModule = (function () {
         <h3>${u.title}</h3>
         <p><span class="tag">${u.level}</span> ${done ? '<span class="tag" style="background:#dcfce7;color:var(--good)">✓ Done</span>' : ''}</p>
         <p style="margin-top:8px">${u.rules.length} rules · ${u.quiz.length} questions</p>`;
-      card.onclick = () => renderUnit(container, u.id);
+      card.onclick = () => App.go('grammar', { unit: u.id });
       grid.appendChild(card);
     }
   }

@@ -66,7 +66,9 @@ window.App = (function () {
     if (params && Object.keys(params).length) {
       hash += '?' + Object.entries(params).map(([k, v]) => `${k}=${encodeURIComponent(v)}`).join('&');
     }
-    location.hash = hash;
+    // If hash didn't change, force re-render (hashchange event won't fire).
+    if (location.hash === hash) renderActive();
+    else location.hash = hash;
   }
 
   function renderActive() {

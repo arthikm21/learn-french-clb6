@@ -13,7 +13,7 @@ window.ReadModule = (function () {
       const card = document.createElement('div');
       card.className = 'card';
       card.innerHTML = `<div class="icon">📖</div><h3>${t.title}</h3><p><span class="tag">${t.level}</span></p><p style="margin-top:8px">${t.questions.length} questions</p>`;
-      card.onclick = () => renderText(container, k);
+      card.onclick = () => App.go('read', { text: k });
       grid.appendChild(card);
     }
   }

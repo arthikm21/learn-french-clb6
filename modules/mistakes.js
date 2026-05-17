@@ -43,8 +43,8 @@ window.MistakesModule = (function () {
     }
     container.innerHTML = `
       <div class="hero"><div class="flag-stripes"></div>
-        <h1>🎯 Weak Spots — ${mistakes.length} items</h1>
-        <p>Your top mistakes. Click <b>Review</b> to retry — getting it right twice removes it.</p>
+        <h1>🎯 Weak Spots — ${mistakes.length} item${mistakes.length === 1 ? '' : 's'}</h1>
+        <p>Your top mistakes. Click <b>Review all</b> to retry — getting one right removes it.</p>
       </div>
       <div class="row" style="margin-bottom:14px">
         <button class="btn big" id="review-all">🔁 Review all (${mistakes.length})</button>

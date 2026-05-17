@@ -16,7 +16,7 @@ window.PhonicsModule = (function () {
         <div class="icon">${u.icon}</div>
         <h3>${u.title}</h3>
         <p>${u.sounds.length} sounds${done ? ' · <span class="tag" style="background:#dcfce7;color:var(--good)">✓ Done</span>' : ''}</p>`;
-      card.onclick = () => renderUnit(container, u.id);
+      card.onclick = () => App.go('phonics', { unit: u.id });
       grid.appendChild(card);
     }
   }
