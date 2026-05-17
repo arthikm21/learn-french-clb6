@@ -1,10 +1,14 @@
 // Neural French TTS. Plays pre-generated MP3s (Edge TTS / fr-CA-SylvieNeural).
-// Falls back to browser SpeechSynthesis only if manifest miss + audio file 404s.
+// Falls back to browser SpeechSynthesis if audio unavailable.
+// iOS Safari requires a user gesture to start audio playback — we unlock on first tap.
 window.TTS = (function () {
   let manifest = null;
   let manifestPromise = null;
   let currentAudio = null;
   let fallbackVoice = null;
+  let audioUnlocked = false;
+  const IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
   function loadManifest() {
     if (manifest) return Promise.resolve(manifest);
@@ -15,10 +19,39 @@ window.TTS = (function () {
       .catch(() => { manifest = {}; return manifest; });
     return manifestPromise;
   }
-  // Kick off on load
   if (typeof window !== 'undefined') loadManifest();
 
-  // Mirror extractor normalization
+  // Unlock audio context on first user interaction (iOS Safari requirement).
+  function unlock() {
+    if (audioUnlocked) return;
+    audioUnlocked = true;
+    try {
+      const a = new Audio();
+      a.src = 'data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4LjI5LjEwMAAAAAAAAAAAAAAA//tQwAAAAAAAAAAAAAAAAAAAAAAASW5mbwAAAA8AAAACAAACcQCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgP////////////////////////////////////////////////////////////////8AAAAATGF2YzU4LjU0AAAAAAAAAAAAAAAAJAAAAAAAAAAAAnEpr8htAAAAAAAAAAAAAAAAAAAA//sQwAADwAABpAAAACAAADSAAAAETEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sQwCgAAAAAAAAAAAAAAAAAAAAAVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sQwFVH/8QAAAAAAAAAAAAAAAAAVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sQwP/H/8QAAAAAAAAAAAAAAAAAVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV';
+      a.play().then(() => { a.pause(); }).catch(() => {});
+    } catch {}
+    // Also unlock SpeechSynthesis on iOS (no-op but registers gesture).
+    if ('speechSynthesis' in window) {
+      try {
+        const u = new SpeechSynthesisUtterance('');
+        speechSynthesis.speak(u);
+        speechSynthesis.cancel();
+      } catch {}
+    }
+  }
+  // Attach gesture listener to unlock audio.
+  if (typeof window !== 'undefined') {
+    const unlockOnce = () => {
+      unlock();
+      window.removeEventListener('touchstart', unlockOnce);
+      window.removeEventListener('mousedown', unlockOnce);
+      window.removeEventListener('keydown', unlockOnce);
+    };
+    window.addEventListener('touchstart', unlockOnce, { once: false, passive: true });
+    window.addEventListener('mousedown', unlockOnce, { once: false, passive: true });
+    window.addEventListener('keydown', unlockOnce, { once: false, passive: true });
+  }
+
   function normalize(text) {
     if (!text) return '';
     let t = String(text).replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
@@ -63,26 +96,26 @@ window.TTS = (function () {
     stop();
     const key = normalize(text);
     if (!key) return;
+    // On iOS, if audio not yet unlocked by user gesture, skip silent auto-plays.
+    if (IS_IOS && !audioUnlocked) return;
     const m = await loadManifest();
     const src = m[key];
     if (src) {
       try {
         const a = new Audio(src);
         a.playbackRate = rate;
+        a.preload = 'auto';
         currentAudio = a;
         await a.play();
         return;
       } catch (e) {
-        // Audio play failed (autoplay block, network) — fall through to TTS
+        // Autoplay block, network, or codec — fall through.
       }
     }
-    // Slower rate for fallback because browser voices read fast
     fallbackSpeak(text, rate * 0.9);
   }
 
-  function available() {
-    return true; // always: we have MP3s, and SpeechSynthesis as fallback
-  }
+  function available() { return true; }
 
-  return { speak, stop, available };
+  return { speak, stop, available, isIOS: () => IS_IOS };
 })();

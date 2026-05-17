@@ -266,10 +266,36 @@ window.App = (function () {
     return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   }
 
+  // -------- Mobile nav toggle --------
+  function setupMobileNav() {
+    const ham = document.getElementById('hamburger');
+    const nav = document.getElementById('nav');
+    const backdrop = document.getElementById('nav-backdrop');
+    if (!ham || !nav || !backdrop) return;
+    function close() {
+      nav.classList.remove('open');
+      backdrop.classList.remove('open');
+      ham.setAttribute('aria-expanded', 'false');
+    }
+    function toggle() {
+      const open = !nav.classList.contains('open');
+      nav.classList.toggle('open', open);
+      backdrop.classList.toggle('open', open);
+      ham.setAttribute('aria-expanded', String(open));
+    }
+    ham.addEventListener('click', toggle);
+    backdrop.addEventListener('click', close);
+    nav.addEventListener('click', (e) => {
+      if (e.target.closest('a[data-route]')) close();
+    });
+    window.addEventListener('hashchange', close);
+  }
+
   // -------- Init --------
   function init() {
     window.Storage.migrateLegacy();
     load();
+    setupMobileNav();
     refreshTopbar();
     document.querySelectorAll('[data-route]').forEach(el => {
       el.onclick = () => go(el.dataset.route);

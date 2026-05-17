@@ -2,19 +2,34 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5" />
+  <meta name="theme-color" content="#0055A4" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Bonjour!" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="format-detection" content="telephone=no" />
+  <meta name="description" content="Interactive French learning targeting CLB 6 — phonics, vocabulary, grammar, listening, speaking, reading, writing. Native Canadian French audio." />
   <title>Bonjour! — Learn French to CLB 6</title>
   <link rel="stylesheet" href="styles.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
   <header class="topbar">
+    <button class="hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
     <div class="brand" data-route="home">
       <span class="logo">🐓</span>
       <span class="brand-name">Bonjour!</span>
     </div>
-    <nav class="nav">
+    <div class="stats">
+      <span class="stat" title="Progress"><b id="progress-done">0</b>/<b id="progress-total">0</b></span>
+      <span class="stat" id="user-chip" title="Profile" style="cursor:pointer">👤 ...</span>
+    </div>
+    <nav class="nav" id="nav">
       <a data-route="home">Home</a>
       <a data-route="path">Path</a>
       <a data-route="phonics">Phonics</a>
@@ -27,11 +42,8 @@
       <a data-route="games">Games</a>
       <a data-route="mistakes">Mistakes</a>
     </nav>
-    <div class="stats">
-      <span class="stat" title="Progress"><b id="progress-done">0</b>/<b id="progress-total">0</b></span>
-      <span class="stat" id="user-chip" title="Profile" style="cursor:pointer">👤 ...</span>
-    </div>
   </header>
+  <div class="nav-backdrop" id="nav-backdrop"></div>
 
   <main id="app"></main>
 
