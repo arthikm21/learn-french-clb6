@@ -19,7 +19,7 @@ window.TTS = (function () {
       .catch(() => { manifest = {}; return manifest; });
     return manifestPromise;
   }
-  if (typeof window !== 'undefined') loadManifest();
+  // Manifest is lazy: only fetched on first speak() call.
 
   // Unlock audio context on first user interaction (iOS Safari requirement).
   function unlock() {

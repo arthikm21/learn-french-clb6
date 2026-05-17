@@ -291,9 +291,23 @@ window.App = (function () {
     window.addEventListener('hashchange', close);
   }
 
+  // -------- Theme --------
+  function loadTheme() {
+    const t = localStorage.getItem('fr_theme_v1');
+    if (t === 'dark' || (!t && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.body.classList.add('dark');
+    }
+  }
+  function toggleTheme() {
+    const dark = document.body.classList.toggle('dark');
+    localStorage.setItem('fr_theme_v1', dark ? 'dark' : 'light');
+    return dark;
+  }
+
   // -------- Init --------
   function init() {
     window.Storage.migrateLegacy();
+    loadTheme();
     load();
     setupMobileNav();
     refreshTopbar();
@@ -310,5 +324,5 @@ window.App = (function () {
 
   document.addEventListener('DOMContentLoaded', init);
 
-  return { state, go, addXP, markLessonDone, continueNext, reloadForUser };
+  return { state, go, addXP, markLessonDone, continueNext, reloadForUser, toggleTheme };
 })();

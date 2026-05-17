@@ -99,6 +99,23 @@ window.ProfileModule = (function () {
     return String(name || '').trim().replace(/[^a-zA-Z0-9_\- ]/g, '').slice(0, 24);
   }
 
+  function adjustFontSize(delta) {
+    const sizes = [14, 15, 16, 17, 18, 20];
+    let cur = parseInt(localStorage.getItem('fr_fontsize_v1') || '16');
+    let idx = sizes.indexOf(cur);
+    if (idx < 0) idx = 2;
+    idx = Math.max(0, Math.min(sizes.length - 1, idx + delta));
+    cur = sizes[idx];
+    localStorage.setItem('fr_fontsize_v1', String(cur));
+    document.documentElement.style.setProperty('font-size', cur + 'px');
+    Toast.info('Text size: ' + cur + 'px');
+  }
+  function applySavedFontSize() {
+    const s = localStorage.getItem('fr_fontsize_v1');
+    if (s) document.documentElement.style.setProperty('font-size', s + 'px');
+  }
+  applySavedFontSize();
+
   function renderWelcome(container) {
     const existing = Storage.listUsers();
     container.innerHTML = `
@@ -131,6 +148,10 @@ window.ProfileModule = (function () {
       const name = sanitize(inp.value);
       if (!name) { err.textContent = 'Please type a username.'; return; }
       if (name.length < 2) { err.textContent = 'Username must be at least 2 characters.'; return; }
+      const existing = Storage.listUsers().includes(name);
+      if (existing) {
+        if (!confirm(`A profile named "${name}" already exists on this browser. Continue as that profile?\n\nClick OK to load the existing profile, or Cancel to pick a different name.`)) return;
+      }
       Storage.addUser(name);
       Storage.setCurrentUser(name);
       App.reloadForUser();
@@ -161,6 +182,15 @@ window.ProfileModule = (function () {
         <p style="color:var(--mute);margin-top:6px">Username: <b>${escapeHTML(cur)}</b></p>
       </div>
 
+      <div class="grammar-box" style="background:#f9fafb">
+        <h3>🌗 Appearance</h3>
+        <p style="color:var(--mute);font-size:14px">Toggle dark mode. Preference is saved on this device.</p>
+        <div class="spacer"></div>
+        <button class="btn secondary" id="theme-toggle">Toggle dark mode</button>
+        <button class="btn secondary" id="font-up" style="margin-left:6px">A+</button>
+        <button class="btn secondary" id="font-down">A−</button>
+      </div>
+
       <div class="grammar-box">
         <h3>🔄 Switch user</h3>
         <p style="color:var(--mute);font-size:14px">Use a different profile on this browser.</p>
@@ -188,6 +218,13 @@ window.ProfileModule = (function () {
       <div class="center" style="margin-top:24px">
         <button class="btn ghost" onclick="App.go('home')">← Home</button>
       </div>`;
+
+    container.querySelector('#theme-toggle').onclick = () => {
+      const dark = App.toggleTheme();
+      Toast.info(dark ? 'Dark mode on' : 'Light mode on');
+    };
+    container.querySelector('#font-up').onclick = () => adjustFontSize(1);
+    container.querySelector('#font-down').onclick = () => adjustFontSize(-1);
 
     container.querySelectorAll('[data-switch]').forEach(b => {
       b.onclick = () => {

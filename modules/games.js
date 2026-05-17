@@ -310,7 +310,7 @@ window.GamesModule = (function () {
             App.addXP(4);
             if (matched === tiles.length / 2) {
               App.markLessonDone('games:memory');
-              setTimeout(() => alert(`🎉 Done in ${attempts} attempts!`), 400);
+              setTimeout(() => Toast.good(`🎉 Done in ${attempts} attempts!`, 3500), 400);
             }
           }, 350);
         } else {

@@ -1,7 +1,33 @@
 // Simple SM-2 spaced repetition. Persists per-card state in localStorage.
 window.SRS = (function () {
-  function load() { try { return JSON.parse(window.Storage.getItem('srs')) || {}; } catch { return {}; } }
-  function save(s) { window.Storage.setItem('srs', JSON.stringify(s)); }
+  let cache = null;
+  let saveTimer = null;
+  function load() {
+    if (cache) return cache;
+    try { cache = JSON.parse(window.Storage.getItem('srs')) || {}; } catch { cache = {}; }
+    return cache;
+  }
+  function save(s) {
+    cache = s;
+    if (saveTimer) clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
+      window.Storage.setItem('srs', JSON.stringify(s));
+      saveTimer = null;
+    }, 200);
+  }
+  // Flush pending write on tab close / hide (mobile back-swipe).
+  if (typeof window !== 'undefined') {
+    const flush = () => {
+      if (saveTimer && cache) {
+        clearTimeout(saveTimer);
+        window.Storage.setItem('srs', JSON.stringify(cache));
+        saveTimer = null;
+      }
+    };
+    window.addEventListener('beforeunload', flush);
+    window.addEventListener('pagehide', flush);
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') flush(); });
+  }
 
   function cardId(deck, fr) { return deck + ':' + fr; }
 

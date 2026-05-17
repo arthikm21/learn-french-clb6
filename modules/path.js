@@ -1,21 +1,19 @@
-// Learning path — soft-ordered (clickable anywhere, but recommends next).
+// Learning path — phases collapse when complete, expand current + remaining.
 window.PathModule = (function () {
   function render(container) {
-    const lessons = App.state.lessons;
     const completed = LESSON_PATH.filter(n => isDone(n)).length;
     const nextIdx = LESSON_PATH.findIndex(n => !isDone(n));
 
     container.innerHTML = `
       <div class="hero"><div class="flag-stripes"></div>
         <h1>🗺️ Your Path to CLB 6</h1>
-        <p>${completed} / ${LESSON_PATH.length} milestones complete. Click any lesson — recommended next is highlighted.</p>
+        <p>${completed} / ${LESSON_PATH.length} milestones complete. Click any lesson — your next recommended step is highlighted.</p>
         <div class="meter" style="background:rgba(255,255,255,.3);margin-top:14px;height:10px"><div style="width:${(completed / LESSON_PATH.length) * 100}%;background:white;height:100%;border-radius:999px"></div></div>
       </div>
       <div id="phases"></div>`;
 
     const phases = container.querySelector('#phases');
 
-    // Group lessons into 8 phases for readability
     const phaseRanges = [
       { name: '1. Foundation — Sounds & Greetings', start: 1, end: 8 },
       { name: '2. Core Grammar A1', start: 9, end: 19 },
@@ -27,18 +25,31 @@ window.PathModule = (function () {
       { name: '8. CLB 6 Mocks 🎯', start: 85, end: 92 },
     ];
 
-    for (const ph of phaseRanges) {
+    // Find current phase (contains next lesson)
+    const currentPhaseIdx = (() => {
+      if (nextIdx < 0) return phaseRanges.length - 1;
+      const id = LESSON_PATH[nextIdx].id;
+      return phaseRanges.findIndex(p => id >= p.start && id <= p.end);
+    })();
+
+    phaseRanges.forEach((ph, phIdx) => {
       const items = LESSON_PATH.filter(n => n.id >= ph.start && n.id <= ph.end);
-      if (items.length === 0) continue;
+      if (items.length === 0) return;
       const phDone = items.filter(isDone).length;
-      const phSec = document.createElement('div');
-      phSec.style.marginBottom = '20px';
+      const isCurrent = phIdx === currentPhaseIdx;
+      const allDone = phDone === items.length;
+      // Collapse phases that are complete AND before current. Keep current and future expanded.
+      const collapsed = allDone && phIdx < currentPhaseIdx;
+
+      const phSec = document.createElement('details');
+      phSec.style.marginBottom = '14px';
+      if (!collapsed) phSec.open = true;
       phSec.innerHTML = `
-        <h3 style="font-family:'Fredoka';color:var(--bleu);margin:18px 0 10px;display:flex;justify-content:space-between;align-items:center">
-          <span>${ph.name}</span>
-          <span style="font-size:14px;color:var(--mute);font-family:'Nunito';font-weight:600">${phDone}/${items.length}</span>
-        </h3>
-        <div class="path-list"></div>`;
+        <summary style="cursor:pointer;list-style:none;padding:12px 16px;background:${allDone ? '#dcfce7' : (isCurrent ? '#fef3c7' : 'var(--card)')};border-radius:12px;font-family:'Fredoka',sans-serif;color:${allDone ? 'var(--good)' : 'var(--bleu)'};font-size:17px;display:flex;justify-content:space-between;align-items:center;box-shadow:var(--shadow);user-select:none">
+          <span>${allDone ? '✅' : (isCurrent ? '▶' : '◯')} ${ph.name}</span>
+          <span style="font-family:'Nunito';font-weight:700;font-size:14px;color:var(--mute)">${phDone}/${items.length}</span>
+        </summary>
+        <div class="path-list" style="padding-top:10px"></div>`;
       const list = phSec.querySelector('.path-list');
       items.forEach((n) => {
         const done = isDone(n);
@@ -51,8 +62,7 @@ window.PathModule = (function () {
           <div class="info">
             <h4>${n.title} ${isNext ? '<span class="tag" style="background:var(--rouge);color:white">▶ NEXT</span>' : ''}</h4>
             <p>${n.desc}</p>
-          </div>
-          <div class="badge">+${n.xp} XP</div>`;
+          </div>`;
         node.onclick = () => {
           const params = {};
           if (n.deck) params.deck = n.deck;
@@ -66,7 +76,7 @@ window.PathModule = (function () {
         list.appendChild(node);
       });
       phases.appendChild(phSec);
-    }
+    });
   }
 
   function isDone(n) {
