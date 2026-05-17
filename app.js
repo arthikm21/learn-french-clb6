@@ -48,6 +48,7 @@ window.App = (function () {
     speaktasks: (c, p) => SpeakTasksModule.render(c, p),
     mock: (c) => MockModule.render(c),
     pcvsimp: (c) => PCvsImpModule.render(c),
+    diagnostic: (c) => DiagnosticModule.render(c),
     read: (c, p) => ReadModule.render(c, p),
     write: (c, p) => WriteModule.render(c, p),
     games: (c, p) => GamesModule.render(c, p),
@@ -135,6 +136,18 @@ window.App = (function () {
         <div class="meter" style="background:rgba(255,255,255,.3);margin-top:14px;height:10px"><div style="width:${pct}%;background:white;height:100%;border-radius:999px"></div></div>
         <p style="margin-top:6px;font-size:14px;opacity:.9">${done} / ${total} milestones complete (${pct}%)</p>
       </div>
+
+      ${done === 0 ? `
+      <div class="card" style="background:linear-gradient(135deg,#ede9fe,#fff);border:2px solid var(--accent);cursor:pointer" onclick="App.go('diagnostic')">
+        <div class="row" style="justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px">
+          <div>
+            <h3 style="color:var(--accent)">📍 Take the placement test first</h3>
+            <p style="margin-top:6px">20 quick questions (~5 min). Your level is detected and lessons you already know are auto-marked done so you skip ahead.</p>
+          </div>
+          <span class="tag" style="background:var(--accent);color:white">Recommended</span>
+        </div>
+      </div>
+      <div class="spacer"></div>` : ''}
 
       <div class="card" style="background:linear-gradient(135deg,#fef3c7,#fff);border:2px solid var(--warn);cursor:default">
         <div class="row" style="justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px">
