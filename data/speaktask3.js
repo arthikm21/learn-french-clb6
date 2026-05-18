@@ -1,0 +1,108 @@
+// TCF Canada — Expression orale Task 3: Argumentative monologue (~5 minutes).
+// User takes a position on an opinion topic, defends it with 3+ reasons + counter-argument.
+window.SPEAK_TASK3 = {
+  st3_telework: {
+    title: 'Pour ou contre le télétravail',
+    level: 'CLB 6',
+    topic: 'Le télétravail est-il une bonne chose pour les employés et les entreprises ?',
+    prompt: "Donnez votre opinion sur le télétravail. Prenez position clairement, défendez-la avec au moins 3 raisons, donnez un exemple concret, et anticipez un contre-argument. Parlez pendant 3 à 5 minutes.",
+    targetTime: 300,
+    keywords: {
+      position: ['je pense', 'à mon avis', 'selon moi', 'personnellement', 'je crois', 'je suis pour', 'je suis contre', 'je trouve'],
+      connectors: ['cependant', 'néanmoins', 'par conséquent', 'en revanche', 'd\'abord', 'ensuite', 'enfin', 'd\'une part', 'd\'autre part', 'par ailleurs', 'en outre', 'en effet', 'ainsi', 'donc'],
+      examples: ['par exemple', 'comme', 'notamment', 'c\'est le cas', 'prenons'],
+      counter: ['certains pensent', 'on pourrait dire', 'il est vrai que', 'bien sûr', 'certes', 'évidemment'],
+    },
+  },
+  st3_screens: {
+    title: 'Les écrans chez les enfants',
+    level: 'CLB 6',
+    topic: 'Faut-il interdire les écrans aux enfants de moins de 10 ans ?',
+    prompt: "Prenez position sur cette question. Justifiez avec 3 arguments, donnez un exemple personnel ou observé, et mentionnez l'opinion contraire pour la nuancer. Cible : 3-5 minutes.",
+    targetTime: 300,
+    keywords: {
+      position: ['je pense', 'à mon avis', 'selon moi', 'personnellement', 'je suis pour', 'je suis contre'],
+      connectors: ['cependant', 'néanmoins', 'par conséquent', 'en revanche', 'd\'abord', 'ensuite', 'enfin', 'd\'une part', 'd\'autre part'],
+      examples: ['par exemple', 'comme', 'notamment'],
+      counter: ['certains pensent', 'il est vrai que', 'bien sûr', 'certes'],
+    },
+  },
+  st3_immigration: {
+    title: 'Apprentissage du français obligatoire',
+    level: 'CLB 6',
+    topic: 'Faut-il rendre l\'apprentissage du français obligatoire pour tous les nouveaux immigrants au Québec ?',
+    prompt: "Donnez votre avis avec au moins 3 raisons. Citez un exemple concret du contexte canadien. Mentionnez et réfutez une objection possible. 3-5 minutes.",
+    targetTime: 300,
+    keywords: {
+      position: ['je pense', 'à mon avis', 'selon moi', 'je suis pour', 'je suis contre'],
+      connectors: ['cependant', 'néanmoins', 'par conséquent', 'd\'une part', 'd\'autre part', 'par ailleurs'],
+      examples: ['par exemple', 'notamment', 'comme'],
+      counter: ['certes', 'bien sûr', 'on pourrait penser que', 'il est vrai que'],
+    },
+  },
+  st3_publictransit: {
+    title: 'Gratuité des transports en commun',
+    level: 'CLB 5-6',
+    topic: 'Les transports en commun devraient-ils être gratuits dans toutes les grandes villes ?',
+    prompt: "Argumentez votre position avec 3 raisons (sociales, environnementales, économiques). Donnez un exemple. Réfutez l'argument inverse. 3 minutes minimum.",
+    targetTime: 240,
+    keywords: {
+      position: ['je pense', 'à mon avis', 'selon moi', 'je suis pour', 'je suis contre'],
+      connectors: ['cependant', 'néanmoins', 'par conséquent', 'en revanche', 'd\'abord', 'ensuite', 'enfin', 'par ailleurs'],
+      examples: ['par exemple', 'comme', 'notamment'],
+      counter: ['certains pensent', 'il est vrai que', 'bien sûr'],
+    },
+  },
+  st3_socialmedia: {
+    title: 'Réseaux sociaux : bénéfiques ou nuisibles ?',
+    level: 'CLB 6',
+    topic: 'Les réseaux sociaux ont-ils plus de bénéfices que de dangers pour la société ?',
+    prompt: "Prenez position. Trois raisons solides, un exemple, un contre-argument abordé. 3-5 minutes.",
+    targetTime: 300,
+    keywords: {
+      position: ['je pense', 'à mon avis', 'selon moi', 'personnellement', 'je crois'],
+      connectors: ['cependant', 'néanmoins', 'par conséquent', 'd\'une part', 'd\'autre part', 'par ailleurs', 'en outre'],
+      examples: ['par exemple', 'comme', 'notamment'],
+      counter: ['certains pensent', 'il est vrai que', 'bien sûr'],
+    },
+  },
+  st3_meat: {
+    title: 'Réduire la consommation de viande',
+    level: 'CLB 6',
+    topic: 'Faut-il que tout le monde réduise sa consommation de viande pour le bien de la planète ?',
+    prompt: "Donnez votre avis avec 3 arguments (santé, environnement, économie). Exemple concret. Mention du contre-argument. 3-4 minutes.",
+    targetTime: 240,
+    keywords: {
+      position: ['je pense', 'à mon avis', 'selon moi', 'personnellement'],
+      connectors: ['cependant', 'néanmoins', 'par conséquent', 'en revanche'],
+      examples: ['par exemple', 'comme', 'notamment'],
+      counter: ['certes', 'bien sûr', 'il est vrai que'],
+    },
+  },
+  st3_university: {
+    title: 'Université ou métier ?',
+    level: 'CLB 6',
+    topic: 'Faut-il encourager tous les jeunes à aller à l\'université, ou valoriser autant les métiers manuels ?',
+    prompt: "Prenez position et défendez avec 3 arguments. Exemple personnel ou observé. Considérez le point de vue opposé. 3-5 minutes.",
+    targetTime: 300,
+    keywords: {
+      position: ['je pense', 'à mon avis', 'selon moi'],
+      connectors: ['cependant', 'néanmoins', 'par conséquent', 'd\'une part', 'd\'autre part'],
+      examples: ['par exemple', 'comme'],
+      counter: ['certains pensent', 'il est vrai que'],
+    },
+  },
+  st3_mock_clb6: {
+    title: 'CLB 6 Mock — Voyager seul ou en groupe',
+    level: 'CLB 6',
+    topic: 'Est-il préférable de voyager seul ou en groupe ?',
+    prompt: "Donnez votre opinion avec 3 raisons précises. Donnez un exemple personnel d'un voyage. Mentionnez les avantages de l'option opposée. 4-5 minutes.",
+    targetTime: 300,
+    keywords: {
+      position: ['je pense', 'à mon avis', 'selon moi', 'personnellement', 'je préfère'],
+      connectors: ['cependant', 'néanmoins', 'par conséquent', 'en revanche', 'd\'une part', 'd\'autre part', 'par ailleurs', 'en outre', 'ainsi'],
+      examples: ['par exemple', 'comme', 'notamment', 'c\'est le cas'],
+      counter: ['certains préfèrent', 'il est vrai que', 'bien sûr', 'certes'],
+    },
+  },
+};

@@ -120,7 +120,7 @@ window.MockModule = (function () {
     return `${m}:${String(r).padStart(2, '0')}`;
   }
 
-  // ---------- Listening section ----------
+  // ---------- Listening section (TCF mode: single-play, no transcript) ----------
   function renderListenSection(body, sec) {
     let dlgIdx = 0;
     const totalDialogues = sec.dialogueIds.length;
@@ -132,39 +132,36 @@ window.MockModule = (function () {
       }
       const id = sec.dialogueIds[dlgIdx];
       const d = DIALOGUES[id];
-      let playCount = 0;
-      let playIdx = 0;
-      let stopped = false;
+      let hasPlayed = false;
       body.innerHTML = `
         <div class="lesson">
-          <h2>${dlgIdx + 1}. ${d.title} <span class="tag">${d.level}</span></h2>
+          <h2>${dlgIdx + 1}. ${d.title} <span class="tag">${d.level}</span> <span class="tag" style="background:var(--rouge);color:white">🎯 single play</span></h2>
           <p style="color:var(--mute);font-style:italic;margin-bottom:14px">${d.intro}</p>
           <div class="row" style="justify-content:center;gap:10px;flex-wrap:wrap">
-            <button class="btn big" id="play-dlg">▶ Play (${sec.replayLimit - playCount} plays left)</button>
+            <button class="btn big" id="play-dlg">▶ Play (you have ONE chance)</button>
           </div>
+          <p style="text-align:center;color:var(--mute);font-size:13px;margin-top:8px">⚠️ TCF mode: audio plays once. Listen carefully. Questions appear after.</p>
           <div class="spacer"></div>
           <div id="dlg-questions"></div>
           <div class="spacer"></div>
           <div class="center"><button class="btn" id="next-dlg" disabled>Next dialogue →</button></div>
         </div>`;
       const playBtn = body.querySelector('#play-dlg');
-      function playAll() {
-        if (playCount >= sec.replayLimit) return;
-        playCount++;
-        playBtn.disabled = playCount >= sec.replayLimit;
-        playBtn.textContent = `▶ Play (${sec.replayLimit - playCount} plays left)`;
-        playIdx = 0;
-        stopped = false;
+      function playOnce() {
+        if (hasPlayed) return;
+        hasPlayed = true;
+        playBtn.disabled = true;
+        playBtn.textContent = '🔊 Playing...';
+        let playIdx = 0;
         function next() {
-          if (stopped || playIdx >= d.lines.length) {
-            if (playCount >= sec.replayLimit) {
-              renderQuestions();
-            }
+          if (playIdx >= d.lines.length) {
+            playBtn.textContent = '✓ Audio finished';
+            renderQuestions();
             return;
           }
           const line = d.lines[playIdx];
           const voice = line.voice === 'jean' ? 'fr-CA-JeanNeural' : 'fr-CA-SylvieNeural';
-          TTS.speakLine(line.text, voice, () => { playIdx++; setTimeout(next, 250); });
+          TTS.speakLine(line.text, voice, () => { playIdx++; setTimeout(next, 280); });
         }
         next();
       }
@@ -181,14 +178,8 @@ window.MockModule = (function () {
             </div>`).join('')}`;
         body.querySelector('#next-dlg').disabled = false;
       }
-      playBtn.onclick = playAll;
-      // Allow questions to appear after first listen
-      // Actually show on any play
-      const orig = playAll;
-      playBtn.onclick = () => { orig(); setTimeout(renderQuestions, 1000); };
-
+      playBtn.onclick = playOnce;
       body.querySelector('#next-dlg').onclick = () => {
-        // Save answers
         const checked = body.querySelectorAll(`input[type=radio]:checked`);
         const userAnswers = [];
         checked.forEach(c => userAnswers.push({ q: parseInt(c.name.split('-')[2], 10), a: parseInt(c.value, 10) }));
@@ -265,69 +256,138 @@ window.MockModule = (function () {
     };
   }
 
-  // ---------- Writing section ----------
+  // ---------- Writing section (3 tasks: 2 standard + 1 task3 compare-opinions) ----------
   function renderWriteSection(body, sec) {
-    const w = WRITING[sec.promptId];
-    body.innerHTML = `
-      <div class="lesson">
-        <h2>✍️ ${w.title} <span class="tag">${w.level}</span></h2>
-        <div class="grammar-box">
-          <h3>📝 Prompt</h3>
-          <p>${w.prompt}</p>
-        </div>
-        <textarea class="input" id="mock-essay" placeholder="Écrivez ici..." style="font-size:16px;min-height:300px"></textarea>
-        <div class="row" style="margin-top:8px;color:var(--mute);font-size:13px"><span id="mock-wc">0 words</span></div>
-      </div>`;
-    const ta = body.querySelector('#mock-essay');
-    const wc = body.querySelector('#mock-wc');
-    ta.addEventListener('input', () => {
-      const n = (ta.value.match(/\b\w+\b/g) || []).length;
-      wc.textContent = `${n} words`;
-    });
+    let taskIdx = 0;
+    const results = [];
+    function showTask() {
+      if (taskIdx >= sec.writeTasks.length) {
+        body.innerHTML = `<div class="grammar-box" style="background:#dcfce7;border-left-color:var(--good)"><h3>✓ Writing section complete</h3></div>`;
+        return;
+      }
+      const wt = sec.writeTasks[taskIdx];
+      if (wt.type === 'standard') {
+        const w = WRITING[wt.promptId];
+        body.innerHTML = `
+          <div class="lesson">
+            <h2>✍️ ${wt.label}</h2>
+            <div class="grammar-box"><h3>📝 Prompt</h3><p>${w.prompt}</p></div>
+            <textarea class="input" id="mock-essay" placeholder="Écrivez ici..." style="font-size:16px;min-height:280px"></textarea>
+            <div class="row" style="margin-top:8px;color:var(--mute);font-size:13px"><span id="mock-wc">0 words</span></div>
+            <div class="spacer"></div>
+            <div class="center"><button class="btn big" id="next-wtask">Next writing task →</button></div>
+          </div>`;
+        const ta = body.querySelector('#mock-essay');
+        const wc = body.querySelector('#mock-wc');
+        ta.addEventListener('input', () => {
+          const n = (ta.value.match(/\b\w+\b/g) || []).length;
+          wc.textContent = `${n} words`;
+        });
+        body.querySelector('#next-wtask').onclick = () => {
+          const txt = ta.value;
+          const wordCount = (txt.match(/\b\w+\b/g) || []).length;
+          const errs = (window.GrammarCheck ? GrammarCheck.check(txt) : []);
+          const rubric = (w.checks || []).filter(c => {
+            const m = txt.match(c.pattern);
+            return c.min ? (m && m.length >= c.min) : !!m;
+          }).length;
+          const minWords = w.minWords || 50;
+          const wScore = Math.min(35, Math.round((wordCount / minWords) * 35));
+          const rScore = w.checks && w.checks.length ? Math.round((rubric / w.checks.length) * 45) : 0;
+          const ePenalty = Math.min(25, errs.length * 4);
+          const score = Math.max(0, Math.min(100, wScore + rScore - ePenalty + 20));
+          results.push({ label: wt.label, wordCount, errors: errs.length, score });
+          taskIdx++; showTask();
+        };
+      } else if (wt.type === 'task3') {
+        const t3 = WRITE_TASK3[wt.promptId];
+        body.innerHTML = `
+          <div class="lesson">
+            <h2>✍️ ${wt.label}</h2>
+            <div class="grammar-box"><h3>Question</h3><p style="font-style:italic">${t3.topic}</p></div>
+            <div class="grammar-box" style="background:#eff6ff;border-left-color:var(--bleu)"><h3>👤 ${t3.opinionA.author}</h3><p>${t3.opinionA.text}</p></div>
+            <div class="grammar-box" style="background:#fef2f2;border-left-color:var(--rouge)"><h3>👥 ${t3.opinionB.author}</h3><p>${t3.opinionB.text}</p></div>
+            <div class="grammar-box" style="background:#fffdf7;border-left-color:var(--warn)"><h3>Task</h3><p>${t3.promptInstructions}</p></div>
+            <textarea class="input" id="mock-essay-t3" placeholder="Comparez les deux opinions et donnez la vôtre (~150 mots)..." style="font-size:16px;min-height:280px"></textarea>
+            <div class="row" style="margin-top:8px;color:var(--mute);font-size:13px"><span id="mock-wc-t3">0 words</span></div>
+            <div class="spacer"></div>
+            <div class="center"><button class="btn big" id="next-wtask">Next writing task →</button></div>
+          </div>`;
+        const ta = body.querySelector('#mock-essay-t3');
+        const wc = body.querySelector('#mock-wc-t3');
+        ta.addEventListener('input', () => {
+          const n = (ta.value.match(/\b\w+\b/g) || []).length;
+          wc.textContent = `${n} words`;
+        });
+        body.querySelector('#next-wtask').onclick = () => {
+          const txt = ta.value;
+          const wordCount = (txt.match(/\b\w+\b/g) || []).length;
+          const errs = (window.GrammarCheck ? GrammarCheck.check(txt) : []);
+          // Task 3 rubric checks
+          const lower = txt.toLowerCase();
+          const checks = [
+            /(je pense|à mon avis|selon moi|personnellement|je crois)/i.test(txt),
+            /\b(cependant|néanmoins|en revanche|par contre|d'une part|d'autre part|alors que)\b/i.test(txt) ? (txt.match(/\b(cependant|néanmoins|en revanche|par contre|d'une part|d'autre part|alors que)\b/gi) || []).length >= 2 : false,
+            /\b(parce que|car|puisque|donc|par conséquent)\b/i.test(txt),
+            /\b(par exemple|comme|notamment)\b/i.test(txt),
+            wordCount >= 120 && wordCount <= 200,
+            (txt.split(/[.!?]+/).filter(s => s.trim()).length) >= 6,
+          ];
+          const rubricPassed = checks.filter(Boolean).length;
+          const score = Math.max(0, Math.min(100, Math.round((rubricPassed / checks.length) * 70) + Math.min(20, Math.round(wordCount / 8)) - Math.min(15, errs.length * 3) + 10));
+          results.push({ label: wt.label, wordCount, errors: errs.length, score });
+          taskIdx++; showTask();
+        };
+      }
+    }
+    showTask();
     return {
       collect: () => {
-        const txt = ta.value;
-        const wordCount = (txt.match(/\b\w+\b/g) || []).length;
-        const errs = (window.GrammarCheck ? GrammarCheck.check(txt) : []);
-        const rubric = w.checks.filter(c => {
-          const m = txt.match(c.pattern);
-          return c.min ? (m && m.length >= c.min) : !!m;
-        }).length;
-        const minWords = w.minWords || 50;
-        // Score = blend of word count, rubric, error count
-        const wScore = Math.min(35, Math.round((wordCount / minWords) * 35));
-        const rScore = Math.round((rubric / w.checks.length) * 50);
-        const ePenalty = Math.min(25, errs.length * 4);
-        const score = Math.max(0, Math.min(100, wScore + rScore - ePenalty + 15));
-        return { wordCount, rubric: `${rubric}/${w.checks.length}`, errors: errs.length, text: txt, pct: score };
+        if (results.length === 0) return { pct: 0, wordCount: 0, rubric: '0/0', errors: 0 };
+        const avg = Math.round(results.reduce((s, r) => s + r.score, 0) / results.length);
+        const totalWords = results.reduce((s, r) => s + r.wordCount, 0);
+        const totalErrors = results.reduce((s, r) => s + r.errors, 0);
+        return { pct: avg, wordCount: totalWords, rubric: `${results.length}/${sec.writeTasks.length}`, errors: totalErrors, tasks: results };
       },
     };
   }
 
-  // ---------- Speaking section ----------
+  // ---------- Speaking section (3 TCF tasks) ----------
   function renderSpeakSection(body, sec) {
     let taskIdx = 0;
     const results = [];
     function showTask() {
-      if (taskIdx >= sec.taskIds.length) {
+      if (taskIdx >= sec.speakTasks.length) {
         body.innerHTML = `<div class="grammar-box" style="background:#dcfce7;border-left-color:var(--good)"><h3>✓ Speaking section complete</h3></div>`;
         return;
       }
-      const id = sec.taskIds[taskIdx];
-      const t = SPEAK_TASKS[id];
+      const wt = sec.speakTasks[taskIdx];
       let recordedText = '';
       let recording = false;
+
+      let promptHTML = '';
+      let targetWords = 60;
+      if (wt.type === 'qa') {
+        const t = SPEAK_TASKS[wt.taskId];
+        const firstQ = t.questions && t.questions[0] ? t.questions[0].q : t.prompt;
+        promptHTML = `<div class="grammar-box"><h3>${wt.label}</h3><p>Introduce yourself, then answer: <i>"${firstQ}"</i></p></div>`;
+        targetWords = 60;
+      } else if (wt.type === 'task2') {
+        const t = SPEAK_TASK2[wt.taskId];
+        promptHTML = `
+          <div class="grammar-box"><h3>${wt.label}</h3><p>${t.scenario}</p></div>
+          <div class="grammar-box" style="background:#eff6ff"><h3>Ask about:</h3><ul style="margin-left:20px;line-height:1.7">${t.requiredInfo.map(i => `<li>${i}</li>`).join('')}</ul></div>`;
+        targetWords = 100;
+      } else if (wt.type === 'task3') {
+        const t = SPEAK_TASK3[wt.taskId];
+        promptHTML = `
+          <div class="grammar-box" style="background:#fffdf7;border-left-color:var(--warn)"><h3>${wt.label}</h3><p style="font-weight:600">${t.topic}</p><p style="margin-top:8px">${t.prompt}</p></div>`;
+        targetWords = 200;
+      }
+
       body.innerHTML = `
         <div class="lesson">
-          <h2>${taskIdx + 1}. ${t.title} <span class="tag">${t.level}</span></h2>
-          ${t.type === 'picture' ? `
-            <div class="grammar-box"><h3>Scene</h3><p><i>${t.sceneDesc}</i></p></div>
-            <div class="grammar-box"><h3>Task</h3><p>${t.prompt}</p></div>
-          ` : ''}
-          ${t.type === 'role' ? `
-            <div class="grammar-box"><h3>Scenario</h3><p>${t.scenario}</p></div>
-            <div class="grammar-box"><h3>You'll be playing your part. Speak when prompted.</h3><p>${t.turns[0].other}</p></div>
-          ` : ''}
+          ${promptHTML}
           <div class="center">
             <button class="mic-btn" id="m-mic">🎙️</button>
             <p style="color:var(--mute);margin-top:10px" id="m-status">Press mic, then speak.</p>
@@ -360,62 +420,150 @@ window.MockModule = (function () {
         try { rec && rec.start(); } catch {}
       };
       nextBtn.onclick = () => {
-        results.push({ taskId: id, transcript: recordedText });
+        results.push({ taskType: wt.type, transcript: recordedText, targetWords });
         taskIdx++; showTask();
       };
     }
     showTask();
     return {
       collect: () => {
-        let totalWords = 0;
-        for (const r of results) totalWords += (r.transcript.match(/\b\w+\b/g) || []).length;
-        const target = sec.taskIds.length * 50;
-        const pct = Math.min(100, Math.round(totalWords / target * 100));
+        let totalWords = 0, totalTarget = 0;
+        for (const r of results) {
+          totalWords += (r.transcript.match(/\b\w+\b/g) || []).length;
+          totalTarget += r.targetWords;
+        }
+        const pct = totalTarget ? Math.min(100, Math.round(totalWords / totalTarget * 100)) : 0;
         return { results, totalWords, pct };
       },
     };
   }
 
+  // TCF Canada → CLB conversion (official IRCC bands)
+  // CO/CE: 0-699 scale, calibrated for progressive-difficulty MC
+  function tcfCOCE(pct) {
+    let score;
+    if (pct >= 90) score = 580 + Math.round((pct - 90) * 10);
+    else if (pct >= 75) score = 475 + Math.round((pct - 75) * 7);
+    else if (pct >= 65) score = 425 + Math.round((pct - 65) * 5);
+    else if (pct >= 50) score = 360 + Math.round((pct - 50) * 4.3);
+    else score = 200 + Math.round(pct * 3.2);
+    score = Math.max(0, Math.min(699, score));
+    return { score, clb: clbForCOCE(score) };
+  }
+  function clbForCOCE(s) {
+    if (s >= 549) return '10';
+    if (s >= 523) return '9';
+    if (s >= 503) return '8';
+    if (s >= 458) return '7';
+    if (s >= 398) return '6';
+    if (s >= 369) return '5';
+    if (s >= 331) return '4';
+    return '<4';
+  }
+  // EE/EO: 0-20 scale per IRCC
+  function tcfEEEO(pct) {
+    const score = Math.max(0, Math.min(20, Math.round((pct / 100) * 20)));
+    return { score, clb: clbForEEEO(score) };
+  }
+  function clbForEEEO(s) {
+    if (s >= 16) return '10';
+    if (s >= 14) return '9';
+    if (s >= 12) return '8';
+    if (s >= 10) return '7';
+    if (s >= 7) return '6';
+    if (s >= 6) return '5';
+    if (s >= 4) return '4';
+    return '<4';
+  }
+  function clbGoodEnough(clb) {
+    // CLB 6+ is the target
+    const n = parseInt(clb, 10);
+    return !isNaN(n) && n >= 6;
+  }
+
+  // Persist last mock result for history (Sprint 3 chart)
+  function saveMockHistory(skills) {
+    try {
+      const history = JSON.parse(window.Storage.getItem('mockHistory') || '[]');
+      history.push({ when: Date.now(), skills });
+      if (history.length > 30) history.shift();
+      window.Storage.setItem('mockHistory', JSON.stringify(history));
+    } catch {}
+  }
+
   // ---------- Report ----------
   function renderReport(container) {
     const r = session.results;
-    // CLB band per skill
-    function bandFor(pct) {
-      if (pct >= 80) return { band: 'CLB 6+', good: true };
-      if (pct >= 65) return { band: 'CLB 5-6', good: true };
-      if (pct >= 50) return { band: 'CLB 4', good: false };
-      return { band: 'CLB 3 or below', good: false };
-    }
     const skills = [
-      { id: 'listen', icon: '🎧', label: 'Listening' },
-      { id: 'read', icon: '📖', label: 'Reading' },
-      { id: 'write', icon: '✍️', label: 'Writing' },
-      { id: 'speak', icon: '🎙️', label: 'Speaking' },
+      { id: 'listen', icon: '🎧', label: 'Compréhension orale (CO)', conv: tcfCOCE, scale: '0-699' },
+      { id: 'read',   icon: '📖', label: 'Compréhension écrite (CE)', conv: tcfCOCE, scale: '0-699' },
+      { id: 'write',  icon: '✍️', label: 'Expression écrite (EE)', conv: tcfEEEO, scale: '0-20' },
+      { id: 'speak',  icon: '🎙️', label: 'Expression orale (EO)', conv: tcfEEEO, scale: '0-20' },
     ];
     const totalMin = Math.floor((Date.now() - session.startTime) / 60000);
+
+    // Compute scores
+    const scored = skills.map(s => {
+      const sr = r[s.id];
+      if (!sr) return { ...s, missing: true };
+      const c = s.conv(sr.pct);
+      return { ...s, sr, score: c.score, clb: c.clb, good: clbGoodEnough(c.clb) };
+    });
+    // Save to history for Sprint 3
+    saveMockHistory(scored.filter(s => !s.missing).map(s => ({ skill: s.id, score: s.score, clb: s.clb, pct: s.sr.pct })));
+
+    // Overall CLB (min of 4 skills)
+    const completed = scored.filter(s => !s.missing);
+    const minClb = completed.length === 4
+      ? completed.reduce((min, s) => {
+          const n = parseInt(s.clb, 10);
+          if (isNaN(n)) return min;
+          return Math.min(min, n);
+        }, 10)
+      : null;
+    const overallPass = minClb !== null && minClb >= 6;
+
     container.innerHTML = `
-      <div class="hero" style="background:linear-gradient(135deg,#7c3aed,#0055A4,#16a34a)">
+      <div class="hero" style="background:linear-gradient(135deg,${overallPass ? '#16a34a,#0055A4,#22c55e' : '#7c3aed,#0055A4,#EF4135'})">
         <div class="flag-stripes"></div>
-        <h1>📊 Mock Test Report</h1>
-        <p>Completed in ${totalMin} minutes. Below are estimated CLB bands per skill.</p>
+        <h1>📊 TCF Canada Mock Report</h1>
+        <p>Completed in ${totalMin} minutes. ${minClb !== null ? `Overall CLB: <b>${minClb}</b> (minimum of 4 skills)` : 'Some sections not completed.'}</p>
+        ${overallPass ? '<p style="margin-top:8px;font-size:18px;font-weight:700">🏆 You meet CLB 6 in all 4 skills.</p>' : minClb !== null ? '<p style="margin-top:8px;font-size:16px">Below CLB 6 in at least one skill. See breakdown below.</p>' : ''}
       </div>
-      ${skills.map(s => {
-        const sr = r[s.id];
-        if (!sr) return `<div class="grammar-box"><h3>${s.icon} ${s.label}</h3><p>Not completed.</p></div>`;
-        const b = bandFor(sr.pct);
+      ${scored.map(s => {
+        if (s.missing) return `<div class="grammar-box"><h3>${s.icon} ${s.label}</h3><p style="color:var(--mute)">Not completed.</p></div>`;
+        const bg = s.good ? '#dcfce7' : '#fef3c7';
+        const bc = s.good ? 'var(--good)' : 'var(--warn)';
         return `
-          <div class="grammar-box" style="background:${b.good ? '#dcfce7' : '#fef3c7'};border-left-color:${b.good ? 'var(--good)' : 'var(--warn)'}">
-            <h3>${s.icon} ${s.label} — <b>${b.band}</b></h3>
-            <p>Score: <b>${sr.pct}%</b>${sr.correct !== undefined ? ` (${sr.correct}/${sr.total})` : ''}</p>
-            ${sr.wordCount !== undefined ? `<p>Words: ${sr.wordCount}, Rubric: ${sr.rubric}, Errors: ${sr.errors}</p>` : ''}
-            ${sr.totalWords !== undefined ? `<p>Words spoken: ${sr.totalWords}</p>` : ''}
+          <div class="grammar-box" style="background:${bg};border-left-color:${bc}">
+            <div class="row" style="justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px">
+              <div>
+                <h3>${s.icon} ${s.label}</h3>
+                <p style="margin-top:4px"><b>TCF score: ${s.score}</b> / ${s.scale} · estimated <b>CLB ${s.clb}</b></p>
+              </div>
+              <span class="tag" style="background:${bc};color:white;font-size:14px;padding:6px 12px">${s.good ? '✓ CLB 6+' : 'Below CLB 6'}</span>
+            </div>
+            <p style="margin-top:8px;color:var(--mute);font-size:13px">${s.sr.correct !== undefined ? `Raw: ${s.sr.correct}/${s.sr.total} correct (${s.sr.pct}%)` : `Raw: ${s.sr.pct}%`}${s.sr.wordCount !== undefined ? ` · Words: ${s.sr.wordCount}, Rubric: ${s.sr.rubric}, Errors: ${s.sr.errors}` : ''}${s.sr.totalWords !== undefined ? ` · Words spoken: ${s.sr.totalWords}` : ''}</p>
           </div>`;
       }).join('')}
       <div class="grammar-box" style="background:#eff6ff">
-        <h3>📝 Notes</h3>
-        <p>This mock test uses heuristic scoring. A real TEF Canada exam evaluates pronunciation, fluency, register, and writing accuracy by certified raters. Use this score as a directional guide, not a guaranteed band.</p>
-        <p style="margin-top:8px"><b>If you scored CLB 5 or below in any skill:</b> focus on that module's units. Re-attempt this mock in 2 weeks.</p>
-        <p><b>If you scored CLB 6+ across all skills:</b> you're likely exam-ready. Practice with the official TEF Canada sample paper for final polish.</p>
+        <h3>📊 What these scores mean (TCF Canada → CLB)</h3>
+        <table class="conj-table"><thead><tr><th>CLB</th><th>CO score</th><th>CE score</th><th>EE / EO</th></tr></thead><tbody>
+          <tr><td>10</td><td>549+</td><td>549+</td><td>16+</td></tr>
+          <tr><td>9</td><td>523-548</td><td>524-548</td><td>14-15</td></tr>
+          <tr><td>8</td><td>503-522</td><td>500-523</td><td>12-13</td></tr>
+          <tr><td>7</td><td>458-502</td><td>453-499</td><td>10-11</td></tr>
+          <tr><td><b>6</b></td><td><b>398-457</b></td><td><b>406-452</b></td><td><b>7-9</b></td></tr>
+          <tr><td>5</td><td>369-397</td><td>375-405</td><td>6</td></tr>
+          <tr><td>4</td><td>331-368</td><td>342-374</td><td>4-5</td></tr>
+        </tbody></table>
+        <p style="margin-top:8px;color:var(--mute);font-size:13px">Source: IRCC official equivalency chart (canada.ca). CLB 6 is the threshold for most Express Entry French language points and federal job competitions.</p>
+      </div>
+      <div class="grammar-box" style="background:#fffdf7;border-left-color:var(--warn)">
+        <h3>📝 Caveats</h3>
+        <p>The mock uses <b>heuristic scoring</b>. A real TCF Canada exam is graded by certified raters for writing/speaking and machine-graded for listening/reading. Use this score as a directional indicator, not a guaranteed band.</p>
+        <p style="margin-top:8px"><b>Below CLB 6 anywhere?</b> Drill that skill's modules. Re-attempt in 2 weeks.</p>
+        <p><b>CLB 6+ across all 4?</b> You are likely exam-ready. Buy the official TCF Canada sample paper and rehearse under timed conditions one more time before booking.</p>
       </div>
       <div class="center" style="margin-top:24px">
         <button class="btn big" id="restart">↻ Take mock test again</button>

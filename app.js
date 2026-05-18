@@ -46,6 +46,9 @@ window.App = (function () {
     dialogue: (c, p) => DialogueModule.render(c, p),
     speak: (c, p) => SpeakModule.render(c, p),
     speaktasks: (c, p) => SpeakTasksModule.render(c, p),
+    writetask3: (c, p) => WriteTask3Module.render(c, p),
+    speaktask2: (c, p) => SpeakTask2Module.render(c, p),
+    speaktask3: (c, p) => SpeakTask3Module.render(c, p),
     mock: (c) => MockModule.render(c),
     pcvsimp: (c) => PCvsImpModule.render(c),
     diagnostic: (c) => DiagnosticModule.render(c),
@@ -182,6 +185,9 @@ window.App = (function () {
         <div class="card" onclick="App.go('dialogue')"><div class="icon">💬</div><h3>Listening Dialogues</h3><p>8 multi-speaker conversations with comprehension questions. CLB exam format.</p></div>
         <div class="card" onclick="App.go('speak')"><div class="icon">🎙️</div><h3>Speaking Mirror</h3><p>Repeat-the-sentence with word-by-word pronunciation diff.</p></div>
         <div class="card" onclick="App.go('speaktasks')"><div class="icon">🎤</div><h3>Speaking Tasks</h3><p>Picture description, Q&A, role-play. Open-ended speaking — CLB exam format.</p></div>
+        <div class="card" onclick="App.go('writetask3')" style="border:2px solid var(--accent)"><div class="icon">✍️</div><h3>Writing Task 3 <span class="tag" style="background:var(--accent);color:white;font-size:10px">TCF</span></h3><p>Compare 2 opinions + give your own view. The hardest TCF EE task.</p></div>
+        <div class="card" onclick="App.go('speaktask2')" style="border:2px solid var(--accent)"><div class="icon">❓</div><h3>Speaking Task 2 <span class="tag" style="background:var(--accent);color:white;font-size:10px">TCF</span></h3><p>Ask the examiner questions to gather info. Unique to TCF Canada.</p></div>
+        <div class="card" onclick="App.go('speaktask3')" style="border:2px solid var(--accent)"><div class="icon">🎤</div><h3>Speaking Task 3 <span class="tag" style="background:var(--accent);color:white;font-size:10px">TCF</span></h3><p>Argue your opinion for 3-5 minutes. Most-weighted EO task.</p></div>
         <div class="card" onclick="App.go('read')"><div class="icon">📖</div><h3>Reading Quests</h3><p>30 graded texts CLB 3 → 6. Emails, ads, news, brochures, fiction.</p></div>
         <div class="card" onclick="App.go('write')"><div class="icon">✍️</div><h3>Writing Workshop</h3><p>8 prompts. Real grammar checker detects gender, tense, elision errors.</p></div>
         <div class="card" onclick="App.go('games')"><div class="icon">🎮</div><h3>Games (9)</h3><p>Gender Sort · Conjugation Race · Sentence Builder · Memory · Quick Translate · Tense Picker · Dictation Race · Spot the Error · Verb Anagram.</p></div>

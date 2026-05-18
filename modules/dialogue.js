@@ -24,29 +24,39 @@ window.DialogueModule = (function () {
     }
   }
 
-  function renderDialogue(container, id) {
+  function renderDialogue(container, id, opts) {
     const d = DIALOGUES[id];
     if (!d) { App.go('dialogue'); return; }
     let phase = 'listen'; // listen → quiz
     let qi = 0, correct = 0;
     let playIdx = 0;
     let stopped = false;
+    const tcfMode = !!(opts && opts.tcf); // single-play, no transcript, no replay
+    let hasPlayed = false;
 
     function play() {
       stopped = false;
       playIdx = 0;
       const btn = container.querySelector('#play');
       const idxEl = container.querySelector('#line-idx');
-      if (btn) btn.textContent = '⏸ Stop';
+      const toQuiz = container.querySelector('#to-quiz');
+      if (!tcfMode && btn) btn.textContent = '⏸ Stop';
       function next() {
         if (stopped || playIdx >= d.lines.length) {
-          if (btn) btn.textContent = '▶ Play again';
+          if (tcfMode) {
+            if (btn) { btn.textContent = '✓ Audio finished'; btn.disabled = true; }
+            if (toQuiz) toQuiz.disabled = false;
+          } else {
+            if (btn) btn.textContent = '▶ Play again';
+          }
           return;
         }
         const line = d.lines[playIdx];
         const voice = line.voice === 'jean' ? 'fr-CA-JeanNeural' : 'fr-CA-SylvieNeural';
-        const lineEls = container.querySelectorAll('.dialogue-line');
-        lineEls.forEach((el, i) => el.classList.toggle('active', i === playIdx));
+        if (!tcfMode) {
+          const lineEls = container.querySelectorAll('.dialogue-line');
+          lineEls.forEach((el, i) => el.classList.toggle('active', i === playIdx));
+        }
         if (idxEl) idxEl.textContent = (playIdx + 1) + ' / ' + d.lines.length;
         TTS.speakLine(line.text, voice, () => { playIdx++; setTimeout(next, 300); });
       }
@@ -64,41 +74,50 @@ window.DialogueModule = (function () {
     function showListen() {
       container.innerHTML = `
         <div class="lesson">
-          <h2>💬 ${d.title} <span class="tag">${d.level}</span></h2>
+          <h2>💬 ${d.title} <span class="tag">${d.level}</span>${tcfMode ? ' <span class="tag" style="background:var(--rouge);color:white">🎯 TCF mode</span>' : ''}</h2>
           <p style="color:var(--mute);font-style:italic;margin-bottom:14px">${d.intro}</p>
+          ${tcfMode ? `<div class="grammar-box" style="background:#fee2e2;border-left-color:var(--bad)"><h3>⚠️ TCF Exam Mode</h3><p>Audio plays <b>ONCE</b>. No replay. No transcript. Listen carefully, then answer the questions.</p></div>` : ''}
           <div class="row" style="justify-content:center;gap:10px;flex-wrap:wrap">
-            <button class="btn big" id="play">▶ Play</button>
-            <button class="btn ghost" id="show-text">👁️ Show transcript</button>
+            <button class="btn big" id="play">▶ ${tcfMode ? 'Play (one chance)' : 'Play'}</button>
+            ${tcfMode ? '' : `<button class="btn ghost" id="show-text">👁️ Show transcript</button>`}
             <span style="display:inline-flex;align-items:center;color:var(--mute);font-size:14px">Line <b id="line-idx">— / ${d.lines.length}</b></span>
           </div>
           <div class="spacer"></div>
-          <div id="transcript" style="display:none">
+          ${tcfMode ? '' : `<div id="transcript" style="display:none">
             ${d.lines.map((l, i) => `
               <div class="dialogue-line" data-i="${i}">
                 <div class="dl-speaker dl-${l.speaker}">${l.speaker === 'A' ? '👩' : l.speaker === 'B' ? '👨' : '📢'} ${l.speaker}</div>
                 <div class="dl-text">${l.text}</div>
               </div>`).join('')}
-          </div>
+          </div>`}
           <div class="spacer"></div>
           <div class="row" style="justify-content:space-between">
             <button class="btn ghost" onclick="App.go('dialogue')">← Dialogues</button>
-            <button class="btn big" id="to-quiz">Comprehension Questions →</button>
+            <button class="btn big" id="to-quiz" ${tcfMode ? 'disabled' : ''}>Comprehension Questions →</button>
           </div>
         </div>`;
       const btn = container.querySelector('#play');
       btn.onclick = () => {
-        if (stopped === false && playIdx > 0 && playIdx < d.lines.length) {
-          stop();
-        } else {
+        if (tcfMode) {
+          if (hasPlayed) return;       // single-play enforced
+          hasPlayed = true;
+          btn.disabled = true;
+          btn.textContent = '🔊 Playing...';
           play();
+          // Enable "to-quiz" after playback finishes (handled in play())
+        } else {
+          if (stopped === false && playIdx > 0 && playIdx < d.lines.length) stop();
+          else play();
         }
       };
-      container.querySelector('#show-text').onclick = (e) => {
-        const t = container.querySelector('#transcript');
-        const hidden = t.style.display === 'none';
-        t.style.display = hidden ? 'block' : 'none';
-        e.target.textContent = hidden ? '🙈 Hide transcript' : '👁️ Show transcript';
-      };
+      if (!tcfMode) {
+        container.querySelector('#show-text').onclick = (e) => {
+          const t = container.querySelector('#transcript');
+          const hidden = t.style.display === 'none';
+          t.style.display = hidden ? 'block' : 'none';
+          e.target.textContent = hidden ? '🙈 Hide transcript' : '👁️ Show transcript';
+        };
+      }
       container.querySelector('#to-quiz').onclick = () => { stop(); phase = 'quiz'; showQuiz(); };
     }
 
@@ -106,10 +125,10 @@ window.DialogueModule = (function () {
       const q = d.questions[qi];
       container.innerHTML = `
         <div class="lesson">
-          <h2>💬 ${d.title}</h2>
+          <h2>💬 ${d.title}${tcfMode ? ' <span class="tag" style="background:var(--rouge);color:white">🎯 TCF mode</span>' : ''}</h2>
           <div class="progress"><div style="width:${(qi / d.questions.length) * 100}%"></div></div>
           <p style="color:var(--mute);font-size:14px">Question ${qi + 1} of ${d.questions.length}</p>
-          <div class="row" style="margin-bottom:10px"><button class="btn secondary" id="replay">🔊 Replay dialogue</button></div>
+          ${tcfMode ? '' : `<div class="row" style="margin-bottom:10px"><button class="btn secondary" id="replay">🔊 Replay dialogue</button></div>`}
           <div class="q-prompt">${q.q}</div>
           <div class="options">
             ${q.opts.map((o, i) => `<div class="option" data-i="${i}">${o}</div>`).join('')}
@@ -120,7 +139,8 @@ window.DialogueModule = (function () {
             <button class="btn ghost" onclick="App.go('dialogue')">← Quit</button>
           </div>
         </div>`;
-      container.querySelector('#replay').onclick = play;
+      const replay = container.querySelector('#replay');
+      if (replay) replay.onclick = play;
       container.querySelectorAll('.option').forEach(el => {
         el.onclick = () => {
           container.querySelectorAll('.option').forEach(x => x.classList.add('disabled'));
@@ -168,7 +188,7 @@ window.DialogueModule = (function () {
 
   return {
     render(container, params) {
-      if (params && params.id) renderDialogue(container, params.id);
+      if (params && params.id) renderDialogue(container, params.id, { tcf: params.tcf === '1' });
       else renderList(container);
     }
   };
