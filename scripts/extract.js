@@ -8,7 +8,8 @@ const ROOT = path.join(__dirname, '..');
 // Load base + extra data files so extractor sees everything.
 ['vocab', 'vocab_extra', 'vocab_more', 'grammar', 'grammar_extra', 'grammar_more', 'lessons',
  'reading', 'reading_extra', 'reading_more', 'listening', 'listening_extra', 'listening_more',
- 'writing', 'spoken', 'phonics', 'minpairs', 'dialogues', 'speaktasks', 'pcvsimp'].forEach(n => {
+ 'writing', 'spoken', 'phonics', 'minpairs', 'dialogues', 'speaktasks', 'pcvsimp',
+ 'writetask3', 'speaktask2', 'speaktask3'].forEach(n => {
   require(path.join(ROOT, 'data', n + '.js'));
 });
 
@@ -105,6 +106,28 @@ if (window.PC_VS_IMP) {
   for (const f of (window.PC_VS_IMP.framework || [])) {
     if (f.examples) for (const e of f.examples) add(e);
   }
+}
+
+// WRITE_TASK3 — topic, opinions A and B, prompt
+if (window.WRITE_TASK3) for (const k of Object.keys(window.WRITE_TASK3)) {
+  const t = window.WRITE_TASK3[k];
+  add(t.topic);
+  if (t.opinionA && t.opinionA.text) add(t.opinionA.text);
+  if (t.opinionB && t.opinionB.text) add(t.opinionB.text);
+  if (t.promptInstructions) add(t.promptInstructions);
+}
+
+// SPEAK_TASK2 — scenarios and sample questions
+if (window.SPEAK_TASK2) for (const k of Object.keys(window.SPEAK_TASK2)) {
+  const t = window.SPEAK_TASK2[k];
+  add(t.scenario);
+  if (t.sampleQuestions) for (const q of t.sampleQuestions) add(q);
+}
+
+// SPEAK_TASK3 — topics and prompts
+if (window.SPEAK_TASK3) for (const k of Object.keys(window.SPEAK_TASK3)) {
+  const t = window.SPEAK_TASK3[k];
+  add(t.topic); add(t.prompt);
 }
 
 // All sources are curated French content — include everything > 0 chars.
