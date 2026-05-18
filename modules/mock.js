@@ -122,16 +122,36 @@ window.MockModule = (function () {
 
   // ---------- Listening section (TCF mode: single-play, no transcript) ----------
   function renderListenSection(body, sec) {
+    // Build queue: dialogues first, then TCF segments
+    const queue = [];
+    for (const id of (sec.dialogueIds || [])) queue.push({ kind: 'dialogue', id });
+    for (const id of (sec.tcfSegmentIds || [])) queue.push({ kind: 'tcf', id });
     let dlgIdx = 0;
-    const totalDialogues = sec.dialogueIds.length;
+    const totalDialogues = queue.length;
     const answers = {};
     function showDialogue() {
       if (dlgIdx >= totalDialogues) {
         body.innerHTML = `<div class="grammar-box" style="background:#dcfce7;border-left-color:var(--good)"><h3>✓ Listening section complete</h3><p>Click "Finish ${sec.title} section" to proceed.</p></div>`;
         return;
       }
-      const id = sec.dialogueIds[dlgIdx];
-      const d = DIALOGUES[id];
+      const item = queue[dlgIdx];
+      const id = item.id;
+      // Unify: get title, level, lines (or synthesized from transcript), questions
+      let d;
+      if (item.kind === 'dialogue') {
+        d = DIALOGUES[id];
+      } else {
+        const seg = LISTENING_TCF[id];
+        if (!seg) { dlgIdx++; showDialogue(); return; }
+        // Wrap transcript as single narrator line
+        d = {
+          title: seg.title,
+          level: seg.level,
+          intro: 'Section ' + seg.section + ' · listen once',
+          lines: [{ speaker: 'NARR', text: seg.transcript, voice: 'sylvie' }],
+          questions: seg.questions,
+        };
+      }
       let hasPlayed = false;
       body.innerHTML = `
         <div class="lesson">
@@ -183,7 +203,7 @@ window.MockModule = (function () {
         const checked = body.querySelectorAll(`input[type=radio]:checked`);
         const userAnswers = [];
         checked.forEach(c => userAnswers.push({ q: parseInt(c.name.split('-')[2], 10), a: parseInt(c.value, 10) }));
-        answers[id] = userAnswers;
+        answers[item.id] = userAnswers;
         dlgIdx++;
         showDialogue();
       };
@@ -192,10 +212,11 @@ window.MockModule = (function () {
     return {
       collect: () => {
         let correct = 0, total = 0;
-        for (const id of sec.dialogueIds) {
-          const d = DIALOGUES[id];
+        for (const item of queue) {
+          const d = item.kind === 'dialogue' ? DIALOGUES[item.id] : LISTENING_TCF[item.id];
+          if (!d) continue;
           total += d.questions.length;
-          const userAns = answers[id] || [];
+          const userAns = answers[item.id] || [];
           for (const a of userAns) {
             if (d.questions[a.q] && d.questions[a.q].a === a.a) correct++;
           }

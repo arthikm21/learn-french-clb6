@@ -1,0 +1,133 @@
+// TCF Canada thematic vocabulary — words tied to common TCF essay/oral topics.
+// Themes: technology, environment, education, society, work, health.
+window.VOCAB_TCF = {
+  tcf_technology: {
+    name: 'TCF Theme: Technology & Digital',
+    icon: '🤖',
+    cards: [
+      { fr: 'la technologie', en: 'technology', emoji: '💻', g: 'f', ipa: '/tɛk.nɔ.lɔ.ʒi/', ex: 'La technologie change notre vie.' },
+      { fr: 'le numérique', en: 'digital realm', emoji: '🖥️', g: 'm', ipa: '/ny.me.ʁik/', ex: 'Le numérique transforme tout.' },
+      { fr: "l'intelligence artificielle", en: 'artificial intelligence', emoji: '🧠', g: 'f', ipa: '/ɛ̃.tɛ.li.ʒɑ̃s.aʁ.ti.fi.sjɛl/', ex: "L'IA va bouleverser le travail." },
+      { fr: 'le télétravail', en: 'remote work', emoji: '🏠', g: 'm', ipa: '/te.le.tʁa.vaj/', ex: 'Le télétravail est devenu courant.' },
+      { fr: 'la confidentialité', en: 'privacy', emoji: '🔒', g: 'f', ipa: '/kɔ̃.fi.dɑ̃.sja.li.te/', ex: 'La confidentialité est importante.' },
+      { fr: 'les données', en: 'data', emoji: '📊', g: 'f', ipa: '/de.dɔ.ne/', ex: 'Les données personnelles sont précieuses.' },
+      { fr: 'la cybersécurité', en: 'cybersecurity', emoji: '🛡️', g: 'f', ipa: '/si.bɛʁ.se.ky.ʁi.te/', ex: 'La cybersécurité préoccupe les entreprises.' },
+      { fr: 'le réseau social', en: 'social network', emoji: '📱', g: 'm', ipa: '/ʁe.zo.sɔ.sjal/', ex: 'Les réseaux sociaux dominent notre attention.' },
+      { fr: 'la dépendance', en: 'addiction / dependence', emoji: '🪤', g: 'f', ipa: '/de.pɑ̃.dɑ̃s/', ex: 'La dépendance aux écrans est un problème.' },
+      { fr: 'innover', en: 'to innovate', emoji: '💡', ipa: '/i.nɔ.ve/', ex: 'Les start-ups innovent rapidement.' },
+      { fr: "l'application", en: 'app', emoji: '📱', g: 'f', ipa: '/a.pli.ka.sjɔ̃/', ex: "Cette application m'aide chaque jour." },
+      { fr: 'la désinformation', en: 'misinformation', emoji: '⚠️', g: 'f', ipa: '/de.zɛ̃.fɔʁ.ma.sjɔ̃/', ex: 'La désinformation se propage vite.' },
+      { fr: "l'automatisation", en: 'automation', emoji: '🤖', g: 'f', ipa: '/o.tɔ.ma.ti.za.sjɔ̃/', ex: "L'automatisation supprime certains emplois." },
+      { fr: 'sécuriser', en: 'to secure', emoji: '🔐', ipa: '/se.ky.ʁi.ze/', ex: 'Il faut sécuriser ses mots de passe.' },
+      { fr: 'le piratage', en: 'hacking', emoji: '🏴‍☠️', g: 'm', ipa: '/pi.ʁa.taʒ/', ex: 'Le piratage cause des pertes énormes.' },
+    ]
+  },
+  tcf_environment: {
+    name: 'TCF Theme: Environment',
+    icon: '🌍',
+    cards: [
+      { fr: "l'environnement", en: 'environment', emoji: '🌱', g: 'm', ipa: '/ɑ̃.vi.ʁɔn.mɑ̃/', ex: "L'environnement est notre responsabilité." },
+      { fr: 'le changement climatique', en: 'climate change', emoji: '🌡️', g: 'm', ipa: '/ʃɑ̃ʒ.mɑ̃.kli.ma.tik/', ex: 'Le changement climatique nous menace tous.' },
+      { fr: 'la pollution', en: 'pollution', emoji: '🏭', g: 'f', ipa: '/pɔ.ly.sjɔ̃/', ex: 'La pollution de l\'air affecte les villes.' },
+      { fr: 'le recyclage', en: 'recycling', emoji: '♻️', g: 'm', ipa: '/ʁə.si.klaʒ/', ex: 'Le recyclage est une habitude essentielle.' },
+      { fr: "l'énergie renouvelable", en: 'renewable energy', emoji: '🌞', g: 'f', ipa: '/e.nɛʁ.ʒi.ʁə.nu.və.labl/', ex: "L'énergie renouvelable se développe vite." },
+      { fr: 'le réchauffement', en: 'warming', emoji: '🔥', g: 'm', ipa: '/ʁe.ʃof.mɑ̃/', ex: 'Le réchauffement de la planète s\'accélère.' },
+      { fr: 'la biodiversité', en: 'biodiversity', emoji: '🦋', g: 'f', ipa: '/bjo.di.vɛʁ.si.te/', ex: 'La biodiversité diminue chaque année.' },
+      { fr: 'durable', en: 'sustainable', emoji: '🌿', ipa: '/dy.ʁabl/', ex: 'Un mode de vie durable est nécessaire.' },
+      { fr: 'consommer', en: 'to consume', emoji: '🛒', ipa: '/kɔ̃.sɔ.me/', ex: 'Il faut consommer moins.' },
+      { fr: 'gaspiller', en: 'to waste', emoji: '🗑️', ipa: '/ɡas.pi.je/', ex: 'On gaspille trop de nourriture.' },
+      { fr: 'le gaspillage', en: 'waste (act of)', emoji: '🗑️', g: 'm', ipa: '/ɡas.pi.jaʒ/', ex: 'Le gaspillage alimentaire est immense.' },
+      { fr: 'la transition écologique', en: 'ecological transition', emoji: '🌳', g: 'f', ipa: '/tʁɑ̃.zi.sjɔ̃.e.kɔ.lɔ.ʒik/', ex: 'La transition écologique demande du courage politique.' },
+      { fr: 'préserver', en: 'to preserve', emoji: '🛡️', ipa: '/pʁe.zɛʁ.ve/', ex: 'Nous devons préserver les forêts.' },
+      { fr: "l'émission", en: 'emission', emoji: '💨', g: 'f', ipa: '/e.mi.sjɔ̃/', ex: 'Les émissions de CO2 doivent baisser.' },
+      { fr: 'le tri', en: 'sorting (waste)', emoji: '🗑️', g: 'm', ipa: '/tʁi/', ex: 'Le tri sélectif aide le recyclage.' },
+    ]
+  },
+  tcf_education: {
+    name: 'TCF Theme: Education',
+    icon: '🎓',
+    cards: [
+      { fr: "l'éducation", en: 'education', emoji: '📚', g: 'f', ipa: '/e.dy.ka.sjɔ̃/', ex: "L'éducation est la clé de l'avenir." },
+      { fr: "l'apprentissage", en: 'learning', emoji: '🧠', g: 'm', ipa: '/a.pʁɑ̃.ti.saʒ/', ex: "L'apprentissage en ligne se développe." },
+      { fr: 'la formation', en: 'training', emoji: '👨‍🏫', g: 'f', ipa: '/fɔʁ.ma.sjɔ̃/', ex: 'La formation continue est indispensable.' },
+      { fr: 'la pédagogie', en: 'pedagogy', emoji: '🧑‍🏫', g: 'f', ipa: '/pe.da.ɡɔ.ʒi/', ex: 'La nouvelle pédagogie privilégie le projet.' },
+      { fr: 'le diplôme', en: 'diploma', emoji: '📜', g: 'm', ipa: '/di.plom/', ex: 'Un diplôme universitaire ouvre des portes.' },
+      { fr: 'la compétence', en: 'skill', emoji: '🎯', g: 'f', ipa: '/kɔ̃.pe.tɑ̃s/', ex: 'Les compétences numériques sont essentielles.' },
+      { fr: 'la connaissance', en: 'knowledge', emoji: '💡', g: 'f', ipa: '/kɔ.nɛ.sɑ̃s/', ex: 'La connaissance est un trésor.' },
+      { fr: 'évaluer', en: 'to evaluate / assess', emoji: '📝', ipa: '/e.va.lɥe/', ex: "Comment évaluer la qualité d'un enseignement ?" },
+      { fr: "l'enseignement à distance", en: 'distance learning', emoji: '💻', g: 'm', ipa: '/ɑ̃.sɛɲ.mɑ̃.a.dis.tɑ̃s/', ex: "L'enseignement à distance a ses limites." },
+      { fr: 'le décrochage', en: 'school dropout', emoji: '🚪', g: 'm', ipa: '/de.kʁɔ.ʃaʒ/', ex: 'Le décrochage scolaire inquiète les autorités.' },
+      { fr: "l'orientation", en: 'guidance', emoji: '🧭', g: 'f', ipa: '/ɔ.ʁjɑ̃.ta.sjɔ̃/', ex: "L'orientation des jeunes est complexe." },
+      { fr: 'reconvertir', en: 'to retrain', emoji: '🔄', ipa: '/ʁə.kɔ̃.vɛʁ.tiʁ/', ex: 'Se reconvertir à 40 ans est possible.' },
+      { fr: "l'illettrisme", en: 'illiteracy', emoji: '📖', g: 'm', ipa: '/i.lɛ.tʁism/', ex: "L'illettrisme touche encore beaucoup d'adultes." },
+      { fr: 'autodidacte', en: 'self-taught', emoji: '📚', ipa: '/o.to.di.dakt/', ex: 'Il est autodidacte en programmation.' },
+      { fr: 'la motivation', en: 'motivation', emoji: '🔥', g: 'f', ipa: '/mɔ.ti.va.sjɔ̃/', ex: 'La motivation est le moteur de la réussite.' },
+    ]
+  },
+  tcf_society: {
+    name: 'TCF Theme: Society & Citizenship',
+    icon: '🏛️',
+    cards: [
+      { fr: 'la société', en: 'society', emoji: '👥', g: 'f', ipa: '/sɔ.sje.te/', ex: 'La société évolue rapidement.' },
+      { fr: "l'intégration", en: 'integration', emoji: '🤝', g: 'f', ipa: '/ɛ̃.te.ɡʁa.sjɔ̃/', ex: "L'intégration des immigrants est cruciale." },
+      { fr: 'la diversité', en: 'diversity', emoji: '🌈', g: 'f', ipa: '/di.vɛʁ.si.te/', ex: 'La diversité est une richesse.' },
+      { fr: "l'égalité", en: 'equality', emoji: '⚖️', g: 'f', ipa: '/e.ɡa.li.te/', ex: "L'égalité hommes-femmes progresse." },
+      { fr: 'la discrimination', en: 'discrimination', emoji: '🚫', g: 'f', ipa: '/dis.kʁi.mi.na.sjɔ̃/', ex: 'La discrimination doit être combattue.' },
+      { fr: 'la citoyenneté', en: 'citizenship', emoji: '🇨🇦', g: 'f', ipa: '/si.twa.jɛn.te/', ex: 'La citoyenneté implique des devoirs.' },
+      { fr: 'le droit', en: 'right (legal)', emoji: '📜', g: 'm', ipa: '/dʁwa/', ex: 'Chacun a le droit à la santé.' },
+      { fr: 'le devoir', en: 'duty', emoji: '🛡️', g: 'm', ipa: '/də.vwaʁ/', ex: 'Voter est un devoir civique.' },
+      { fr: 'la solidarité', en: 'solidarity', emoji: '🤝', g: 'f', ipa: '/sɔ.li.da.ʁi.te/', ex: 'La solidarité face aux crises est essentielle.' },
+      { fr: "l'inégalité", en: 'inequality', emoji: '📉', g: 'f', ipa: '/i.ne.ɡa.li.te/', ex: "Les inégalités se creusent." },
+      { fr: 'manifester', en: 'to demonstrate / protest', emoji: '📢', ipa: '/ma.ni.fɛs.te/', ex: 'Les étudiants manifestent dans la rue.' },
+      { fr: "l'opinion publique", en: 'public opinion', emoji: '💭', g: 'f', ipa: '/ɔ.pi.njɔ̃.py.blik/', ex: "L'opinion publique change vite." },
+      { fr: 'la démocratie', en: 'democracy', emoji: '🗳️', g: 'f', ipa: '/de.mɔ.kʁa.si/', ex: 'La démocratie demande des citoyens informés.' },
+      { fr: "l'élection", en: 'election', emoji: '🗳️', g: 'f', ipa: '/e.lɛk.sjɔ̃/', ex: 'Les élections municipales arrivent.' },
+      { fr: 'la tolérance', en: 'tolerance', emoji: '☮️', g: 'f', ipa: '/tɔ.le.ʁɑ̃s/', ex: 'La tolérance est une valeur fondamentale.' },
+    ]
+  },
+  tcf_health: {
+    name: 'TCF Theme: Health & Wellbeing',
+    icon: '🏥',
+    cards: [
+      { fr: 'la santé', en: 'health', emoji: '💚', g: 'f', ipa: '/sɑ̃.te/', ex: 'La santé passe avant tout.' },
+      { fr: 'le bien-être', en: 'wellbeing', emoji: '🧘', g: 'm', ipa: '/bjɛ̃.nɛtʁ/', ex: 'Le bien-être mental compte autant que physique.' },
+      { fr: 'la santé mentale', en: 'mental health', emoji: '🧠', g: 'f', ipa: '/sɑ̃.te.mɑ̃.tal/', ex: 'La santé mentale est un sujet tabou.' },
+      { fr: 'le stress', en: 'stress', emoji: '😰', g: 'm', ipa: '/stʁɛs/', ex: 'Le stress au travail augmente.' },
+      { fr: "l'épuisement", en: 'burnout / exhaustion', emoji: '😵', g: 'm', ipa: '/e.pɥiz.mɑ̃/', ex: "L'épuisement professionnel touche de plus en plus." },
+      { fr: 'sain', en: 'healthy', emoji: '🥗', ipa: '/sɛ̃/', ex: 'Une alimentation saine prévient les maladies.' },
+      { fr: "l'obésité", en: 'obesity', emoji: '⚖️', g: 'f', ipa: '/ɔ.be.zi.te/', ex: "L'obésité est un défi de santé publique." },
+      { fr: 'guérir', en: 'to heal / cure', emoji: '🩹', ipa: '/ɡe.ʁiʁ/', ex: 'Cette maladie est difficile à guérir.' },
+      { fr: 'prévenir', en: 'to prevent', emoji: '🛡️', ipa: '/pʁev.niʁ/', ex: 'Mieux vaut prévenir que guérir.' },
+      { fr: 'la prévention', en: 'prevention', emoji: '🛡️', g: 'f', ipa: '/pʁe.vɑ̃.sjɔ̃/', ex: 'La prévention sauve des vies.' },
+      { fr: 'le vaccin', en: 'vaccine', emoji: '💉', g: 'm', ipa: '/vak.sɛ̃/', ex: 'Le vaccin protège contre la grippe.' },
+      { fr: "l'épidémie", en: 'epidemic', emoji: '🦠', g: 'f', ipa: '/e.pi.de.mi/', ex: "L'épidémie a duré deux ans." },
+      { fr: 'la dépression', en: 'depression', emoji: '😔', g: 'f', ipa: '/de.pʁɛ.sjɔ̃/', ex: 'La dépression touche un adulte sur cinq.' },
+      { fr: "l'addiction", en: 'addiction', emoji: '🚭', g: 'f', ipa: '/a.dik.sjɔ̃/', ex: "L'addiction au tabac est difficile à briser." },
+      { fr: 'le système de santé', en: 'healthcare system', emoji: '🏥', g: 'm', ipa: '/sis.tɛm.də.sɑ̃.te/', ex: 'Le système de santé canadien est universel.' },
+    ]
+  },
+  tcf_work: {
+    name: 'TCF Theme: Work & Economy',
+    icon: '💼',
+    cards: [
+      { fr: 'le marché du travail', en: 'job market', emoji: '📊', g: 'm', ipa: '/maʁ.ʃe.dy.tʁa.vaj/', ex: 'Le marché du travail évolue.' },
+      { fr: 'le chômage', en: 'unemployment', emoji: '📉', g: 'm', ipa: '/ʃo.maʒ/', ex: 'Le chômage des jeunes inquiète.' },
+      { fr: "l'emploi", en: 'employment / job', emoji: '💼', g: 'm', ipa: '/ɑ̃.plwa/', ex: 'Trouver un emploi prend du temps.' },
+      { fr: 'la précarité', en: 'precariousness', emoji: '⚠️', g: 'f', ipa: '/pʁe.ka.ʁi.te/', ex: 'La précarité touche les contrats temporaires.' },
+      { fr: 'le salaire', en: 'salary', emoji: '💰', g: 'm', ipa: '/sa.lɛʁ/', ex: 'Le salaire minimum a augmenté.' },
+      { fr: "l'inflation", en: 'inflation', emoji: '📈', g: 'f', ipa: '/ɛ̃.fla.sjɔ̃/', ex: "L'inflation gruge le pouvoir d'achat." },
+      { fr: 'le pouvoir d\'achat', en: 'purchasing power', emoji: '💵', g: 'm', ipa: '/pu.vwaʁ.da.ʃa/', ex: 'Le pouvoir d\'achat diminue depuis 2 ans.' },
+      { fr: 'la grève', en: 'strike', emoji: '✊', g: 'f', ipa: '/ɡʁɛv/', ex: 'Les infirmières sont en grève.' },
+      { fr: 'le syndicat', en: 'union (labor)', emoji: '🤝', g: 'm', ipa: '/sɛ̃.di.ka/', ex: 'Le syndicat négocie avec le gouvernement.' },
+      { fr: 'la retraite', en: 'retirement', emoji: '👴', g: 'f', ipa: '/ʁə.tʁɛt/', ex: "L'âge de la retraite recule." },
+      { fr: 'la productivité', en: 'productivity', emoji: '⚡', g: 'f', ipa: '/pʁɔ.dyk.ti.vi.te/', ex: 'La productivité des employés augmente.' },
+      { fr: 'embaucher', en: 'to hire', emoji: '🤝', ipa: '/ɑ̃.bo.ʃe/', ex: "L'entreprise embauche en informatique." },
+      { fr: 'licencier', en: 'to lay off', emoji: '📉', ipa: '/li.sɑ̃.sje/', ex: "L'usine a dû licencier 200 employés." },
+      { fr: "l'entreprise", en: 'business / company', emoji: '🏢', g: 'f', ipa: '/ɑ̃.tʁə.pʁiz/', ex: "L'entreprise emploie 500 personnes." },
+      { fr: 'la conciliation', en: 'work-life balance', emoji: '⚖️', g: 'f', ipa: '/kɔ̃.si.lja.sjɔ̃/', ex: 'La conciliation travail-famille est un défi.' },
+    ]
+  },
+};
+
+// Merge into main VOCAB
+Object.assign(window.VOCAB, window.VOCAB_TCF);

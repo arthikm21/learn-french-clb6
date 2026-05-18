@@ -8,8 +8,10 @@ window.MOCK_TEST = {
       title: 'Compréhension orale (CO)',
       icon: '🎧',
       duration: 2100, // 35 min — matches real TCF CO
-      desc: 'You will hear 4 dialogues, each played ONCE. No replay, no transcript. Answer comprehension questions after each. This is real TCF conditions.',
-      dialogueIds: ['d1', 'd2', 'd4', 'd8'],
+      desc: 'You will hear 6 audio segments, each played ONCE. No replay, no transcript. 4-option multiple choice. Real TCF conditions.',
+      // Mix: 1 dialogue (multi-speaker) + 5 TCF segments at progressive difficulty
+      dialogueIds: ['d1'],
+      tcfSegmentIds: ['ltcf_03', 'ltcf_08', 'ltcf_13', 'ltcf_18', 'ltcf_25'],
       tcfMode: true,
       replayLimit: 1,
     },
@@ -18,8 +20,9 @@ window.MOCK_TEST = {
       title: 'Compréhension écrite (CE)',
       icon: '📖',
       duration: 3600, // 60 min — matches real TCF CE
-      desc: 'You will read 4 texts of varying difficulty and answer comprehension questions. Manage your time — 15 minutes per text on average.',
-      textIds: ['r2', 'r3', 'r11', 'r12'],
+      desc: 'You will read 6 texts of varying difficulty (4-option MC). Manage your time.',
+      // Pull 6 from TCF-tagged texts at progressive difficulty
+      textIds: ['rtcf_03', 'rtcf_07', 'rtcf_13', 'rtcf_17', 'rtcf_23', 'rtcf_28'],
     },
     {
       id: 'write',

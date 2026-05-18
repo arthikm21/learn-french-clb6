@@ -6,10 +6,10 @@ global.window = global;
 
 const ROOT = path.join(__dirname, '..');
 // Load base + extra data files so extractor sees everything.
-['vocab', 'vocab_extra', 'vocab_more', 'grammar', 'grammar_extra', 'grammar_more', 'lessons',
- 'reading', 'reading_extra', 'reading_more', 'listening', 'listening_extra', 'listening_more',
+['vocab', 'vocab_extra', 'vocab_more', 'vocab_tcf', 'grammar', 'grammar_extra', 'grammar_more', 'lessons',
+ 'reading', 'reading_extra', 'reading_more', 'reading_tcf', 'listening', 'listening_extra', 'listening_more', 'listening_tcf',
  'writing', 'spoken', 'phonics', 'minpairs', 'dialogues', 'speaktasks', 'pcvsimp',
- 'writetask3', 'speaktask2', 'speaktask3'].forEach(n => {
+ 'writetask3', 'speaktask2', 'speaktask3', 'connectors'].forEach(n => {
   require(path.join(ROOT, 'data', n + '.js'));
 });
 
@@ -49,9 +49,12 @@ for (const u of window.GRAMMAR) {
   }
 }
 
-// LISTENING
+// LISTENING (dictation sets have .items; TCF segments have .transcript handled below)
 for (const k of Object.keys(window.LISTENING)) {
-  for (const it of window.LISTENING[k].items) add(it.audio);
+  const set = window.LISTENING[k];
+  if (set.items) {
+    for (const it of set.items) add(it.audio);
+  }
 }
 
 // READING — text + question options that look French
@@ -128,6 +131,24 @@ if (window.SPEAK_TASK2) for (const k of Object.keys(window.SPEAK_TASK2)) {
 if (window.SPEAK_TASK3) for (const k of Object.keys(window.SPEAK_TASK3)) {
   const t = window.SPEAK_TASK3[k];
   add(t.topic); add(t.prompt);
+}
+
+// LISTENING_TCF — transcripts
+if (window.LISTENING_TCF) for (const k of Object.keys(window.LISTENING_TCF)) {
+  add(window.LISTENING_TCF[k].transcript);
+}
+
+// READINGS_TCF — full texts + per-sentence
+if (window.READINGS_TCF) for (const k of Object.keys(window.READINGS_TCF)) {
+  const t = window.READINGS_TCF[k];
+  add(t.text);
+  if (t.text) t.text.split(/(?<=[.!?])\s+/).forEach(s => add(s.trim()));
+}
+
+// CONNECTOR_DRILLS — prompts
+if (window.CONNECTOR_DRILLS) for (const d of window.CONNECTOR_DRILLS) {
+  add(d.prompt);
+  if (d.sampleContinuations) for (const s of d.sampleContinuations) add(s);
 }
 
 // All sources are curated French content — include everything > 0 chars.
