@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1200px; height: 630px; overflow: hidden; }
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: linear-gradient(135deg, #0055A4 0%, #1e40af 45%, #EF4135 100%);
+    color: white;
+    position: relative;
+  }
+  .stripes {
+    position: absolute; right: -120px; top: -120px;
+    width: 500px; height: 500px;
+    background: repeating-linear-gradient(45deg, rgba(255,255,255,.13) 0 40px, transparent 40px 80px);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  .stripes2 {
+    position: absolute; left: -150px; bottom: -180px;
+    width: 450px; height: 450px;
+    background: repeating-linear-gradient(-45deg, rgba(255,255,255,.10) 0 30px, transparent 30px 60px);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  .frame {
+    padding: 70px 80px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    z-index: 2;
+  }
+  .top { display: flex; align-items: center; gap: 18px; }
+  .logo {
+    width: 88px; height: 88px;
+    background: white;
+    border-radius: 24px;
+    display: grid; place-items: center;
+    font-size: 56px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.25);
+  }
+  .brand {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 56px;
+    font-weight: 700;
+  }
+  .flags { margin-left: auto; font-size: 60px; }
+  h1 {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 88px;
+    line-height: 1.0;
+    margin-top: 30px;
+  }
+  .sub {
+    font-size: 32px;
+    margin-top: 20px;
+    opacity: 0.95;
+    max-width: 950px;
+    line-height: 1.3;
+  }
+  .pills {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-top: 30px;
+  }
+  .pill {
+    background: rgba(255,255,255,.18);
+    border: 2px solid rgba(255,255,255,.4);
+    backdrop-filter: blur(8px);
+    padding: 10px 22px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 22px;
+  }
+  .pill.red {
+    background: #EF4135;
+    border-color: #EF4135;
+  }
+  .bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 2px solid rgba(255,255,255,.3);
+    padding-top: 22px;
+  }
+  .url {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 28px;
+    font-weight: 600;
+  }
+  .tag {
+    font-size: 22px;
+    opacity: 0.85;
+    font-weight: 600;
+  }
+</style>
+</head>
+<body>
+  <div class="stripes"></div>
+  <div class="stripes2"></div>
+  <div class="frame">
+    <div>
+      <div class="top">
+        <div class="logo">🐓</div>
+        <div class="brand">Bonjour!</div>
+        <div class="flags">🇨🇦🇫🇷</div>
+      </div>
+      <h1>Free French Prep<br>for CLB 6 / TCF Canada</h1>
+      <p class="sub">No signup. Neural Canadian audio. Real TCF mock test. Built for serious learners with a date booked.</p>
+      <div class="pills">
+        <span class="pill red">🎯 TCF Mock Test</span>
+        <span class="pill">🎧 4-skill practice</span>
+        <span class="pill">🗣️ Speaking tasks</span>
+        <span class="pill">📐 22 grammar units</span>
+      </div>
+    </div>
+    <div class="bottom">
+      <div class="url">frenchclb6.pages.dev</div>
+      <div class="tag">Pass CLB 6 in 3-4 months · 30 min/day</div>
+    </div>
+  </div>
+</body>
+</html>
