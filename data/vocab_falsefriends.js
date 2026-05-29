@@ -1,0 +1,65 @@
+// False Friends (faux amis) deck — words that LOOK English but mean something different.
+// Each card carries the actual FR meaning + a clear warning about what English speakers
+// usually assume incorrectly.
+//
+// Merges into window.VOCAB as a new deck keyed 'false-friends'.
+
+(function () {
+  if (!window.VOCAB) return;
+  window.VOCAB['false-friends'] = {
+    name: 'False Friends (faux amis)',
+    icon: '⚠️',
+    cards: [
+      { fr: 'actuellement', en: 'currently / right now (NOT "actually")', emoji: '⏰', ipa: '/ak.tɥɛl.mɑ̃/',
+        ex: 'Actuellement, je travaille à Toronto. ⚠️ "Actually" = en fait.' },
+      { fr: 'éventuellement', en: 'possibly / maybe (NOT "eventually")', emoji: '🤔', ipa: '/e.vɑ̃.tɥɛl.mɑ̃/',
+        ex: "On pourrait éventuellement sortir. ⚠️ \"Eventually\" = finalement / à terme." },
+      { fr: 'assister à', en: 'to attend (NOT "to assist")', emoji: '🎟️', ipa: '/a.sis.te a/',
+        ex: "J'ai assisté à la réunion. ⚠️ \"To assist\" = aider." },
+      { fr: 'attendre', en: 'to wait for (NOT "to attend")', emoji: '⏳', ipa: '/a.tɑ̃dʁ/',
+        ex: "J'attends le bus. ⚠️ \"To attend\" = assister à." },
+      { fr: 'blesser', en: 'to wound / hurt (NOT "to bless")', emoji: '🤕', ipa: '/blɛ.se/',
+        ex: "Il s'est blessé au pied. ⚠️ \"To bless\" = bénir." },
+      { fr: 'chair', en: 'flesh / meat (NOT "chair")', emoji: '🥩', ipa: '/ʃɛʁ/',
+        ex: "La chair est ferme. ⚠️ \"Chair\" = une chaise." },
+      { fr: 'coin', en: 'corner (NOT "coin")', emoji: '📐', ipa: '/kwɛ̃/',
+        ex: "Au coin de la rue. ⚠️ \"Coin\" = une pièce (de monnaie)." },
+      { fr: 'large', en: 'wide (NOT "large")', emoji: '↔️', ipa: '/laʁʒ/',
+        ex: "Une rue large. ⚠️ \"Large\" = grand." },
+      { fr: 'librairie', en: 'bookstore (NOT "library")', emoji: '📚', ipa: '/li.bʁɛ.ʁi/',
+        ex: "Je vais à la librairie acheter un livre. ⚠️ \"Library\" = bibliothèque." },
+      { fr: 'location', en: 'rental (NOT "location")', emoji: '🏠', ipa: '/lɔ.ka.sjɔ̃/',
+        ex: "La location de la voiture coûte 50€. ⚠️ \"Location\" = emplacement / endroit." },
+      { fr: 'magasin', en: 'shop / store (NOT "magazine")', emoji: '🛍️', ipa: '/ma.ɡa.zɛ̃/',
+        ex: "Le magasin est ouvert. ⚠️ \"Magazine\" = un magazine / une revue." },
+      { fr: 'pain', en: 'bread (NOT "pain")', emoji: '🥖', ipa: '/pɛ̃/',
+        ex: "Du pain frais. ⚠️ \"Pain\" = douleur." },
+      { fr: 'pièce', en: 'room OR coin (NOT "piece")', emoji: '🚪', ipa: '/pjɛs/',
+        ex: "Une pièce de 2 euros. La maison a 5 pièces. ⚠️ \"A piece of\" = un morceau de." },
+      { fr: 'rester', en: 'to stay (NOT "to rest")', emoji: '🏠', ipa: '/ʁɛs.te/',
+        ex: "Je reste à la maison. ⚠️ \"To rest\" = se reposer." },
+      { fr: 'sensible', en: 'sensitive (NOT "sensible")', emoji: '💛', ipa: '/sɑ̃.sibl/',
+        ex: "Elle est très sensible. ⚠️ \"Sensible\" = raisonnable." },
+      { fr: 'sympathique', en: 'friendly / nice (NOT "sympathetic")', emoji: '😊', ipa: '/sɛ̃.pa.tik/',
+        ex: "Un collègue sympathique. ⚠️ \"Sympathetic\" = compatissant." },
+      { fr: 'introduire', en: 'to insert / lead in (NOT "to introduce a person")', emoji: '🔌', ipa: '/ɛ̃.tʁɔ.dɥiʁ/',
+        ex: "Introduire la clé dans la serrure. ⚠️ \"To introduce someone\" = présenter." },
+      { fr: 'demander', en: 'to ask (NOT "to demand")', emoji: '❓', ipa: '/də.mɑ̃.de/',
+        ex: "Je demande l'heure. ⚠️ \"To demand\" (forcefully) = exiger." },
+      { fr: 'passer un examen', en: 'to take an exam (NOT "to pass")', emoji: '📝', ipa: '/pa.se ɛɡ.za.mɛ̃/',
+        ex: "Je passe le TCF demain. ⚠️ \"To pass\" the exam = réussir." },
+      { fr: 'envie', en: 'wish / desire (NOT "envy")', emoji: '✨', ipa: '/ɑ̃.vi/',
+        ex: "J'ai envie de chocolat. ⚠️ \"Envy\" (jealousy) = jalousie." },
+      { fr: 'figure', en: 'face (NOT "figure / number")', emoji: '😶', ipa: '/fi.ɡyʁ/',
+        ex: "Lave-toi la figure. ⚠️ \"Figure\" (number) = chiffre." },
+      { fr: 'parents', en: 'parents OR relatives (NOT only "parents")', emoji: '👨‍👩‍👧', ipa: '/pa.ʁɑ̃/',
+        ex: "J'ai des parents en France. Could mean parents OR distant family. Context decides." },
+      { fr: 'monnaie', en: 'change / small coins (NOT "money in general")', emoji: '🪙', ipa: '/mɔ.nɛ/',
+        ex: "Vous avez de la monnaie ? ⚠️ \"Money\" in general = argent." },
+      { fr: 'photographe', en: 'photographer (NOT "photograph")', emoji: '📸', ipa: '/fɔ.tɔ.ɡʁaf/',
+        ex: "Un bon photographe. ⚠️ \"A photograph\" = une photographie / une photo." },
+      { fr: 'pollution', en: 'pollution ✓ (TRUE friend — same!)', emoji: '✅', ipa: '/pɔ.ly.sjɔ̃/',
+        ex: 'Beaucoup of cognates work directly. Pollution, restaurant, hôtel, télévision are real.' },
+    ],
+  };
+})();

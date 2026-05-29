@@ -190,12 +190,31 @@ window.ProfileModule = (function () {
 
       <div class="grammar-box">
         <h3>Appearance</h3>
-        <p style="color:var(--ink-2);font-size:var(--fs-14)">Toggle dark mode and text size. Preferences saved on this device.</p>
+        <p style="color:var(--ink-2);font-size:var(--fs-14)">Theme and text size. Saved on this device.</p>
         <div class="spacer"></div>
         <div class="row">
           <button class="btn secondary" id="theme-toggle">Toggle dark mode</button>
           <button class="btn secondary" id="font-up">A+</button>
           <button class="btn secondary" id="font-down">A−</button>
+        </div>
+      </div>
+
+      <div class="grammar-box">
+        <h3>Sound &amp; speech</h3>
+        <p style="color:var(--ink-2);font-size:var(--fs-14);margin-bottom:var(--sp-3)">Subtle audio feedback. Turn off if you prefer silence.</p>
+        <div class="toggle-row">
+          <div class="info">
+            <h4>UI click sounds</h4>
+            <p>A soft tick when you tap buttons, options, cards. Very subtle.</p>
+          </div>
+          <input type="checkbox" class="toggle" id="set-clicks" ${Settings.isClickSoundOn() ? 'checked' : ''} aria-label="UI click sounds"/>
+        </div>
+        <div class="toggle-row">
+          <div class="info">
+            <h4>Tap-to-pronounce French words</h4>
+            <p>Click any French word in lessons to hear it spoken in Canadian French.</p>
+          </div>
+          <input type="checkbox" class="toggle" id="set-pron" ${Settings.isPronounceOn() ? 'checked' : ''} aria-label="Tap to pronounce"/>
         </div>
       </div>
 
@@ -229,6 +248,18 @@ window.ProfileModule = (function () {
     };
     container.querySelector('#font-up').onclick = () => adjustFontSize(1);
     container.querySelector('#font-down').onclick = () => adjustFontSize(-1);
+
+    const clicks = container.querySelector('#set-clicks');
+    if (clicks) clicks.onchange = (e) => {
+      Settings.setClickSound(e.target.checked);
+      if (e.target.checked && window.Sounds) Sounds.tick();
+      Toast.info(e.target.checked ? 'Click sounds on' : 'Click sounds off');
+    };
+    const pron = container.querySelector('#set-pron');
+    if (pron) pron.onchange = (e) => {
+      Settings.setPronounce(e.target.checked);
+      Toast.info(e.target.checked ? 'Tap-to-pronounce on' : 'Tap-to-pronounce off');
+    };
 
     container.querySelectorAll('[data-switch]').forEach(b => {
       b.onclick = () => {

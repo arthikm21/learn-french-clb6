@@ -76,6 +76,8 @@ window.WordPop = (function () {
   function setup() {
     const FR_HINT = /^[a-zà-ÿA-ZÀ-Ÿ'\-]+$/;
     document.addEventListener('click', (e) => {
+      // Honor user pronunciation toggle — fully bypass if off.
+      if (window.Settings && !Settings.isPronounceOn()) return;
       // Skip clicks inside inputs/buttons/already-popup
       const tgt = e.target;
       if (!tgt || tgt.nodeType !== 1) return;

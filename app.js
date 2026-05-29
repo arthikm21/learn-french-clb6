@@ -45,6 +45,7 @@ window.App = (function () {
     path: (c) => PathModule.render(c),
     progress: (c) => ProgressModule.render(c),
     gate: (c, p) => PhaseGateModule.render(c, p),
+    deepdive: (c, p) => DeepDiveModule.render(c, p),
     phonics: (c, p) => PhonicsModule.render(c, p),
     vocab: (c, p) => VocabModule.render(c, p),
     grammar: (c, p) => GrammarModule.render(c, p),
@@ -218,6 +219,7 @@ window.App = (function () {
         <div class="card" onclick="App.go('vocab')"><div class="icon">🃏</div><h3>Vocabulary</h3><p>28 themed decks, ~570 cards. SRS schedules your reviews automatically.</p></div>
         <div class="card" onclick="App.go('grammar')"><div class="icon">📐</div><h3>Grammar</h3><p>29 units, A1 to B1. From articles to subjunctive and connectors.</p></div>
         <div class="card" onclick="App.go('pcvsimp')"><div class="icon">⚔️</div><h3>Passé Composé vs Imparfait</h3><p>The #1 CLB 6 grammar trap. Dedicated decider drill with mixed contexts.</p></div>
+        <div class="card" onclick="App.go('deepdive')"><div class="icon">🎯</div><h3>Deep Dives <span class="tag verb">New</span></h3><p>y vs en, pronoun order, si-clauses, qui/que/dont/où. Visual decision trees for the four CLB 6 traps.</p></div>
         <div class="card" onclick="App.go('listen')"><div class="icon">🎧</div><h3>Listening Lab</h3><p>15 dictation sets at slow, normal, and natural speed.</p></div>
         <div class="card" onclick="App.go('dialogue')"><div class="icon">💬</div><h3>Dialogues</h3><p>8 multi-speaker conversations with comprehension questions.</p></div>
         <div class="card" onclick="App.go('speak')"><div class="icon">🎙️</div><h3>Speaking Mirror</h3><p>Repeat the sentence with word-by-word pronunciation diff.</p></div>

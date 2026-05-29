@@ -9,6 +9,17 @@ window.GrammarModule = (function () {
         <h1>Pattern first.<br/>Rule second.</h1>
         <p style="margin-top:var(--sp-4)">Like a child. Then like a student. Then like an athlete.</p>
       </section>
+
+      <div class="spotlight" onclick="App.go('deepdive')" style="cursor:pointer;border:1px solid var(--accent)">
+        <div>
+          <p class="eyebrow">CLB 6 traps</p>
+          <h2>Deep dives — the four hardest grammar concepts, solved visually</h2>
+          <p>y vs en · pronoun order · si-clauses · qui/que/dont/où. Decision trees, not memorization.</p>
+        </div>
+        <button class="btn primary" onclick="event.stopPropagation();App.go('deepdive')">Open<span class="arr">→</span></button>
+      </div>
+
+      <h2 class="section-h">All units</h2>
       <div class="grid" id="g-grid"></div>`;
     const grid = container.querySelector('#g-grid');
     for (const u of GRAMMAR) {
@@ -43,16 +54,64 @@ window.GrammarModule = (function () {
       }).join('');
     }
 
+    // ---------- Deep-dive optional sections ----------
+    function patternHTML() {
+      if (!u.pattern || !u.pattern.length) return '';
+      return `
+        <div class="grammar-box" style="border-left-color:var(--accent)">
+          <h3>1 · Spot the pattern</h3>
+          <p style="color:var(--ink-2);font-size:var(--fs-14)">Read these aloud. Notice what changes. Don't try to memorize a rule yet.</p>
+          ${u.pattern.map(ex => `<div class="example">${ex}</div>`).join('')}
+        </div>`;
+    }
+    function whyHTML() {
+      if (!u.why) return '';
+      return `
+        <div class="grammar-box" style="border-left-color:var(--accent)">
+          <h3>2 · Why it works this way</h3>
+          <p>${u.why}</p>
+        </div>`;
+    }
+    function bridgeHTML() {
+      if (!u.enBridge) return '';
+      return `
+        <div class="grammar-box" style="border-left-color:var(--bleu)">
+          <h3>🇬🇧 ↔ 🇫🇷 English bridge</h3>
+          <p>${u.enBridge}</p>
+        </div>`;
+    }
+    function contrastHTML() {
+      if (!u.contrast || !u.contrast.length) return '';
+      return `
+        <div class="grammar-box" style="border-left-color:var(--warn)">
+          <h3>4 · Don't confuse with…</h3>
+          <p style="color:var(--ink-2);font-size:var(--fs-14)">Nearest look-alike forms. Read both, feel the difference.</p>
+          <table class="conj-table" style="margin-top:var(--sp-3)"><tbody>
+            ${u.contrast.map(c => `<tr><td style="width:50%">${c.form || c[0]}</td><td>${c.gloss || c[1]}</td></tr>`).join('')}
+          </tbody></table>
+        </div>`;
+    }
+
     function renderIntro() {
+      const hasDeepDive = !!(u.pattern || u.why || u.contrast || u.enBridge);
+      const ruleHeader = hasDeepDive
+        ? `<h3 style="font-size:var(--fs-19);color:var(--ink);margin:var(--sp-6) 0 var(--sp-3);letter-spacing:var(--ls-snug)">3 · The rule</h3>`
+        : '';
+
       container.innerHTML = `
         ${Chrome.render({ back: 'grammar', crumbs: ['Grammar', u.title] })}
         <div class="lesson">
           <h2>${u.icon} ${u.title} <span class="tag">${u.level}</span></h2>
           <p style="font-size:var(--fs-17);line-height:var(--lh-loose);margin:var(--sp-3) 0 var(--sp-5);color:var(--ink-2)">${u.intro}</p>
+          ${patternHTML()}
+          ${whyHTML()}
+          ${bridgeHTML()}
+          ${ruleHeader}
           ${rulesHTML()}
+          ${contrastHTML()}
           <div class="spacer"></div>
           <div class="row" style="justify-content:flex-end">
-            <button class="btn primary big" id="start-quiz">Practice<span class="arr">→</span></button>
+            <button class="btn primary big" id="start-quiz">${hasDeepDive ? '5 · Practice' : 'Practice'}<span class="arr">→</span></button>
           </div>
         </div>`;
       container.querySelector('#start-quiz').onclick = () => { phase = 'quiz'; renderQuiz(); };
