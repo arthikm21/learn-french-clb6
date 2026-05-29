@@ -1,80 +1,88 @@
-// Learning path — phases collapse when complete, expand current + remaining.
+// Path — 8 phases, each ending in a gate. Phase ladder + collapsible item lists.
+// Uses PHASES + Path helpers from data/lessons.js.
+
 window.PathModule = (function () {
+  function escapeHTML(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[c]));
+  }
+
   function render(container) {
-    const completed = LESSON_PATH.filter(n => isDone(n)).length;
-    const total = LESSON_PATH.length;
-    const nextIdx = LESSON_PATH.findIndex(n => !isDone(n));
-    const pct = Math.round((completed / total) * 100);
+    const totalDone = LESSON_PATH.filter(Path.isItemDone).length;
+    const totalPct = Math.round((totalDone / LESSON_PATH.length) * 100);
+    const nextItem = LESSON_PATH.find(n => !Path.isItemDone(n));
+    const currentPhaseId = nextItem ? nextItem.phase : PHASES[PHASES.length - 1].id;
 
     container.innerHTML = `
       ${Chrome.render({ back: 'home', crumbs: ['Home', 'Path'] })}
       <section class="hero">
         <div class="flag-stripes"></div>
-        <p style="text-transform:uppercase;letter-spacing:var(--ls-wide);font-size:var(--fs-12);font-weight:var(--fw-semi);color:var(--mute);margin-bottom:var(--sp-3)">Your Path to CLB 6</p>
-        <h1>Eight phases.<br/>One path.</h1>
-        <p style="margin-top:var(--sp-4)">${completed} of ${total} milestones complete · ${pct}%. Tap any unit. Next step is highlighted.</p>
-        <div class="progress" style="height:6px;background:var(--surface-2);border-radius:var(--r-pill);overflow:hidden;margin-top:var(--sp-5);max-width:480px">
-          <div style="height:100%;width:${pct}%;background:var(--ink);border-radius:var(--r-pill);transition:width var(--t-slow) var(--ease-out)"></div>
+        <p class="eyebrow-h">Your Path to CLB 6</p>
+        <h1>Eight phases.<br/>Seven gates.<br/>One goal.</h1>
+        <p style="margin-top:var(--sp-4)">${totalDone} of ${LESSON_PATH.length} milestones · ${totalPct}%. Each phase ends in a mini-mock gate. Pass it to unlock the next phase.</p>
+        <div class="progress" style="height:6px;background:var(--surface-2);border-radius:var(--r-pill);overflow:hidden;margin-top:var(--sp-5);max-width:520px">
+          <div style="height:100%;width:${totalPct}%;background:var(--ink);border-radius:var(--r-pill);transition:width var(--t-slow) var(--ease-out)"></div>
         </div>
       </section>
-      <div id="phases"></div>`;
 
-    const phases = container.querySelector('#phases');
+      <div id="phases"></div>
+    `;
 
-    const phaseRanges = [
-      { name: 'Foundation — Sounds & Greetings', start: 1,  end: 8  },
-      { name: 'Core Grammar A1',                 start: 9,  end: 19 },
-      { name: 'Communication Starts',            start: 20, end: 30 },
-      { name: 'Past Tense & More Vocab',         start: 31, end: 40 },
-      { name: 'Future & Intermediate',           start: 41, end: 51 },
-      { name: 'Imparfait & CLB 4-5',             start: 52, end: 61 },
-      { name: 'CLB 5 → 6 Push',                  start: 62, end: 84 },
-      { name: 'CLB 6 Mocks',                     start: 85, end: 92 },
-    ];
+    const host = container.querySelector('#phases');
 
-    const currentPhaseIdx = (() => {
-      if (nextIdx < 0) return phaseRanges.length - 1;
-      const id = LESSON_PATH[nextIdx].id;
-      return phaseRanges.findIndex(p => id >= p.start && id <= p.end);
-    })();
-
-    phaseRanges.forEach((ph, phIdx) => {
-      const items = LESSON_PATH.filter(n => n.id >= ph.start && n.id <= ph.end);
+    PHASES.forEach(ph => {
+      const items = Path.itemsInPhase(ph.id);
       if (items.length === 0) return;
-      const phDone = items.filter(isDone).length;
-      const isCurrent = phIdx === currentPhaseIdx;
-      const allDone = phDone === items.length;
-      const collapsed = allDone && phIdx < currentPhaseIdx;
 
-      const phSec = document.createElement('details');
-      phSec.style.marginBottom = '12px';
-      if (!collapsed) phSec.open = true;
+      const prog = Path.phaseProgress(ph.id);
+      const unlocked = Path.phaseUnlocked(ph.id);
+      const passed = Path.gatePassed(ph.id);
+      const eligible = Path.gateEligible(ph.id);
+      const isCurrent = ph.id === currentPhaseId;
+      const allDone = prog.done === prog.total;
 
-      const statusGlyph = allDone ? '✓' : (isCurrent ? '▶' : phIdx + 1);
-      const statusColor = allDone ? 'var(--good)' : (isCurrent ? 'var(--accent)' : 'var(--ink-2)');
-      const statusBg    = allDone ? 'rgba(52,199,89,.12)' : (isCurrent ? 'rgba(94,92,230,.12)' : 'var(--surface-2)');
+      // Auto-collapse fully-completed phases that are NOT current.
+      const collapsed = passed && !isCurrent;
 
-      phSec.innerHTML = `
+      const statusGlyph = passed ? '✓' : !unlocked ? '🔒' : isCurrent ? '▶' : ph.id;
+      const statusColor = passed ? 'var(--good)' : !unlocked ? 'var(--mute)' : isCurrent ? 'var(--accent)' : 'var(--ink-2)';
+      const statusBg    = passed ? 'rgba(52,199,89,.12)' : !unlocked ? 'var(--surface-2)' : isCurrent ? 'rgba(94,92,230,.12)' : 'var(--surface-2)';
+
+      const sec = document.createElement('details');
+      sec.style.marginBottom = '12px';
+      if (!collapsed) sec.open = true;
+      sec.style.opacity = unlocked ? '1' : '.65';
+
+      sec.innerHTML = `
         <summary style="cursor:pointer;list-style:none;padding:var(--sp-4) var(--sp-5);background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);display:flex;justify-content:space-between;align-items:center;box-shadow:var(--e1);user-select:none;gap:var(--sp-3)">
           <span style="display:flex;align-items:center;gap:var(--sp-3);min-width:0">
-            <span style="flex-shrink:0;width:32px;height:32px;border-radius:var(--r-pill);background:${statusBg};color:${statusColor};display:grid;place-items:center;font-weight:var(--fw-bold);font-size:var(--fs-14);font-variant-numeric:tabular-nums">${statusGlyph}</span>
-            <span style="font-weight:var(--fw-semi);font-size:var(--fs-17);color:var(--ink);letter-spacing:var(--ls-snug);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Phase ${phIdx + 1} · ${ph.name}</span>
+            <span style="flex-shrink:0;width:36px;height:36px;border-radius:var(--r-pill);background:${statusBg};color:${statusColor};display:grid;place-items:center;font-weight:var(--fw-bold);font-size:var(--fs-14);font-variant-numeric:tabular-nums">${statusGlyph}</span>
+            <span style="min-width:0">
+              <p style="text-transform:uppercase;letter-spacing:var(--ls-wide);font-size:var(--fs-11);font-weight:var(--fw-semi);color:var(--mute);margin-bottom:2px">Phase ${ph.id} · ${escapeHTML(ph.clb)}</p>
+              <span style="font-weight:var(--fw-semi);font-size:var(--fs-17);color:var(--ink);letter-spacing:var(--ls-snug)">${ph.icon} ${escapeHTML(ph.name)}</span>
+            </span>
           </span>
-          <span style="font-weight:var(--fw-semi);font-size:var(--fs-13);color:var(--mute);flex-shrink:0;font-variant-numeric:tabular-nums">${phDone}/${items.length}</span>
+          <span style="font-weight:var(--fw-semi);font-size:var(--fs-13);color:var(--mute);flex-shrink:0;font-variant-numeric:tabular-nums">${prog.done}/${prog.total}</span>
         </summary>
-        <div class="path-list" style="padding:var(--sp-3) 0 0 0"></div>`;
-      const list = phSec.querySelector('.path-list');
-      items.forEach((n) => {
-        const done = isDone(n);
-        const isNext = (LESSON_PATH[nextIdx] && LESSON_PATH[nextIdx].id === n.id);
+        <div style="padding:var(--sp-3) 0 0 0">
+          <p style="color:var(--ink-2);font-size:var(--fs-14);padding:0 var(--sp-3);margin-bottom:var(--sp-3)">${escapeHTML(ph.desc)}</p>
+          <div class="path-list" data-list></div>
+          <div data-gate-host></div>
+        </div>
+      `;
+
+      // Lessons
+      const list = sec.querySelector('[data-list]');
+      items.forEach(n => {
+        const done = Path.isItemDone(n);
+        const isNext = !!(nextItem && nextItem.id === n.id);
         const node = document.createElement('div');
         node.className = `path-node ${done ? 'done' : (isNext ? 'unlocked' : '')}`;
-        if (isNext) {
-          node.style.boxShadow = '0 0 0 2px var(--accent), var(--e2)';
-        }
-        const nextTag = isNext
-          ? '<span class="tag" style="background:var(--accent);color:white">Next</span>'
-          : '';
+        if (isNext) node.style.boxShadow = '0 0 0 2px var(--accent), var(--e2)';
+
+        const nextTag = isNext ? '<span class="tag" style="background:var(--accent);color:white">Next</span>' : '';
+
         node.innerHTML = `
           <div class="num">${done ? '✓' : n.id}</div>
           <div class="info">
@@ -93,28 +101,38 @@ window.PathModule = (function () {
         };
         list.appendChild(node);
       });
-      phases.appendChild(phSec);
+
+      // Gate card at the end of the phase
+      const gateHost = sec.querySelector('[data-gate-host]');
+      const gateLabel = passed
+        ? `<span class="tag" style="background:rgba(52,199,89,.12);color:var(--good)">✓ Gate passed</span>`
+        : eligible
+          ? `<span class="tag" style="background:rgba(94,92,230,.12);color:var(--accent)">Ready to take</span>`
+          : `<span class="tag">Complete 80% of the phase</span>`;
+
+      const gateCard = document.createElement('div');
+      gateCard.className = 'card';
+      gateCard.style.marginTop = 'var(--sp-3)';
+      gateCard.style.cursor = unlocked ? 'pointer' : 'not-allowed';
+      gateCard.style.opacity = unlocked ? '1' : '.5';
+      gateCard.style.borderColor = passed ? 'var(--good)' : eligible ? 'var(--accent)' : 'var(--line)';
+      gateCard.innerHTML = `
+        <div class="row" style="justify-content:space-between;align-items:flex-start;gap:var(--sp-3)">
+          <div style="flex:1;min-width:0">
+            <p style="text-transform:uppercase;letter-spacing:var(--ls-wide);font-size:var(--fs-11);font-weight:var(--fw-semi);color:var(--mute);margin-bottom:6px">Phase ${ph.id} · Gate</p>
+            <h3>${ph.final ? '🎯' : '🛡️'} ${escapeHTML(ph.gateTitle)}</h3>
+            <p style="margin-top:4px;color:var(--ink-2);font-size:var(--fs-14)">${escapeHTML(ph.gateDesc)}</p>
+          </div>
+          ${gateLabel}
+        </div>`;
+      gateCard.onclick = () => {
+        if (!unlocked) { Toast.info(`Pass Phase ${ph.id - 1}'s gate first.`); return; }
+        App.go('gate', { phase: String(ph.id) });
+      };
+      gateHost.appendChild(gateCard);
+
+      host.appendChild(sec);
     });
-  }
-
-  function isDone(n) {
-    const keys = {
-      vocab: `vocab:${n.deck}`,
-      grammar: `grammar:${n.unit}`,
-      phonics: `phonics:${n.unit}`,
-      games: `games:${n.game}`,
-      listen: `listen:${n.set}`,
-      speak: `speak:${n.set}`,
-      read: `read:${n.text}`,
-      write: `write:${n.prompt}`,
-    };
-    return !!App.state.lessons[keys[n.route]];
-  }
-
-  function escapeHTML(s) {
-    return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({
-      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-    }[c]));
   }
 
   return { render };

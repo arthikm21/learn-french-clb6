@@ -22,6 +22,10 @@ window.App = (function () {
     if (!state.lessons[key]) {
       state.lessons[key] = true;
       save();
+      // Log activity for the progress page heatmap + streak.
+      if (window.ProgressModule && typeof ProgressModule.logActivity === 'function') {
+        ProgressModule.logActivity();
+      }
     }
   }
 
@@ -39,6 +43,8 @@ window.App = (function () {
   const routes = {
     home: renderHome,
     path: (c) => PathModule.render(c),
+    progress: (c) => ProgressModule.render(c),
+    gate: (c, p) => PhaseGateModule.render(c, p),
     phonics: (c, p) => PhonicsModule.render(c, p),
     vocab: (c, p) => VocabModule.render(c, p),
     grammar: (c, p) => GrammarModule.render(c, p),
@@ -193,6 +199,17 @@ window.App = (function () {
         <button class="btn big" onclick="event.stopPropagation();App.go('mock')" style="background:var(--rouge);color:white">Start mock<span class="arr">→</span></button>
       </div>
 
+      <h2 class="section-h">Your phases</h2>
+      <p class="section-sub">Eight phases. Seven gates. Each one ends in a mini-mock that unlocks the next.</p>
+      <div class="phase-strip" id="phase-strip"></div>
+
+      <div class="spacer"></div>
+      <div class="row" style="justify-content:center;gap:var(--sp-3)">
+        <button class="btn primary" onclick="App.go('progress')">View progress<span class="arr">→</span></button>
+        <button class="btn ghost" onclick="App.go('gate')">All gates</button>
+        <button class="btn ghost" onclick="App.go('path')">Full path</button>
+      </div>
+
       <h2 class="section-h">Practice areas</h2>
       <p class="section-sub">Every module is open. Path orders them. Mistakes feed back into review.</p>
       <div class="grid">
@@ -247,6 +264,40 @@ window.App = (function () {
         <a onclick="App.go('profile')" style="color:var(--ink-2);cursor:pointer">Profile</a>
       </p>
     `;
+    // Hydrate phase strip
+    const strip = container.querySelector('#phase-strip');
+    if (strip && window.PHASES) {
+      const currentPhaseId = (LESSON_PATH.find(n => !Path.isItemDone(n)) || {}).phase || PHASES[PHASES.length - 1].id;
+      strip.innerHTML = PHASES.map(ph => {
+        const prog = Path.phaseProgress(ph.id);
+        const passed = Path.gatePassed(ph.id);
+        const unlocked = Path.phaseUnlocked(ph.id);
+        const isCurrent = ph.id === currentPhaseId;
+        const cls = ['phase-chip'];
+        if (passed) cls.push('done');
+        if (!unlocked) cls.push('locked');
+        const label = passed ? '✓ Passed' : !unlocked ? '🔒 Locked' : isCurrent ? '▶ Current' : 'Open';
+        return `
+          <div class="${cls.join(' ')}" data-ph="${ph.id}">
+            <p class="eyebrow">Phase ${ph.id} · ${escapeHTML(ph.clb)}</p>
+            <h4>${ph.icon} ${escapeHTML(ph.name)}</h4>
+            <p class="meta">${escapeHTML(ph.subtitle)}</p>
+            <div class="meter"><div style="width:${prog.pct}%"></div></div>
+            <p class="meta" style="font-variant-numeric:tabular-nums;display:flex;justify-content:space-between"><span>${label}</span><span>${prog.done}/${prog.total}</span></p>
+          </div>`;
+      }).join('');
+      strip.querySelectorAll('[data-ph]').forEach(el => {
+        el.onclick = () => {
+          const id = parseInt(el.dataset.ph);
+          const ph = PHASES.find(p => p.id === id);
+          if (!Path.phaseUnlocked(id)) {
+            Toast.info(`Pass Phase ${id - 1}'s gate first.`);
+            return;
+          }
+          App.go('gate', { phase: String(id) });
+        };
+      });
+    }
   }
 
   function renderAbout(container) {
