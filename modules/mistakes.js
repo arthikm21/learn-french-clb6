@@ -68,16 +68,19 @@ window.MistakesModule = (function () {
     const due = all.filter(x => (x.due || 0) <= Date.now());
     if (all.length === 0) {
       container.innerHTML = `
-        <div class="hero"><div class="flag-stripes"></div>
-          <h1>🎯 Weak Spots</h1>
-          <p>Items you got wrong show up here. Review and dismiss when mastered.</p>
-        </div>
+        ${Chrome.render({ back: 'home', crumbs: ['Home', 'Weak Spots'] })}
+        <section class="hero">
+          <div class="flag-stripes"></div>
+          <p class="eyebrow-h">Weak Spots</p>
+          <h1>Nothing here.<br/>Yet.</h1>
+          <p style="margin-top:var(--sp-4)">Get questions wrong and they appear here for spaced review.</p>
+        </section>
         <div class="empty">
           <div class="big-icon">✨</div>
-          <h2>No mistakes recorded yet!</h2>
-          <p>Get some questions wrong and they'll appear here for spaced review.</p>
+          <h2>All clear</h2>
+          <p>Start a lesson — mistakes auto-record and surface here on a spaced schedule.</p>
           <div class="spacer"></div>
-          <button class="btn big" onclick="App.go('path')">Back to Path</button>
+          <button class="btn primary big" onclick="App.go('path')">Back to Path</button>
         </div>`;
       return;
     }
@@ -85,18 +88,21 @@ window.MistakesModule = (function () {
     const typeCounts = {};
     for (const m of all) typeCounts[m.type] = (typeCounts[m.type] || 0) + 1;
     container.innerHTML = `
-      <div class="hero"><div class="flag-stripes"></div>
-        <h1>🎯 Weak Spots — ${all.length} item${all.length === 1 ? '' : 's'}</h1>
-        <p><b>${due.length} due now.</b> Spaced schedule: review correctly → 1d → 3d → 7d → 14d → graduated.</p>
-      </div>
-      <div class="row" style="margin-bottom:14px;flex-wrap:wrap">
-        <button class="btn big" id="review-due">🔁 Review ${due.length} due</button>
+      ${Chrome.render({ back: 'home', crumbs: ['Home', 'Weak Spots'] })}
+      <section class="hero">
+        <div class="flag-stripes"></div>
+        <p class="eyebrow-h">Weak Spots · ${all.length} item${all.length === 1 ? '' : 's'}</p>
+        <h1>${due.length} due now.</h1>
+        <p style="margin-top:var(--sp-4)">Review correctly → 1d → 3d → 7d → 14d → graduated.</p>
+      </section>
+      <div class="row" style="margin-bottom:var(--sp-4);flex-wrap:wrap">
+        <button class="btn primary big" id="review-due">Review ${due.length} due</button>
         <button class="btn secondary" id="review-all">All ${all.length}</button>
-        <button class="btn ghost" id="clear-all">🗑️ Clear all</button>
+        <button class="btn ghost" id="clear-all">Clear all</button>
       </div>
-      <div class="row" style="margin-bottom:14px;flex-wrap:wrap;gap:6px">
-        ${Object.entries(typeCounts).map(([t, n]) => `<button class="btn ghost" data-filter="${t}" style="font-size:13px;padding:6px 12px;min-height:auto">${t} (${n})</button>`).join('')}
-        <button class="btn ghost" data-filter="" style="font-size:13px;padding:6px 12px;min-height:auto">all</button>
+      <div class="row" style="margin-bottom:var(--sp-4);flex-wrap:wrap;gap:6px">
+        ${Object.entries(typeCounts).map(([t, n]) => `<button class="btn sm ghost" data-filter="${t}">${t} (${n})</button>`).join('')}
+        <button class="btn sm ghost" data-filter="">all</button>
       </div>
       <div id="list"></div>`;
     let currentFilter = '';
@@ -116,7 +122,7 @@ window.MistakesModule = (function () {
           <div class="row" style="justify-content:space-between;align-items:flex-start;gap:8px;flex-wrap:wrap">
             <div style="flex:1;min-width:0">
               <span class="tag">${mk.type}</span>
-              <span class="tag" style="background:${dueSoon ? '#fee2e2' : '#dcfce7'};color:${dueSoon ? 'var(--bad)' : 'var(--good)'}">${dueLabel}</span>
+              <span class="tag" style="background:${dueSoon ? 'rgba(255,59,48,.12)' : 'rgba(52,199,89,.12)'};color:${dueSoon ? 'var(--bad)' : 'var(--good)'}">${dueLabel}</span>
               <span class="tag">L${mk.level || 0}/4</span>
               <span style="color:var(--mute);font-size:13px"> · ${ago}</span>
               <p style="margin-top:8px">${mk.prompt}</p>

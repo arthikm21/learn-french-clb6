@@ -4,7 +4,7 @@ window.WriteTask3Module = (function () {
   function renderList(container) {
     const tasks = window.WRITE_TASK3;
     container.innerHTML = `
-      <div class="hero" style="background:linear-gradient(135deg,#7c3aed,#0055A4)">
+      <div class="hero">
         <div class="flag-stripes"></div>
         <h1>✍️ Writing Task 3 — Compare 2 opinions</h1>
         <p>The hardest TCF EE task: read 2 short opposing views, write ~150 words summarizing both and giving your own opinion with reasons.</p>
@@ -30,7 +30,7 @@ window.WriteTask3Module = (function () {
       card.innerHTML = `
         <div class="icon">✍️</div>
         <h3>${t.title}</h3>
-        <p><span class="tag">${t.level}</span>${done ? ' <span class="tag" style="background:#dcfce7;color:var(--good)">✓ Done</span>' : ''}</p>
+        <p><span class="tag">${t.level}</span>${done ? ' <span class="tag" style="color:var(--good)">✓ Done</span>' : ''}</p>
         <p style="margin-top:8px;font-size:13px;color:var(--mute)">${t.topic}</p>`;
       card.onclick = () => App.go('writetask3', { id: k });
       grid.appendChild(card);
@@ -50,15 +50,15 @@ window.WriteTask3Module = (function () {
           <h3>📜 Question</h3>
           <p style="font-style:italic">${t.topic}</p>
         </div>
-        <div class="grammar-box" style="background:#eff6ff;border-left-color:var(--bleu)">
+        <div class="grammar-box" style="border-left-color:var(--bleu)">
           <h3>👤 Opinion A — ${t.opinionA.author}</h3>
           <p>${t.opinionA.text}</p>
         </div>
-        <div class="grammar-box" style="background:#fef2f2;border-left-color:var(--rouge)">
+        <div class="grammar-box" style="border-left-color:var(--rouge)">
           <h3>👥 Opinion B — ${t.opinionB.author}</h3>
           <p>${t.opinionB.text}</p>
         </div>
-        <div class="grammar-box" style="background:#fffdf7;border-left-color:var(--warn)">
+        <div class="grammar-box" style="border-left-color:var(--warn)">
           <h3>✍️ Your task</h3>
           <p>${t.promptInstructions}</p>
         </div>
@@ -152,7 +152,7 @@ window.WriteTask3Module = (function () {
     }
 
     const passColor = tcfScore >= 7 ? 'var(--good)' : 'var(--warn)';
-    const passBg = tcfScore >= 7 ? '#dcfce7' : '#fef3c7';
+    const passBg = tcfScore >= 7 ? 'rgba(52,199,89,.12)' : 'rgba(255,159,10,.12)';
     container.querySelector('#wt3-report').innerHTML = `
       <div class="grammar-box" style="background:${passBg};border-left-color:${passColor}">
         <h3>📊 TCF EE estimated: ${tcfScore}/20 · CLB ${clb}</h3>
@@ -162,7 +162,7 @@ window.WriteTask3Module = (function () {
           <span class="tag">Sentences: ${sentences}</span>
           <span class="tag">Rubric: ${rubricPassed}/${rubricChecks.length}</span>
           <span class="tag">Lexical variety: ${Math.round(uniqueRatio * 100)}%</span>
-          ${grammarErrors.length ? `<span class="tag" style="background:#fee2e2;color:var(--bad)">Errors: ${grammarErrors.length}</span>` : '<span class="tag" style="background:#dcfce7;color:var(--good)">No grammar errors</span>'}
+          ${grammarErrors.length ? `<span class="tag" style="color:var(--bad)">Errors: ${grammarErrors.length}</span>` : '<span class="tag" style="color:var(--good)">No grammar errors</span>'}
         </div>
       </div>
       <div class="grammar-box">
@@ -170,14 +170,14 @@ window.WriteTask3Module = (function () {
         <ul style="margin-left:20px;line-height:1.9">${rubricChecks.map(r => `<li>${r.pass ? '✅' : '⬜'} ${r.label}</li>`).join('')}</ul>
       </div>
       ${grammarErrors.length ? `
-      <div class="grammar-box" style="background:#fee2e2;border-left-color:var(--bad)">
+      <div class="grammar-box" style="border-left-color:var(--bad)">
         <h3>⚠️ Grammar errors detected</h3>
         <ul style="margin-left:20px;line-height:1.8">${grammarErrors.map(e => {
           const sug = e.suggestion ? ` → try <b>${escapeHTML(e.suggestion)}</b>` : '';
           return `<li><code>${escapeHTML(e.span || '')}</code> — ${e.message}${sug}</li>`;
         }).join('')}</ul>
       </div>` : ''}
-      <div class="grammar-box" style="background:#f9fafb">
+      <div class="grammar-box" style="background:var(--surface-2)">
         <h3>💡 TCF Task 3 strategy</h3>
         <p>If you scored below 7/20: re-read both opinions, write a single sentence summary of each, then choose your side and list 2 reasons before composing your paragraph. Read aloud to catch flow errors.</p>
       </div>`;

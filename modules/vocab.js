@@ -2,10 +2,13 @@
 window.VocabModule = (function () {
   function renderDeckPicker(container) {
     container.innerHTML = `
-      <div class="hero"><div class="flag-stripes"></div>
-        <h1>🃏 Vocab Garden</h1>
-        <p>Pick a deck. Flip the card. Hear it. Rate how well you knew it — the system schedules reviews automatically.</p>
-      </div>
+      ${Chrome.render({ back: 'home', crumbs: ['Home', 'Vocab'] })}
+      <section class="hero">
+        <div class="flag-stripes"></div>
+        <p class="eyebrow-h">Vocabulary</p>
+        <h1>Hear it.<br/>Then know it.</h1>
+        <p style="margin-top:var(--sp-4)">Pick a deck. Flip the card. Rate how easy. SRS schedules your next review automatically.</p>
+      </section>
       <div class="grid" id="deck-grid"></div>`;
     const grid = container.querySelector('#deck-grid');
     for (const key of Object.keys(VOCAB)) {
@@ -36,9 +39,13 @@ window.VocabModule = (function () {
       const c = cards[i];
       const genderTag = c.g ? `<span class="tag ${c.g === 'f' ? 'fem' : 'masc'}">${c.g === 'f' ? 'feminine' : 'masculine'}</span>` : '';
       container.innerHTML = `
+        ${Chrome.render({
+          back: 'vocab',
+          crumbs: ['Vocab', deck.name],
+          progress: { current: i, total: cards.length }
+        })}
         <div class="lesson">
           <h2>${deck.icon} ${deck.name}</h2>
-          <div class="progress"><div style="width:${(i / cards.length) * 100}%"></div></div>
           <div class="flashcard" id="fc">
             <div class="inner">
               <div class="face front">
@@ -90,14 +97,17 @@ window.VocabModule = (function () {
     function finish() {
       App.markLessonDone(`vocab:${deckKey}`);
       container.innerHTML = `
+        ${Chrome.render({ back: 'vocab', crumbs: ['Vocab', deck.name, 'Complete'] })}
         <div class="lesson center">
           <div class="empty">
             <div class="big-icon">🎉</div>
             <h2>Bravo !</h2>
-            <p>You reviewed ${cards.length} cards. Come back tomorrow — the system will surface the cards you need.</p>
+            <p>You reviewed ${cards.length} cards. Come back tomorrow — the system surfaces the cards you need.</p>
             <div class="spacer"></div>
-            <button class="btn big" onclick="App.go('vocab')">More Vocab</button>
-            <button class="btn ghost big" onclick="App.go('path')">Back to Path</button>
+            <div class="row" style="justify-content:center">
+              <button class="btn primary big" onclick="App.go('vocab')">More vocab<span class="arr">→</span></button>
+              <button class="btn ghost big" onclick="App.go('path')">Back to Path</button>
+            </div>
           </div>
         </div>`;
     }

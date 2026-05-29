@@ -5,7 +5,7 @@ window.SpeakTask2Module = (function () {
   function renderList(container) {
     const tasks = window.SPEAK_TASK2;
     container.innerHTML = `
-      <div class="hero" style="background:linear-gradient(135deg,#7c3aed,#0055A4)">
+      <div class="hero">
         <div class="flag-stripes"></div>
         <h1>🗣️ Speaking Task 2 — Ask Questions</h1>
         <p>Unique to TCF Canada. Given a scenario, you must <b>ask questions</b> to gather information. This is the task most candidates fail because it's never practiced.</p>
@@ -29,7 +29,7 @@ window.SpeakTask2Module = (function () {
       card.innerHTML = `
         <div class="icon">❓</div>
         <h3>${t.title}</h3>
-        <p><span class="tag">${t.level}</span>${done ? ' <span class="tag" style="background:#dcfce7;color:var(--good)">✓ Done</span>' : ''}</p>
+        <p><span class="tag">${t.level}</span>${done ? ' <span class="tag" style="color:var(--good)">✓ Done</span>' : ''}</p>
         <p style="margin-top:8px;font-size:13px;color:var(--mute)">${t.requiredInfo.length} info areas to ask about</p>`;
       card.onclick = () => App.go('speaktask2', { id: k });
       grid.appendChild(card);
@@ -47,7 +47,7 @@ window.SpeakTask2Module = (function () {
     container.innerHTML = `
       <div class="lesson">
         <h2>❓ ${t.title} <span class="tag">${t.level}</span></h2>
-        <div class="grammar-box" style="background:#fffdf7;border-left-color:var(--warn)">
+        <div class="grammar-box" style="border-left-color:var(--warn)">
           <h3>📋 Scenario</h3>
           <p>${t.scenario}</p>
         </div>
@@ -182,7 +182,7 @@ window.SpeakTask2Module = (function () {
     if (total >= 65) App.markLessonDone(`st2:${id}`);
 
     const passColor = tcfScore >= 7 ? 'var(--good)' : 'var(--warn)';
-    const passBg = tcfScore >= 7 ? '#dcfce7' : '#fef3c7';
+    const passBg = tcfScore >= 7 ? 'rgba(52,199,89,.12)' : 'rgba(255,159,10,.12)';
 
     container.querySelector('#st2-report').innerHTML = `
       <div class="grammar-box" style="background:${passBg};border-left-color:${passColor};margin-top:14px">
@@ -201,11 +201,11 @@ window.SpeakTask2Module = (function () {
           ${t.requiredInfo.map(info => `<li>${infoMatched.includes(info) ? '✅' : '⬜'} ${info}</li>`).join('')}
         </ul>
       </div>
-      <div class="grammar-box" style="background:#eff6ff">
+      <div class="grammar-box" style="background:rgba(0,85,164,.08)">
         <h3>📜 Sample questions (study these)</h3>
         <ul style="margin-left:20px;line-height:1.9">${t.sampleQuestions.map(q => `<li><b>${q}</b></li>`).join('')}</ul>
       </div>
-      <div class="grammar-box" style="background:#f9fafb">
+      <div class="grammar-box" style="background:var(--surface-2)">
         <h3>💬 Your transcript</h3>
         <p style="font-style:italic">"${text || '<i>no recording</i>'}"</p>
       </div>`;

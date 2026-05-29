@@ -40,10 +40,13 @@ window.SpeakModule = (function () {
 
   function renderList(container) {
     container.innerHTML = `
-      <div class="hero"><div class="flag-stripes"></div>
-        <h1>🎙️ Speaking Mirror</h1>
-        <p>Press mic. Repeat the sentence aloud. Get word-by-word feedback. Best in Chrome/Edge/Brave.</p>
-      </div>
+      ${Chrome.render({ back: 'home', crumbs: ['Home', 'Speak'] })}
+      <section class="hero">
+        <div class="flag-stripes"></div>
+        <p class="eyebrow-h">Speaking Mirror</p>
+        <h1>Say it.<br/>See it scored.</h1>
+        <p style="margin-top:var(--sp-4)">Press mic. Repeat aloud. Word-by-word feedback. Chrome / Edge / Brave required.</p>
+      </section>
       <div class="grid" id="s-grid"></div>`;
     const grid = container.querySelector('#s-grid');
     for (const k of Object.keys(SETS)) {
@@ -63,11 +66,15 @@ window.SpeakModule = (function () {
       if (i >= s.items.length) return finish();
       const target = s.items[i];
       container.innerHTML = `
+        ${Chrome.render({
+          back: 'speak',
+          crumbs: ['Speak', s.title],
+          progress: { current: i, total: s.items.length }
+        })}
         <div class="lesson">
           <h2>🎙️ ${s.title}</h2>
-          <div class="progress"><div style="width:${(i / s.items.length) * 100}%"></div></div>
           <div class="center">
-            <p style="font-size:22px;font-family:'Fredoka';color:var(--bleu);margin:18px 0;line-height:1.4">${target}</p>
+            <p style="font-size:var(--fs-28);font-weight:var(--fw-bold);letter-spacing:var(--ls-snug);color:var(--ink);margin:var(--sp-5) 0;line-height:var(--lh-snug)">${target}</p>
             <div class="row" style="justify-content:center;gap:8px">
               <button class="btn secondary" data-rate="0.7">🐢 Slow</button>
               <button class="btn secondary" data-rate="1.0">🔊 Hear</button>
@@ -83,9 +90,8 @@ window.SpeakModule = (function () {
             <div id="fb"></div>
           </div>
           <div class="spacer"></div>
-          <div class="row" style="justify-content:space-between">
-            <button class="btn ghost" onclick="App.go('speak')">← Quit</button>
-            <button class="btn" id="next">Skip / Next →</button>
+          <div class="row" style="justify-content:flex-end">
+            <button class="btn secondary" id="next">Skip / Next<span class="arr">→</span></button>
           </div>
         </div>`;
       container.querySelectorAll('[data-rate]').forEach(b => {
@@ -128,10 +134,10 @@ window.SpeakModule = (function () {
         // Render word-level diff with target words colored
         const targetTokens = target.split(/\s+/);
         const tNorm = d.targetWords;
-        diff.innerHTML = `<div style="font-size:18px;line-height:2;margin-top:10px">` +
+        diff.innerHTML = `<div style="font-size:var(--fs-19);line-height:2;margin-top:var(--sp-3)">` +
           targetTokens.map((tok, idx) => {
             const hit = d.hits[idx];
-            return `<span style="display:inline-block;padding:4px 8px;margin:2px;border-radius:6px;background:${hit ? '#dcfce7' : '#fee2e2'};color:${hit ? 'var(--good)' : 'var(--bad)'};font-weight:600">${tok}${hit ? ' ✓' : ' ✗'}</span>`;
+            return `<span style="display:inline-block;padding:4px 10px;margin:2px;border-radius:var(--r-sm);background:${hit ? 'rgba(52,199,89,.12)' : 'rgba(255,59,48,.12)'};color:${hit ? 'var(--good)' : 'var(--bad)'};font-weight:var(--fw-semi)">${tok}${hit ? ' ✓' : ' ✗'}</span>`;
           }).join('') +
           `</div>`;
 
@@ -160,15 +166,18 @@ window.SpeakModule = (function () {
       App.markLessonDone(`speak:${setKey}`);
       const avg = Math.round(totalScore / s.items.length);
       container.innerHTML = `
+        ${Chrome.render({ back: 'speak', crumbs: ['Speak', s.title, 'Result'] })}
         <div class="lesson center">
           <div class="empty">
             <div class="big-icon">🗣️</div>
-            <h2>Speaking Session Complete</h2>
+            <h2>Session complete</h2>
             <p>Average word-match score: <b>${avg}%</b></p>
-            <p style="color:var(--mute);margin-top:8px">${avg >= 80 ? 'Native-like rhythm. Keep going.' : avg >= 60 ? 'Solid. Replay the red words from your weak spots.' : 'Build up by shadowing the slow audio repeatedly. Quality beats speed.'}</p>
+            <p style="color:var(--mute);margin-top:var(--sp-2)">${avg >= 80 ? 'Native-like rhythm. Keep going.' : avg >= 60 ? 'Solid. Replay the red words from your weak spots.' : 'Shadow the slow audio repeatedly. Quality beats speed.'}</p>
             <div class="spacer"></div>
-            <button class="btn big" onclick="App.go('speak')">More Practice</button>
-            <button class="btn ghost big" onclick="App.go('path')">Back to Path</button>
+            <div class="row" style="justify-content:center">
+              <button class="btn primary big" onclick="App.go('speak')">More practice</button>
+              <button class="btn ghost big" onclick="App.go('path')">Back to Path</button>
+            </div>
           </div>
         </div>`;
     }

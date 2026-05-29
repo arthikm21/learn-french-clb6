@@ -21,10 +21,13 @@ window.ListenModule = (function () {
 
   function renderList(container) {
     container.innerHTML = `
-      <div class="hero"><div class="flag-stripes"></div>
-        <h1>🎧 Listening Lab</h1>
-        <p>Hear native Canadian French. Type what you hear. Use 🐢 slow first, then build up to 🐇 natural pace.</p>
-      </div>
+      ${Chrome.render({ back: 'home', crumbs: ['Home', 'Listen'] })}
+      <section class="hero">
+        <div class="flag-stripes"></div>
+        <p class="eyebrow-h">Listening Lab</p>
+        <h1>Hear it.<br/>Then type it.</h1>
+        <p style="margin-top:var(--sp-4)">Native Canadian French. Start slow. Build to natural pace.</p>
+      </section>
       <div class="grid" id="l-grid"></div>`;
     const grid = container.querySelector('#l-grid');
     for (const k of Object.keys(LISTENING)) {
@@ -44,9 +47,13 @@ window.ListenModule = (function () {
       if (i >= s.items.length) return finish();
       const it = s.items[i];
       container.innerHTML = `
+        ${Chrome.render({
+          back: 'listen',
+          crumbs: ['Listen', s.title],
+          progress: { current: i, total: s.items.length }
+        })}
         <div class="lesson">
           <h2>🎧 ${s.title}</h2>
-          <div class="progress"><div style="width:${(i / s.items.length) * 100}%"></div></div>
           <div class="center">
             <div class="row" style="justify-content:center;gap:8px;margin-bottom:8px;flex-wrap:wrap">
               <button class="btn secondary" data-rate="0.6">🐢 Slow</button>
@@ -60,12 +67,9 @@ window.ListenModule = (function () {
           <input class="input" id="ans" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="..." />
           <div id="fb"></div>
           <div class="spacer"></div>
-          <div class="row" style="justify-content:space-between">
-            <button class="btn ghost" onclick="App.go('listen')">← Quit</button>
-            <div class="row">
-              <button class="btn secondary" id="skip">Show answer</button>
-              <button class="btn" id="submit">Check</button>
-            </div>
+          <div class="row" style="justify-content:flex-end">
+            <button class="btn secondary" id="skip">Show answer</button>
+            <button class="btn primary" id="submit">Check</button>
           </div>
         </div>`;
       const inp = container.querySelector('#ans');
@@ -105,15 +109,18 @@ window.ListenModule = (function () {
       App.markLessonDone(`listen:${setKey}`);
       const pct = Math.round((correct / s.items.length) * 100);
       container.innerHTML = `
+        ${Chrome.render({ back: 'listen', crumbs: ['Listen', s.title, 'Result'] })}
         <div class="lesson center">
           <div class="empty">
             <div class="big-icon">${pct >= 70 ? '🎯' : '👂'}</div>
-            <h2>Listening Done</h2>
+            <h2>Listening done</h2>
             <p>Score: <b>${correct}/${s.items.length}</b> (${pct}%)</p>
-            <p style="color:var(--mute);margin-top:6px">${pct >= 80 ? 'Your ear is sharp. Try the natural-speed sets next.' : pct >= 50 ? 'Re-listen to the misses at slow speed, then natural.' : 'Slow it down. Build up. Repetition wins this.'}</p>
+            <p style="color:var(--mute);margin-top:var(--sp-2)">${pct >= 80 ? 'Your ear is sharp. Try the natural-speed sets next.' : pct >= 50 ? 'Re-listen to the misses at slow speed, then natural.' : 'Slow it down. Build up. Repetition wins this.'}</p>
             <div class="spacer"></div>
-            <button class="btn big" onclick="App.go('listen')">More Listening</button>
-            <button class="btn ghost big" onclick="App.go('path')">Back to Path</button>
+            <div class="row" style="justify-content:center">
+              <button class="btn primary big" onclick="App.go('listen')">More listening</button>
+              <button class="btn ghost big" onclick="App.go('path')">Back to Path</button>
+            </div>
           </div>
         </div>`;
     }

@@ -20,7 +20,7 @@ window.PCvsImpModule = (function () {
               ${f.cues.length ? `<p style="margin-top:8px"><b>Signal words:</b> ${f.cues.map(c => `<span class="tag">${c}</span>`).join(' ')}</p>` : ''}
               ${f.examples.map(e => `<div class="example">${e}</div>`).join('')}
             </div>`).join('')}
-          <div class="grammar-box" style="background:#fef3c7;border-left-color:var(--warn)">
+          <div class="grammar-box" style="border-left-color:var(--warn)">
             <h3>🎯 Now drill: 12 mixed sentences</h3>
             <p>Below are sentences with a blank verb. Pick PC (passé composé) or Imp (imparfait) — get an explanation for every answer.</p>
             <div class="spacer"></div>

@@ -133,89 +133,119 @@ window.App = (function () {
     const done = Object.keys(state.lessons).length;
     const total = LESSON_PATH.length;
     const pct = Math.round((done / total) * 100);
+    const user = escapeHTML(window.Storage.getCurrentUser());
+
+    // Progress ring SVG
+    const ringSize = 88;
+    const ringStroke = 8;
+    const ringR = (ringSize - ringStroke) / 2;
+    const ringC = 2 * Math.PI * ringR;
+    const ringOffset = ringC * (1 - pct / 100);
 
     container.innerHTML = `
-      <div class="hero"><div class="flag-stripes"></div>
-        <h1>Bonjour ${escapeHTML(window.Storage.getCurrentUser())} ! 🇨🇦🇫🇷</h1>
-        <p>Learn French like a child — games, sounds, sights — with a professor's grammar rigor. Target: <b>CLB 6 in 3-4 months</b> at 30-45 min/day.</p>
-        <div class="meter" style="background:rgba(255,255,255,.3);margin-top:14px;height:10px"><div style="width:${pct}%;background:white;height:100%;border-radius:999px"></div></div>
-        <p style="margin-top:6px;font-size:14px;opacity:.9">${done} / ${total} milestones complete (${pct}%)</p>
-      </div>
+      <section class="hero">
+        <div class="flag-stripes"></div>
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:var(--sp-6);flex-wrap:wrap">
+          <div style="flex:1;min-width:260px">
+            <p style="text-transform:uppercase;letter-spacing:var(--ls-wide);font-size:var(--fs-12);font-weight:var(--fw-semi);color:var(--mute);margin-bottom:var(--sp-3)">Bonjour, ${user}</p>
+            <h1>Score CLB 6.<br/>Built for it.</h1>
+            <p style="margin-top:var(--sp-4)">A free, focused TCF Canada prep path. Phonics, vocab, grammar, listening, speaking, reading, writing. Calibrated to one outcome.</p>
+          </div>
+          <div class="ring" style="width:${ringSize}px;height:${ringSize}px;flex-shrink:0">
+            <svg width="${ringSize}" height="${ringSize}">
+              <circle class="bg" cx="${ringSize/2}" cy="${ringSize/2}" r="${ringR}" stroke-width="${ringStroke}"/>
+              <circle class="fg" cx="${ringSize/2}" cy="${ringSize/2}" r="${ringR}" stroke-width="${ringStroke}"
+                stroke-dasharray="${ringC.toFixed(2)}" stroke-dashoffset="${ringOffset.toFixed(2)}"/>
+            </svg>
+            <div class="ring-label">
+              <span class="pct">${pct}<small style="font-size:.5em;font-weight:var(--fw-semi);color:var(--mute)">%</small></span>
+              <span class="meta">${done}/${total}</span>
+            </div>
+          </div>
+        </div>
+      </section>
 
       ${done === 0 ? `
-      <div class="card" style="background:linear-gradient(135deg,#ede9fe,#fff);border:2px solid var(--accent);cursor:pointer" onclick="App.go('diagnostic')">
-        <div class="row" style="justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px">
-          <div>
-            <h3 style="color:var(--accent)">📍 Take the placement test first</h3>
-            <p style="margin-top:6px">20 quick questions (~5 min). Your level is detected and lessons you already know are auto-marked done so you skip ahead.</p>
-          </div>
-          <span class="tag" style="background:var(--accent);color:white">Recommended</span>
+      <div class="spotlight" onclick="App.go('diagnostic')" style="cursor:pointer">
+        <div>
+          <p class="eyebrow">Recommended</p>
+          <h2>Start with a 5-minute placement test</h2>
+          <p>20 quick questions detect your level. Anything you already know gets auto-marked done so you skip ahead — no busywork.</p>
         </div>
-      </div>
-      <div class="spacer"></div>` : ''}
+        <button class="btn primary big" onclick="event.stopPropagation();App.go('diagnostic')">Take it<span class="arr">→</span></button>
+      </div>` : ''}
 
-      <div class="card" style="background:linear-gradient(135deg,#fef3c7,#fff);border:2px solid var(--warn);cursor:default">
-        <div class="row" style="justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px">
-          <div>
-            <h3>👇 Your next step</h3>
-            <p style="margin-top:6px">${next ? `<b>${next.title}</b> — ${next.desc}` : 'You completed every milestone. Time for a real CLB 6 mock test!'}</p>
-          </div>
-          ${next ? `<button class="btn big" onclick="App.continueNext()">Continue →</button>` : ''}
+      <div class="spotlight">
+        <div>
+          <p class="eyebrow">${next ? 'Continue where you left off' : 'You\'re ready'}</p>
+          <h2>${next ? escapeHTML(next.title) : '🎯 Take the mock test'}</h2>
+          <p>${next ? escapeHTML(next.desc) : 'You completed every milestone on the path. Time to simulate the real exam.'}</p>
         </div>
+        <button class="btn big" onclick="App.${next ? 'continueNext' : 'go(\'mock\')'}()">${next ? 'Continue' : 'Start mock'}<span class="arr">→</span></button>
       </div>
-      <div class="spacer"></div>
 
-      <div class="card" onclick="App.go('mock')" style="background:linear-gradient(135deg,#fee2e2,#fef3c7);border:2px solid var(--rouge);cursor:pointer">
-        <div class="row" style="justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px">
-          <div>
-            <h3 style="color:var(--rouge)">🎯 Take the CLB 6 Mock Test</h3>
-            <p style="margin-top:6px">~90 minutes · 4 skills · CLB band estimate at the end. Simulates the real TEF Canada exam structure.</p>
-          </div>
-          <span class="tag" style="background:var(--rouge);color:white">New</span>
+      <div class="spotlight" onclick="App.go('mock')" style="cursor:pointer">
+        <div>
+          <p class="eyebrow" style="color:var(--rouge)">CLB 6 Mock Test</p>
+          <h2>Take the real-format exam</h2>
+          <p>~90 minutes · 4 skills · CLB band estimate at the end. Simulates the TEF Canada exam structure end-to-end.</p>
         </div>
+        <button class="btn big" onclick="event.stopPropagation();App.go('mock')" style="background:var(--rouge);color:white">Start mock<span class="arr">→</span></button>
       </div>
-      <div class="spacer"></div>
 
-      <h2 style="font-family:'Fredoka';color:var(--bleu);margin-bottom:12px">Explore</h2>
+      <h2 class="section-h">Practice areas</h2>
+      <p class="section-sub">Every module is open. Path orders them. Mistakes feed back into review.</p>
       <div class="grid">
-        <div class="card" onclick="App.go('path')"><div class="icon">🗺️</div><h3>Learning Path</h3><p>Ordered path through 8 phases. Recommended next step highlighted.</p></div>
-        <div class="card" onclick="App.go('phonics')"><div class="icon">🔊</div><h3>Phonics & Sounds</h3><p>7 units + minimal-pair ear drills (u vs ou, nasals, é vs è, liaison).</p></div>
-        <div class="card" onclick="App.go('vocab')"><div class="icon">🃏</div><h3>Vocabulary Garden</h3><p>28 themed decks, ~570 cards. SRS schedules your reviews automatically.</p></div>
-        <div class="card" onclick="App.go('grammar')"><div class="icon">📐</div><h3>Grammar Quests</h3><p>29 units, A1 → B1. From articles to subjunctive + connectors.</p></div>
-        <div class="card" onclick="App.go('pcvsimp')"><div class="icon">⚔️</div><h3>Passé Composé vs Imparfait</h3><p>The #1 CLB 6 grammar trap. Dedicated decider drill with 12 mixed contexts.</p></div>
-        <div class="card" onclick="App.go('listen')"><div class="icon">🎧</div><h3>Listening Lab</h3><p>15 dictation sets. Slow / normal / natural speed.</p></div>
-        <div class="card" onclick="App.go('dialogue')"><div class="icon">💬</div><h3>Listening Dialogues</h3><p>8 multi-speaker conversations with comprehension questions. CLB exam format.</p></div>
-        <div class="card" onclick="App.go('speak')"><div class="icon">🎙️</div><h3>Speaking Mirror</h3><p>Repeat-the-sentence with word-by-word pronunciation diff.</p></div>
-        <div class="card" onclick="App.go('speaktasks')"><div class="icon">🎤</div><h3>Speaking Tasks</h3><p>Picture description, Q&A, role-play. Open-ended speaking — CLB exam format.</p></div>
-        <div class="card" onclick="App.go('writetask3')" style="border:2px solid var(--accent)"><div class="icon">✍️</div><h3>Writing Task 3 <span class="tag" style="background:var(--accent);color:white;font-size:10px">TCF</span></h3><p>Compare 2 opinions + give your own view. The hardest TCF EE task.</p></div>
-        <div class="card" onclick="App.go('speaktask2')" style="border:2px solid var(--accent)"><div class="icon">❓</div><h3>Speaking Task 2 <span class="tag" style="background:var(--accent);color:white;font-size:10px">TCF</span></h3><p>Ask the examiner questions to gather info. Unique to TCF Canada.</p></div>
-        <div class="card" onclick="App.go('speaktask3')" style="border:2px solid var(--accent)"><div class="icon">🎤</div><h3>Speaking Task 3 <span class="tag" style="background:var(--accent);color:white;font-size:10px">TCF</span></h3><p>Argue your opinion for 3-5 minutes. Most-weighted EO task.</p></div>
-        <div class="card" onclick="App.go('connectors')" style="border:2px solid var(--accent)"><div class="icon">🔗</div><h3>Connector Drill <span class="tag" style="background:var(--accent);color:white;font-size:10px">TCF</span></h3><p>30-second timed production: continue an idea using "cependant", "par conséquent", etc.</p></div>
-        <div class="card" onclick="App.go('tcfguide')" style="border:2px solid var(--accent)"><div class="icon">📚</div><h3>TCF Prep Guide <span class="tag" style="background:var(--accent);color:white;font-size:10px">TCF</span></h3><p>Strategy, score conversion, test-day checklist, mock history.</p></div>
-        <div class="card" onclick="App.go('read')"><div class="icon">📖</div><h3>Reading Quests</h3><p>30 graded texts CLB 3 → 6. Emails, ads, news, brochures, fiction.</p></div>
+        <div class="card" onclick="App.go('path')"><div class="icon">🗺️</div><h3>Learning Path</h3><p>Ordered path through 8 phases. Next step always highlighted.</p></div>
+        <div class="card" onclick="App.go('phonics')"><div class="icon">🔊</div><h3>Phonics &amp; Sounds</h3><p>7 units plus minimal-pair ear drills — u vs ou, nasals, é vs è, liaison.</p></div>
+        <div class="card" onclick="App.go('vocab')"><div class="icon">🃏</div><h3>Vocabulary</h3><p>28 themed decks, ~570 cards. SRS schedules your reviews automatically.</p></div>
+        <div class="card" onclick="App.go('grammar')"><div class="icon">📐</div><h3>Grammar</h3><p>29 units, A1 to B1. From articles to subjunctive and connectors.</p></div>
+        <div class="card" onclick="App.go('pcvsimp')"><div class="icon">⚔️</div><h3>Passé Composé vs Imparfait</h3><p>The #1 CLB 6 grammar trap. Dedicated decider drill with mixed contexts.</p></div>
+        <div class="card" onclick="App.go('listen')"><div class="icon">🎧</div><h3>Listening Lab</h3><p>15 dictation sets at slow, normal, and natural speed.</p></div>
+        <div class="card" onclick="App.go('dialogue')"><div class="icon">💬</div><h3>Dialogues</h3><p>8 multi-speaker conversations with comprehension questions.</p></div>
+        <div class="card" onclick="App.go('speak')"><div class="icon">🎙️</div><h3>Speaking Mirror</h3><p>Repeat the sentence with word-by-word pronunciation diff.</p></div>
+        <div class="card" onclick="App.go('speaktasks')"><div class="icon">🎤</div><h3>Speaking Tasks</h3><p>Picture description, Q&amp;A, role-play. Open-ended speaking practice.</p></div>
+        <div class="card" onclick="App.go('writetask3')"><div class="icon">✍️</div><h3>Writing Task 3 <span class="tag verb">TCF</span></h3><p>Compare 2 opinions and give your own view. The hardest TCF EE task.</p></div>
+        <div class="card" onclick="App.go('speaktask2')"><div class="icon">❓</div><h3>Speaking Task 2 <span class="tag verb">TCF</span></h3><p>Ask the examiner questions to gather info. Unique to TCF Canada.</p></div>
+        <div class="card" onclick="App.go('speaktask3')"><div class="icon">🎤</div><h3>Speaking Task 3 <span class="tag verb">TCF</span></h3><p>Argue your opinion for 3-5 minutes. Most-weighted EO task.</p></div>
+        <div class="card" onclick="App.go('connectors')"><div class="icon">🔗</div><h3>Connector Drill <span class="tag verb">TCF</span></h3><p>30-second timed production: continue an idea using cependant, par conséquent, etc.</p></div>
+        <div class="card" onclick="App.go('tcfguide')"><div class="icon">📚</div><h3>TCF Prep Guide <span class="tag verb">TCF</span></h3><p>Strategy, score conversion, test-day checklist, mock history.</p></div>
+        <div class="card" onclick="App.go('read')"><div class="icon">📖</div><h3>Reading</h3><p>30 graded texts from CLB 3 to 6 — emails, ads, news, brochures, fiction.</p></div>
         <div class="card" onclick="App.go('write')"><div class="icon">✍️</div><h3>Writing Workshop</h3><p>8 prompts. Real grammar checker detects gender, tense, elision errors.</p></div>
-        <div class="card" onclick="App.go('games')"><div class="icon">🎮</div><h3>Games (9)</h3><p>Gender Sort · Conjugation Race · Sentence Builder · Memory · Quick Translate · Tense Picker · Dictation Race · Spot the Error · Verb Anagram.</p></div>
+        <div class="card" onclick="App.go('games')"><div class="icon">🎮</div><h3>Games</h3><p>Gender Sort, Conjugation Race, Sentence Builder, Memory, Quick Translate, and more.</p></div>
         <div class="card" onclick="App.go('mistakes')"><div class="icon">🎯</div><h3>Weak Spots</h3><p>Every wrong answer logged. Review until mastered, then dismissed.</p></div>
-        <div class="card" onclick="App.go('profile')"><div class="icon">👤</div><h3>Profile</h3><p>Switch user · reset · dark mode · font size. All saved on this browser.</p></div>
+        <div class="card" onclick="App.go('profile')"><div class="icon">👤</div><h3>Profile</h3><p>Switch user, reset, dark mode, font size. All saved on this browser.</p></div>
       </div>
 
-      <div class="spacer"></div>
-      <div class="grammar-box">
-        <h3>🎯 How CLB 6 is achieved here</h3>
-        <p>4 CLB skills, each trained by a dedicated module:</p>
-        <ul style="margin-left:20px;line-height:1.8;margin-top:6px">
-          <li><b>Listening</b> → Listening Lab (dictation, dialogues, news, mock test)</li>
-          <li><b>Speaking</b> → Speaking Mirror (word-level pronunciation diff)</li>
-          <li><b>Reading</b> → Reading Quests (CLB 3 → 6 graded texts + Qs)</li>
-          <li><b>Writing</b> → Writing Workshop (heuristic grader + CLB band estimate)</li>
-        </ul>
-        <p style="margin-top:10px"><b>Method:</b> 30-45 min daily. Phonics + vocab + grammar in the morning. Games at midday. Listen/speak/read/write rotation in the evening. Review <b>Weak Spots</b> twice a week.</p>
-        <p style="margin-top:8px">
-          <a onclick="App.go('about')" style="color:var(--bleu);cursor:pointer">About</a> ·
-          <a onclick="App.go('privacy')" style="color:var(--bleu);cursor:pointer">Privacy</a> ·
-          <a onclick="App.go('profile')" style="color:var(--bleu);cursor:pointer">Profile</a>
-        </p>
+      <h2 class="section-h">How CLB 6 is achieved here</h2>
+      <p class="section-sub">Four skills, each trained by a dedicated module. 30-45 minutes daily, ~3-4 months.</p>
+      <div class="grid">
+        <div class="card" style="cursor:default">
+          <h3>Listening</h3>
+          <p>Listening Lab + Dialogues. Dictation, multi-speaker, news brief, mock test.</p>
+        </div>
+        <div class="card" style="cursor:default">
+          <h3>Speaking</h3>
+          <p>Speaking Mirror with word-level pronunciation diff. Plus open-ended TCF tasks.</p>
+        </div>
+        <div class="card" style="cursor:default">
+          <h3>Reading</h3>
+          <p>Reading Quests with CLB 3 to 6 graded texts and comprehension questions.</p>
+        </div>
+        <div class="card" style="cursor:default">
+          <h3>Writing</h3>
+          <p>Writing Workshop with heuristic grader and CLB band estimate.</p>
+        </div>
       </div>
+
+      <div class="spacer lg"></div>
+      <p style="text-align:center;color:var(--mute);font-size:var(--fs-13)">
+        <a onclick="App.go('about')" style="color:var(--ink-2);cursor:pointer">About</a>
+        &nbsp;·&nbsp;
+        <a onclick="App.go('privacy')" style="color:var(--ink-2);cursor:pointer">Privacy</a>
+        &nbsp;·&nbsp;
+        <a onclick="App.go('profile')" style="color:var(--ink-2);cursor:pointer">Profile</a>
+      </p>
     `;
   }
 

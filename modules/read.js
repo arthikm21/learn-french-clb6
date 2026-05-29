@@ -2,10 +2,13 @@
 window.ReadModule = (function () {
   function renderList(container) {
     container.innerHTML = `
-      <div class="hero"><div class="flag-stripes"></div>
-        <h1>📖 Reading Quests</h1>
-        <p>Short authentic-style French texts with comprehension questions. CLB 4 → 6.</p>
-      </div>
+      ${Chrome.render({ back: 'home', crumbs: ['Home', 'Read'] })}
+      <section class="hero">
+        <div class="flag-stripes"></div>
+        <p class="eyebrow-h">Reading Quests</p>
+        <h1>Read it.<br/>Understand it.</h1>
+        <p style="margin-top:var(--sp-4)">Short authentic-style texts with comprehension questions, CLB 4 to 6.</p>
+      </section>
       <div class="grid" id="r-grid"></div>`;
     const grid = container.querySelector('#r-grid');
     for (const k of Object.keys(READINGS)) {
@@ -27,18 +30,18 @@ window.ReadModule = (function () {
       const sentences = t.text.split(/(?<=[.!?])\s+/).filter(s => s.trim());
       const sentenceHTML = sentences.map((s, i) => `<span class="r-sent" data-i="${i}">${s}</span>`).join(' ');
       container.innerHTML = `
+        ${Chrome.render({ back: 'read', crumbs: ['Read', t.title] })}
         <div class="lesson">
           <h2>📖 ${t.title} <span class="tag">${t.level}</span></h2>
-          <div class="reading-text" id="r-text" style="background:#fffdf7;border:2px solid #fcd34d;padding:20px;border-radius:12px;line-height:1.9;font-size:17px;white-space:pre-wrap">${sentenceHTML}</div>
+          <div class="reading-text" id="r-text" style="background:var(--surface-2);border:1px solid var(--line);padding:var(--sp-5);border-radius:var(--r-md);line-height:var(--lh-loose);font-size:var(--fs-17);white-space:pre-wrap;color:var(--ink)">${sentenceHTML}</div>
           <div class="reading-player" id="r-player">
-            <button class="btn" id="r-play">▶ Listen to text</button>
+            <button class="btn primary" id="r-play">▶ Listen to text</button>
             <button class="btn secondary" id="r-stop" disabled>⏸</button>
-            <span style="color:var(--mute);font-size:13px;margin-left:8px" id="r-progress">— / ${sentences.length}</span>
+            <span style="color:var(--mute);font-size:var(--fs-13);margin-left:var(--sp-2);font-variant-numeric:tabular-nums" id="r-progress">— / ${sentences.length}</span>
           </div>
           <div class="spacer"></div>
-          <div class="row" style="justify-content:space-between">
-            <button class="btn ghost" onclick="App.go('read')">← Texts</button>
-            <button class="btn big" id="start">Comprehension →</button>
+          <div class="row" style="justify-content:flex-end">
+            <button class="btn primary big" id="start">Comprehension<span class="arr">→</span></button>
           </div>
         </div>`;
       container.querySelector('#start').onclick = () => { phase = 'quiz'; showQ(); };
@@ -98,22 +101,21 @@ window.ReadModule = (function () {
     function showQ() {
       const q = t.questions[qi];
       container.innerHTML = `
+        ${Chrome.render({
+          back: () => `App.go('read', { text: '${key}' })`,
+          crumbs: ['Read', t.title, 'Questions'],
+          progress: { current: qi, total: t.questions.length }
+        })}
         <div class="lesson">
           <h2>📖 ${t.title}</h2>
-          <div class="progress"><div style="width:${(qi / t.questions.length) * 100}%"></div></div>
-          <details style="margin-bottom:14px"><summary style="cursor:pointer;color:var(--bleu);font-weight:700">Show text again</summary>
-            <div style="background:#fffdf7;padding:14px;border-radius:10px;margin-top:8px;white-space:pre-wrap;font-size:15px;line-height:1.6">${t.text}</div>
+          <details style="margin-bottom:var(--sp-4)"><summary style="cursor:pointer;color:var(--accent);font-weight:var(--fw-semi)">Show text again</summary>
+            <div style="background:var(--surface-2);padding:var(--sp-4);border-radius:var(--r-md);margin-top:var(--sp-2);white-space:pre-wrap;font-size:var(--fs-15);line-height:var(--lh-base);color:var(--ink)">${t.text}</div>
           </details>
           <div class="q-prompt">${q.q}</div>
           <div class="options">
             ${q.opts.map((o, i) => `<div class="option" data-i="${i}">${o}</div>`).join('')}
           </div>
           <div id="fb"></div>
-          <div class="spacer"></div>
-          <div class="row" style="justify-content:space-between">
-            <button class="btn ghost" onclick="App.go('read')">← Quit</button>
-            <span style="color:var(--mute)">Q ${qi + 1} / ${t.questions.length}</span>
-          </div>
         </div>`;
       container.querySelectorAll('.option').forEach(el => {
         el.onclick = () => {
@@ -145,14 +147,17 @@ window.ReadModule = (function () {
       const pct = Math.round((correct / t.questions.length) * 100);
       if (pct >= 70) App.markLessonDone(`read:${key}`);
       container.innerHTML = `
+        ${Chrome.render({ back: 'read', crumbs: ['Read', t.title, 'Result'] })}
         <div class="lesson center">
           <div class="empty">
             <div class="big-icon">${pct >= 70 ? '📜' : '📖'}</div>
-            <h2>${pct >= 70 ? 'Read & Understood!' : 'Re-read & Retry'}</h2>
+            <h2>${pct >= 70 ? 'Read & understood' : 'Re-read & retry'}</h2>
             <p>Score: <b>${correct}/${t.questions.length}</b> (${pct}%)</p>
             <div class="spacer"></div>
-            <button class="btn big" onclick="App.go('read')">More Texts</button>
-            <button class="btn ghost big" onclick="App.go('path')">Back to Path</button>
+            <div class="row" style="justify-content:center">
+              <button class="btn primary big" onclick="App.go('read')">More texts</button>
+              <button class="btn ghost big" onclick="App.go('path')">Back to Path</button>
+            </div>
           </div>
         </div>`;
     }

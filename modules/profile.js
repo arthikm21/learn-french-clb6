@@ -119,28 +119,36 @@ window.ProfileModule = (function () {
   function renderWelcome(container) {
     const existing = Storage.listUsers();
     container.innerHTML = `
-      <div class="hero" style="background:linear-gradient(135deg,#0055A4,#1e40af,#EF4135)">
+      <section class="hero accent">
         <div class="flag-stripes"></div>
-        <h1>Bienvenue ! 🇨🇦🇫🇷</h1>
-        <p>Pick a username to save your progress under. No password, no email, no signup. Progress stays in this browser only.</p>
-      </div>
-      <div class="lesson">
-        <h2>👤 Choose a username</h2>
-        <p style="color:var(--mute);font-size:14px;margin-top:6px">Letters, numbers, dashes, underscores, spaces. Max 24 chars.</p>
-        <div class="spacer"></div>
-        <input class="input" id="uname" placeholder="e.g. alex, marie123, mon-nom" autocomplete="off" autocapitalize="off"/>
-        <div id="err" style="color:var(--bad);margin-top:6px;font-size:14px"></div>
-        <div class="spacer"></div>
-        <button class="btn big" id="start">Start Learning →</button>
-        ${existing.length > 0 ? `
+        <p class="eyebrow-h" style="color:rgba(255,255,255,.7)">Bienvenue</p>
+        <h1>Free.<br/>No signup.<br/>Just French.</h1>
+        <p style="margin-top:var(--sp-5);max-width:560px">Pick a username to save your progress. No password. No email. Everything stays in this browser.</p>
+      </section>
+
+      <div class="spotlight" style="grid-template-columns:1fr">
+        <div>
+          <p class="eyebrow">Step 1 — Choose a username</p>
+          <h2>Letters, numbers, spaces. Max 24 chars.</h2>
           <div class="spacer"></div>
-          <div class="grammar-box" style="background:#f9fafb">
-            <h3>Or continue as an existing user on this browser:</h3>
-            <div class="row" style="gap:8px;margin-top:8px;flex-wrap:wrap">
-              ${existing.map(u => `<button class="btn secondary" data-u="${escapeAttr(u)}">👤 ${escapeHTML(u)}</button>`).join('')}
-            </div>
-          </div>` : ''}
-      </div>`;
+          <input class="input" id="uname" placeholder="e.g. alex, marie123, mon-nom" autocomplete="off" autocapitalize="off" style="font-size:var(--fs-19);padding:var(--sp-4) var(--sp-5)" />
+          <div id="err" style="color:var(--bad);margin-top:var(--sp-2);font-size:var(--fs-14);font-weight:var(--fw-semi)"></div>
+          <div class="spacer"></div>
+          <button class="btn primary big" id="start">Start learning<span class="arr">→</span></button>
+        </div>
+      </div>
+
+      ${existing.length > 0 ? `
+      <div class="card" style="cursor:default;background:var(--surface);margin-top:var(--sp-5)">
+        <p class="eyebrow" style="text-transform:uppercase;letter-spacing:var(--ls-wide);font-size:var(--fs-12);font-weight:var(--fw-semi);color:var(--mute);margin-bottom:var(--sp-3)">Continue as existing user</p>
+        <div class="row" style="gap:var(--sp-2);flex-wrap:wrap">
+          ${existing.map(u => `<button class="btn secondary" data-u="${escapeAttr(u)}">👤 ${escapeHTML(u)}</button>`).join('')}
+        </div>
+      </div>` : ''}
+
+      <p style="text-align:center;color:var(--mute);font-size:var(--fs-13);margin-top:var(--sp-7)">
+        No tracking · No accounts · No data leaves this browser
+      </p>`;
     const inp = container.querySelector('#uname');
     const err = container.querySelector('#err');
     inp.focus();
@@ -170,53 +178,49 @@ window.ProfileModule = (function () {
     const cur = Storage.getCurrentUser();
     const users = Storage.listUsers();
     const lessonsDone = Object.keys(App.state.lessons || {}).length;
+    const pct = Math.round((lessonsDone / LESSON_PATH.length) * 100);
     container.innerHTML = `
-      <div class="hero"><div class="flag-stripes"></div>
+      ${Chrome.render({ back: 'home', crumbs: ['Home', 'Profile'] })}
+      <section class="hero">
+        <div class="flag-stripes"></div>
+        <p class="eyebrow-h">Profile</p>
         <h1>👤 ${escapeHTML(cur || 'Guest')}</h1>
-        <p>Your profile, your progress, your data. Stored in this browser only.</p>
-      </div>
+        <p style="margin-top:var(--sp-4)">${lessonsDone} of ${LESSON_PATH.length} milestones complete · ${pct}%</p>
+      </section>
 
       <div class="grammar-box">
-        <h3>📊 Your stats</h3>
-        <p><b>${lessonsDone}</b> / ${LESSON_PATH.length} milestones complete.</p>
-        <p style="color:var(--mute);margin-top:6px">Username: <b>${escapeHTML(cur)}</b></p>
-      </div>
-
-      <div class="grammar-box" style="background:#f9fafb">
-        <h3>🌗 Appearance</h3>
-        <p style="color:var(--mute);font-size:14px">Toggle dark mode. Preference is saved on this device.</p>
+        <h3>Appearance</h3>
+        <p style="color:var(--ink-2);font-size:var(--fs-14)">Toggle dark mode and text size. Preferences saved on this device.</p>
         <div class="spacer"></div>
-        <button class="btn secondary" id="theme-toggle">Toggle dark mode</button>
-        <button class="btn secondary" id="font-up" style="margin-left:6px">A+</button>
-        <button class="btn secondary" id="font-down">A−</button>
-      </div>
-
-      <div class="grammar-box">
-        <h3>🔄 Switch user</h3>
-        <p style="color:var(--mute);font-size:14px">Use a different profile on this browser.</p>
-        <div class="row" style="gap:8px;margin-top:10px;flex-wrap:wrap">
-          ${users.filter(u => u !== cur).map(u => `<button class="btn secondary" data-switch="${escapeAttr(u)}">👤 ${escapeHTML(u)}</button>`).join('')}
-          <button class="btn ghost" id="new-user">➕ Add user</button>
+        <div class="row">
+          <button class="btn secondary" id="theme-toggle">Toggle dark mode</button>
+          <button class="btn secondary" id="font-up">A+</button>
+          <button class="btn secondary" id="font-down">A−</button>
         </div>
-        ${users.filter(u => u !== cur).length === 0 ? '<p style="color:var(--mute);font-size:14px;margin-top:8px">No other users on this browser.</p>' : ''}
       </div>
 
-      <div class="grammar-box" style="background:#fef3c7;border-left-color:var(--warn)">
+      <div class="grammar-box">
+        <h3>Switch user</h3>
+        <p style="color:var(--ink-2);font-size:var(--fs-14)">Use a different profile on this browser.</p>
+        <div class="row" style="gap:var(--sp-2);margin-top:var(--sp-3);flex-wrap:wrap">
+          ${users.filter(u => u !== cur).map(u => `<button class="btn secondary" data-switch="${escapeAttr(u)}">👤 ${escapeHTML(u)}</button>`).join('')}
+          <button class="btn ghost" id="new-user">+ Add user</button>
+        </div>
+        ${users.filter(u => u !== cur).length === 0 ? '<p style="color:var(--mute);font-size:var(--fs-14);margin-top:var(--sp-3)">No other users on this browser.</p>' : ''}
+      </div>
+
+      <div class="grammar-box" style="border-left-color:var(--warn)">
         <h3>⚠️ Reset my progress</h3>
-        <p>Wipes all your lessons, SRS, weak spots, and writing drafts. Username stays. Cannot be undone.</p>
+        <p style="color:var(--ink-2)">Wipes all lessons, SRS, weak spots, and writing drafts. Username stays. Cannot be undone.</p>
         <div class="spacer"></div>
-        <button class="btn" id="reset" style="background:var(--warn)">Reset progress</button>
+        <button class="btn" id="reset" style="background:var(--warn);color:var(--gray-900)">Reset progress</button>
       </div>
 
-      <div class="grammar-box" style="background:#fee2e2;border-left-color:var(--bad)">
+      <div class="grammar-box" style="border-left-color:var(--bad)">
         <h3>🗑️ Delete my profile</h3>
-        <p>Removes username <b>${escapeHTML(cur)}</b> and all its data from this browser. Cannot be undone.</p>
+        <p style="color:var(--ink-2)">Removes username <b>${escapeHTML(cur)}</b> and all its data from this browser. Cannot be undone.</p>
         <div class="spacer"></div>
         <button class="btn danger" id="delete">Delete this profile</button>
-      </div>
-
-      <div class="center" style="margin-top:24px">
-        <button class="btn ghost" onclick="App.go('home')">← Home</button>
       </div>`;
 
     container.querySelector('#theme-toggle').onclick = () => {

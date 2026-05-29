@@ -20,11 +20,13 @@ window.MockModule = (function () {
 
   function renderIntro(container) {
     container.innerHTML = `
-      <div class="hero" style="background:linear-gradient(135deg,#7c3aed,#0055A4,#EF4135)">
+      ${Chrome.render({ back: 'home', crumbs: ['Home', 'Mock Test'] })}
+      <section class="hero accent">
         <div class="flag-stripes"></div>
-        <h1>🎯 ${MOCK_TEST.title}</h1>
-        <p>${MOCK_TEST.subtitle}</p>
-      </div>
+        <p class="eyebrow-h" style="color:rgba(255,255,255,.7)">CLB 6 Mock Test</p>
+        <h1>${MOCK_TEST.title.replace(/^🎯\s*/, '')}</h1>
+        <p style="margin-top:var(--sp-4)">${MOCK_TEST.subtitle}</p>
+      </section>
       <div class="grammar-box">
         <h3>📋 What to expect</h3>
         <ol style="margin-left:20px;line-height:1.9">
@@ -35,18 +37,18 @@ window.MockModule = (function () {
         </ol>
         <p style="margin-top:10px"><b>Total: ~90 minutes.</b> Don't pause mid-section — simulate exam conditions. You can quit any time but progress within a section is lost.</p>
       </div>
-      <div class="grammar-box" style="background:#fef3c7;border-left-color:var(--warn)">
+      <div class="grammar-box" style="border-left-color:var(--warn)">
         <h3>⚠️ Before you start</h3>
-        <ul style="margin-left:20px;line-height:1.7">
+        <ul style="margin-left:20px;line-height:var(--lh-loose);color:var(--ink-2)">
           <li>Find a quiet 90-minute window.</li>
           <li>Have water + paper for notes.</li>
           <li>Use headphones for listening if possible.</li>
           <li>Allow microphone access when prompted (Speaking).</li>
         </ul>
       </div>
-      <div class="center" style="margin-top:24px">
-        <button class="btn big" id="start-mock" style="padding:16px 32px;font-size:18px">▶ Begin Mock Test</button>
-        <button class="btn ghost big" onclick="App.go('home')" style="margin-left:8px">Maybe later</button>
+      <div class="row" style="justify-content:center;margin-top:var(--sp-7);gap:var(--sp-3)">
+        <button class="btn primary big" id="start-mock" style="padding:16px 32px;font-size:var(--fs-17)">Begin Mock Test<span class="arr">→</span></button>
+        <button class="btn ghost big" onclick="App.go('home')">Maybe later</button>
       </div>`;
     container.querySelector('#start-mock').onclick = () => {
       if (!confirm('Begin the CLB 6 Mock Test? Allow ~90 minutes.')) return;
@@ -62,15 +64,16 @@ window.MockModule = (function () {
     let timerInterval = null;
 
     container.innerHTML = `
-      <div class="hero">
+      <section class="hero accent">
         <div class="flag-stripes"></div>
-        <h1>${sec.icon} ${sec.title} — Mock Test</h1>
-        <p>${sec.desc}</p>
-        <div style="margin-top:12px;display:flex;gap:12px;font-family:'Fredoka',sans-serif;font-size:24px"><span>⏱ <b id="mock-timer">${formatTime(timeLeft)}</b></span><span>Section ${session.sectionIdx + 1} / ${MOCK_TEST.sections.length}</span></div>
-      </div>
+        <p class="eyebrow-h" style="color:rgba(255,255,255,.7)">Mock Test · Section ${session.sectionIdx + 1} of ${MOCK_TEST.sections.length}</p>
+        <h1>${sec.icon} ${sec.title}</h1>
+        <p style="margin-top:var(--sp-4)">${sec.desc}</p>
+        <div style="margin-top:var(--sp-4);display:flex;gap:var(--sp-4);font-size:var(--fs-22);font-weight:var(--fw-bold);font-variant-numeric:tabular-nums">⏱ <b id="mock-timer">${formatTime(timeLeft)}</b></div>
+      </section>
       <div id="mock-body"></div>
-      <div class="center" style="margin-top:18px">
-        <button class="btn" id="finish-section">✓ Finish ${sec.title} section</button>
+      <div class="row" style="justify-content:center;margin-top:var(--sp-5);gap:var(--sp-3)">
+        <button class="btn primary big" id="finish-section">Finish ${sec.title}</button>
         <button class="btn ghost" id="abort">Abort mock test</button>
       </div>`;
 
@@ -131,7 +134,7 @@ window.MockModule = (function () {
     const answers = {};
     function showDialogue() {
       if (dlgIdx >= totalDialogues) {
-        body.innerHTML = `<div class="grammar-box" style="background:#dcfce7;border-left-color:var(--good)"><h3>✓ Listening section complete</h3><p>Click "Finish ${sec.title} section" to proceed.</p></div>`;
+        body.innerHTML = `<div class="grammar-box" style="border-left-color:var(--good)"><h3>✓ Listening section complete</h3><p>Click "Finish ${sec.title} section" to proceed.</p></div>`;
         return;
       }
       const item = queue[dlgIdx];
@@ -232,7 +235,7 @@ window.MockModule = (function () {
     const answers = {};
     function showText() {
       if (txtIdx >= sec.textIds.length) {
-        body.innerHTML = `<div class="grammar-box" style="background:#dcfce7;border-left-color:var(--good)"><h3>✓ Reading section complete</h3></div>`;
+        body.innerHTML = `<div class="grammar-box" style="border-left-color:var(--good)"><h3>✓ Reading section complete</h3></div>`;
         return;
       }
       const id = sec.textIds[txtIdx];
@@ -240,7 +243,7 @@ window.MockModule = (function () {
       body.innerHTML = `
         <div class="lesson">
           <h2>${txtIdx + 1}. ${t.title} <span class="tag">${t.level}</span></h2>
-          <div style="background:#fffdf7;border:2px solid #fcd34d;padding:18px;border-radius:12px;line-height:1.8;white-space:pre-wrap">${t.text}</div>
+          <div style="border:1px solid var(--line);padding:18px;border-radius:12px;line-height:1.8;white-space:pre-wrap">${t.text}</div>
           <div class="spacer"></div>
           <h3>Questions</h3>
           ${t.questions.map((q, i) => `
@@ -283,7 +286,7 @@ window.MockModule = (function () {
     const results = [];
     function showTask() {
       if (taskIdx >= sec.writeTasks.length) {
-        body.innerHTML = `<div class="grammar-box" style="background:#dcfce7;border-left-color:var(--good)"><h3>✓ Writing section complete</h3></div>`;
+        body.innerHTML = `<div class="grammar-box" style="border-left-color:var(--good)"><h3>✓ Writing section complete</h3></div>`;
         return;
       }
       const wt = sec.writeTasks[taskIdx];
@@ -326,9 +329,9 @@ window.MockModule = (function () {
           <div class="lesson">
             <h2>✍️ ${wt.label}</h2>
             <div class="grammar-box"><h3>Question</h3><p style="font-style:italic">${t3.topic}</p></div>
-            <div class="grammar-box" style="background:#eff6ff;border-left-color:var(--bleu)"><h3>👤 ${t3.opinionA.author}</h3><p>${t3.opinionA.text}</p></div>
-            <div class="grammar-box" style="background:#fef2f2;border-left-color:var(--rouge)"><h3>👥 ${t3.opinionB.author}</h3><p>${t3.opinionB.text}</p></div>
-            <div class="grammar-box" style="background:#fffdf7;border-left-color:var(--warn)"><h3>Task</h3><p>${t3.promptInstructions}</p></div>
+            <div class="grammar-box" style="border-left-color:var(--bleu)"><h3>👤 ${t3.opinionA.author}</h3><p>${t3.opinionA.text}</p></div>
+            <div class="grammar-box" style="border-left-color:var(--rouge)"><h3>👥 ${t3.opinionB.author}</h3><p>${t3.opinionB.text}</p></div>
+            <div class="grammar-box" style="border-left-color:var(--warn)"><h3>Task</h3><p>${t3.promptInstructions}</p></div>
             <textarea class="input" id="mock-essay-t3" placeholder="Comparez les deux opinions et donnez la vôtre (~150 mots)..." style="font-size:16px;min-height:280px"></textarea>
             <div class="row" style="margin-top:8px;color:var(--mute);font-size:13px"><span id="mock-wc-t3">0 words</span></div>
             <div class="spacer"></div>
@@ -379,7 +382,7 @@ window.MockModule = (function () {
     const results = [];
     function showTask() {
       if (taskIdx >= sec.speakTasks.length) {
-        body.innerHTML = `<div class="grammar-box" style="background:#dcfce7;border-left-color:var(--good)"><h3>✓ Speaking section complete</h3></div>`;
+        body.innerHTML = `<div class="grammar-box" style="border-left-color:var(--good)"><h3>✓ Speaking section complete</h3></div>`;
         return;
       }
       const wt = sec.speakTasks[taskIdx];
@@ -397,12 +400,12 @@ window.MockModule = (function () {
         const t = SPEAK_TASK2[wt.taskId];
         promptHTML = `
           <div class="grammar-box"><h3>${wt.label}</h3><p>${t.scenario}</p></div>
-          <div class="grammar-box" style="background:#eff6ff"><h3>Ask about:</h3><ul style="margin-left:20px;line-height:1.7">${t.requiredInfo.map(i => `<li>${i}</li>`).join('')}</ul></div>`;
+          <div class="grammar-box" style="background:rgba(0,85,164,.08)"><h3>Ask about:</h3><ul style="margin-left:20px;line-height:1.7">${t.requiredInfo.map(i => `<li>${i}</li>`).join('')}</ul></div>`;
         targetWords = 100;
       } else if (wt.type === 'task3') {
         const t = SPEAK_TASK3[wt.taskId];
         promptHTML = `
-          <div class="grammar-box" style="background:#fffdf7;border-left-color:var(--warn)"><h3>${wt.label}</h3><p style="font-weight:600">${t.topic}</p><p style="margin-top:8px">${t.prompt}</p></div>`;
+          <div class="grammar-box" style="border-left-color:var(--warn)"><h3>${wt.label}</h3><p style="font-weight:600">${t.topic}</p><p style="margin-top:8px">${t.prompt}</p></div>`;
         targetWords = 200;
       }
 
@@ -545,15 +548,17 @@ window.MockModule = (function () {
     const overallPass = minClb !== null && minClb >= 6;
 
     container.innerHTML = `
-      <div class="hero" style="background:linear-gradient(135deg,${overallPass ? '#16a34a,#0055A4,#22c55e' : '#7c3aed,#0055A4,#EF4135'})">
+      ${Chrome.render({ back: 'home', crumbs: ['Home', 'Mock Test', 'Report'] })}
+      <section class="hero accent">
         <div class="flag-stripes"></div>
-        <h1>📊 TCF Canada Mock Report</h1>
-        <p>Completed in ${totalMin} minutes. ${minClb !== null ? `Overall CLB: <b>${minClb}</b> (minimum of 4 skills)` : 'Some sections not completed.'}</p>
-        ${overallPass ? '<p style="margin-top:8px;font-size:18px;font-weight:700">🏆 You meet CLB 6 in all 4 skills.</p>' : minClb !== null ? '<p style="margin-top:8px;font-size:16px">Below CLB 6 in at least one skill. See breakdown below.</p>' : ''}
-      </div>
+        <p class="eyebrow-h" style="color:rgba(255,255,255,.7)">TCF Canada Mock Report</p>
+        <h1>${overallPass ? 'CLB 6 reached.' : minClb !== null ? 'Below CLB 6.' : 'Incomplete.'}</h1>
+        <p style="margin-top:var(--sp-4)">Completed in ${totalMin} minutes. ${minClb !== null ? `Overall CLB: <b>${minClb}</b> (minimum across 4 skills).` : 'Some sections not completed.'}</p>
+        ${overallPass ? '<p style="margin-top:var(--sp-3);font-size:var(--fs-19);font-weight:var(--fw-bold)">🏆 You meet CLB 6 in all 4 skills.</p>' : minClb !== null ? '<p style="margin-top:var(--sp-3);font-size:var(--fs-17)">Below CLB 6 in at least one skill. See breakdown below.</p>' : ''}
+      </section>
       ${scored.map(s => {
         if (s.missing) return `<div class="grammar-box"><h3>${s.icon} ${s.label}</h3><p style="color:var(--mute)">Not completed.</p></div>`;
-        const bg = s.good ? '#dcfce7' : '#fef3c7';
+        const bg = s.good ? 'rgba(52,199,89,.12)' : 'rgba(255,159,10,.12)';
         const bc = s.good ? 'var(--good)' : 'var(--warn)';
         return `
           <div class="grammar-box" style="background:${bg};border-left-color:${bc}">
@@ -567,7 +572,7 @@ window.MockModule = (function () {
             <p style="margin-top:8px;color:var(--mute);font-size:13px">${s.sr.correct !== undefined ? `Raw: ${s.sr.correct}/${s.sr.total} correct (${s.sr.pct}%)` : `Raw: ${s.sr.pct}%`}${s.sr.wordCount !== undefined ? ` · Words: ${s.sr.wordCount}, Rubric: ${s.sr.rubric}, Errors: ${s.sr.errors}` : ''}${s.sr.totalWords !== undefined ? ` · Words spoken: ${s.sr.totalWords}` : ''}</p>
           </div>`;
       }).join('')}
-      <div class="grammar-box" style="background:#eff6ff">
+      <div class="grammar-box" style="background:rgba(0,85,164,.08)">
         <h3>📊 What these scores mean (TCF Canada → CLB)</h3>
         <table class="conj-table"><thead><tr><th>CLB</th><th>CO score</th><th>CE score</th><th>EE / EO</th></tr></thead><tbody>
           <tr><td>10</td><td>549+</td><td>549+</td><td>16+</td></tr>
@@ -580,7 +585,7 @@ window.MockModule = (function () {
         </tbody></table>
         <p style="margin-top:8px;color:var(--mute);font-size:13px">Source: IRCC official equivalency chart (canada.ca). CLB 6 is the threshold for most Express Entry French language points and federal job competitions.</p>
       </div>
-      <div class="grammar-box" style="background:#fffdf7;border-left-color:var(--warn)">
+      <div class="grammar-box" style="border-left-color:var(--warn)">
         <h3>📝 Caveats</h3>
         <p>The mock uses <b>heuristic scoring</b>. A real TCF Canada exam is graded by certified raters for writing/speaking and machine-graded for listening/reading. Use this score as a directional indicator, not a guaranteed band.</p>
         <p style="margin-top:8px"><b>Below CLB 6 anywhere?</b> Drill that skill's modules. Re-attempt in 2 weeks.</p>

@@ -2,10 +2,13 @@
 window.GrammarModule = (function () {
   function renderList(container) {
     container.innerHTML = `
-      <div class="hero"><div class="flag-stripes"></div>
-        <h1>📐 Grammar Quests</h1>
-        <p>Patterns first — like a child. Then explicit rules — like a student. Then practice — like an athlete.</p>
-      </div>
+      ${Chrome.render({ back: 'home', crumbs: ['Home', 'Grammar'] })}
+      <section class="hero">
+        <div class="flag-stripes"></div>
+        <p class="eyebrow-h">Grammar Quests</p>
+        <h1>Pattern first.<br/>Rule second.</h1>
+        <p style="margin-top:var(--sp-4)">Like a child. Then like a student. Then like an athlete.</p>
+      </section>
       <div class="grid" id="g-grid"></div>`;
     const grid = container.querySelector('#g-grid');
     for (const u of GRAMMAR) {
@@ -15,7 +18,7 @@ window.GrammarModule = (function () {
       card.innerHTML = `
         <div class="icon">${u.icon}</div>
         <h3>${u.title}</h3>
-        <p><span class="tag">${u.level}</span> ${done ? '<span class="tag" style="background:#dcfce7;color:var(--good)">✓ Done</span>' : ''}</p>
+        <p><span class="tag">${u.level}</span> ${done ? '<span class="tag" style="background:rgba(52,199,89,.12);color:var(--good)">✓ Done</span>' : ''}</p>
         <p style="margin-top:8px">${u.rules.length} rules · ${u.quiz.length} questions</p>`;
       card.onclick = () => App.go('grammar', { unit: u.id });
       grid.appendChild(card);
@@ -42,14 +45,14 @@ window.GrammarModule = (function () {
 
     function renderIntro() {
       container.innerHTML = `
+        ${Chrome.render({ back: 'grammar', crumbs: ['Grammar', u.title] })}
         <div class="lesson">
           <h2>${u.icon} ${u.title} <span class="tag">${u.level}</span></h2>
-          <p style="font-size:16px;line-height:1.6;margin:10px 0 16px">${u.intro}</p>
+          <p style="font-size:var(--fs-17);line-height:var(--lh-loose);margin:var(--sp-3) 0 var(--sp-5);color:var(--ink-2)">${u.intro}</p>
           ${rulesHTML()}
           <div class="spacer"></div>
-          <div class="row" style="justify-content:space-between">
-            <button class="btn ghost" onclick="App.go('grammar')">← Grammar</button>
-            <button class="btn big" id="start-quiz">Practice →</button>
+          <div class="row" style="justify-content:flex-end">
+            <button class="btn primary big" id="start-quiz">Practice<span class="arr">→</span></button>
           </div>
         </div>`;
       container.querySelector('#start-quiz').onclick = () => { phase = 'quiz'; renderQuiz(); };
@@ -58,19 +61,18 @@ window.GrammarModule = (function () {
     function renderQuiz() {
       const q = u.quiz[qi];
       container.innerHTML = `
+        ${Chrome.render({
+          back: () => `App.go('grammar', { unit: '${u.id}' })`,
+          crumbs: ['Grammar', u.title, 'Practice'],
+          progress: { current: qi, total: u.quiz.length }
+        })}
         <div class="lesson">
           <h2>${u.icon} Practice — ${u.title}</h2>
-          <div class="progress"><div style="width:${(qi / u.quiz.length) * 100}%"></div></div>
           <div class="q-prompt">${q.q}</div>
           <div class="options" id="opts">
             ${q.opts.map((o, i) => `<div class="option" data-i="${i}">${o}</div>`).join('')}
           </div>
           <div id="fb"></div>
-          <div class="spacer"></div>
-          <div class="row" style="justify-content:space-between">
-            <button class="btn ghost" onclick="App.go('grammar')">← Quit</button>
-            <span style="color:var(--mute)">Q ${qi + 1} / ${u.quiz.length}</span>
-          </div>
         </div>`;
       container.querySelectorAll('.option').forEach(el => {
         el.onclick = () => {
@@ -107,15 +109,18 @@ window.GrammarModule = (function () {
       const pass = pct >= 70;
       if (pass) App.markLessonDone(`grammar:${u.id}`);
       container.innerHTML = `
+        ${Chrome.render({ back: 'grammar', crumbs: ['Grammar', u.title, 'Result'] })}
         <div class="lesson center">
           <div class="empty">
             <div class="big-icon">${pass ? '🏅' : '💪'}</div>
-            <h2>${pass ? 'Quest Complete!' : 'Almost There'}</h2>
+            <h2>${pass ? 'Quest Complete' : 'Almost There'}</h2>
             <p>Score: <b>${correct}/${u.quiz.length}</b> (${pct}%)</p>
-            <p style="margin-top:8px">${pass ? 'You earned XP and unlocked the next step.' : 'Review the rules and try again — 70% to pass.'}</p>
+            <p style="margin-top:var(--sp-2)">${pass ? 'Unit unlocked. The next step is highlighted on your path.' : 'Review the rules and try again — 70% to pass.'}</p>
             <div class="spacer"></div>
-            <button class="btn big" onclick="App.go('grammar', { unit: '${u.id}' })">Review Rules</button>
-            <button class="btn ghost big" onclick="App.go('path')">Back to Path</button>
+            <div class="row" style="justify-content:center">
+              <button class="btn primary big" onclick="App.go('grammar', { unit: '${u.id}' })">Review rules</button>
+              <button class="btn ghost big" onclick="App.go('path')">Back to Path</button>
+            </div>
           </div>
         </div>`;
     }

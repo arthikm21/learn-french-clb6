@@ -2,10 +2,13 @@
 window.GamesModule = (function () {
   function renderList(container) {
     container.innerHTML = `
-      <div class="hero"><div class="flag-stripes"></div>
-        <h1>🎮 Games</h1>
-        <p>Drill the patterns through play. All games work on phone, tablet, and desktop.</p>
-      </div>
+      ${Chrome.render({ back: 'home', crumbs: ['Home', 'Games'] })}
+      <section class="hero">
+        <div class="flag-stripes"></div>
+        <p class="eyebrow-h">Games</p>
+        <h1>Drill it.<br/>Through play.</h1>
+        <p style="margin-top:var(--sp-4)">Nine games. Pattern recognition through repetition without grinding.</p>
+      </section>
       <div class="grid">
         <div class="card" onclick="App.go('games', { game: 'gender' })"><div class="icon">⚖️</div><h3>Gender Sort</h3><p>Tap noun, tap masculin or féminin. Fastest gender-mastery drill.</p></div>
         <div class="card" onclick="App.go('games', { game: 'conjrace' })"><div class="icon">🏁</div><h3>Conjugation Race</h3><p>Type the right verb form before time runs out.</p></div>
@@ -535,7 +538,7 @@ window.GamesModule = (function () {
           <div class="progress"><div style="width:${(i / queue.length) * 100}%"></div></div>
           <div class="row" style="justify-content:space-between"><span>Score: <b>${correct}</b></span><span>${i+1}/${queue.length}</span></div>
           <p style="color:var(--mute);margin:14px 0">This sentence has ONE error. Type the corrected sentence below.</p>
-          <div class="grammar-box" style="background:#fee2e2;border-left-color:var(--bad)">
+          <div class="grammar-box" style="border-left-color:var(--bad)">
             <p style="font-size:19px;font-family:'Fredoka',sans-serif;color:var(--bad)">${d.wrong}</p>
           </div>
           <input class="input" id="ans" placeholder="Type the corrected version..." autocomplete="off"/>

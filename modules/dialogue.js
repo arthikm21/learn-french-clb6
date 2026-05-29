@@ -3,10 +3,13 @@
 window.DialogueModule = (function () {
   function renderList(container) {
     container.innerHTML = `
-      <div class="hero"><div class="flag-stripes"></div>
-        <h1>💬 Listening Dialogues</h1>
-        <p>Multi-speaker conversations at CLB 4-6 level. Listen all the way through, then answer comprehension questions. Builds real-world listening competence — the kind that CLB exams test.</p>
-      </div>
+      ${Chrome.render({ back: 'home', crumbs: ['Home', 'Dialogues'] })}
+      <section class="hero">
+        <div class="flag-stripes"></div>
+        <p class="eyebrow-h">Listening Dialogues</p>
+        <h1>Two speakers.<br/>Real questions.</h1>
+        <p style="margin-top:var(--sp-4)">Multi-speaker CLB 4-6 conversations. Listen, then answer comprehension questions — the exact format CLB exams test.</p>
+      </section>
       <div class="grid" id="d-grid"></div>`;
     const grid = container.querySelector('#d-grid');
     for (const k of Object.keys(DIALOGUES)) {
@@ -17,7 +20,7 @@ window.DialogueModule = (function () {
       card.innerHTML = `
         <div class="icon">💬</div>
         <h3>${d.title}</h3>
-        <p><span class="tag">${d.level}</span>${done ? ' <span class="tag" style="background:#dcfce7;color:var(--good)">✓ Done</span>' : ''}</p>
+        <p><span class="tag">${d.level}</span>${done ? ' <span class="tag" style="color:var(--good)">✓ Done</span>' : ''}</p>
         <p style="margin-top:8px">${d.lines.length} lines · ${d.questions.length} questions</p>`;
       card.onclick = () => App.go('dialogue', { id: k });
       grid.appendChild(card);
@@ -73,10 +76,11 @@ window.DialogueModule = (function () {
 
     function showListen() {
       container.innerHTML = `
+        ${Chrome.render({ back: 'dialogue', crumbs: ['Dialogues', d.title] })}
         <div class="lesson">
           <h2>💬 ${d.title} <span class="tag">${d.level}</span>${tcfMode ? ' <span class="tag" style="background:var(--rouge);color:white">🎯 TCF mode</span>' : ''}</h2>
           <p style="color:var(--mute);font-style:italic;margin-bottom:14px">${d.intro}</p>
-          ${tcfMode ? `<div class="grammar-box" style="background:#fee2e2;border-left-color:var(--bad)"><h3>⚠️ TCF Exam Mode</h3><p>Audio plays <b>ONCE</b>. No replay. No transcript. Listen carefully, then answer the questions.</p></div>` : ''}
+          ${tcfMode ? `<div class="grammar-box" style="border-left-color:var(--bad)"><h3>⚠️ TCF Exam Mode</h3><p>Audio plays <b>ONCE</b>. No replay. No transcript. Listen carefully, then answer the questions.</p></div>` : ''}
           <div class="row" style="justify-content:center;gap:10px;flex-wrap:wrap">
             <button class="btn big" id="play">▶ ${tcfMode ? 'Play (one chance)' : 'Play'}</button>
             ${tcfMode ? '' : `<button class="btn ghost" id="show-text">👁️ Show transcript</button>`}
@@ -124,10 +128,13 @@ window.DialogueModule = (function () {
     function showQuiz() {
       const q = d.questions[qi];
       container.innerHTML = `
+        ${Chrome.render({
+          back: 'dialogue',
+          crumbs: ['Dialogues', d.title, 'Questions'],
+          progress: { current: qi, total: d.questions.length }
+        })}
         <div class="lesson">
           <h2>💬 ${d.title}${tcfMode ? ' <span class="tag" style="background:var(--rouge);color:white">🎯 TCF mode</span>' : ''}</h2>
-          <div class="progress"><div style="width:${(qi / d.questions.length) * 100}%"></div></div>
-          <p style="color:var(--mute);font-size:14px">Question ${qi + 1} of ${d.questions.length}</p>
           ${tcfMode ? '' : `<div class="row" style="margin-bottom:10px"><button class="btn secondary" id="replay">🔊 Replay dialogue</button></div>`}
           <div class="q-prompt">${q.q}</div>
           <div class="options">
@@ -170,15 +177,18 @@ window.DialogueModule = (function () {
       const pct = Math.round((correct / d.questions.length) * 100);
       if (pct >= 70) App.markLessonDone(`dialogue:${id}`);
       container.innerHTML = `
+        ${Chrome.render({ back: 'dialogue', crumbs: ['Dialogues', d.title, 'Result'] })}
         <div class="lesson center">
           <div class="empty">
             <div class="big-icon">${pct >= 70 ? '🎯' : '👂'}</div>
-            <h2>${pct >= 70 ? 'Excellent !' : 'Re-listen and Retry'}</h2>
+            <h2>${pct >= 70 ? 'Excellent' : 'Re-listen & retry'}</h2>
             <p>Score: <b>${correct}/${d.questions.length}</b> (${pct}%)</p>
-            <p style="color:var(--mute);margin-top:6px">${pct >= 80 ? 'You understood the dialogue clearly.' : pct >= 50 ? 'Replay the dialogue and re-attempt missed questions.' : 'Listen with the transcript open, then re-try.'}</p>
+            <p style="color:var(--mute);margin-top:var(--sp-2)">${pct >= 80 ? 'You understood the dialogue clearly.' : pct >= 50 ? 'Replay and re-attempt missed questions.' : 'Listen with the transcript open, then re-try.'}</p>
             <div class="spacer"></div>
-            <button class="btn big" onclick="App.go('dialogue')">More dialogues</button>
-            <button class="btn ghost big" onclick="App.go('path')">Path</button>
+            <div class="row" style="justify-content:center">
+              <button class="btn primary big" onclick="App.go('dialogue')">More dialogues</button>
+              <button class="btn ghost big" onclick="App.go('path')">Path</button>
+            </div>
           </div>
         </div>`;
     }

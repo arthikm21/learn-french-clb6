@@ -6,7 +6,7 @@ window.SpeakTask3Module = (function () {
   function renderList(container) {
     const tasks = window.SPEAK_TASK3;
     container.innerHTML = `
-      <div class="hero" style="background:linear-gradient(135deg,#7c3aed,#0055A4)">
+      <div class="hero">
         <div class="flag-stripes"></div>
         <h1>🎤 Speaking Task 3 — Argumentative Monologue</h1>
         <p>TCF EO Task 3. Take a position on a topic, defend it with reasoning for 3-5 minutes. This is the most weighted speaking task.</p>
@@ -32,7 +32,7 @@ window.SpeakTask3Module = (function () {
       card.innerHTML = `
         <div class="icon">🎤</div>
         <h3>${t.title}</h3>
-        <p><span class="tag">${t.level}</span>${done ? ' <span class="tag" style="background:#dcfce7;color:var(--good)">✓ Done</span>' : ''}</p>
+        <p><span class="tag">${t.level}</span>${done ? ' <span class="tag" style="color:var(--good)">✓ Done</span>' : ''}</p>
         <p style="margin-top:8px;font-size:13px;color:var(--mute)">${t.topic}</p>`;
       card.onclick = () => App.go('speaktask3', { id: k });
       grid.appendChild(card);
@@ -50,7 +50,7 @@ window.SpeakTask3Module = (function () {
     container.innerHTML = `
       <div class="lesson">
         <h2>🎤 ${t.title} <span class="tag">${t.level}</span></h2>
-        <div class="grammar-box" style="background:#fffdf7;border-left-color:var(--warn)">
+        <div class="grammar-box" style="border-left-color:var(--warn)">
           <h3>📜 Topic</h3>
           <p style="font-size:17px;font-weight:600">${t.topic}</p>
         </div>
@@ -58,7 +58,7 @@ window.SpeakTask3Module = (function () {
           <h3>📋 Your task</h3>
           <p>${t.prompt}</p>
         </div>
-        <div class="grammar-box" style="background:#eff6ff">
+        <div class="grammar-box" style="background:rgba(0,85,164,.08)">
           <h3>🎯 Build your argument before speaking</h3>
           <p>Spend 30 seconds preparing in your head:</p>
           <ul style="margin-left:20px;line-height:1.7">
@@ -184,7 +184,7 @@ window.SpeakTask3Module = (function () {
     if (total >= 65) App.markLessonDone(`st3:${id}`);
 
     const passColor = tcfScore >= 7 ? 'var(--good)' : 'var(--warn)';
-    const passBg = tcfScore >= 7 ? '#dcfce7' : '#fef3c7';
+    const passBg = tcfScore >= 7 ? 'rgba(52,199,89,.12)' : 'rgba(255,159,10,.12)';
 
     container.querySelector('#st3-report').innerHTML = `
       <div class="grammar-box" style="background:${passBg};border-left-color:${passColor};margin-top:14px">
@@ -203,11 +203,11 @@ window.SpeakTask3Module = (function () {
         <h3>✅ TCF Task 3 rubric</h3>
         <ul style="margin-left:20px;line-height:1.9">${rubric.map(r => `<li>${r.pass ? '✅' : '⬜'} ${r.label}</li>`).join('')}</ul>
       </div>
-      <div class="grammar-box" style="background:#eff6ff">
+      <div class="grammar-box" style="background:rgba(0,85,164,.08)">
         <h3>💬 Your transcript</h3>
         <p style="font-style:italic">"${text || '<i>no recording</i>'}"</p>
       </div>
-      <div class="grammar-box" style="background:#f9fafb">
+      <div class="grammar-box" style="background:var(--surface-2)">
         <h3>💡 Power phrases for Task 3</h3>
         <p><b>Take position</b>: "Je pense fermement que…", "À mon avis…", "Personnellement, je suis convaincu(e) que…"</p>
         <p style="margin-top:6px"><b>Argue</b>: "D'une part… d'autre part…", "Tout d'abord… ensuite… enfin…", "Par conséquent…", "C'est pourquoi…"</p>

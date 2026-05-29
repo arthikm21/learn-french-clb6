@@ -31,7 +31,7 @@ window.DiagnosticModule = (function () {
 
   function render(container) {
     container.innerHTML = `
-      <div class="hero" style="background:linear-gradient(135deg,#7c3aed,#0055A4)">
+      <div class="hero">
         <div class="flag-stripes"></div>
         <h1>📍 Placement Test</h1>
         <p>20 quick questions to find your level. Lessons you clearly know will be marked done so you can skip ahead. Takes ~5 minutes.</p>
@@ -109,7 +109,7 @@ window.DiagnosticModule = (function () {
       container.innerHTML = `
         <div class="lesson">
           <h2>📊 Your placement</h2>
-          <div class="grammar-box" style="background:#dcfce7;border-left-color:var(--good)">
+          <div class="grammar-box" style="border-left-color:var(--good)">
             <h3>${score} / ${Q.length} correct · estimated <b>${estimatedLevel}</b></h3>
             <p>${lessonsMarkedDone} lesson${lessonsMarkedDone === 1 ? '' : 's'} marked done. Path adjusted to your level.</p>
           </div>

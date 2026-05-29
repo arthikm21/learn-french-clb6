@@ -2,30 +2,36 @@
 window.PathModule = (function () {
   function render(container) {
     const completed = LESSON_PATH.filter(n => isDone(n)).length;
+    const total = LESSON_PATH.length;
     const nextIdx = LESSON_PATH.findIndex(n => !isDone(n));
+    const pct = Math.round((completed / total) * 100);
 
     container.innerHTML = `
-      <div class="hero"><div class="flag-stripes"></div>
-        <h1>🗺️ Your Path to CLB 6</h1>
-        <p>${completed} / ${LESSON_PATH.length} milestones complete. Click any lesson — your next recommended step is highlighted.</p>
-        <div class="meter" style="background:rgba(255,255,255,.3);margin-top:14px;height:10px"><div style="width:${(completed / LESSON_PATH.length) * 100}%;background:white;height:100%;border-radius:999px"></div></div>
-      </div>
+      ${Chrome.render({ back: 'home', crumbs: ['Home', 'Path'] })}
+      <section class="hero">
+        <div class="flag-stripes"></div>
+        <p style="text-transform:uppercase;letter-spacing:var(--ls-wide);font-size:var(--fs-12);font-weight:var(--fw-semi);color:var(--mute);margin-bottom:var(--sp-3)">Your Path to CLB 6</p>
+        <h1>Eight phases.<br/>One path.</h1>
+        <p style="margin-top:var(--sp-4)">${completed} of ${total} milestones complete · ${pct}%. Tap any unit. Next step is highlighted.</p>
+        <div class="progress" style="height:6px;background:var(--surface-2);border-radius:var(--r-pill);overflow:hidden;margin-top:var(--sp-5);max-width:480px">
+          <div style="height:100%;width:${pct}%;background:var(--ink);border-radius:var(--r-pill);transition:width var(--t-slow) var(--ease-out)"></div>
+        </div>
+      </section>
       <div id="phases"></div>`;
 
     const phases = container.querySelector('#phases');
 
     const phaseRanges = [
-      { name: '1. Foundation — Sounds & Greetings', start: 1, end: 8 },
-      { name: '2. Core Grammar A1', start: 9, end: 19 },
-      { name: '3. Communication Starts', start: 20, end: 30 },
-      { name: '4. Past Tense & More Vocab', start: 31, end: 40 },
-      { name: '5. Future & Intermediate', start: 41, end: 51 },
-      { name: '6. Imparfait & CLB 4-5', start: 52, end: 61 },
-      { name: '7. CLB 5 → 6 Push', start: 62, end: 84 },
-      { name: '8. CLB 6 Mocks 🎯', start: 85, end: 92 },
+      { name: 'Foundation — Sounds & Greetings', start: 1,  end: 8  },
+      { name: 'Core Grammar A1',                 start: 9,  end: 19 },
+      { name: 'Communication Starts',            start: 20, end: 30 },
+      { name: 'Past Tense & More Vocab',         start: 31, end: 40 },
+      { name: 'Future & Intermediate',           start: 41, end: 51 },
+      { name: 'Imparfait & CLB 4-5',             start: 52, end: 61 },
+      { name: 'CLB 5 → 6 Push',                  start: 62, end: 84 },
+      { name: 'CLB 6 Mocks',                     start: 85, end: 92 },
     ];
 
-    // Find current phase (contains next lesson)
     const currentPhaseIdx = (() => {
       if (nextIdx < 0) return phaseRanges.length - 1;
       const id = LESSON_PATH[nextIdx].id;
@@ -38,30 +44,42 @@ window.PathModule = (function () {
       const phDone = items.filter(isDone).length;
       const isCurrent = phIdx === currentPhaseIdx;
       const allDone = phDone === items.length;
-      // Collapse phases that are complete AND before current. Keep current and future expanded.
       const collapsed = allDone && phIdx < currentPhaseIdx;
 
       const phSec = document.createElement('details');
-      phSec.style.marginBottom = '14px';
+      phSec.style.marginBottom = '12px';
       if (!collapsed) phSec.open = true;
+
+      const statusGlyph = allDone ? '✓' : (isCurrent ? '▶' : phIdx + 1);
+      const statusColor = allDone ? 'var(--good)' : (isCurrent ? 'var(--accent)' : 'var(--ink-2)');
+      const statusBg    = allDone ? 'rgba(52,199,89,.12)' : (isCurrent ? 'rgba(94,92,230,.12)' : 'var(--surface-2)');
+
       phSec.innerHTML = `
-        <summary style="cursor:pointer;list-style:none;padding:12px 16px;background:${allDone ? '#dcfce7' : (isCurrent ? '#fef3c7' : 'var(--card)')};border-radius:12px;font-family:'Fredoka',sans-serif;color:${allDone ? 'var(--good)' : 'var(--bleu)'};font-size:17px;display:flex;justify-content:space-between;align-items:center;box-shadow:var(--shadow);user-select:none">
-          <span>${allDone ? '✅' : (isCurrent ? '▶' : '◯')} ${ph.name}</span>
-          <span style="font-family:'Nunito';font-weight:700;font-size:14px;color:var(--mute)">${phDone}/${items.length}</span>
+        <summary style="cursor:pointer;list-style:none;padding:var(--sp-4) var(--sp-5);background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);display:flex;justify-content:space-between;align-items:center;box-shadow:var(--e1);user-select:none;gap:var(--sp-3)">
+          <span style="display:flex;align-items:center;gap:var(--sp-3);min-width:0">
+            <span style="flex-shrink:0;width:32px;height:32px;border-radius:var(--r-pill);background:${statusBg};color:${statusColor};display:grid;place-items:center;font-weight:var(--fw-bold);font-size:var(--fs-14);font-variant-numeric:tabular-nums">${statusGlyph}</span>
+            <span style="font-weight:var(--fw-semi);font-size:var(--fs-17);color:var(--ink);letter-spacing:var(--ls-snug);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Phase ${phIdx + 1} · ${ph.name}</span>
+          </span>
+          <span style="font-weight:var(--fw-semi);font-size:var(--fs-13);color:var(--mute);flex-shrink:0;font-variant-numeric:tabular-nums">${phDone}/${items.length}</span>
         </summary>
-        <div class="path-list" style="padding-top:10px"></div>`;
+        <div class="path-list" style="padding:var(--sp-3) 0 0 0"></div>`;
       const list = phSec.querySelector('.path-list');
       items.forEach((n) => {
         const done = isDone(n);
         const isNext = (LESSON_PATH[nextIdx] && LESSON_PATH[nextIdx].id === n.id);
         const node = document.createElement('div');
         node.className = `path-node ${done ? 'done' : (isNext ? 'unlocked' : '')}`;
-        if (isNext) node.style.boxShadow = '0 0 0 3px var(--rouge), 0 6px 24px rgba(0,0,0,.08)';
+        if (isNext) {
+          node.style.boxShadow = '0 0 0 2px var(--accent), var(--e2)';
+        }
+        const nextTag = isNext
+          ? '<span class="tag" style="background:var(--accent);color:white">Next</span>'
+          : '';
         node.innerHTML = `
           <div class="num">${done ? '✓' : n.id}</div>
           <div class="info">
-            <h4>${n.title} ${isNext ? '<span class="tag" style="background:var(--rouge);color:white">▶ NEXT</span>' : ''}</h4>
-            <p>${n.desc}</p>
+            <h4>${escapeHTML(n.title)} ${nextTag}</h4>
+            <p>${escapeHTML(n.desc)}</p>
           </div>`;
         node.onclick = () => {
           const params = {};
@@ -91,6 +109,12 @@ window.PathModule = (function () {
       write: `write:${n.prompt}`,
     };
     return !!App.state.lessons[keys[n.route]];
+  }
+
+  function escapeHTML(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[c]));
   }
 
   return { render };

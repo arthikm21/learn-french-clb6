@@ -5,10 +5,13 @@ window.SpeakTasksModule = (function () {
   function renderList(container) {
     const tasks = window.SPEAK_TASKS;
     container.innerHTML = `
-      <div class="hero"><div class="flag-stripes"></div>
-        <h1>🎤 Speaking Tasks</h1>
-        <p>Beyond repeat-the-sentence. Practice <b>open-ended speaking</b>: describe scenes, answer questions, play roles. This is what CLB Speaking actually tests.</p>
-      </div>
+      ${Chrome.render({ back: 'home', crumbs: ['Home', 'Speaking Tasks'] })}
+      <section class="hero">
+        <div class="flag-stripes"></div>
+        <p class="eyebrow-h">Speaking Tasks</p>
+        <h1>Open-ended.<br/>Like the exam.</h1>
+        <p style="margin-top:var(--sp-4)">Describe scenes. Answer questions. Play roles. This is what CLB Speaking actually tests.</p>
+      </section>
       <div class="grid" id="t-grid"></div>`;
     const grid = container.querySelector('#t-grid');
     const typeIcons = { picture: '🖼️', qa: '❓', role: '🎭' };
@@ -20,7 +23,7 @@ window.SpeakTasksModule = (function () {
       card.innerHTML = `
         <div class="icon">${t.emoji || typeIcons[t.type] || '🎤'}</div>
         <h3>${t.title}</h3>
-        <p><span class="tag">${t.level}</span> <span class="tag" style="background:#f3e8ff;color:var(--accent)">${t.type}</span>${done ? ' <span class="tag" style="background:#dcfce7;color:var(--good)">✓ Done</span>' : ''}</p>`;
+        <p><span class="tag">${t.level}</span> <span class="tag" style="background:rgba(94,92,230,.12);color:var(--accent)">${t.type}</span>${done ? ' <span class="tag" style="color:var(--good)">✓ Done</span>' : ''}</p>`;
       card.onclick = () => App.go('speaktasks', { id: k });
       grid.appendChild(card);
     }
@@ -41,7 +44,7 @@ window.SpeakTasksModule = (function () {
           <p><i>${t.sceneDesc}</i></p>
           <p style="margin-top:10px;color:var(--mute);font-size:14px">(This site uses verbal scene descriptions — a real CLB exam shows you the photo.)</p>
         </div>
-        <div class="grammar-box" style="background:#fffdf7;border-left-color:var(--warn)">
+        <div class="grammar-box" style="border-left-color:var(--warn)">
           <h3>📋 Task</h3>
           <p>${t.prompt}</p>
           <p style="margin-top:8px;color:var(--mute);font-size:14px">Target: <b>${t.targetWords}+ words</b> in <b>${t.targetTime} seconds</b>.</p>
@@ -134,7 +137,7 @@ window.SpeakTasksModule = (function () {
     const clb = total >= 75 ? (t.level.includes('6') ? 'CLB 6' : 'CLB 5') : total >= 55 ? 'CLB 4' : 'CLB 3';
     if (total >= 65) App.markLessonDone(`speaktask:${id}`);
     container.querySelector('#report').innerHTML = `
-      <div class="grammar-box" style="background:${total >= 70 ? '#dcfce7' : '#fef3c7'};border-left-color:${total >= 70 ? 'var(--good)' : 'var(--warn)'};margin-top:14px">
+      <div class="grammar-box" style="background:${total >= 70 ? 'rgba(52,199,89,.12)' : 'rgba(255,159,10,.12)'};border-left-color:${total >= 70 ? 'var(--good)' : 'var(--warn)'};margin-top:14px">
         <h3>📊 Grade: ${total}/100 · ${clb}</h3>
         <div class="row" style="margin-top:8px"><span class="tag">Words: ${words}/${t.targetWords}</span><span class="tag">Keywords: ${keywordsHit.length}/${Math.min(8, t.keywords.length)}</span><span class="tag">Sentences: ${sentences}</span></div>
         <p style="margin-top:10px"><b>Keywords found:</b> ${keywordsHit.length ? keywordsHit.join(', ') : '<i>none</i>'}</p>
@@ -238,7 +241,7 @@ window.SpeakTasksModule = (function () {
     container.innerHTML = `
       <div class="lesson">
         <h2>📊 ${t.title} — Results</h2>
-        <div class="grammar-box" style="background:${score >= 70 ? '#dcfce7' : '#fef3c7'};border-left-color:${score >= 70 ? 'var(--good)' : 'var(--warn)'}">
+        <div class="grammar-box" style="background:${score >= 70 ? 'rgba(52,199,89,.12)' : 'rgba(255,159,10,.12)'};border-left-color:${score >= 70 ? 'var(--good)' : 'var(--warn)'}">
           <h3>Overall: ${score}/100</h3>
           <p>Words spoken: <b>${totalWords}</b> / target <b>${totalTarget}</b></p>
         </div>
@@ -269,7 +272,7 @@ window.SpeakTasksModule = (function () {
         <div class="lesson">
           <h2>🎭 ${t.title} <span class="tag">${t.level}</span></h2>
           <div class="progress"><div style="width:${(turnIdx / t.turns.length) * 100}%"></div></div>
-          <div class="grammar-box" style="background:#fffdf7;border-left-color:var(--warn)">
+          <div class="grammar-box" style="border-left-color:var(--warn)">
             <h3>📋 Scenario</h3>
             <p>${t.scenario}</p>
           </div>
@@ -332,7 +335,7 @@ window.SpeakTasksModule = (function () {
     container.innerHTML = `
       <div class="lesson">
         <h2>🎭 ${t.title} — Complete</h2>
-        <div class="grammar-box" style="background:${score >= 70 ? '#dcfce7' : '#fef3c7'};border-left-color:${score >= 70 ? 'var(--good)' : 'var(--warn)'}">
+        <div class="grammar-box" style="background:${score >= 70 ? 'rgba(52,199,89,.12)' : 'rgba(255,159,10,.12)'};border-left-color:${score >= 70 ? 'var(--good)' : 'var(--warn)'}">
           <h3>Score: ${score}/100</h3>
           <p>Words spoken: <b>${totalWords}</b> / target <b>${totalTarget}</b></p>
           <p style="margin-top:8px;color:var(--mute);font-size:14px">Role-plays are graded by completeness in this site. A real CLB rater would also score fluency, accuracy, pronunciation, and appropriate register.</p>

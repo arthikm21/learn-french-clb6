@@ -31,11 +31,11 @@ window.ConnectorsModule = (function () {
             <h3>📜 Prompt</h3>
             <p style="font-size:18px;line-height:1.5;font-style:italic">"${d.prompt}"</p>
           </div>
-          <div class="grammar-box" style="background:#fef3c7;border-left-color:var(--warn)">
+          <div class="grammar-box" style="border-left-color:var(--warn)">
             <h3>🎯 Use this connector to continue (verbal or typed)</h3>
             <p style="font-family:'Fredoka',sans-serif;font-size:30px;color:var(--bleu)">${d.target}</p>
             <p style="margin-top:6px;color:var(--mute);font-size:13px">${d.targetExplain}</p>
-            <p style="margin-top:4px;font-size:13px"><span class="tag" style="background:#f3e8ff;color:var(--accent)">${d.category}</span></p>
+            <p style="margin-top:4px;font-size:13px"><span class="tag" style="background:rgba(94,92,230,.12);color:var(--accent)">${d.category}</span></p>
           </div>
           <p style="text-align:center;color:var(--mute)">Continue the idea using <b>${d.target}</b>. 30s timer.</p>
           <div class="center">

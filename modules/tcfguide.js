@@ -13,7 +13,7 @@ window.TCFGuideModule = (function () {
 
   function renderOverview(container) {
     container.innerHTML = `
-      <div class="hero" style="background:linear-gradient(135deg,#7c3aed,#0055A4)">
+      <div class="hero">
         <div class="flag-stripes"></div>
         <h1>🎯 TCF Canada Prep Guide</h1>
         <p>Everything you need to know before sitting the TCF Canada exam to score CLB 6.</p>
@@ -39,7 +39,7 @@ window.TCFGuideModule = (function () {
 
   function renderStrategy(container) {
     container.innerHTML = `
-      <div class="hero" style="background:linear-gradient(135deg,#7c3aed,#0055A4)">
+      <div class="hero">
         <div class="flag-stripes"></div>
         <h1>📋 TCF Strategy Guide</h1>
         <p>Tactical tips for each section. Read once, apply on test day.</p>
@@ -94,7 +94,7 @@ window.TCFGuideModule = (function () {
         </ul>
       </div>
 
-      <div class="grammar-box" style="background:#fef3c7;border-left-color:var(--warn)">
+      <div class="grammar-box" style="border-left-color:var(--warn)">
         <h3>⚠️ The 5 most common TCF Canada mistakes</h3>
         <ol style="margin-left:20px;line-height:1.8">
           <li><b>Replaying mentally</b> during CO. Once the audio ends, focus on the question — don't keep "rewinding" in your head.</li>
@@ -111,7 +111,7 @@ window.TCFGuideModule = (function () {
 
   function renderConversion(container) {
     container.innerHTML = `
-      <div class="hero" style="background:linear-gradient(135deg,#7c3aed,#0055A4)">
+      <div class="hero">
         <div class="flag-stripes"></div>
         <h1>📊 TCF Canada → CLB Conversion</h1>
         <p>Official IRCC equivalency chart. Use this to set your target score before booking the exam.</p>
@@ -124,7 +124,7 @@ window.TCFGuideModule = (function () {
           <tr><td>9</td><td>523-548</td><td>524-548</td><td>14-15</td><td>14-15</td></tr>
           <tr><td>8</td><td>503-522</td><td>500-523</td><td>12-13</td><td>12-13</td></tr>
           <tr><td>7</td><td>458-502</td><td>453-499</td><td>10-11</td><td>10-11</td></tr>
-          <tr style="background:#dcfce7"><td><b>6</b></td><td><b>398-457</b></td><td><b>406-452</b></td><td><b>7-9</b></td><td><b>7-9</b></td></tr>
+          <tr style="background:rgba(52,199,89,.12)"><td><b>6</b></td><td><b>398-457</b></td><td><b>406-452</b></td><td><b>7-9</b></td><td><b>7-9</b></td></tr>
           <tr><td>5</td><td>369-397</td><td>375-405</td><td>6</td><td>6</td></tr>
           <tr><td>4</td><td>331-368</td><td>342-374</td><td>4-5</td><td>4-5</td></tr>
         </tbody>
@@ -138,7 +138,7 @@ window.TCFGuideModule = (function () {
         <p style="margin-top:8px"><b>For federal jobs designated bilingual</b>: typical requirement is CLB 6 in both languages (sometimes CLB 7 for senior positions).</p>
       </div>
 
-      <div class="grammar-box" style="background:#eff6ff">
+      <div class="grammar-box" style="background:rgba(0,85,164,.08)">
         <h3>🔗 Official source</h3>
         <p>Conversion table from IRCC: <a href="https://www.canada.ca/en/immigration-refugees-citizenship/services/immigrate-canada/express-entry/documents/language-requirements/test-equivalency-charts.html" target="_blank" rel="noopener" style="color:var(--bleu)">canada.ca — language test equivalency charts</a></p>
       </div>
@@ -149,7 +149,7 @@ window.TCFGuideModule = (function () {
 
   function renderChecklist(container) {
     container.innerHTML = `
-      <div class="hero" style="background:linear-gradient(135deg,#7c3aed,#0055A4)">
+      <div class="hero">
         <div class="flag-stripes"></div>
         <h1>📅 TCF Test-Day Checklist</h1>
         <p>What to bring, when to arrive, what to expect.</p>
@@ -177,7 +177,7 @@ window.TCFGuideModule = (function () {
         </ul>
       </div>
 
-      <div class="grammar-box" style="background:#fee2e2;border-left-color:var(--bad)">
+      <div class="grammar-box" style="border-left-color:var(--bad)">
         <h3>🚫 What NOT to bring (will be confiscated or you'll be refused entry)</h3>
         <ul style="margin-left:20px;line-height:1.8">
           <li>Mobile phone, smartwatch, fitness tracker — all electronics.</li>
@@ -223,7 +223,7 @@ window.TCFGuideModule = (function () {
     let history = [];
     try { history = JSON.parse(window.Storage.getItem('mockHistory') || '[]'); } catch {}
     container.innerHTML = `
-      <div class="hero" style="background:linear-gradient(135deg,#7c3aed,#0055A4)">
+      <div class="hero">
         <div class="flag-stripes"></div>
         <h1>📈 My Mock History</h1>
         <p>Your past TCF mock attempts. ${history.length} attempt${history.length === 1 ? '' : 's'} recorded.</p>

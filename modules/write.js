@@ -2,10 +2,13 @@
 window.WriteModule = (function () {
   function renderList(container) {
     container.innerHTML = `
-      <div class="hero"><div class="flag-stripes"></div>
-        <h1>✍️ Writing Workshop</h1>
-        <p>Structured prompts with rubric checks AND French error detection. Builds CLB Writing from paragraphs to formal emails.</p>
-      </div>
+      ${Chrome.render({ back: 'home', crumbs: ['Home', 'Write'] })}
+      <section class="hero">
+        <div class="flag-stripes"></div>
+        <p class="eyebrow-h">Writing Workshop</p>
+        <h1>Write it.<br/>Get it graded.</h1>
+        <p style="margin-top:var(--sp-4)">Structured prompts with rubric checks and real French error detection. Paragraphs to formal emails.</p>
+      </section>
       <div class="grid" id="w-grid"></div>`;
     const grid = container.querySelector('#w-grid');
     for (const k of Object.keys(WRITING)) {
@@ -24,31 +27,29 @@ window.WriteModule = (function () {
     const saved = window.Storage.getItem(draftKey) || '';
 
     container.innerHTML = `
+      ${Chrome.render({ back: 'write', crumbs: ['Write', t.title] })}
       <div class="lesson">
         <h2>✍️ ${t.title} <span class="tag">${t.level}</span></h2>
         <div class="grammar-box">
           <h3>📝 Prompt</h3>
           <p>${t.prompt}</p>
-          <p style="margin-top:8px;color:var(--mute)"><b>Target:</b> ${t.minWords || 30}+ words.</p>
+          <p style="margin-top:var(--sp-2);color:var(--mute)"><b>Target:</b> ${t.minWords || 30}+ words.</p>
         </div>
-        <div class="grammar-box" style="background:#f0fdf4;border-left-color:var(--good)">
+        <div class="grammar-box" style="border-left-color:var(--good)">
           <h3>💡 Hints</h3>
-          <ul style="margin-left:20px;line-height:1.7">${t.hints.map(h => `<li>${h}</li>`).join('')}</ul>
+          <ul style="margin-left:20px;line-height:var(--lh-loose);color:var(--ink-2)">${t.hints.map(h => `<li>${h}</li>`).join('')}</ul>
         </div>
-        <textarea class="input" id="essay" placeholder="Écris ici en français..." style="font-size:16px;line-height:1.6">${saved}</textarea>
-        <div class="row" style="margin-top:8px;justify-content:space-between;color:var(--mute);font-size:13px">
+        <textarea class="input" id="essay" placeholder="Écris ici en français...">${saved}</textarea>
+        <div class="row" style="margin-top:var(--sp-2);justify-content:space-between;color:var(--mute);font-size:var(--fs-13)">
           <span id="wc">0 words</span>
-          <span>💾 Auto-saved as you type</span>
+          <span>Auto-saved as you type</span>
         </div>
         <div class="spacer"></div>
         <div id="report"></div>
         <div class="spacer"></div>
-        <div class="row" style="justify-content:space-between">
-          <button class="btn ghost" onclick="App.go('write')">← Prompts</button>
-          <div class="row">
-            <button class="btn secondary" id="clear">🗑️ Clear</button>
-            <button class="btn big" id="check">📊 Grade My Work</button>
-          </div>
+        <div class="row" style="justify-content:flex-end">
+          <button class="btn secondary" id="clear">Clear</button>
+          <button class="btn primary big" id="check">Grade my work</button>
         </div>
       </div>`;
 
@@ -146,44 +147,44 @@ window.WriteModule = (function () {
     }
 
     container.querySelector('#report').innerHTML = `
-      <div class="grammar-box" style="background:${overall >= 70 ? '#dcfce7' : (overall >= 50 ? '#fef3c7' : '#fee2e2')};border-left-color:${overall >= 70 ? 'var(--good)' : (overall >= 50 ? 'var(--warn)' : 'var(--bad)')}">
+      <div class="grammar-box" style="border-left-color:${overall >= 70 ? 'var(--good)' : (overall >= 50 ? 'var(--warn)' : 'var(--bad)')}">
         <h3>📊 Grade: ${overall}/100 · estimated <b>${clbBand}</b></h3>
-        <div class="row" style="margin-top:10px;flex-wrap:wrap">
+        <div class="row" style="margin-top:var(--sp-3);flex-wrap:wrap">
           <span class="tag">Words: ${wordCount} / ${minWords}</span>
           <span class="tag">Rubric: ${rubricPassed}/${task.checks.length}</span>
           <span class="tag">Sentences: ${sentences.length}</span>
           <span class="tag">Tenses: ${tensesUsed.length}</span>
-          ${errors.length > 0 ? `<span class="tag" style="background:#fee2e2;color:var(--bad)">Errors: ${errors.length}</span>` : '<span class="tag" style="background:#dcfce7;color:var(--good)">No errors detected</span>'}
+          ${errors.length > 0 ? `<span class="tag fem">Errors: ${errors.length}</span>` : '<span class="tag" style="background:rgba(52,199,89,.12);color:var(--good)">No errors detected</span>'}
         </div>
       </div>
 
       <div class="grammar-box">
         <h3>✅ Rubric checks</h3>
-        <ul style="margin-left:20px;line-height:1.9">${rubricRows}</ul>
+        <ul style="margin-left:20px;line-height:var(--lh-loose);color:var(--ink-2)">${rubricRows}</ul>
       </div>
 
       ${tensesUsed.length > 0 ? `
-      <div class="grammar-box" style="background:#eff6ff">
+      <div class="grammar-box">
         <h3>🕐 Tenses detected</h3>
         <p>${tensesUsed.map(t => `<span class="tag">${t}</span>`).join(' ')}</p>
-        ${tensesUsed.length === 1 ? `<p style="margin-top:8px;color:var(--mute);font-size:14px">CLB 6 writing usually mixes 2-3 tenses. Try adding contrast (e.g., describe past + plan future).</p>` : ''}
+        ${tensesUsed.length === 1 ? `<p style="margin-top:var(--sp-2);color:var(--mute);font-size:var(--fs-14)">CLB 6 writing usually mixes 2-3 tenses. Try adding contrast (e.g., describe past + plan future).</p>` : ''}
       </div>` : ''}
 
       ${errors.length > 0 ? `
-      <div class="grammar-box" style="background:#fee2e2;border-left-color:var(--bad)">
+      <div class="grammar-box" style="border-left-color:var(--bad)">
         <h3>⚠️ Errors detected (${errors.length})</h3>
-        <ul style="margin-left:20px;line-height:1.8">${errors.map(e => {
+        <ul style="margin-left:20px;line-height:var(--lh-loose);color:var(--ink-2)">${errors.map(e => {
           const span = e.span || e.sample || '';
           const sug = e.suggestion ? ` → try <b>${escapeHTML(e.suggestion)}</b>` : '';
-          const tag = e.type ? `<span class="tag" style="font-size:10px">${e.type}</span> ` : '';
+          const tag = e.type ? `<span class="tag" style="font-size:var(--fs-11)">${e.type}</span> ` : '';
           return `<li>${tag}<code>${escapeHTML(span)}</code> — ${e.message}${sug}</li>`;
         }).join('')}</ul>
-        <p style="margin-top:10px;color:var(--mute);font-size:14px">These are added to your <a onclick="App.go('mistakes')" style="color:var(--bleu);cursor:pointer"><b>Weak Spots</b></a> for review.</p>
+        <p style="margin-top:var(--sp-3);color:var(--mute);font-size:var(--fs-14)">These are added to your <a onclick="App.go('mistakes')" style="color:var(--accent);cursor:pointer"><b>Weak Spots</b></a> for review.</p>
       </div>` : ''}
 
-      <div class="grammar-box" style="background:#f9fafb">
+      <div class="grammar-box">
         <h3>💡 Self-edit checklist</h3>
-        <ul style="margin-left:20px;line-height:1.8">
+        <ul style="margin-left:20px;line-height:var(--lh-loose);color:var(--ink-2)">
           <li>Read your text ALOUD. Mistakes you'd never say in speech often appear in writing.</li>
           <li>Check every noun's article — is the gender right?</li>
           <li>Check verb agreement — does the ending match the subject?</li>
