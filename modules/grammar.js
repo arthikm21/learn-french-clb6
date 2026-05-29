@@ -54,46 +54,41 @@ window.GrammarModule = (function () {
       }).join('');
     }
 
-    // ---------- Deep-dive optional sections ----------
-    function patternHTML() {
-      if (!u.pattern || !u.pattern.length) return '';
-      return `
-        <div class="grammar-box" style="border-left-color:var(--accent)">
-          <h3>1 · Spot the pattern</h3>
+    // ---------- Deep-dive sections (declarative) ----------
+    // Each entry: required field on the unit, heading, border color, and a
+    // body-builder that turns the field's value into HTML inside the box.
+    const DEEP_SECTIONS = [
+      { field: 'pattern', heading: '1 · Spot the pattern', color: 'var(--accent)',
+        body: v => `
           <p style="color:var(--ink-2);font-size:var(--fs-14)">Read these aloud. Notice what changes. Don't try to memorize a rule yet.</p>
-          ${u.pattern.map(ex => `<div class="example">${ex}</div>`).join('')}
-        </div>`;
-    }
-    function whyHTML() {
-      if (!u.why) return '';
-      return `
-        <div class="grammar-box" style="border-left-color:var(--accent)">
-          <h3>2 · Why it works this way</h3>
-          <p>${u.why}</p>
-        </div>`;
-    }
-    function bridgeHTML() {
-      if (!u.enBridge) return '';
-      return `
-        <div class="grammar-box" style="border-left-color:var(--bleu)">
-          <h3>🇬🇧 ↔ 🇫🇷 English bridge</h3>
-          <p>${u.enBridge}</p>
-        </div>`;
-    }
-    function contrastHTML() {
-      if (!u.contrast || !u.contrast.length) return '';
-      return `
-        <div class="grammar-box" style="border-left-color:var(--warn)">
-          <h3>4 · Don't confuse with…</h3>
+          ${v.map(ex => `<div class="example">${ex}</div>`).join('')}` },
+      { field: 'why', heading: '2 · Why it works this way', color: 'var(--accent)',
+        body: v => `<p>${v}</p>` },
+      { field: 'enBridge', heading: '🇬🇧 ↔ 🇫🇷 English bridge', color: 'var(--bleu)',
+        body: v => `<p>${v}</p>` },
+      // (rules section is rendered between bridge and contrast — see renderIntro)
+      { field: 'contrast', heading: "4 · Don't confuse with…", color: 'var(--warn)', position: 'after-rules',
+        body: v => `
           <p style="color:var(--ink-2);font-size:var(--fs-14)">Nearest look-alike forms. Read both, feel the difference.</p>
           <table class="conj-table" style="margin-top:var(--sp-3)"><tbody>
-            ${u.contrast.map(c => `<tr><td style="width:50%">${c.form || c[0]}</td><td>${c.gloss || c[1]}</td></tr>`).join('')}
-          </tbody></table>
+            ${v.map(c => `<tr><td style="width:50%">${c.form || c[0]}</td><td>${c.gloss || c[1]}</td></tr>`).join('')}
+          </tbody></table>` },
+    ];
+
+    function renderSection(s) {
+      const v = u[s.field];
+      if (!v || (Array.isArray(v) && !v.length)) return '';
+      return `
+        <div class="grammar-box" style="border-left-color:${s.color}">
+          <h3>${s.heading}</h3>
+          ${s.body(v)}
         </div>`;
     }
 
     function renderIntro() {
-      const hasDeepDive = !!(u.pattern || u.why || u.contrast || u.enBridge);
+      const before = DEEP_SECTIONS.filter(s => s.position !== 'after-rules').map(renderSection).join('');
+      const after  = DEEP_SECTIONS.filter(s => s.position === 'after-rules').map(renderSection).join('');
+      const hasDeepDive = !!(before || after);
       const ruleHeader = hasDeepDive
         ? `<h3 style="font-size:var(--fs-19);color:var(--ink);margin:var(--sp-6) 0 var(--sp-3);letter-spacing:var(--ls-snug)">3 · The rule</h3>`
         : '';
@@ -103,12 +98,10 @@ window.GrammarModule = (function () {
         <div class="lesson">
           <h2>${u.icon} ${u.title} <span class="tag">${u.level}</span></h2>
           <p style="font-size:var(--fs-17);line-height:var(--lh-loose);margin:var(--sp-3) 0 var(--sp-5);color:var(--ink-2)">${u.intro}</p>
-          ${patternHTML()}
-          ${whyHTML()}
-          ${bridgeHTML()}
+          ${before}
           ${ruleHeader}
           ${rulesHTML()}
-          ${contrastHTML()}
+          ${after}
           <div class="spacer"></div>
           <div class="row" style="justify-content:flex-end">
             <button class="btn primary big" id="start-quiz">${hasDeepDive ? '5 · Practice' : 'Practice'}<span class="arr">→</span></button>

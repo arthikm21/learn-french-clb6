@@ -163,15 +163,21 @@
   // Merge into GRAMMAR after the array loads.
   function apply() {
     if (!window.GRAMMAR) return;
-    let merged = 0;
+    const matched = new Set();
     for (const u of window.GRAMMAR) {
       const overlay = DEEP_DIVE[u.id];
       if (overlay) {
         Object.assign(u, overlay);
-        merged++;
+        matched.add(u.id);
       }
     }
-    // console.debug(`[deep-dive] merged ${merged} grammar units`);
+    // Catch silent drift: if a unit was renamed/removed, its overlay no longer
+    // attaches and learners lose the deep-dive sections without any error.
+    for (const id of Object.keys(DEEP_DIVE)) {
+      if (!matched.has(id)) {
+        console.warn(`[grammar-deepdive] overlay for "${id}" has no matching GRAMMAR unit`);
+      }
+    }
   }
 
   apply();

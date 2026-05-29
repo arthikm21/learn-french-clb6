@@ -80,5 +80,5 @@ window.Chrome = (function () {
     `;
   }
 
-  return { render };
+  return { render, escapeHTML };
 })();
