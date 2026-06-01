@@ -105,7 +105,25 @@ window.App = (function () {
     container.scrollTop = 0;
     window.scrollTo(0, 0);
     const fn = routes[route] || routes.home;
-    fn(container, params);
+    // Guard against module errors: a thrown render would otherwise leave the
+    // PREVIOUS page's HTML on screen (silent regression). Surface the error
+    // visibly + log it so users can recover and we can fix it.
+    try {
+      fn(container, params);
+    } catch (err) {
+      console.error(`[route ${route}] render failed:`, err);
+      container.innerHTML = `
+        <div class="lesson" style="margin-top:var(--sp-7)">
+          <h2>⚠️ Page failed to load</h2>
+          <p style="color:var(--ink-2);margin-top:var(--sp-3)">Something went wrong rendering this page. The error has been logged.</p>
+          <p style="color:var(--mute);font-size:var(--fs-13);margin-top:var(--sp-2)"><code>${(err && err.message ? err.message : 'Unknown error').replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]))}</code></p>
+          <div class="spacer"></div>
+          <div class="row" style="justify-content:center">
+            <button class="btn primary" onclick="App.go('home')">Back to Home</button>
+            <button class="btn ghost" onclick="location.reload()">Reload page</button>
+          </div>
+        </div>`;
+    }
     document.querySelectorAll('.nav a').forEach(a => {
       a.classList.toggle('active', a.dataset.route === route);
     });

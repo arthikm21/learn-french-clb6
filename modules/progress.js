@@ -18,11 +18,13 @@ window.ProgressModule = (function () {
   }
 
   // ---------- Skill rings ----------
+  // Only L/S/R/W get rings — Foundation items (phonics, grammar, vocab, games)
+  // unlock the four CLB skills but are not graded directly.
   function skillTotals() {
     const buckets = { L: { done: 0, total: 0 }, S: { done: 0, total: 0 }, R: { done: 0, total: 0 }, W: { done: 0, total: 0 } };
     for (const n of LESSON_PATH) {
       const sk = Path.skillOf(n);
-      if (!sk) continue;
+      if (!sk || !buckets[sk]) continue; // skip 'F' (foundation) — not a CLB-graded skill
       buckets[sk].total++;
       if (Path.isItemDone(n)) buckets[sk].done++;
     }
