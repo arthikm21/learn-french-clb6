@@ -160,6 +160,132 @@ window.LISTENING_MASTERY = [
     opts: ['A power outage', 'A car accident with an injury', 'A robbery', 'A fire'], a: 1,
     why: '"Il y a eu un accident" + "une personne est blessée" — past event + injury.',
   },
+
+  // ─────────────── RESTAURANT ───────────────
+  {
+    id: 'res-1', type: 'A', category: 'Restaurant', level: 'Foundation',
+    audio: "Le plat du jour est le saumon grillé avec des légumes.",
+    prompt: "What's the dish of the day?",
+    opts: ['Grilled chicken with rice', 'Grilled salmon with vegetables', 'Beef stew', 'Vegetable soup'], a: 1,
+  },
+  {
+    id: 'res-2', type: 'B', category: 'Restaurant', level: 'A1',
+    audio: "Vous voulez de l'eau plate ou pétillante ?",
+    prompt: 'Fill the blank — what type of water?',
+    blank: "Vous voulez de l'eau plate ou ___ ?",
+    opts: ['froide', 'pétillante', 'chaude', 'minérale'], a: 1,
+  },
+  {
+    id: 'res-3', type: 'E', category: 'Restaurant', level: 'A2',
+    audio: "Excusez-moi, mon steak est trop cuit. Est-ce que je peux en avoir un autre, s'il vous plaît ?",
+    prompt: 'Best summary:',
+    opts: [
+      'The customer is asking for the bill.',
+      'The customer is sending back overcooked steak.',
+      'The customer is ordering a steak.',
+      'The customer is complaining about the wait time.',
+    ], a: 1,
+  },
+  {
+    id: 'res-4', type: 'D', category: 'Restaurant', level: 'A2',
+    audio: "Je suis désolée, nous n'avons plus de tarte au sucre ce soir.",
+    prompt: 'What is the server saying?',
+    opts: ['Recommending the sugar pie', 'Apologizing — they\'re out of sugar pie', 'Offering free dessert', 'Asking about allergies'], a: 1,
+    why: '"Nous n\'avons plus de…" = "We don\'t have any more…" Server is out of stock.',
+  },
+
+  // ─────────────── CUSTOMER SERVICE ───────────────
+  {
+    id: 'cs-1', type: 'A', category: 'Customer Service', level: 'A1',
+    audio: "Votre commande arrivera dans cinq à sept jours ouvrables.",
+    prompt: 'When will the order arrive?',
+    opts: ['Tomorrow', '2-3 business days', '5-7 business days', '2 weeks'], a: 2,
+  },
+  {
+    id: 'cs-2', type: 'B', category: 'Customer Service', level: 'A2',
+    audio: "J'ai besoin de votre numéro de commande, s'il vous plaît.",
+    prompt: 'What does the agent need?',
+    blank: "J'ai besoin de votre ___ de commande, s'il vous plaît.",
+    opts: ['nom', 'numéro', 'adresse', 'date'], a: 1,
+  },
+  {
+    id: 'cs-3', type: 'D', category: 'Customer Service', level: 'B1',
+    audio: "Je comprends votre frustration. Laissez-moi parler à mon responsable et je vous rappelle dans dix minutes.",
+    prompt: 'What is the agent doing?',
+    opts: ['Refusing the request', 'Escalating + promising a callback', 'Transferring the call', 'Ending the call'], a: 1,
+    why: '"Laissez-moi parler à mon responsable" + "je vous rappelle" — escalation with a callback commitment.',
+  },
+
+  // ─────────────── MEDICAL (Pharmacy) ───────────────
+  {
+    id: 'med-4', type: 'A', category: 'Medical', level: 'A1',
+    audio: "Prenez un comprimé deux fois par jour, après les repas.",
+    prompt: 'How often should the medication be taken?',
+    opts: ['Once a day', 'Twice a day after meals', 'Every 4 hours', 'Only at night'], a: 1,
+  },
+  {
+    id: 'med-5', type: 'E', category: 'Medical', level: 'A2',
+    audio: "Si la douleur persiste après trois jours, revenez me voir ou appelez votre médecin de famille.",
+    prompt: 'Best summary:',
+    opts: [
+      'Take the medication for 3 days minimum.',
+      'If pain continues after 3 days, return or call your doctor.',
+      'The treatment will last 3 weeks.',
+      'Avoid pharmacies — see a doctor directly.',
+    ], a: 1,
+  },
+
+  // ─────────────── TECHNOLOGY / PHONE ───────────────
+  {
+    id: 'tech-1', type: 'A', category: 'Technology', level: 'A1',
+    audio: "Votre installation Internet est prévue jeudi entre neuf heures et midi.",
+    prompt: 'When is the installation?',
+    opts: ['Today afternoon', 'Tomorrow morning', 'Thursday 9am-12pm', 'Friday all day'], a: 2,
+  },
+  {
+    id: 'tech-2', type: 'B', category: 'Technology', level: 'A2',
+    audio: "Pour activer votre service, composez le code étoile-cent-vingt-deux.",
+    prompt: 'What code activates the service?',
+    blank: "Pour activer votre service, composez le code ___.",
+    opts: ['étoile-100', 'étoile-122', 'dièse-100', 'dièse-200'], a: 1,
+  },
+  {
+    id: 'tech-3', type: 'D', category: 'Technology', level: 'A2',
+    audio: "Je suis vraiment désolé, mais nous avons une panne dans votre secteur. Le service devrait être rétabli avant minuit.",
+    prompt: 'What is the agent telling the customer?',
+    opts: ['Service is upgraded', 'There\'s an outage; fix by midnight', 'Bill is being adjusted', 'New plan available'], a: 1,
+    why: '"Une panne" = an outage. "Rétabli" = restored. Outage notification with ETA.',
+  },
+
+  // ─────────────── DAILY CONVERSATIONS ───────────────
+  {
+    id: 'day-1', type: 'A', category: 'Daily', level: 'Foundation',
+    audio: "On se voit demain à dix heures devant le café ?",
+    prompt: 'When and where to meet?',
+    opts: ['Today at 10am at the office', 'Tomorrow at 10am in front of the café', 'Tomorrow at noon at the metro', 'Next week at the park'], a: 1,
+  },
+  {
+    id: 'day-2', type: 'C', category: 'Daily', level: 'A1',
+    audio: "Salut ! Comment ça va ? Ça fait longtemps qu'on s'est pas vus. Tu veux qu'on prenne un café ?",
+    prompt: 'Reorder these lines so they match what you heard:',
+    ordered: [
+      "Salut !",
+      "Comment ça va ?",
+      "Ça fait longtemps qu'on s'est pas vus.",
+      "Tu veux qu'on prenne un café ?",
+    ],
+  },
+  {
+    id: 'day-3', type: 'E', category: 'Daily', level: 'A2',
+    audio: "Je ne pourrai pas venir ce soir, j'ai déjà quelque chose de prévu. On peut se voir demain à la place ?",
+    prompt: 'Best summary:',
+    opts: [
+      'Confirming they will come tonight.',
+      'Cancelling tonight, offering tomorrow instead.',
+      'Inviting the person tonight.',
+      'Asking what time tonight.',
+    ], a: 1,
+  },
 ];
 
 // Speed defaults per level — matches the masterplan progression
