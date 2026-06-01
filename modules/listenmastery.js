@@ -170,6 +170,10 @@ window.ListenMasteryModule = (function () {
 
     // ── Common MC handler — works for A, D, E
     function renderMC(host, fb, ex) {
+      // Type B shows the sentence-with-blank above the options. The English
+      // gloss of the full clip is intentionally withheld here — revealing it
+      // would give away the missing word. The transcript+gloss appears after
+      // the user picks an answer (see `transcript` below).
       const promptHTML = ex.type === 'B'
         ? `<p class="q-prompt">${escapeHTML(ex.prompt)}</p><p style="font-size:var(--fs-22);text-align:center;color:var(--ink);font-weight:var(--fw-semi);margin:var(--sp-3) 0">${escapeHTML(ex.blank)}</p>`
         : `<p class="q-prompt">${escapeHTML(ex.prompt)}</p>`;
@@ -184,14 +188,18 @@ window.ListenMasteryModule = (function () {
           const picked = parseInt(el.dataset.i, 10);
           host.querySelectorAll('.option').forEach(x => x.classList.add('disabled'));
           const right = picked === ex.a;
+          // After answering, reveal the audio transcript + English gloss so the
+          // learner can see what they heard. Critical for beginners who picked
+          // by ear and want to confirm what they actually understood.
+          const transcript = `<div style="background:var(--surface-2);padding:var(--sp-3);border-radius:var(--r-md);margin-top:var(--sp-3)"><p style="font-size:var(--fs-13);color:var(--mute);text-transform:uppercase;letter-spacing:var(--ls-wide);font-weight:var(--fw-semi);margin-bottom:6px">What you heard</p><p style="color:var(--ink);font-weight:var(--fw-semi)">${escapeHTML(ex.audio)}</p>${Chrome.gloss(ex.audioEn)}</div>`;
           if (right) {
             el.classList.add('correct');
             correct++;
-            fb.innerHTML = `<div class="feedback good">✓ Correct! ${ex.why ? '<small>' + ex.why + '</small>' : ''}</div>`;
+            fb.innerHTML = `<div class="feedback good">✓ Correct! ${ex.why ? '<small>' + ex.why + '</small>' : ''}</div>${transcript}`;
           } else {
             el.classList.add('wrong');
             host.querySelectorAll('.option')[ex.a].classList.add('correct');
-            fb.innerHTML = `<div class="feedback bad">✗ Right answer: <b>${escapeHTML(ex.opts[ex.a])}</b>. ${ex.why ? '<small>' + ex.why + '</small>' : ''}</div>`;
+            fb.innerHTML = `<div class="feedback bad">✗ Right answer: <b>${escapeHTML(ex.opts[ex.a])}</b>. ${ex.why ? '<small>' + ex.why + '</small>' : ''}</div>${transcript}`;
             MistakesModule.record({
               type: 'listenmastery',
               sig: `listenmastery:${ex.id}`,

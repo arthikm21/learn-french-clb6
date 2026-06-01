@@ -54,7 +54,8 @@ window.SpeakModule = (function () {
     if (!s) { App.go('speak'); return; }
 
     // Pull due cards from SRS first, then fall back to fresh sentences.
-    const items = s.items.map(t => ({ fr: t }));
+    // Accept both "string" and { fr, en } shapes so old + new content render.
+    const items = s.items.map(t => (typeof t === 'string' ? { fr: t } : t));
     let queue = SRS.dueCards(setKey, items);
     if (queue.length === 0) queue = items.slice();
 
@@ -64,6 +65,7 @@ window.SpeakModule = (function () {
     function show() {
       if (i >= queue.length) return finish();
       const target = queue[i].fr;
+      const targetEn = queue[i].en;
       const heard = false;
       revealed = false;
 
@@ -78,7 +80,8 @@ window.SpeakModule = (function () {
 
           <div class="center" style="margin-top:var(--sp-7)">
             <p style="text-transform:uppercase;letter-spacing:var(--ls-wide);font-size:var(--fs-12);font-weight:var(--fw-semi);color:var(--mute);margin-bottom:var(--sp-3)">Repeat after me</p>
-            <p style="font-size:var(--fs-34);font-weight:var(--fw-bold);letter-spacing:var(--ls-snug);color:var(--ink);line-height:var(--lh-snug);max-width:680px;margin:0 auto var(--sp-6)">${escapeHTML(target)}</p>
+            <p style="font-size:var(--fs-34);font-weight:var(--fw-bold);letter-spacing:var(--ls-snug);color:var(--ink);line-height:var(--lh-snug);max-width:680px;margin:0 auto var(--sp-3)">${escapeHTML(target)}</p>
+            ${targetEn ? `<p class="gloss-lg" style="text-align:center;max-width:680px;margin:0 auto var(--sp-6)">${escapeHTML(targetEn)}</p>` : '<div style="margin-bottom:var(--sp-6)"></div>'}
 
             <div class="row" style="justify-content:center;gap:var(--sp-2);flex-wrap:wrap">
               <button class="btn secondary" data-rate="0.7">🐢 Slow</button>

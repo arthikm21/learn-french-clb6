@@ -216,6 +216,13 @@ window.ProfileModule = (function () {
           </div>
           <input type="checkbox" class="toggle" id="set-pron" ${Settings.isPronounceOn() ? 'checked' : ''} aria-label="Tap to pronounce"/>
         </div>
+        <div class="toggle-row">
+          <div class="info">
+            <h4>Show English translations</h4>
+            <p>Display the English meaning under French sentences in dialogues, shadow lines, and clips. Turn off once you're comfortable reading French directly.</p>
+          </div>
+          <input type="checkbox" class="toggle" id="set-gloss" ${Settings.isShowGloss() ? 'checked' : ''} aria-label="Show English translations"/>
+        </div>
       </div>
 
       <div class="grammar-box">
@@ -259,6 +266,11 @@ window.ProfileModule = (function () {
     if (pron) pron.onchange = (e) => {
       Settings.setPronounce(e.target.checked);
       Toast.info(e.target.checked ? 'Tap-to-pronounce on' : 'Tap-to-pronounce off');
+    };
+    const gloss = container.querySelector('#set-gloss');
+    if (gloss) gloss.onchange = (e) => {
+      Settings.setShowGloss(e.target.checked);
+      Toast.info(e.target.checked ? 'English translations on' : 'English translations off');
     };
 
     container.querySelectorAll('[data-switch]').forEach(b => {

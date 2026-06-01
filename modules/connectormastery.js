@@ -244,13 +244,16 @@ window.ConnectorMasteryModule = (function () {
           const picked = parseInt(el.dataset.i, 10);
           container.querySelectorAll('.option').forEach(x => x.classList.add('disabled'));
           const right = picked === correctIdx;
+          // Reveal the full clip + translation after answer — same accessibility
+          // pattern as listening mastery, so beginners can verify what they heard.
+          const transcript = `<div style="background:var(--surface-2);padding:var(--sp-3);border-radius:var(--r-md);margin-top:var(--sp-3)"><p style="color:var(--ink);font-weight:var(--fw-semi)">${escapeHTML(c.recognize)}</p>${Chrome.gloss(c.recognizeEn)}</div>`;
           if (right) {
             el.classList.add('correct');
-            container.querySelector('#fb').innerHTML = `<div class="feedback good">✓ Heard it. <small>"${escapeHTML(c.recognize)}"</small></div>`;
+            container.querySelector('#fb').innerHTML = `<div class="feedback good">✓ Heard it.</div>${transcript}`;
           } else {
             el.classList.add('wrong');
             container.querySelectorAll('.option')[correctIdx].classList.add('correct');
-            container.querySelector('#fb').innerHTML = `<div class="feedback bad">✗ It was <b>${escapeHTML(c.word)}</b>. <small>"${escapeHTML(c.recognize)}"</small></div>`;
+            container.querySelector('#fb').innerHTML = `<div class="feedback bad">✗ It was <b>${escapeHTML(c.word)}</b>.</div>${transcript}`;
             MistakesModule.record({
               type: 'connector',
               sig: `connector-recognize:${c.id}`,
@@ -281,7 +284,8 @@ window.ConnectorMasteryModule = (function () {
 
           <div class="center" style="margin:var(--sp-5) 0">
             <p style="text-transform:uppercase;letter-spacing:var(--ls-wide);font-size:var(--fs-12);font-weight:var(--fw-semi);color:var(--mute);margin-bottom:var(--sp-3)">Hear the full model</p>
-            <p style="font-size:var(--fs-22);font-weight:var(--fw-bold);color:var(--ink);line-height:var(--lh-snug);max-width:680px;margin:0 auto var(--sp-4)">${escapeHTML(s.model)}</p>
+            <p style="font-size:var(--fs-22);font-weight:var(--fw-bold);color:var(--ink);line-height:var(--lh-snug);max-width:680px;margin:0 auto var(--sp-3)">${escapeHTML(s.model)}</p>
+            ${s.modelEn ? `<p class="gloss-lg" style="text-align:center;max-width:680px;margin:0 auto var(--sp-4)">${escapeHTML(s.modelEn)}</p>` : ''}
             <div class="row" style="justify-content:center;gap:var(--sp-2);flex-wrap:wrap">
               <button class="btn secondary" data-rate="0.7">🐢 Slow</button>
               <button class="btn primary big" data-rate="1.0">🔊 Hear it</button>

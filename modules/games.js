@@ -316,7 +316,7 @@ window.GamesModule = (function () {
             App.addXP(4);
             if (matched === tiles.length / 2) {
               App.markLessonDone('games:memory');
-              setTimeout(() => Toast.good(`🎉 Done in ${attempts} attempts!`, 3500), 400);
+              setTimeout(finish, 600);
             }
           }, 350);
         } else {
@@ -327,6 +327,19 @@ window.GamesModule = (function () {
           }, 900);
         }
       }
+    }
+    function finish() {
+      container.innerHTML = `
+        <div class="lesson center">
+          <div class="empty">
+            <div class="big-icon">🧠</div>
+            <h2>All Matched!</h2>
+            <p>Done in <b>${attempts}</b> attempts.</p>
+            <div class="spacer"></div>
+            <button class="btn big" onclick="App.go('games', { game: 'memory' })">Play Again</button>
+            <button class="btn ghost big" onclick="App.go('games')">Other Games</button>
+          </div>
+        </div>`;
     }
     render();
   }

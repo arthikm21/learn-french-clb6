@@ -181,6 +181,7 @@ window.ScenarioModule = (function () {
                 <div class="dl-text">
                   ${escapeHTML(line.text)}
                   <button class="btn sm ghost" data-replay="${i}" style="margin-left:var(--sp-2)" data-no-tick>🔊</button>
+                  ${Chrome.gloss(line.en)}
                 </div>
               </div>
             `).join('')}
@@ -289,7 +290,10 @@ window.ScenarioModule = (function () {
         if (i >= sc.shadowLines.length) {
           step++; render(); return;
         }
-        const line = sc.shadowLines[i];
+        // Accept both "string" and { fr, en } shapes so old + new content render
+        const raw = sc.shadowLines[i];
+        const line = typeof raw === 'string' ? raw : raw.fr;
+        const lineEn = typeof raw === 'string' ? null : raw.en;
         container.innerHTML = `
           ${chromeRow()}
           <div class="lesson">
@@ -297,7 +301,8 @@ window.ScenarioModule = (function () {
             <p style="color:var(--mute);text-align:center;font-size:var(--fs-13);text-transform:uppercase;letter-spacing:var(--ls-wide);font-weight:var(--fw-semi);margin-bottom:var(--sp-3)">Line ${i + 1} of ${sc.shadowLines.length}</p>
 
             <div class="center" style="margin-top:var(--sp-5)">
-              <p style="font-size:var(--fs-28);font-weight:var(--fw-bold);letter-spacing:var(--ls-snug);color:var(--ink);line-height:var(--lh-snug);max-width:680px;margin:0 auto var(--sp-6)">${escapeHTML(line)}</p>
+              <p style="font-size:var(--fs-28);font-weight:var(--fw-bold);letter-spacing:var(--ls-snug);color:var(--ink);line-height:var(--lh-snug);max-width:680px;margin:0 auto var(--sp-3)">${escapeHTML(line)}</p>
+              ${lineEn ? `<p class="gloss-lg" style="text-align:center;margin-bottom:var(--sp-6)">${escapeHTML(lineEn)}</p>` : '<div style="margin-bottom:var(--sp-6)"></div>'}
               <div class="row" style="justify-content:center;gap:var(--sp-2);flex-wrap:wrap">
                 <button class="btn secondary" data-rate="0.7">🐢 Slow</button>
                 <button class="btn primary big" data-rate="1.0">🔊 Hear it</button>
@@ -430,6 +435,7 @@ window.ScenarioModule = (function () {
               <div class="grammar-box" style="margin-top:var(--sp-5)">
                 <h3>Model answer</h3>
                 <p style="font-size:var(--fs-17);line-height:var(--lh-loose);color:var(--ink)">${escapeHTML(t.model)}</p>
+                ${Chrome.gloss(t.modelEn)}
                 <div class="row" style="justify-content:center;margin-top:var(--sp-3)">
                   <button class="btn primary" id="play-model">🔊 Hear the model</button>
                 </div>

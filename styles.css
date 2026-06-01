@@ -809,6 +809,26 @@ body.dark .btn:hover { background: var(--gray-700); }
   margin-bottom: var(--sp-3);
 }
 
+/* English gloss shown under French content for beginner accessibility.
+   Subordinate to the French (smaller, muted, italic) so the eye lands on
+   the French first. Toggled off via body.no-gloss for advanced users. */
+.gloss {
+  font-size: var(--fs-14);
+  font-style: italic;
+  color: var(--mute);
+  margin-top: 4px;
+  line-height: var(--lh-base);
+}
+.gloss-lg {
+  font-size: var(--fs-17);
+  font-style: italic;
+  color: var(--mute);
+  margin-top: var(--sp-3);
+  line-height: var(--lh-base);
+}
+body.no-gloss .gloss,
+body.no-gloss .gloss-lg { display: none; }
+
 /* =========================================================================
    FLASHCARD
    ========================================================================= */

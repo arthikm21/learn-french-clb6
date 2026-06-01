@@ -80,5 +80,13 @@ window.Chrome = (function () {
     `;
   }
 
-  return { render, escapeHTML };
+  // Render a small English gloss under French content. The CSS class is
+  // controlled by the Settings toggle (body.no-gloss hides all .gloss).
+  // Pass `en` (the English string) and an optional `cls` ('gloss' or 'gloss-lg').
+  function gloss(en, cls) {
+    if (!en) return '';
+    return `<div class="${cls || 'gloss'}">${escapeHTML(en)}</div>`;
+  }
+
+  return { render, escapeHTML, gloss };
 })();

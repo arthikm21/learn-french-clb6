@@ -67,9 +67,9 @@ for (const k of Object.keys(window.READINGS)) {
   for (const q of t.questions) for (const o of q.opts) add(o);
 }
 
-// SPEAK
+// SPEAK — items are now { fr, en } objects (old plain-string shape still tolerated)
 for (const k of Object.keys(window.SPEAK_SETS)) {
-  for (const s of window.SPEAK_SETS[k].items) add(s);
+  for (const s of window.SPEAK_SETS[k].items) add(typeof s === 'string' ? s : s.fr);
 }
 
 // SENTENCES (game)
@@ -179,8 +179,8 @@ if (window.SCENARIOS) for (const sc of window.SCENARIOS) {
   if (sc.vocab) for (const v of sc.vocab) add(v.fr);
   // Grammar focus examples
   if (sc.grammarFocus && sc.grammarFocus.examples) sc.grammarFocus.examples.forEach(add);
-  // Shadow lines — these are what the learner repeats; Sylvie is the model
-  if (sc.shadowLines) sc.shadowLines.forEach(add);
+  // Shadow lines — now { fr, en } objects (old plain-string shape still tolerated)
+  if (sc.shadowLines) sc.shadowLines.forEach(s => add(typeof s === 'string' ? s : s.fr));
   // Speaking model — Sylvie
   if (sc.speakingTask && sc.speakingTask.model) add(sc.speakingTask.model);
 }

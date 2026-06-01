@@ -6,12 +6,12 @@
 //
 // Structure (every scenario has all 7 steps; the module renders them in order):
 //   situation       — context: who you are, who they are, what success looks like
-//   dialogue        — multi-speaker conversation (A/B, voice tag for TTS)
+//   dialogue        — multi-speaker conversation (A/B, voice tag for TTS, en gloss)
 //   vocab           — key words/phrases extracted from the dialogue
 //   grammarFocus    — the grammar point this dialogue showcases
-//   shadowLines     — sentences for the learner to repeat aloud
+//   shadowLines     — {fr,en} pairs for the learner to repeat aloud
 //   comprehension   — 3-4 MC questions to verify understanding
-//   speakingTask    — open-ended prompt with a model answer + self-grade checklist
+//   speakingTask    — open-ended prompt with model + modelEn + self-grade checklist
 //
 // Speaker voices: 'sylvie' (fr-CA-SylvieNeural, female) | 'jean' (fr-CA-JeanNeural, male).
 // Falls back to browser SpeechSynthesis if pre-generated MP3 isn't available.
@@ -33,14 +33,14 @@ window.SCENARIOS = [
       goal: 'Confirm it\'s still available, ask the rent, and schedule a viewing.',
     },
     dialogue: [
-      { speaker: 'A', voice: 'sylvie', text: 'Allô, oui ?' },
-      { speaker: 'B', voice: 'jean',   text: "Bonjour madame. Je vous appelle pour l'appartement sur Kijiji." },
-      { speaker: 'A', voice: 'sylvie', text: 'Ah oui, le trois et demi sur la rue Saint-Denis ?' },
-      { speaker: 'B', voice: 'jean',   text: "Oui, c'est ça. Est-ce qu'il est encore disponible ?" },
-      { speaker: 'A', voice: 'sylvie', text: 'Oui, il est libre à partir du premier juillet. Le loyer est de 1 100 dollars par mois.' },
-      { speaker: 'B', voice: 'jean',   text: "Est-ce que je peux le visiter cette semaine ?" },
-      { speaker: 'A', voice: 'sylvie', text: 'Bien sûr. Vendredi à dix-huit heures, ça vous va ?' },
-      { speaker: 'B', voice: 'jean',   text: "Parfait. Merci beaucoup, à vendredi." },
+      { speaker: 'A', voice: 'sylvie', text: 'Allô, oui ?', en: 'Hello, yes?' },
+      { speaker: 'B', voice: 'jean',   text: "Bonjour madame. Je vous appelle pour l'appartement sur Kijiji.", en: "Hello ma'am. I'm calling about the apartment on Kijiji." },
+      { speaker: 'A', voice: 'sylvie', text: 'Ah oui, le trois et demi sur la rue Saint-Denis ?', en: 'Oh yes, the 1-bedroom on rue Saint-Denis?' },
+      { speaker: 'B', voice: 'jean',   text: "Oui, c'est ça. Est-ce qu'il est encore disponible ?", en: "Yes, that's it. Is it still available?" },
+      { speaker: 'A', voice: 'sylvie', text: 'Oui, il est libre à partir du premier juillet. Le loyer est de 1 100 dollars par mois.', en: 'Yes, it\'s free starting July 1st. The rent is $1,100 per month.' },
+      { speaker: 'B', voice: 'jean',   text: "Est-ce que je peux le visiter cette semaine ?", en: "Can I visit it this week?" },
+      { speaker: 'A', voice: 'sylvie', text: 'Bien sûr. Vendredi à dix-huit heures, ça vous va ?', en: 'Of course. Friday at 6 pm, does that work for you?' },
+      { speaker: 'B', voice: 'jean',   text: "Parfait. Merci beaucoup, à vendredi.", en: "Perfect. Thank you very much, see you Friday." },
     ],
     vocab: [
       { fr: 'un appartement',     en: 'an apartment' },
@@ -63,12 +63,12 @@ window.SCENARIOS = [
       ],
     },
     shadowLines: [
-      "Bonjour madame, je vous appelle pour l'appartement.",
-      "Est-ce qu'il est encore disponible ?",
-      "Quel est le loyer par mois ?",
-      "Est-ce que je peux le visiter cette semaine ?",
-      "Vendredi à dix-huit heures, ça me va.",
-      "Merci beaucoup, à vendredi.",
+      { fr: "Bonjour madame, je vous appelle pour l'appartement.", en: "Hello ma'am, I'm calling about the apartment." },
+      { fr: "Est-ce qu'il est encore disponible ?", en: "Is it still available?" },
+      { fr: "Quel est le loyer par mois ?", en: "What is the rent per month?" },
+      { fr: "Est-ce que je peux le visiter cette semaine ?", en: "Can I visit it this week?" },
+      { fr: "Vendredi à dix-huit heures, ça me va.", en: "Friday at 6 pm works for me." },
+      { fr: "Merci beaucoup, à vendredi.", en: "Thank you very much, see you Friday." },
     ],
     comprehension: [
       { q: 'What kind of apartment is it?', opts: ['Studio', '1-bedroom (3½)', '2-bedroom (4½)', 'House'], a: 1 },
@@ -79,6 +79,7 @@ window.SCENARIOS = [
     speakingTask: {
       prompt: "Now YOU call a landlord about an apartment. Introduce yourself, ask if it's available, ask the rent, and ask to visit.",
       model: "Bonjour, je m'appelle Marie. Je vous appelle pour l'appartement sur Kijiji. Est-ce qu'il est encore disponible ? Quel est le loyer ? Est-ce que je peux le visiter cette semaine ? Merci.",
+      modelEn: "Hello, my name is Marie. I'm calling about the apartment on Kijiji. Is it still available? What is the rent? Can I visit it this week? Thank you.",
       checklist: [
         'Greeting + introduce yourself',
         'Mention WHY you\'re calling',
@@ -105,15 +106,15 @@ window.SCENARIOS = [
       goal: 'Understand what documents are required and confirm next steps.',
     },
     dialogue: [
-      { speaker: 'A', voice: 'sylvie', text: "Bonjour, comment puis-je vous aider ?" },
-      { speaker: 'B', voice: 'jean',   text: "Bonjour, je voudrais ouvrir un compte chèque." },
-      { speaker: 'A', voice: 'sylvie', text: "Très bien. C'est votre premier compte au Canada ?" },
-      { speaker: 'B', voice: 'jean',   text: "Oui, je viens d'arriver." },
-      { speaker: 'A', voice: 'sylvie', text: "D'accord. J'ai besoin de deux pièces d'identité. Votre passeport et votre permis de travail, par exemple." },
-      { speaker: 'B', voice: 'jean',   text: "Est-ce que j'ai besoin de mon numéro d'assurance sociale ?" },
-      { speaker: 'A', voice: 'sylvie', text: "Pour le compte de base, non. Mais pour l'épargne, oui." },
-      { speaker: 'B', voice: 'jean',   text: "Parfait. Combien de temps ça prend ?" },
-      { speaker: 'A', voice: 'sylvie', text: "Environ trente minutes. Vous aurez votre carte aujourd'hui." },
+      { speaker: 'A', voice: 'sylvie', text: "Bonjour, comment puis-je vous aider ?", en: "Hello, how can I help you?" },
+      { speaker: 'B', voice: 'jean',   text: "Bonjour, je voudrais ouvrir un compte chèque.", en: "Hello, I'd like to open a chequing account." },
+      { speaker: 'A', voice: 'sylvie', text: "Très bien. C'est votre premier compte au Canada ?", en: "Very well. Is this your first account in Canada?" },
+      { speaker: 'B', voice: 'jean',   text: "Oui, je viens d'arriver.", en: "Yes, I just arrived." },
+      { speaker: 'A', voice: 'sylvie', text: "D'accord. J'ai besoin de deux pièces d'identité. Votre passeport et votre permis de travail, par exemple.", en: "OK. I need two pieces of ID. Your passport and work permit, for example." },
+      { speaker: 'B', voice: 'jean',   text: "Est-ce que j'ai besoin de mon numéro d'assurance sociale ?", en: "Do I need my Social Insurance Number?" },
+      { speaker: 'A', voice: 'sylvie', text: "Pour le compte de base, non. Mais pour l'épargne, oui.", en: "For the basic account, no. But for savings, yes." },
+      { speaker: 'B', voice: 'jean',   text: "Parfait. Combien de temps ça prend ?", en: "Perfect. How long does it take?" },
+      { speaker: 'A', voice: 'sylvie', text: "Environ trente minutes. Vous aurez votre carte aujourd'hui.", en: "About thirty minutes. You'll have your card today." },
     ],
     vocab: [
       { fr: 'un compte chèque',          en: 'a chequing account' },
@@ -136,11 +137,11 @@ window.SCENARIOS = [
       ],
     },
     shadowLines: [
-      "Bonjour, je voudrais ouvrir un compte chèque.",
-      "Je viens d'arriver au Canada.",
-      "Est-ce que j'ai besoin de mon numéro d'assurance sociale ?",
-      "Combien de temps ça prend ?",
-      "Merci pour votre aide.",
+      { fr: "Bonjour, je voudrais ouvrir un compte chèque.", en: "Hello, I'd like to open a chequing account." },
+      { fr: "Je viens d'arriver au Canada.", en: "I just arrived in Canada." },
+      { fr: "Est-ce que j'ai besoin de mon numéro d'assurance sociale ?", en: "Do I need my Social Insurance Number?" },
+      { fr: "Combien de temps ça prend ?", en: "How long does it take?" },
+      { fr: "Merci pour votre aide.", en: "Thank you for your help." },
     ],
     comprehension: [
       { q: 'What type of account is the customer opening?', opts: ['Savings', 'Chequing', 'Business', 'Credit card'], a: 1 },
@@ -151,6 +152,7 @@ window.SCENARIOS = [
     speakingTask: {
       prompt: 'You walk into a bank in Montreal. Tell the employee you want to open a chequing account. Mention you\'re new to Canada and ask what documents you need.',
       model: "Bonjour. Je voudrais ouvrir un compte chèque. Je viens d'arriver au Canada. De quels documents est-ce que j'ai besoin ? Est-ce que mon passeport et mon permis de travail suffisent ?",
+      modelEn: "Hello. I'd like to open a chequing account. I just arrived in Canada. What documents do I need? Are my passport and work permit enough?",
       checklist: [
         'Polite opener (bonjour + je voudrais)',
         'State the goal (open chequing)',
@@ -177,14 +179,14 @@ window.SCENARIOS = [
       goal: 'Describe the symptom, get an appointment as soon as possible.',
     },
     dialogue: [
-      { speaker: 'A', voice: 'sylvie', text: "CLSC Plateau, bonjour." },
-      { speaker: 'B', voice: 'jean',   text: "Bonjour, je voudrais prendre un rendez-vous avec un médecin." },
-      { speaker: 'A', voice: 'sylvie', text: "D'accord. Quel est votre nom ?" },
-      { speaker: 'B', voice: 'jean',   text: "Jean Dupont, D-U-P-O-N-T." },
-      { speaker: 'A', voice: 'sylvie', text: "Merci. Quel est le problème ?" },
-      { speaker: 'B', voice: 'jean',   text: "J'ai mal à la gorge depuis trois jours. Et j'ai de la fièvre." },
-      { speaker: 'A', voice: 'sylvie', text: "D'accord. Je peux vous voir demain matin à neuf heures." },
-      { speaker: 'B', voice: 'jean',   text: "Parfait. Merci beaucoup." },
+      { speaker: 'A', voice: 'sylvie', text: "CLSC Plateau, bonjour.", en: "CLSC Plateau, hello." },
+      { speaker: 'B', voice: 'jean',   text: "Bonjour, je voudrais prendre un rendez-vous avec un médecin.", en: "Hello, I'd like to make an appointment with a doctor." },
+      { speaker: 'A', voice: 'sylvie', text: "D'accord. Quel est votre nom ?", en: "OK. What is your name?" },
+      { speaker: 'B', voice: 'jean',   text: "Jean Dupont, D-U-P-O-N-T.", en: "Jean Dupont, D-U-P-O-N-T." },
+      { speaker: 'A', voice: 'sylvie', text: "Merci. Quel est le problème ?", en: "Thank you. What is the problem?" },
+      { speaker: 'B', voice: 'jean',   text: "J'ai mal à la gorge depuis trois jours. Et j'ai de la fièvre.", en: "My throat has been hurting for three days. And I have a fever." },
+      { speaker: 'A', voice: 'sylvie', text: "D'accord. Je peux vous voir demain matin à neuf heures.", en: "OK. I can see you tomorrow morning at nine." },
+      { speaker: 'B', voice: 'jean',   text: "Parfait. Merci beaucoup.", en: "Perfect. Thank you very much." },
     ],
     vocab: [
       { fr: 'prendre rendez-vous',    en: 'to make an appointment' },
@@ -208,11 +210,11 @@ window.SCENARIOS = [
       ],
     },
     shadowLines: [
-      "Je voudrais prendre rendez-vous avec un médecin.",
-      "J'ai mal à la gorge depuis trois jours.",
-      "J'ai de la fièvre.",
-      "Demain matin à neuf heures, ça me va.",
-      "Merci beaucoup.",
+      { fr: "Je voudrais prendre rendez-vous avec un médecin.", en: "I'd like to make an appointment with a doctor." },
+      { fr: "J'ai mal à la gorge depuis trois jours.", en: "My throat has been hurting for three days." },
+      { fr: "J'ai de la fièvre.", en: "I have a fever." },
+      { fr: "Demain matin à neuf heures, ça me va.", en: "Tomorrow morning at nine works for me." },
+      { fr: "Merci beaucoup.", en: "Thank you very much." },
     ],
     comprehension: [
       { q: 'What is the patient\'s symptom?', opts: ['Headache', 'Sore throat + fever', 'Cough', 'Stomach pain'], a: 1 },
@@ -223,6 +225,7 @@ window.SCENARIOS = [
     speakingTask: {
       prompt: 'You call a clinic. You have a headache and have been tired for two days. Book an appointment as soon as possible.',
       model: "Bonjour, je voudrais prendre rendez-vous avec un médecin. J'ai mal à la tête depuis deux jours et je suis très fatigué. Est-ce que vous avez une place cette semaine ?",
+      modelEn: "Hello, I'd like to make an appointment with a doctor. I've had a headache for two days and I'm very tired. Do you have a slot this week?",
       checklist: [
         'Polite opener',
         'State you want an appointment',
@@ -249,12 +252,12 @@ window.SCENARIOS = [
       goal: 'Give a 60-90 second self-introduction that hits: name, background, current situation, why you want this job.',
     },
     dialogue: [
-      { speaker: 'A', voice: 'sylvie', text: "Bonjour, asseyez-vous. Pour commencer, pouvez-vous vous présenter ?" },
-      { speaker: 'B', voice: 'jean',   text: "Bien sûr. Je m'appelle Jean Dupont, j'ai trente ans, et je viens du Brésil." },
-      { speaker: 'B', voice: 'jean',   text: "Je suis au Canada depuis un an. J'ai un diplôme en informatique et cinq ans d'expérience comme développeur." },
-      { speaker: 'B', voice: 'jean',   text: "Actuellement, je travaille comme analyste, mais je cherche un poste plus technique." },
-      { speaker: 'B', voice: 'jean',   text: "Votre entreprise m'intéresse parce qu'elle utilise des technologies modernes et que l'équipe est francophone." },
-      { speaker: 'A', voice: 'sylvie', text: "Très bien, merci. Et qu'est-ce qui vous motive le plus dans ce poste ?" },
+      { speaker: 'A', voice: 'sylvie', text: "Bonjour, asseyez-vous. Pour commencer, pouvez-vous vous présenter ?", en: "Hello, please have a seat. To begin, can you introduce yourself?" },
+      { speaker: 'B', voice: 'jean',   text: "Bien sûr. Je m'appelle Jean Dupont, j'ai trente ans, et je viens du Brésil.", en: "Of course. My name is Jean Dupont, I'm thirty years old, and I'm from Brazil." },
+      { speaker: 'B', voice: 'jean',   text: "Je suis au Canada depuis un an. J'ai un diplôme en informatique et cinq ans d'expérience comme développeur.", en: "I've been in Canada for a year. I have a degree in computer science and five years of experience as a developer." },
+      { speaker: 'B', voice: 'jean',   text: "Actuellement, je travaille comme analyste, mais je cherche un poste plus technique.", en: "Currently, I work as an analyst, but I'm looking for a more technical position." },
+      { speaker: 'B', voice: 'jean',   text: "Votre entreprise m'intéresse parce qu'elle utilise des technologies modernes et que l'équipe est francophone.", en: "Your company interests me because it uses modern technologies and the team is French-speaking." },
+      { speaker: 'A', voice: 'sylvie', text: "Très bien, merci. Et qu'est-ce qui vous motive le plus dans ce poste ?", en: "Very good, thank you. And what motivates you most about this position?" },
     ],
     vocab: [
       { fr: 'se présenter',           en: 'to introduce oneself' },
@@ -278,21 +281,22 @@ window.SCENARIOS = [
       ],
     },
     shadowLines: [
-      "Je m'appelle Jean Dupont, j'ai trente ans, et je viens du Brésil.",
-      "Je suis au Canada depuis un an.",
-      "J'ai un diplôme en informatique.",
-      "Actuellement, je travaille comme analyste.",
-      "Votre entreprise m'intéresse parce qu'elle utilise des technologies modernes.",
+      { fr: "Je m'appelle Jean Dupont, j'ai trente ans, et je viens du Brésil.", en: "My name is Jean Dupont, I'm thirty, and I'm from Brazil." },
+      { fr: "Je suis au Canada depuis un an.", en: "I've been in Canada for a year." },
+      { fr: "J'ai un diplôme en informatique.", en: "I have a degree in computer science." },
+      { fr: "Actuellement, je travaille comme analyste.", en: "Currently I work as an analyst." },
+      { fr: "Votre entreprise m'intéresse parce qu'elle utilise des technologies modernes.", en: "Your company interests me because it uses modern technologies." },
     ],
     comprehension: [
       { q: 'How long has Jean been in Canada?', opts: ['6 months', '1 year', '3 years', '5 years'], a: 1 },
-      { q: 'What is Jean\'s educational background?', opts: ['Business', 'Law', 'Computer science (informatique)', 'Marketing'], a: 2 },
+      { q: 'What is Jean\'s educational background?', opts: ['Business', 'Law', 'computer science (informatique)', 'Marketing'], a: 2 },
       { q: 'Why does Jean want this job?', opts: ['Salary', 'Modern tech + francophone team', 'Location', 'Title'], a: 1 },
       { q: 'What grammar pattern shows "ongoing duration"?', opts: ['passé composé', 'présent + depuis', 'imparfait', 'futur'], a: 1 },
     ],
     speakingTask: {
       prompt: 'Introduce yourself for a job interview. Cover: name, age, where you\'re from, how long in Canada, your education, your current situation, and why you want THIS job.',
       model: "Je m'appelle [name], j'ai [age] ans. Je viens de [country]. Je suis au Canada depuis [duration]. J'ai un diplôme en [field] et [X] ans d'expérience comme [role]. Actuellement, je travaille [current situation]. Votre entreprise m'intéresse parce que [specific reason].",
+      modelEn: "My name is [name], I'm [age] years old. I'm from [country]. I've been in Canada for [duration]. I have a degree in [field] and [X] years of experience as a [role]. Currently, I work [current situation]. Your company interests me because [specific reason].",
       checklist: [
         'Name + age + origin',
         'Duration in Canada (depuis + présent)',
@@ -320,13 +324,13 @@ window.SCENARIOS = [
       goal: 'Find out the line, direction, and number of stops.',
     },
     dialogue: [
-      { speaker: 'B', voice: 'jean',   text: "Excusez-moi, je cherche la station McGill. C'est quelle direction ?" },
-      { speaker: 'A', voice: 'sylvie', text: "McGill ? C'est la ligne verte, direction Angrignon." },
-      { speaker: 'B', voice: 'jean',   text: "D'accord. C'est à combien de stations d'ici ?" },
-      { speaker: 'A', voice: 'sylvie', text: "Trois stations. Vous descendez à la troisième." },
-      { speaker: 'B', voice: 'jean',   text: "Et la sortie ?" },
-      { speaker: 'A', voice: 'sylvie', text: "La sortie est juste là, suivez les flèches." },
-      { speaker: 'B', voice: 'jean',   text: "Merci beaucoup, c'est très gentil." },
+      { speaker: 'B', voice: 'jean',   text: "Excusez-moi, je cherche la station McGill. C'est quelle direction ?", en: "Excuse me, I'm looking for McGill station. Which direction is it?" },
+      { speaker: 'A', voice: 'sylvie', text: "McGill ? C'est la ligne verte, direction Angrignon.", en: "McGill? It's the green line, direction Angrignon." },
+      { speaker: 'B', voice: 'jean',   text: "D'accord. C'est à combien de stations d'ici ?", en: "OK. How many stations from here?" },
+      { speaker: 'A', voice: 'sylvie', text: "Trois stations. Vous descendez à la troisième.", en: "Three stations. You get off at the third one." },
+      { speaker: 'B', voice: 'jean',   text: "Et la sortie ?", en: "And the exit?" },
+      { speaker: 'A', voice: 'sylvie', text: "La sortie est juste là, suivez les flèches.", en: "The exit is right there, follow the arrows." },
+      { speaker: 'B', voice: 'jean',   text: "Merci beaucoup, c'est très gentil.", en: "Thank you very much, that's very kind." },
     ],
     vocab: [
       { fr: "excusez-moi",            en: 'excuse me' },
@@ -351,11 +355,11 @@ window.SCENARIOS = [
       ],
     },
     shadowLines: [
-      "Excusez-moi, je cherche la station McGill.",
-      "C'est quelle direction ?",
-      "C'est à combien de stations d'ici ?",
-      "Et la sortie est où ?",
-      "Merci beaucoup, c'est très gentil.",
+      { fr: "Excusez-moi, je cherche la station McGill.", en: "Excuse me, I'm looking for McGill station." },
+      { fr: "C'est quelle direction ?", en: "Which direction is it?" },
+      { fr: "C'est à combien de stations d'ici ?", en: "How many stations from here?" },
+      { fr: "Et la sortie est où ?", en: "And where is the exit?" },
+      { fr: "Merci beaucoup, c'est très gentil.", en: "Thank you very much, that's very kind." },
     ],
     comprehension: [
       { q: 'Which metro line goes to McGill?', opts: ['Orange', 'Yellow', 'Green', 'Blue'], a: 2 },
@@ -366,6 +370,7 @@ window.SCENARIOS = [
     speakingTask: {
       prompt: "You're on the metro and need to get to a station. Ask a fellow passenger which line, direction, and how many stops.",
       model: "Excusez-moi, je cherche la station [name]. C'est quelle direction ? C'est à combien de stations d'ici ? Et la sortie est où ? Merci beaucoup.",
+      modelEn: "Excuse me, I'm looking for [name] station. Which direction is it? How many stations from here? And where is the exit? Thank you very much.",
       checklist: [
         'Polite opener (excusez-moi)',
         'Say what you\'re looking for',
@@ -392,16 +397,16 @@ window.SCENARIOS = [
       goal: 'Understand the small-talk + transaction questions, respond appropriately.',
     },
     dialogue: [
-      { speaker: 'A', voice: 'sylvie', text: "Bonjour ! Vous avez besoin d'un sac ?" },
-      { speaker: 'B', voice: 'jean',   text: "Oui, s'il vous plaît." },
-      { speaker: 'A', voice: 'sylvie', text: "Vous avez votre carte Metro&moi ?" },
-      { speaker: 'B', voice: 'jean',   text: "Non, je n'en ai pas." },
-      { speaker: 'A', voice: 'sylvie', text: "D'accord. Ça fait quarante-sept dollars et cinquante." },
-      { speaker: 'B', voice: 'jean',   text: "Je paie par carte." },
-      { speaker: 'A', voice: 'sylvie', text: "Débit ou crédit ?" },
-      { speaker: 'B', voice: 'jean',   text: "Débit, s'il vous plaît." },
-      { speaker: 'A', voice: 'sylvie', text: "Voilà votre reçu. Bonne journée !" },
-      { speaker: 'B', voice: 'jean',   text: "Merci, à vous aussi !" },
+      { speaker: 'A', voice: 'sylvie', text: "Bonjour ! Vous avez besoin d'un sac ?", en: "Hello! Do you need a bag?" },
+      { speaker: 'B', voice: 'jean',   text: "Oui, s'il vous plaît.", en: "Yes, please." },
+      { speaker: 'A', voice: 'sylvie', text: "Vous avez votre carte Metro&moi ?", en: "Do you have your Metro&moi loyalty card?" },
+      { speaker: 'B', voice: 'jean',   text: "Non, je n'en ai pas.", en: "No, I don't have one." },
+      { speaker: 'A', voice: 'sylvie', text: "D'accord. Ça fait quarante-sept dollars et cinquante.", en: "OK. That comes to $47.50." },
+      { speaker: 'B', voice: 'jean',   text: "Je paie par carte.", en: "I'll pay by card." },
+      { speaker: 'A', voice: 'sylvie', text: "Débit ou crédit ?", en: "Debit or credit?" },
+      { speaker: 'B', voice: 'jean',   text: "Débit, s'il vous plaît.", en: "Debit, please." },
+      { speaker: 'A', voice: 'sylvie', text: "Voilà votre reçu. Bonne journée !", en: "Here's your receipt. Have a good day!" },
+      { speaker: 'B', voice: 'jean',   text: "Merci, à vous aussi !", en: "Thanks, you too!" },
     ],
     vocab: [
       { fr: 'un sac',                 en: 'a bag' },
@@ -424,11 +429,11 @@ window.SCENARIOS = [
       ],
     },
     shadowLines: [
-      "Oui, s'il vous plaît.",
-      "Non, je n'en ai pas.",
-      "Je paie par carte.",
-      "Débit, s'il vous plaît.",
-      "Merci, bonne journée !",
+      { fr: "Oui, s'il vous plaît.", en: "Yes, please." },
+      { fr: "Non, je n'en ai pas.", en: "No, I don't have one." },
+      { fr: "Je paie par carte.", en: "I'll pay by card." },
+      { fr: "Débit, s'il vous plaît.", en: "Debit, please." },
+      { fr: "Merci, bonne journée !", en: "Thanks, have a good day!" },
     ],
     comprehension: [
       { q: 'What does the customer say about a bag?', opts: ['No bag', 'Yes please', 'Two bags', 'A box instead'], a: 1 },
@@ -439,6 +444,7 @@ window.SCENARIOS = [
     speakingTask: {
       prompt: "Run through a checkout interaction. Cashier will ask: bag? loyalty card? debit or credit? Respond naturally to all three.",
       model: "Oui, un sac s'il vous plaît. Non, je n'ai pas de carte. Je paie par carte, débit. Merci, bonne journée !",
+      modelEn: "Yes, a bag please. No, I don't have a card. I'll pay by card, debit. Thanks, have a good day!",
       checklist: [
         'Yes/no to bag',
         'Decline loyalty card (use en or "je n\'ai pas de")',
@@ -465,14 +471,14 @@ window.SCENARIOS = [
       goal: 'Submit your documents, understand processing time, and get your number.',
     },
     dialogue: [
-      { speaker: 'A', voice: 'sylvie', text: "Bonjour, qu'est-ce que je peux faire pour vous ?" },
-      { speaker: 'B', voice: 'jean',   text: "Bonjour, je voudrais faire une demande de numéro d'assurance sociale." },
-      { speaker: 'A', voice: 'sylvie', text: "Très bien. Vous avez votre passeport et votre permis de travail ?" },
-      { speaker: 'B', voice: 'jean',   text: "Oui, les voici." },
-      { speaker: 'A', voice: 'sylvie', text: "Merci. Je vais remplir le formulaire avec vous." },
-      { speaker: 'B', voice: 'jean',   text: "Combien de temps avant de recevoir le numéro ?" },
-      { speaker: 'A', voice: 'sylvie', text: "Si tout est en règle, vous l'aurez aujourd'hui même." },
-      { speaker: 'B', voice: 'jean',   text: "Excellent. Merci beaucoup." },
+      { speaker: 'A', voice: 'sylvie', text: "Bonjour, qu'est-ce que je peux faire pour vous ?", en: "Hello, what can I do for you?" },
+      { speaker: 'B', voice: 'jean',   text: "Bonjour, je voudrais faire une demande de numéro d'assurance sociale.", en: "Hello, I'd like to apply for a Social Insurance Number." },
+      { speaker: 'A', voice: 'sylvie', text: "Très bien. Vous avez votre passeport et votre permis de travail ?", en: "Very well. Do you have your passport and work permit?" },
+      { speaker: 'B', voice: 'jean',   text: "Oui, les voici.", en: "Yes, here they are." },
+      { speaker: 'A', voice: 'sylvie', text: "Merci. Je vais remplir le formulaire avec vous.", en: "Thank you. I'll fill out the form with you." },
+      { speaker: 'B', voice: 'jean',   text: "Combien de temps avant de recevoir le numéro ?", en: "How long before I receive the number?" },
+      { speaker: 'A', voice: 'sylvie', text: "Si tout est en règle, vous l'aurez aujourd'hui même.", en: "If everything is in order, you'll have it this very day." },
+      { speaker: 'B', voice: 'jean',   text: "Excellent. Merci beaucoup.", en: "Excellent. Thank you very much." },
     ],
     vocab: [
       { fr: 'une demande',                  en: 'an application' },
@@ -495,10 +501,10 @@ window.SCENARIOS = [
       ],
     },
     shadowLines: [
-      "Bonjour, je voudrais faire une demande de numéro d'assurance sociale.",
-      "Oui, les voici.",
-      "Combien de temps avant de recevoir le numéro ?",
-      "Merci beaucoup.",
+      { fr: "Bonjour, je voudrais faire une demande de numéro d'assurance sociale.", en: "Hello, I'd like to apply for a Social Insurance Number." },
+      { fr: "Oui, les voici.", en: "Yes, here they are." },
+      { fr: "Combien de temps avant de recevoir le numéro ?", en: "How long before I receive the number?" },
+      { fr: "Merci beaucoup.", en: "Thank you very much." },
     ],
     comprehension: [
       { q: 'What is the customer applying for?', opts: ['Health card', 'SIN number', 'Driver\'s license', 'Permanent residence'], a: 1 },
@@ -509,6 +515,7 @@ window.SCENARIOS = [
     speakingTask: {
       prompt: "You walk into Service Canada to apply for your SIN. Say what you want, hand over your documents, and ask how long it'll take.",
       model: "Bonjour, je voudrais faire une demande de numéro d'assurance sociale. Voici mon passeport et mon permis de travail. Combien de temps avant de recevoir le numéro ? Merci.",
+      modelEn: "Hello, I'd like to apply for a Social Insurance Number. Here is my passport and work permit. How long before I receive the number? Thank you.",
       checklist: [
         'Polite opener',
         'State the request (je voudrais faire une demande)',
@@ -535,14 +542,14 @@ window.SCENARIOS = [
       goal: 'Make a good impression — find one shared interest or background detail.',
     },
     dialogue: [
-      { speaker: 'A', voice: 'sylvie', text: "Salut ! Tu es nouveau ? Moi c'est Sophie, je travaille à la compta." },
-      { speaker: 'B', voice: 'jean',   text: "Salut Sophie ! Moi c'est Jean. Oui, c'est mon premier jour." },
-      { speaker: 'A', voice: 'sylvie', text: "Cool, bienvenue ! Tu viens d'où ?" },
-      { speaker: 'B', voice: 'jean',   text: "Du Brésil. Je suis au Canada depuis un an et demi." },
-      { speaker: 'A', voice: 'sylvie', text: "Ah super ! Et qu'est-ce que tu vas faire ici ?" },
-      { speaker: 'B', voice: 'jean',   text: "Je vais travailler comme développeur dans l'équipe technique." },
-      { speaker: 'A', voice: 'sylvie', text: "Nickel. Si tu as besoin de quoi que ce soit, viens me voir." },
-      { speaker: 'B', voice: 'jean',   text: "Merci, c'est gentil. À plus tard !" },
+      { speaker: 'A', voice: 'sylvie', text: "Salut ! Tu es nouveau ? Moi c'est Sophie, je travaille à la compta.", en: "Hi! Are you new? I'm Sophie, I work in accounting." },
+      { speaker: 'B', voice: 'jean',   text: "Salut Sophie ! Moi c'est Jean. Oui, c'est mon premier jour.", en: "Hi Sophie! I'm Jean. Yes, it's my first day." },
+      { speaker: 'A', voice: 'sylvie', text: "Cool, bienvenue ! Tu viens d'où ?", en: "Cool, welcome! Where are you from?" },
+      { speaker: 'B', voice: 'jean',   text: "Du Brésil. Je suis au Canada depuis un an et demi.", en: "From Brazil. I've been in Canada for a year and a half." },
+      { speaker: 'A', voice: 'sylvie', text: "Ah super ! Et qu'est-ce que tu vas faire ici ?", en: "Oh great! And what are you going to do here?" },
+      { speaker: 'B', voice: 'jean',   text: "Je vais travailler comme développeur dans l'équipe technique.", en: "I'm going to work as a developer on the technical team." },
+      { speaker: 'A', voice: 'sylvie', text: "Nickel. Si tu as besoin de quoi que ce soit, viens me voir.", en: "Perfect. If you need anything at all, come see me." },
+      { speaker: 'B', voice: 'jean',   text: "Merci, c'est gentil. À plus tard !", en: "Thanks, that's kind. See you later!" },
     ],
     vocab: [
       { fr: 'nouveau / nouvelle',         en: 'new (m/f)' },
@@ -566,12 +573,12 @@ window.SCENARIOS = [
       ],
     },
     shadowLines: [
-      "Salut, moi c'est Jean.",
-      "C'est mon premier jour.",
-      "Je viens du Brésil.",
-      "Je suis au Canada depuis un an et demi.",
-      "Je vais travailler dans l'équipe technique.",
-      "Merci, c'est gentil. À plus tard !",
+      { fr: "Salut, moi c'est Jean.", en: "Hi, I'm Jean." },
+      { fr: "C'est mon premier jour.", en: "It's my first day." },
+      { fr: "Je viens du Brésil.", en: "I'm from Brazil." },
+      { fr: "Je suis au Canada depuis un an et demi.", en: "I've been in Canada for a year and a half." },
+      { fr: "Je vais travailler dans l'équipe technique.", en: "I'm going to work on the technical team." },
+      { fr: "Merci, c'est gentil. À plus tard !", en: "Thanks, that's kind. See you later!" },
     ],
     comprehension: [
       { q: 'Who started the conversation?', opts: ['Jean', 'Sophie', 'The boss', 'HR'], a: 1 },
@@ -582,6 +589,7 @@ window.SCENARIOS = [
     speakingTask: {
       prompt: "A coworker greets you on your first day. Introduce yourself, say where you're from, how long you've been in Canada, and what your role is.",
       model: "Salut ! Moi c'est [name]. C'est mon premier jour. Je viens de [country], je suis au Canada depuis [duration]. Je vais travailler dans l'équipe [team]. Et toi, tu fais quoi ici ?",
+      modelEn: "Hi! I'm [name]. It's my first day. I'm from [country], I've been in Canada for [duration]. I'm going to work on the [team] team. And you, what do you do here?",
       checklist: [
         'Casual opener (salut, moi c\'est)',
         'Mention it\'s your first day',
@@ -609,13 +617,13 @@ window.SCENARIOS = [
       goal: 'Clearly: what happened, where it happened, who is hurt. Stay on the line.',
     },
     dialogue: [
-      { speaker: 'A', voice: 'sylvie', text: "Neuf-un-un, quel est votre urgence ?" },
-      { speaker: 'B', voice: 'jean',   text: "Il y a eu un accident de voiture sur la rue Sainte-Catherine, au coin de la rue Bleury." },
-      { speaker: 'A', voice: 'sylvie', text: "D'accord. Y a-t-il des blessés ?" },
-      { speaker: 'B', voice: 'jean',   text: "Oui, une personne est blessée. Elle saigne." },
-      { speaker: 'A', voice: 'sylvie', text: "Restez en ligne. Une ambulance arrive. Quel est votre nom ?" },
-      { speaker: 'B', voice: 'jean',   text: "Jean Dupont. Je suis sur place." },
-      { speaker: 'A', voice: 'sylvie', text: "Merci. Ne quittez pas, ils sont à trois minutes." },
+      { speaker: 'A', voice: 'sylvie', text: "Neuf-un-un, quel est votre urgence ?", en: "Nine-one-one, what is your emergency?" },
+      { speaker: 'B', voice: 'jean',   text: "Il y a eu un accident de voiture sur la rue Sainte-Catherine, au coin de la rue Bleury.", en: "There's been a car accident on rue Sainte-Catherine, at the corner of rue Bleury." },
+      { speaker: 'A', voice: 'sylvie', text: "D'accord. Y a-t-il des blessés ?", en: "OK. Are there any injured people?" },
+      { speaker: 'B', voice: 'jean',   text: "Oui, une personne est blessée. Elle saigne.", en: "Yes, one person is injured. She is bleeding." },
+      { speaker: 'A', voice: 'sylvie', text: "Restez en ligne. Une ambulance arrive. Quel est votre nom ?", en: "Stay on the line. An ambulance is coming. What is your name?" },
+      { speaker: 'B', voice: 'jean',   text: "Jean Dupont. Je suis sur place.", en: "Jean Dupont. I'm on the scene." },
+      { speaker: 'A', voice: 'sylvie', text: "Merci. Ne quittez pas, ils sont à trois minutes.", en: "Thank you. Don't hang up, they're three minutes away." },
     ],
     vocab: [
       { fr: 'une urgence',            en: 'an emergency' },
@@ -638,11 +646,11 @@ window.SCENARIOS = [
       ],
     },
     shadowLines: [
-      "Il y a eu un accident de voiture.",
-      "Sur la rue Sainte-Catherine, au coin de Bleury.",
-      "Une personne est blessée.",
-      "Elle saigne.",
-      "Je suis sur place.",
+      { fr: "Il y a eu un accident de voiture.", en: "There's been a car accident." },
+      { fr: "Sur la rue Sainte-Catherine, au coin de Bleury.", en: "On rue Sainte-Catherine, at the corner of Bleury." },
+      { fr: "Une personne est blessée.", en: "One person is injured." },
+      { fr: "Elle saigne.", en: "She is bleeding." },
+      { fr: "Je suis sur place.", en: "I'm on the scene." },
     ],
     comprehension: [
       { q: 'What is the emergency?', opts: ['Fire', 'Car accident', 'Burglary', 'Medical'], a: 1 },
@@ -653,6 +661,7 @@ window.SCENARIOS = [
     speakingTask: {
       prompt: "You witness an emergency. Call 911 and report: what happened, where, whether anyone is hurt. Stay calm.",
       model: "Bonjour. Il y a eu un accident de voiture sur [street], au coin de [cross street]. Une personne est blessée. Je suis sur place. Mon nom est [name].",
+      modelEn: "Hello. There's been a car accident on [street], at the corner of [cross street]. One person is injured. I'm on the scene. My name is [name].",
       checklist: [
         'State what happened (il y a eu)',
         'Give the location precisely',
@@ -680,14 +689,14 @@ window.SCENARIOS = [
       goal: 'Understand how your child is doing, ask one specific question, schedule a follow-up if needed.',
     },
     dialogue: [
-      { speaker: 'A', voice: 'sylvie', text: "Bonjour ! Vous êtes le parent d'Alex ?" },
-      { speaker: 'B', voice: 'jean',   text: "Oui, c'est ça. Comment ça se passe ?" },
-      { speaker: 'A', voice: 'sylvie', text: "Très bien. Alex s'adapte vite. Il participe en classe et il a déjà des amis." },
-      { speaker: 'B', voice: 'jean',   text: "Ah, c'est rassurant. Est-ce qu'il a des difficultés en français ?" },
-      { speaker: 'A', voice: 'sylvie', text: "Un peu en écriture, mais il progresse. On va voir ça ensemble en novembre." },
-      { speaker: 'B', voice: 'jean',   text: "D'accord. Est-ce qu'il y a quelque chose que je peux faire à la maison ?" },
-      { speaker: 'A', voice: 'sylvie', text: "Lisez avec lui quinze minutes par jour. Ça suffit." },
-      { speaker: 'B', voice: 'jean',   text: "D'accord, merci beaucoup." },
+      { speaker: 'A', voice: 'sylvie', text: "Bonjour ! Vous êtes le parent d'Alex ?", en: "Hello! Are you Alex's parent?" },
+      { speaker: 'B', voice: 'jean',   text: "Oui, c'est ça. Comment ça se passe ?", en: "Yes, that's right. How is it going?" },
+      { speaker: 'A', voice: 'sylvie', text: "Très bien. Alex s'adapte vite. Il participe en classe et il a déjà des amis.", en: "Very well. Alex is adapting quickly. He participates in class and already has friends." },
+      { speaker: 'B', voice: 'jean',   text: "Ah, c'est rassurant. Est-ce qu'il a des difficultés en français ?", en: "Oh, that's reassuring. Does he have any difficulties in French?" },
+      { speaker: 'A', voice: 'sylvie', text: "Un peu en écriture, mais il progresse. On va voir ça ensemble en novembre.", en: "A little in writing, but he's improving. We'll review it together in November." },
+      { speaker: 'B', voice: 'jean',   text: "D'accord. Est-ce qu'il y a quelque chose que je peux faire à la maison ?", en: "OK. Is there anything I can do at home?" },
+      { speaker: 'A', voice: 'sylvie', text: "Lisez avec lui quinze minutes par jour. Ça suffit.", en: "Read with him fifteen minutes a day. That's enough." },
+      { speaker: 'B', voice: 'jean',   text: "D'accord, merci beaucoup.", en: "OK, thank you very much." },
     ],
     vocab: [
       { fr: 'un parent',              en: 'a parent' },
@@ -711,10 +720,10 @@ window.SCENARIOS = [
       ],
     },
     shadowLines: [
-      "Bonjour, comment ça se passe ?",
-      "Est-ce qu'il a des difficultés en français ?",
-      "Est-ce qu'il y a quelque chose que je peux faire à la maison ?",
-      "D'accord, merci beaucoup.",
+      { fr: "Bonjour, comment ça se passe ?", en: "Hello, how is it going?" },
+      { fr: "Est-ce qu'il a des difficultés en français ?", en: "Does he have any difficulties in French?" },
+      { fr: "Est-ce qu'il y a quelque chose que je peux faire à la maison ?", en: "Is there anything I can do at home?" },
+      { fr: "D'accord, merci beaucoup.", en: "OK, thank you very much." },
     ],
     comprehension: [
       { q: 'How is Alex doing in class?', opts: ['Struggling', 'Adapting well, participates', 'Disengaged', 'Behavioural issues'], a: 1 },
@@ -725,6 +734,7 @@ window.SCENARIOS = [
     speakingTask: {
       prompt: "Ask the teacher how your child is doing. Ask one specific question (academic or social). Ask what you can do at home to help.",
       model: "Bonjour, comment ça se passe avec mon enfant ? Est-ce qu'il a des difficultés en [subject] ? Est-ce qu'il y a quelque chose que je peux faire à la maison ?",
+      modelEn: "Hello, how is it going with my child? Does he have difficulties in [subject]? Is there anything I can do at home?",
       checklist: [
         'Polite opener',
         'Ask the general question (comment ça se passe)',
@@ -751,14 +761,14 @@ window.SCENARIOS = [
       goal: 'Get the menu, order a main + drink, and ask for one modification.',
     },
     dialogue: [
-      { speaker: 'A', voice: 'sylvie', text: "Bonsoir ! Voici la carte. Je reviens dans un instant." },
-      { speaker: 'B', voice: 'jean',   text: "Merci." },
-      { speaker: 'A', voice: 'sylvie', text: "Vous avez choisi ?" },
-      { speaker: 'B', voice: 'jean',   text: "Oui. Je vais prendre la salade de poulet, s'il vous plaît." },
-      { speaker: 'A', voice: 'sylvie', text: "Très bien. Et comme boisson ?" },
-      { speaker: 'B', voice: 'jean',   text: "Une eau pétillante, s'il vous plaît. Est-ce que je peux avoir la vinaigrette à part ?" },
-      { speaker: 'A', voice: 'sylvie', text: "Bien sûr. Ça arrive tout de suite." },
-      { speaker: 'B', voice: 'jean',   text: "Merci beaucoup." },
+      { speaker: 'A', voice: 'sylvie', text: "Bonsoir ! Voici la carte. Je reviens dans un instant.", en: "Good evening! Here's the menu. I'll be right back." },
+      { speaker: 'B', voice: 'jean',   text: "Merci.", en: "Thank you." },
+      { speaker: 'A', voice: 'sylvie', text: "Vous avez choisi ?", en: "Have you chosen?" },
+      { speaker: 'B', voice: 'jean',   text: "Oui. Je vais prendre la salade de poulet, s'il vous plaît.", en: "Yes. I'll have the chicken salad, please." },
+      { speaker: 'A', voice: 'sylvie', text: "Très bien. Et comme boisson ?", en: "Very good. And to drink?" },
+      { speaker: 'B', voice: 'jean',   text: "Une eau pétillante, s'il vous plaît. Est-ce que je peux avoir la vinaigrette à part ?", en: "A sparkling water, please. Can I have the dressing on the side?" },
+      { speaker: 'A', voice: 'sylvie', text: "Bien sûr. Ça arrive tout de suite.", en: "Of course. It'll be right out." },
+      { speaker: 'B', voice: 'jean',   text: "Merci beaucoup.", en: "Thank you very much." },
     ],
     vocab: [
       { fr: 'la carte',               en: 'the menu' },
@@ -781,11 +791,11 @@ window.SCENARIOS = [
       ],
     },
     shadowLines: [
-      "Bonsoir, une table pour une personne s'il vous plaît.",
-      "Je vais prendre la salade de poulet.",
-      "Une eau pétillante, s'il vous plaît.",
-      "Est-ce que je peux avoir la vinaigrette à part ?",
-      "L'addition, s'il vous plaît.",
+      { fr: "Bonsoir, une table pour une personne s'il vous plaît.", en: "Good evening, a table for one please." },
+      { fr: "Je vais prendre la salade de poulet.", en: "I'll have the chicken salad." },
+      { fr: "Une eau pétillante, s'il vous plaît.", en: "A sparkling water, please." },
+      { fr: "Est-ce que je peux avoir la vinaigrette à part ?", en: "Can I have the dressing on the side?" },
+      { fr: "L'addition, s'il vous plaît.", en: "The bill, please." },
     ],
     comprehension: [
       { q: 'What does the customer order?', opts: ['Chicken soup', 'Chicken salad', 'Fish', 'Steak'], a: 1 },
@@ -796,6 +806,7 @@ window.SCENARIOS = [
     speakingTask: {
       prompt: "Walk into a restaurant. The server asks what you'll have. Order a main course, a drink, and make ONE special request (extra cheese, no onions, dressing on the side — your choice).",
       model: "Je vais prendre le poulet grillé, s'il vous plaît. Comme boisson, un verre d'eau. Et est-ce que je peux avoir les frites sans sel ?",
+      modelEn: "I'll have the grilled chicken, please. To drink, a glass of water. And can I have the fries without salt?",
       checklist: [
         'Use "je vais prendre" to order',
         'State the main course clearly',
@@ -821,12 +832,12 @@ window.SCENARIOS = [
       goal: 'Get the dish re-heated or replaced — politely.',
     },
     dialogue: [
-      { speaker: 'A', voice: 'sylvie', text: "Tout va bien pour vous ?" },
-      { speaker: 'B', voice: 'jean',   text: "Excusez-moi, je suis désolé, mais ma soupe est froide." },
-      { speaker: 'A', voice: 'sylvie', text: "Oh, je suis vraiment désolée. Je vous la réchauffe tout de suite." },
-      { speaker: 'B', voice: 'jean',   text: "Merci, c'est gentil. Sinon, tout est délicieux." },
-      { speaker: 'A', voice: 'sylvie', text: "Parfait. Je reviens dans une minute." },
-      { speaker: 'B', voice: 'jean',   text: "Merci beaucoup." },
+      { speaker: 'A', voice: 'sylvie', text: "Tout va bien pour vous ?", en: "Is everything OK for you?" },
+      { speaker: 'B', voice: 'jean',   text: "Excusez-moi, je suis désolé, mais ma soupe est froide.", en: "Excuse me, I'm sorry, but my soup is cold." },
+      { speaker: 'A', voice: 'sylvie', text: "Oh, je suis vraiment désolée. Je vous la réchauffe tout de suite.", en: "Oh, I'm really sorry. I'll reheat it right away." },
+      { speaker: 'B', voice: 'jean',   text: "Merci, c'est gentil. Sinon, tout est délicieux.", en: "Thanks, that's kind. Otherwise, everything is delicious." },
+      { speaker: 'A', voice: 'sylvie', text: "Parfait. Je reviens dans une minute.", en: "Perfect. I'll be back in a minute." },
+      { speaker: 'B', voice: 'jean',   text: "Merci beaucoup.", en: "Thank you very much." },
     ],
     vocab: [
       { fr: 'froid / froide',          en: 'cold (m/f)' },
@@ -848,11 +859,11 @@ window.SCENARIOS = [
       ],
     },
     shadowLines: [
-      "Excusez-moi, je suis désolé, mais ma soupe est froide.",
-      "Pouvez-vous la réchauffer, s'il vous plaît ?",
-      "Merci, c'est gentil.",
-      "Sinon, tout est délicieux.",
-      "Excusez-moi, je crois qu'il y a une erreur dans l'addition.",
+      { fr: "Excusez-moi, je suis désolé, mais ma soupe est froide.", en: "Excuse me, I'm sorry, but my soup is cold." },
+      { fr: "Pouvez-vous la réchauffer, s'il vous plaît ?", en: "Can you reheat it, please?" },
+      { fr: "Merci, c'est gentil.", en: "Thanks, that's kind." },
+      { fr: "Sinon, tout est délicieux.", en: "Otherwise, everything is delicious." },
+      { fr: "Excusez-moi, je crois qu'il y a une erreur dans l'addition.", en: "Excuse me, I think there's an error in the bill." },
     ],
     comprehension: [
       { q: 'What is the problem?', opts: ['Wrong order', 'Cold soup', 'Slow service', 'Overcharged'], a: 1 },
@@ -863,6 +874,7 @@ window.SCENARIOS = [
     speakingTask: {
       prompt: "You're at a restaurant. There's a problem with your dish (you pick what). Tell the server — politely. Soften the complaint with an apology.",
       model: "Excusez-moi, je suis désolé, mais [le plat] est [trop froid / trop salé / pas ce que j'ai commandé]. Est-ce que vous pouvez [le réchauffer / le changer] ? Merci.",
+      modelEn: "Excuse me, I'm sorry, but [the dish] is [too cold / too salty / not what I ordered]. Can you [reheat it / change it]? Thanks.",
       checklist: [
         'Start with excusez-moi or je suis désolé',
         'Use "mais" to introduce the problem',
@@ -890,14 +902,14 @@ window.SCENARIOS = [
       goal: 'Identify yourself, describe the problem, get a replacement or refund.',
     },
     dialogue: [
-      { speaker: 'A', voice: 'sylvie', text: "Service à la clientèle, bonjour. Comment puis-je vous aider ?" },
-      { speaker: 'B', voice: 'jean',   text: "Bonjour. J'ai acheté une cafetière il y a trois semaines, et elle ne fonctionne plus." },
-      { speaker: 'A', voice: 'sylvie', text: "Je suis désolée. Avez-vous votre numéro de commande ?" },
-      { speaker: 'B', voice: 'jean',   text: "Oui, c'est le quatre-cinq-six-sept-huit-neuf." },
-      { speaker: 'A', voice: 'sylvie', text: "Je vois votre commande. Le produit est encore sous garantie. Voulez-vous un remboursement ou un remplacement ?" },
-      { speaker: 'B', voice: 'jean',   text: "Un remplacement, s'il vous plaît." },
-      { speaker: 'A', voice: 'sylvie', text: "Parfait. Vous le recevrez dans cinq jours ouvrables." },
-      { speaker: 'B', voice: 'jean',   text: "Merci beaucoup." },
+      { speaker: 'A', voice: 'sylvie', text: "Service à la clientèle, bonjour. Comment puis-je vous aider ?", en: "Customer service, hello. How can I help you?" },
+      { speaker: 'B', voice: 'jean',   text: "Bonjour. J'ai acheté une cafetière il y a trois semaines, et elle ne fonctionne plus.", en: "Hello. I bought a coffee machine three weeks ago, and it no longer works." },
+      { speaker: 'A', voice: 'sylvie', text: "Je suis désolée. Avez-vous votre numéro de commande ?", en: "I'm sorry. Do you have your order number?" },
+      { speaker: 'B', voice: 'jean',   text: "Oui, c'est le quatre-cinq-six-sept-huit-neuf.", en: "Yes, it's four-five-six-seven-eight-nine." },
+      { speaker: 'A', voice: 'sylvie', text: "Je vois votre commande. Le produit est encore sous garantie. Voulez-vous un remboursement ou un remplacement ?", en: "I see your order. The product is still under warranty. Would you like a refund or a replacement?" },
+      { speaker: 'B', voice: 'jean',   text: "Un remplacement, s'il vous plaît.", en: "A replacement, please." },
+      { speaker: 'A', voice: 'sylvie', text: "Parfait. Vous le recevrez dans cinq jours ouvrables.", en: "Perfect. You'll receive it in five business days." },
+      { speaker: 'B', voice: 'jean',   text: "Merci beaucoup.", en: "Thank you very much." },
     ],
     vocab: [
       { fr: 'le service à la clientèle', en: 'customer service' },
@@ -920,11 +932,11 @@ window.SCENARIOS = [
       ],
     },
     shadowLines: [
-      "J'ai acheté une cafetière il y a trois semaines, et elle ne fonctionne plus.",
-      "Voici mon numéro de commande.",
-      "Je voudrais un remplacement, s'il vous plaît.",
-      "Combien de temps ça prendra ?",
-      "Merci beaucoup.",
+      { fr: "J'ai acheté une cafetière il y a trois semaines, et elle ne fonctionne plus.", en: "I bought a coffee machine three weeks ago, and it no longer works." },
+      { fr: "Voici mon numéro de commande.", en: "Here is my order number." },
+      { fr: "Je voudrais un remplacement, s'il vous plaît.", en: "I'd like a replacement, please." },
+      { fr: "Combien de temps ça prendra ?", en: "How long will it take?" },
+      { fr: "Merci beaucoup.", en: "Thank you very much." },
     ],
     comprehension: [
       { q: 'What did the customer buy?', opts: ['A toaster', 'A coffee machine', 'A blender', 'A microwave'], a: 1 },
@@ -935,6 +947,7 @@ window.SCENARIOS = [
     speakingTask: {
       prompt: "Call customer service. You bought a product (you pick) that's broken. Identify yourself, describe the problem, ask for a solution.",
       model: "Bonjour. J'ai acheté [un produit] il y a [duration], et [il / elle] [ne fonctionne plus / est cassé(e)]. Mon numéro de commande est [number]. Est-ce que je peux avoir un remplacement ?",
+      modelEn: "Hello. I bought [a product] [duration] ago, and [it] [no longer works / is broken]. My order number is [number]. Can I have a replacement?",
       checklist: [
         'Greeting',
         'State what you bought + when (il y a + duration)',
@@ -960,16 +973,16 @@ window.SCENARIOS = [
       goal: 'Cancel the membership cleanly without losing your temper or your money.',
     },
     dialogue: [
-      { speaker: 'A', voice: 'sylvie', text: "Bonjour, comment puis-je vous aider ?" },
-      { speaker: 'B', voice: 'jean',   text: "Bonjour. Je voudrais annuler mon abonnement, s'il vous plaît." },
-      { speaker: 'A', voice: 'sylvie', text: "D'accord. Puis-je vous demander la raison ?" },
-      { speaker: 'B', voice: 'jean',   text: "Je déménage dans une autre ville." },
-      { speaker: 'A', voice: 'sylvie', text: "Je comprends. Saviez-vous que nous avons des succursales partout au Québec ?" },
-      { speaker: 'B', voice: 'jean',   text: "Merci, mais j'ai décidé d'annuler. Quelle est la procédure ?" },
-      { speaker: 'A', voice: 'sylvie', text: "D'accord. J'ai besoin de votre numéro de membre et la date de votre dernier paiement." },
-      { speaker: 'B', voice: 'jean',   text: "Le numéro est 78902. Le dernier paiement était le quinze du mois." },
-      { speaker: 'A', voice: 'sylvie', text: "Parfait. Votre annulation prend effet immédiatement." },
-      { speaker: 'B', voice: 'jean',   text: "Merci pour votre aide." },
+      { speaker: 'A', voice: 'sylvie', text: "Bonjour, comment puis-je vous aider ?", en: "Hello, how can I help you?" },
+      { speaker: 'B', voice: 'jean',   text: "Bonjour. Je voudrais annuler mon abonnement, s'il vous plaît.", en: "Hello. I'd like to cancel my membership, please." },
+      { speaker: 'A', voice: 'sylvie', text: "D'accord. Puis-je vous demander la raison ?", en: "OK. May I ask the reason?" },
+      { speaker: 'B', voice: 'jean',   text: "Je déménage dans une autre ville.", en: "I'm moving to another city." },
+      { speaker: 'A', voice: 'sylvie', text: "Je comprends. Saviez-vous que nous avons des succursales partout au Québec ?", en: "I understand. Did you know we have branches all over Quebec?" },
+      { speaker: 'B', voice: 'jean',   text: "Merci, mais j'ai décidé d'annuler. Quelle est la procédure ?", en: "Thank you, but I've decided to cancel. What's the procedure?" },
+      { speaker: 'A', voice: 'sylvie', text: "D'accord. J'ai besoin de votre numéro de membre et la date de votre dernier paiement.", en: "OK. I need your member number and the date of your last payment." },
+      { speaker: 'B', voice: 'jean',   text: "Le numéro est 78902. Le dernier paiement était le quinze du mois.", en: "The number is 78902. The last payment was on the fifteenth of the month." },
+      { speaker: 'A', voice: 'sylvie', text: "Parfait. Votre annulation prend effet immédiatement.", en: "Perfect. Your cancellation takes effect immediately." },
+      { speaker: 'B', voice: 'jean',   text: "Merci pour votre aide.", en: "Thank you for your help." },
     ],
     vocab: [
       { fr: 'annuler',                en: 'to cancel' },
@@ -993,11 +1006,11 @@ window.SCENARIOS = [
       ],
     },
     shadowLines: [
-      "Bonjour, je voudrais annuler mon abonnement.",
-      "Je déménage dans une autre ville.",
-      "Merci, mais j'ai décidé d'annuler.",
-      "Quelle est la procédure ?",
-      "Merci pour votre aide.",
+      { fr: "Bonjour, je voudrais annuler mon abonnement.", en: "Hello, I'd like to cancel my membership." },
+      { fr: "Je déménage dans une autre ville.", en: "I'm moving to another city." },
+      { fr: "Merci, mais j'ai décidé d'annuler.", en: "Thank you, but I've decided to cancel." },
+      { fr: "Quelle est la procédure ?", en: "What is the procedure?" },
+      { fr: "Merci pour votre aide.", en: "Thank you for your help." },
     ],
     comprehension: [
       { q: 'What does the customer want to do?', opts: ['Renew', 'Pause', 'Cancel', 'Upgrade'], a: 2 },
@@ -1008,6 +1021,7 @@ window.SCENARIOS = [
     speakingTask: {
       prompt: "Call to cancel a subscription. The agent tries to retain you. Stay polite but firm. Give a reason if asked; decline retention offers gracefully.",
       model: "Bonjour, je voudrais annuler mon abonnement. C'est parce que [reason]. Merci pour votre offre, mais j'ai décidé. Quelle est la procédure ?",
+      modelEn: "Hello, I'd like to cancel my membership. It's because [reason]. Thanks for your offer, but I've decided. What's the procedure?",
       checklist: [
         'State the cancellation request clearly',
         'Give a brief reason if asked',
@@ -1034,14 +1048,14 @@ window.SCENARIOS = [
       goal: 'Get a repair scheduled today — heating is urgent.',
     },
     dialogue: [
-      { speaker: 'A', voice: 'sylvie', text: "Allô ?" },
-      { speaker: 'B', voice: 'jean',   text: "Bonjour madame, c'est Jean Dupont, l'appartement 304. J'ai un problème de chauffage." },
-      { speaker: 'A', voice: 'sylvie', text: "Ah non, depuis quand ?" },
-      { speaker: 'B', voice: 'jean',   text: "Depuis hier soir. Il fait quatorze degrés dans l'appartement." },
-      { speaker: 'A', voice: 'sylvie', text: "C'est urgent alors. Je vais envoyer le technicien aujourd'hui même." },
-      { speaker: 'B', voice: 'jean',   text: "Merci beaucoup. À quelle heure environ ?" },
-      { speaker: 'A', voice: 'sylvie', text: "Entre quatorze heures et seize heures. Vous serez là ?" },
-      { speaker: 'B', voice: 'jean',   text: "Oui, je serai là. Merci." },
+      { speaker: 'A', voice: 'sylvie', text: "Allô ?", en: "Hello?" },
+      { speaker: 'B', voice: 'jean',   text: "Bonjour madame, c'est Jean Dupont, l'appartement 304. J'ai un problème de chauffage.", en: "Hello ma'am, it's Jean Dupont, apartment 304. I have a heating problem." },
+      { speaker: 'A', voice: 'sylvie', text: "Ah non, depuis quand ?", en: "Oh no, since when?" },
+      { speaker: 'B', voice: 'jean',   text: "Depuis hier soir. Il fait quatorze degrés dans l'appartement.", en: "Since last night. It's fourteen degrees in the apartment." },
+      { speaker: 'A', voice: 'sylvie', text: "C'est urgent alors. Je vais envoyer le technicien aujourd'hui même.", en: "That's urgent then. I'll send the technician this very day." },
+      { speaker: 'B', voice: 'jean',   text: "Merci beaucoup. À quelle heure environ ?", en: "Thank you very much. Around what time?" },
+      { speaker: 'A', voice: 'sylvie', text: "Entre quatorze heures et seize heures. Vous serez là ?", en: "Between 2 pm and 4 pm. Will you be there?" },
+      { speaker: 'B', voice: 'jean',   text: "Oui, je serai là. Merci.", en: "Yes, I'll be there. Thanks." },
     ],
     vocab: [
       { fr: 'un problème',            en: 'a problem' },
@@ -1064,11 +1078,11 @@ window.SCENARIOS = [
       ],
     },
     shadowLines: [
-      "Bonjour, c'est Jean Dupont, l'appartement 304.",
-      "J'ai un problème de chauffage.",
-      "Depuis hier soir. Il fait quatorze degrés dans l'appartement.",
-      "À quelle heure environ ?",
-      "Oui, je serai là. Merci.",
+      { fr: "Bonjour, c'est Jean Dupont, l'appartement 304.", en: "Hello, it's Jean Dupont, apartment 304." },
+      { fr: "J'ai un problème de chauffage.", en: "I have a heating problem." },
+      { fr: "Depuis hier soir. Il fait quatorze degrés dans l'appartement.", en: "Since last night. It's fourteen degrees in the apartment." },
+      { fr: "À quelle heure environ ?", en: "Around what time?" },
+      { fr: "Oui, je serai là. Merci.", en: "Yes, I'll be there. Thanks." },
     ],
     comprehension: [
       { q: 'What is broken?', opts: ['The fridge', 'The heating', 'The dishwasher', 'The shower'], a: 1 },
@@ -1079,6 +1093,7 @@ window.SCENARIOS = [
     speakingTask: {
       prompt: "Call your landlord. Something is broken in your apartment (heating / hot water / fridge / door — pick one). Say WHAT, WHEN it started, and ask when it can be fixed.",
       model: "Bonjour, c'est [name], appartement [number]. J'ai un problème de [item]. Ça ne marche plus depuis [time]. Est-ce que vous pouvez envoyer un technicien rapidement ?",
+      modelEn: "Hello, it's [name], apartment [number]. I have a problem with the [item]. It hasn't worked since [time]. Can you send a technician quickly?",
       checklist: [
         'Identify yourself + apt number',
         'State the problem clearly',
@@ -1105,15 +1120,15 @@ window.SCENARIOS = [
       goal: 'Make the ask cleanly, confirm coverage, get the OK.',
     },
     dialogue: [
-      { speaker: 'B', voice: 'jean',   text: "Excusez-moi, est-ce que je peux vous parler une minute ?" },
-      { speaker: 'A', voice: 'sylvie', text: "Bien sûr, asseyez-vous." },
-      { speaker: 'B', voice: 'jean',   text: "Merci. Je voudrais prendre des vacances la semaine du quinze au vingt-deux." },
-      { speaker: 'A', voice: 'sylvie', text: "D'accord, pour quelle raison ?" },
-      { speaker: 'B', voice: 'jean',   text: "Ma famille vient me visiter au Canada pour la première fois." },
-      { speaker: 'A', voice: 'sylvie', text: "Très bien. Est-ce que vous avez parlé à votre équipe pour la couverture ?" },
-      { speaker: 'B', voice: 'jean',   text: "Oui, Marie peut s'occuper de mes dossiers cette semaine-là." },
-      { speaker: 'A', voice: 'sylvie', text: "Parfait. C'est approuvé. Mettez-moi en copie sur l'email à RH." },
-      { speaker: 'B', voice: 'jean',   text: "Bien sûr, merci beaucoup." },
+      { speaker: 'B', voice: 'jean',   text: "Excusez-moi, est-ce que je peux vous parler une minute ?", en: "Excuse me, can I talk to you for a minute?" },
+      { speaker: 'A', voice: 'sylvie', text: "Bien sûr, asseyez-vous.", en: "Of course, have a seat." },
+      { speaker: 'B', voice: 'jean',   text: "Merci. Je voudrais prendre des vacances la semaine du quinze au vingt-deux.", en: "Thank you. I'd like to take vacation the week of the fifteenth to the twenty-second." },
+      { speaker: 'A', voice: 'sylvie', text: "D'accord, pour quelle raison ?", en: "OK, for what reason?" },
+      { speaker: 'B', voice: 'jean',   text: "Ma famille vient me visiter au Canada pour la première fois.", en: "My family is coming to visit me in Canada for the first time." },
+      { speaker: 'A', voice: 'sylvie', text: "Très bien. Est-ce que vous avez parlé à votre équipe pour la couverture ?", en: "Very well. Have you talked to your team about coverage?" },
+      { speaker: 'B', voice: 'jean',   text: "Oui, Marie peut s'occuper de mes dossiers cette semaine-là.", en: "Yes, Marie can handle my files that week." },
+      { speaker: 'A', voice: 'sylvie', text: "Parfait. C'est approuvé. Mettez-moi en copie sur l'email à RH.", en: "Perfect. It's approved. Cc me on the email to HR." },
+      { speaker: 'B', voice: 'jean',   text: "Bien sûr, merci beaucoup.", en: "Of course, thank you very much." },
     ],
     vocab: [
       { fr: 'prendre des vacances',   en: 'to take vacation' },
@@ -1137,11 +1152,11 @@ window.SCENARIOS = [
       ],
     },
     shadowLines: [
-      "Excusez-moi, est-ce que je peux vous parler une minute ?",
-      "Je voudrais prendre des vacances la semaine du quinze.",
-      "Ma famille vient me visiter pour la première fois.",
-      "Marie peut s'occuper de mes dossiers cette semaine-là.",
-      "Merci beaucoup.",
+      { fr: "Excusez-moi, est-ce que je peux vous parler une minute ?", en: "Excuse me, can I talk to you for a minute?" },
+      { fr: "Je voudrais prendre des vacances la semaine du quinze.", en: "I'd like to take vacation the week of the fifteenth." },
+      { fr: "Ma famille vient me visiter pour la première fois.", en: "My family is coming to visit me for the first time." },
+      { fr: "Marie peut s'occuper de mes dossiers cette semaine-là.", en: "Marie can handle my files that week." },
+      { fr: "Merci beaucoup.", en: "Thank you very much." },
     ],
     comprehension: [
       { q: 'What is being requested?', opts: ['A raise', 'A week of vacation', 'A promotion', 'Remote work'], a: 1 },
@@ -1152,6 +1167,7 @@ window.SCENARIOS = [
     speakingTask: {
       prompt: "Ask your manager for time off. Set up the conversation, state the dates, give a reason, confirm coverage.",
       model: "Excusez-moi, est-ce que je peux vous parler une minute ? Je voudrais prendre des vacances la semaine du [date]. C'est pour [reason]. [Colleague] peut s'occuper de mes dossiers. Est-ce que c'est OK ?",
+      modelEn: "Excuse me, can I talk to you for a minute? I'd like to take vacation the week of [date]. It's for [reason]. [Colleague] can handle my files. Is that OK?",
       checklist: [
         'Polite opener (excusez-moi + est-ce que je peux)',
         'State the specific dates',
@@ -1178,14 +1194,14 @@ window.SCENARIOS = [
       goal: 'Pick up the prescription, get the instructions, confirm there are no issues.',
     },
     dialogue: [
-      { speaker: 'A', voice: 'sylvie', text: "Bonjour, je peux vous aider ?" },
-      { speaker: 'B', voice: 'jean',   text: "Bonjour, je viens chercher une ordonnance au nom de Jean Dupont." },
-      { speaker: 'A', voice: 'sylvie', text: "Un instant... oui, voici. Est-ce que vous avez déjà pris ce médicament ?" },
-      { speaker: 'B', voice: 'jean',   text: "Non, c'est la première fois." },
-      { speaker: 'A', voice: 'sylvie', text: "D'accord. C'est un comprimé par jour, après le repas. Avez-vous des allergies ?" },
-      { speaker: 'B', voice: 'jean',   text: "Non, aucune allergie." },
-      { speaker: 'A', voice: 'sylvie', text: "Parfait. Ça fait quinze dollars avec votre assurance." },
-      { speaker: 'B', voice: 'jean',   text: "Je paie par débit. Merci." },
+      { speaker: 'A', voice: 'sylvie', text: "Bonjour, je peux vous aider ?", en: "Hello, can I help you?" },
+      { speaker: 'B', voice: 'jean',   text: "Bonjour, je viens chercher une ordonnance au nom de Jean Dupont.", en: "Hello, I'm here to pick up a prescription in the name of Jean Dupont." },
+      { speaker: 'A', voice: 'sylvie', text: "Un instant... oui, voici. Est-ce que vous avez déjà pris ce médicament ?", en: "One moment... yes, here it is. Have you taken this medication before?" },
+      { speaker: 'B', voice: 'jean',   text: "Non, c'est la première fois.", en: "No, it's the first time." },
+      { speaker: 'A', voice: 'sylvie', text: "D'accord. C'est un comprimé par jour, après le repas. Avez-vous des allergies ?", en: "OK. It's one tablet per day, after the meal. Do you have any allergies?" },
+      { speaker: 'B', voice: 'jean',   text: "Non, aucune allergie.", en: "No, no allergies." },
+      { speaker: 'A', voice: 'sylvie', text: "Parfait. Ça fait quinze dollars avec votre assurance.", en: "Perfect. That's $15 with your insurance." },
+      { speaker: 'B', voice: 'jean',   text: "Je paie par débit. Merci.", en: "I'll pay by debit. Thank you." },
     ],
     vocab: [
       { fr: 'venir chercher',           en: 'to come pick up' },
@@ -1208,11 +1224,11 @@ window.SCENARIOS = [
       ],
     },
     shadowLines: [
-      "Bonjour, je viens chercher une ordonnance au nom de [name].",
-      "Non, c'est la première fois.",
-      "Non, aucune allergie.",
-      "Je paie par débit.",
-      "Merci, bonne journée.",
+      { fr: "Bonjour, je viens chercher une ordonnance au nom de [name].", en: "Hello, I'm here to pick up a prescription in the name of [name]." },
+      { fr: "Non, c'est la première fois.", en: "No, it's the first time." },
+      { fr: "Non, aucune allergie.", en: "No, no allergies." },
+      { fr: "Je paie par débit.", en: "I'll pay by debit." },
+      { fr: "Merci, bonne journée.", en: "Thanks, have a good day." },
     ],
     comprehension: [
       { q: 'What is the customer picking up?', opts: ['Vitamins', 'A prescription', 'Bandages', 'Eye drops'], a: 1 },
@@ -1223,6 +1239,7 @@ window.SCENARIOS = [
     speakingTask: {
       prompt: "Pick up a prescription. Give your name, answer the pharmacist's questions (first time? allergies?), pay.",
       model: "Bonjour, je viens chercher une ordonnance au nom de [name]. Non, c'est la première fois que je prends ce médicament. Non, je n'ai aucune allergie. Je paie par débit. Merci.",
+      modelEn: "Hello, I'm here to pick up a prescription in the name of [name]. No, it's the first time I'm taking this medication. No, I have no allergies. I'll pay by debit. Thanks.",
       checklist: [
         'Greeting',
         'State you\'re picking up a prescription',
@@ -1250,16 +1267,16 @@ window.SCENARIOS = [
       goal: 'Order a plan, schedule the install, confirm what to expect.',
     },
     dialogue: [
-      { speaker: 'A', voice: 'sylvie', text: "Bonjour, comment puis-je vous aider ?" },
-      { speaker: 'B', voice: 'jean',   text: "Bonjour, je voudrais installer Internet à mon nouvel appartement." },
-      { speaker: 'A', voice: 'sylvie', text: "D'accord. Quelle est votre adresse ?" },
-      { speaker: 'B', voice: 'jean',   text: "Trois cent vingt-quatre, rue Saint-Denis, appartement 5, à Montréal." },
-      { speaker: 'A', voice: 'sylvie', text: "Parfait, votre adresse est éligible. Quel forfait vous intéresse ?" },
-      { speaker: 'B', voice: 'jean',   text: "Quelque chose de simple, juste pour le travail à distance et le streaming." },
-      { speaker: 'A', voice: 'sylvie', text: "Je vous recommande le forfait à cinquante mégabits par seconde, soixante-neuf dollars par mois." },
-      { speaker: 'B', voice: 'jean',   text: "Ça me va. Quand pouvez-vous installer ?" },
-      { speaker: 'A', voice: 'sylvie', text: "Jeudi entre neuf heures et midi. Vous serez à la maison ?" },
-      { speaker: 'B', voice: 'jean',   text: "Oui, je serai là. Merci." },
+      { speaker: 'A', voice: 'sylvie', text: "Bonjour, comment puis-je vous aider ?", en: "Hello, how can I help you?" },
+      { speaker: 'B', voice: 'jean',   text: "Bonjour, je voudrais installer Internet à mon nouvel appartement.", en: "Hello, I'd like to install internet at my new apartment." },
+      { speaker: 'A', voice: 'sylvie', text: "D'accord. Quelle est votre adresse ?", en: "OK. What is your address?" },
+      { speaker: 'B', voice: 'jean',   text: "Trois cent vingt-quatre, rue Saint-Denis, appartement 5, à Montréal.", en: "Three hundred twenty-four, rue Saint-Denis, apartment 5, in Montreal." },
+      { speaker: 'A', voice: 'sylvie', text: "Parfait, votre adresse est éligible. Quel forfait vous intéresse ?", en: "Perfect, your address is eligible. Which plan interests you?" },
+      { speaker: 'B', voice: 'jean',   text: "Quelque chose de simple, juste pour le travail à distance et le streaming.", en: "Something simple, just for remote work and streaming." },
+      { speaker: 'A', voice: 'sylvie', text: "Je vous recommande le forfait à cinquante mégabits par seconde, soixante-neuf dollars par mois.", en: "I recommend the 50-megabit-per-second plan, $69 per month." },
+      { speaker: 'B', voice: 'jean',   text: "Ça me va. Quand pouvez-vous installer ?", en: "That works for me. When can you install?" },
+      { speaker: 'A', voice: 'sylvie', text: "Jeudi entre neuf heures et midi. Vous serez à la maison ?", en: "Thursday between 9 am and noon. Will you be home?" },
+      { speaker: 'B', voice: 'jean',   text: "Oui, je serai là. Merci.", en: "Yes, I'll be there. Thanks." },
     ],
     vocab: [
       { fr: 'installer',                  en: 'to install' },
@@ -1283,11 +1300,11 @@ window.SCENARIOS = [
       ],
     },
     shadowLines: [
-      "Je voudrais installer Internet à mon nouvel appartement.",
-      "Mon adresse est 324, rue Saint-Denis, appartement 5.",
-      "Quelque chose de simple, juste pour le travail à distance.",
-      "Quand pouvez-vous installer ?",
-      "Oui, je serai là. Merci.",
+      { fr: "Je voudrais installer Internet à mon nouvel appartement.", en: "I'd like to install internet at my new apartment." },
+      { fr: "Mon adresse est 324, rue Saint-Denis, appartement 5.", en: "My address is 324 rue Saint-Denis, apartment 5." },
+      { fr: "Quelque chose de simple, juste pour le travail à distance.", en: "Something simple, just for remote work." },
+      { fr: "Quand pouvez-vous installer ?", en: "When can you install?" },
+      { fr: "Oui, je serai là. Merci.", en: "Yes, I'll be there. Thanks." },
     ],
     comprehension: [
       { q: 'What service does the customer want?', opts: ['Cable TV', 'Phone line', 'Internet', 'Cell phone'], a: 2 },
@@ -1298,6 +1315,7 @@ window.SCENARIOS = [
     speakingTask: {
       prompt: "Call to set up internet at a new apartment. Give your address, describe what you need it for, ask what plan they recommend, schedule the install.",
       model: "Bonjour, je voudrais installer Internet à mon nouvel appartement. Mon adresse est [address]. C'est pour [usage — travail / streaming / études]. Quel forfait vous recommandez ? Quand pouvez-vous installer ?",
+      modelEn: "Hello, I'd like to install internet at my new apartment. My address is [address]. It's for [usage — work / streaming / studies]. Which plan do you recommend? When can you install?",
       checklist: [
         'State the request (installer Internet)',
         'Give your address clearly',
