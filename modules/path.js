@@ -54,6 +54,26 @@ window.PathModule = (function () {
       if (!collapsed) sec.open = true;
       sec.style.opacity = unlocked ? '1' : '.65';
 
+      const mix = Path.skillMix(items);
+      const mixTotal = items.length;
+      // Segmented bar showing how much of this phase is each skill — visualizes
+      // the 40/40/10/10 oral-first emphasis without needing a separate page.
+      const SKILL_META = {
+        L: { color: '#0A84FF', label: 'Listen' },
+        S: { color: '#FF453A', label: 'Speak' },
+        R: { color: '#FF9F0A', label: 'Read' },
+        W: { color: '#30D158', label: 'Write' },
+        F: { color: 'var(--mute)', label: 'Foundation' },
+      };
+      const mixSegs = ['L','S','R','W','F']
+        .filter(k => mix[k] > 0)
+        .map(k => `<span title="${SKILL_META[k].label}: ${mix[k]}" style="flex:${mix[k]};background:${SKILL_META[k].color};min-width:2px;height:100%"></span>`)
+        .join('');
+      const mixLegend = ['L','S','R','W']
+        .filter(k => mix[k] > 0)
+        .map(k => `<span style="display:inline-flex;align-items:center;gap:4px;font-size:var(--fs-11);color:var(--mute);font-weight:var(--fw-semi)"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:${SKILL_META[k].color}"></span>${SKILL_META[k].label.slice(0,1)} ${Math.round(mix[k]/mixTotal*100)}%</span>`)
+        .join('');
+
       sec.innerHTML = `
         <summary style="cursor:pointer;list-style:none;padding:var(--sp-4) var(--sp-5);background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);display:flex;justify-content:space-between;align-items:center;box-shadow:var(--e1);user-select:none;gap:var(--sp-3)">
           <span style="display:flex;align-items:center;gap:var(--sp-3);min-width:0">
@@ -61,12 +81,17 @@ window.PathModule = (function () {
             <span style="min-width:0">
               <p style="text-transform:uppercase;letter-spacing:var(--ls-wide);font-size:var(--fs-11);font-weight:var(--fw-semi);color:var(--mute);margin-bottom:2px">Phase ${ph.id} · ${escapeHTML(ph.clb)}</p>
               <span style="font-weight:var(--fw-semi);font-size:var(--fs-17);color:var(--ink);letter-spacing:var(--ls-snug)">${ph.icon} ${escapeHTML(ph.name)}</span>
+              ${ph.subtitle ? `<p style="font-size:var(--fs-13);color:var(--ink-2);margin-top:2px">${escapeHTML(ph.subtitle)}</p>` : ''}
             </span>
           </span>
           <span style="font-weight:var(--fw-semi);font-size:var(--fs-13);color:var(--mute);flex-shrink:0;font-variant-numeric:tabular-nums">${prog.done}/${prog.total}</span>
         </summary>
         <div style="padding:var(--sp-3) 0 0 0">
           <p style="color:var(--ink-2);font-size:var(--fs-14);padding:0 var(--sp-3);margin-bottom:var(--sp-3)">${escapeHTML(ph.desc)}</p>
+          <div style="padding:0 var(--sp-3);margin-bottom:var(--sp-4)">
+            <div style="display:flex;height:6px;border-radius:var(--r-pill);overflow:hidden;background:var(--surface-2)">${mixSegs}</div>
+            <div style="display:flex;gap:var(--sp-3);margin-top:6px;flex-wrap:wrap">${mixLegend}</div>
+          </div>
           <div class="path-list" data-list></div>
           <div data-gate-host></div>
         </div>

@@ -1,59 +1,49 @@
-// Speaking Mirror: target sentence + mic. Word-level diff feedback.
+// Repeat-After-Me / shadowing module.
+//
+// User listens → reads aloud → self-rates. No microphone, no speech recognition.
+// This is the deliberate-practice loop that polyglots use: hear native audio, mimic
+// it immediately, judge the gap yourself. The site provides the audio; the learner
+// provides the effort.
+//
+// Each rating ("Easy" / "Got it" / "Hard, again") feeds SRS for spaced replay of
+// the trickier sentences.
+
 window.SpeakModule = (function () {
   const SETS = window.SPEAK_SETS;
-
-  // Normalize for comparison: lowercase, strip accents+punctuation, collapse spaces.
-  function norm(s) {
-    return s.toLowerCase()
-      .normalize('NFD').replace(/[̀-ͯ]/g, '')
-      .replace(/[^a-z0-9 ]/g, ' ')
-      .replace(/\s+/g, ' ')
-      .trim();
-  }
-
-  // Word-level diff via LCS (longest common subsequence).
-  function wordDiff(spoken, target) {
-    const a = norm(spoken).split(' ');
-    const b = norm(target).split(' ');
-    const m = a.length, n = b.length;
-    const dp = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
-    for (let i = 1; i <= m; i++)
-      for (let j = 1; j <= n; j++)
-        dp[i][j] = a[i-1] === b[j-1] ? dp[i-1][j-1] + 1 : Math.max(dp[i-1][j], dp[i][j-1]);
-
-    // Trace target words, marking which were "hit" by the spoken sequence
-    const hits = new Array(n).fill(false);
-    let i = m, j = n;
-    while (i > 0 && j > 0) {
-      if (a[i-1] === b[j-1]) { hits[j-1] = true; i--; j--; }
-      else if (dp[i-1][j] >= dp[i][j-1]) i--;
-      else j--;
-    }
-    return { hits, lcs: dp[m][n], targetWords: b, spokenWords: a };
-  }
-
-  function score(spoken, target) {
-    const d = wordDiff(spoken, target);
-    if (d.targetWords.length === 0) return 0;
-    return Math.round((d.lcs / d.targetWords.length) * 100);
-  }
+  const escapeHTML = Chrome.escapeHTML;
 
   function renderList(container) {
     container.innerHTML = `
       ${Chrome.render({ back: 'home', crumbs: ['Home', 'Speak'] })}
       <section class="hero">
         <div class="flag-stripes"></div>
-        <p class="eyebrow-h">Speaking Mirror</p>
-        <h1>Say it.<br/>See it scored.</h1>
-        <p style="margin-top:var(--sp-4)">Press mic. Repeat aloud. Word-by-word feedback. Chrome / Edge / Brave required.</p>
+        <p class="eyebrow-h">Speaking · Repeat after me</p>
+        <h1>Hear it.<br/>Say it out loud.</h1>
+        <p style="margin-top:var(--sp-4)">Native Canadian French plays. You repeat it aloud — at your own pace, in your own voice. Rate how it felt. The hard ones come back.</p>
       </section>
+
+      <div class="grammar-box">
+        <h3>How it works</h3>
+        <ul style="margin-left:20px;line-height:var(--lh-loose);color:var(--ink-2)">
+          <li><b>Listen</b> at full speed first. Then slow it down (🐢) if needed.</li>
+          <li><b>Repeat aloud</b> right after. Don't read silently — your mouth must move.</li>
+          <li><b>Rate honestly</b>: Easy / Got it / Hard. Hard sentences return sooner.</li>
+          <li>No microphone needed. No recording. No judgment but your own.</li>
+        </ul>
+      </div>
+
       <div class="grid" id="s-grid"></div>`;
     const grid = container.querySelector('#s-grid');
     for (const k of Object.keys(SETS)) {
       const s = SETS[k];
+      const done = App.state.lessons[`speak:${k}`] || false;
       const card = document.createElement('div');
       card.className = 'card';
-      card.innerHTML = `<div class="icon">🎙️</div><h3>${s.title}</h3><p><span class="tag">${s.level || ''}</span></p><p style="margin-top:8px">${s.items.length} sentences</p>`;
+      card.innerHTML = `
+        <div class="icon">🎙️</div>
+        <h3>${escapeHTML(s.title)}</h3>
+        <p><span class="tag">${escapeHTML(s.level || '')}</span>${done ? ' <span class="tag" style="background:rgba(52,199,89,.12);color:var(--good)">✓ Done</span>' : ''}</p>
+        <p style="margin-top:var(--sp-2)">${s.items.length} sentences</p>`;
       card.onclick = () => App.go('speak', { set: k });
       grid.appendChild(card);
     }
@@ -61,126 +51,106 @@ window.SpeakModule = (function () {
 
   function renderSet(container, setKey) {
     const s = SETS[setKey];
-    let i = 0, totalScore = 0;
+    if (!s) { App.go('speak'); return; }
+
+    // Pull due cards from SRS first, then fall back to fresh sentences.
+    const items = s.items.map(t => ({ fr: t }));
+    let queue = SRS.dueCards(setKey, items);
+    if (queue.length === 0) queue = items.slice();
+
+    let i = 0;
+    let revealed = false;  // Did the user choose to see the translation hint?
+
     function show() {
-      if (i >= s.items.length) return finish();
-      const target = s.items[i];
+      if (i >= queue.length) return finish();
+      const target = queue[i].fr;
+      const heard = false;
+      revealed = false;
+
       container.innerHTML = `
         ${Chrome.render({
           back: 'speak',
           crumbs: ['Speak', s.title],
-          progress: { current: i, total: s.items.length }
+          progress: { current: i, total: queue.length }
         })}
         <div class="lesson">
-          <h2>🎙️ ${s.title}</h2>
-          <div class="center">
-            <p style="font-size:var(--fs-28);font-weight:var(--fw-bold);letter-spacing:var(--ls-snug);color:var(--ink);margin:var(--sp-5) 0;line-height:var(--lh-snug)">${target}</p>
-            <div class="row" style="justify-content:center;gap:8px">
+          <h2>🎙️ ${escapeHTML(s.title)}</h2>
+
+          <div class="center" style="margin-top:var(--sp-7)">
+            <p style="text-transform:uppercase;letter-spacing:var(--ls-wide);font-size:var(--fs-12);font-weight:var(--fw-semi);color:var(--mute);margin-bottom:var(--sp-3)">Repeat after me</p>
+            <p style="font-size:var(--fs-34);font-weight:var(--fw-bold);letter-spacing:var(--ls-snug);color:var(--ink);line-height:var(--lh-snug);max-width:680px;margin:0 auto var(--sp-6)">${escapeHTML(target)}</p>
+
+            <div class="row" style="justify-content:center;gap:var(--sp-2);flex-wrap:wrap">
               <button class="btn secondary" data-rate="0.7">🐢 Slow</button>
-              <button class="btn secondary" data-rate="1.0">🔊 Hear</button>
+              <button class="btn primary big" data-rate="1.0">🔊 Hear it</button>
               <button class="btn secondary" data-rate="1.2">🐇 Fast</button>
+              <button class="btn ghost" data-rate="1.0" data-again="1">🔁 Again</button>
             </div>
+            <p style="color:var(--mute);font-size:var(--fs-13);margin-top:var(--sp-3)">Now repeat it aloud yourself. Your mouth must move.</p>
           </div>
-          <div class="spacer"></div>
-          <div class="center">
-            <button class="mic-btn" id="mic" title="Press and speak">🎙️</button>
-            <p style="color:var(--mute);margin-top:10px;font-size:14px">Click mic, then speak the sentence.</p>
-            <div class="transcript" id="trans">—</div>
-            <div id="diff"></div>
-            <div id="fb"></div>
+
+          <div class="spacer lg"></div>
+
+          <p class="center" style="color:var(--mute);font-size:var(--fs-13);text-transform:uppercase;letter-spacing:var(--ls-wide);font-weight:var(--fw-semi);margin-bottom:var(--sp-3)">How did it feel?</p>
+          <div class="row" style="justify-content:center;gap:var(--sp-2);flex-wrap:wrap">
+            <button class="btn danger" data-rate-self="0">Hard, again</button>
+            <button class="btn" data-rate-self="3">Got it</button>
+            <button class="btn success" data-rate-self="5">Easy</button>
           </div>
+
           <div class="spacer"></div>
-          <div class="row" style="justify-content:flex-end">
-            <button class="btn secondary" id="next">Skip / Next<span class="arr">→</span></button>
+          <div class="row" style="justify-content:center">
+            <button class="btn ghost sm" id="skip">Skip — don't grade</button>
           </div>
         </div>`;
+
+      // Auto-play on first appear, then bind buttons.
+      setTimeout(() => TTS.speak(target, 1.0), 250);
+
       container.querySelectorAll('[data-rate]').forEach(b => {
         b.onclick = () => TTS.speak(target, parseFloat(b.dataset.rate));
       });
-      // Auto-play once at normal speed
-      setTimeout(() => TTS.speak(target, 1.0), 300);
 
-      const mic = container.querySelector('#mic');
-      const trans = container.querySelector('#trans');
-      const fb = container.querySelector('#fb');
-      const diff = container.querySelector('#diff');
-      const next = container.querySelector('#next');
-      next.onclick = () => { i++; show(); };
+      container.querySelectorAll('[data-rate-self]').forEach(b => {
+        b.onclick = () => {
+          const q = parseInt(b.dataset.rateSelf, 10);
+          SRS.review(setKey, target, q);
+          // Hard = surface as a weak spot to come back to
+          if (q === 0) {
+            MistakesModule.record({
+              type: 'speak',
+              sig: `speak:${setKey}:${i}`,
+              prompt: `Repeat: <b>${escapeHTML(target)}</b>`,
+              correct: target,
+              your: '(rated hard — needs more practice)',
+            });
+          }
+          i++; show();
+        };
+      });
 
-      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SR) {
-        fb.innerHTML = `<div class="feedback bad">Speech recognition not supported in this browser. Try Chrome, Edge, or Brave with Google services enabled.</div>`;
-        return;
-      }
-      const rec = new SR();
-      rec.lang = 'fr-CA';
-      rec.interimResults = false;
-      rec.continuous = false;
-      mic.onclick = () => {
-        mic.classList.add('listening');
-        trans.textContent = '🎤 Listening...';
-        diff.innerHTML = '';
-        fb.innerHTML = '';
-        try { rec.start(); } catch {}
-      };
-      rec.onresult = (e) => {
-        mic.classList.remove('listening');
-        const heard = e.results[0][0].transcript;
-        trans.textContent = '"' + heard + '"';
-        const d = wordDiff(heard, target);
-        const sc = score(heard, target);
-        totalScore += sc;
-
-        // Render word-level diff with target words colored
-        const targetTokens = target.split(/\s+/);
-        const tNorm = d.targetWords;
-        diff.innerHTML = `<div style="font-size:var(--fs-19);line-height:2;margin-top:var(--sp-3)">` +
-          targetTokens.map((tok, idx) => {
-            const hit = d.hits[idx];
-            return `<span style="display:inline-block;padding:4px 10px;margin:2px;border-radius:var(--r-sm);background:${hit ? 'rgba(52,199,89,.12)' : 'rgba(255,59,48,.12)'};color:${hit ? 'var(--good)' : 'var(--bad)'};font-weight:var(--fw-semi)">${tok}${hit ? ' ✓' : ' ✗'}</span>`;
-          }).join('') +
-          `</div>`;
-
-        if (sc >= 80) {
-          App.addXP(12);
-          fb.innerHTML = `<div class="feedback good">⭐ ${sc}% — excellent pronunciation!</div>`;
-        } else if (sc >= 60) {
-          App.addXP(6);
-          fb.innerHTML = `<div class="feedback good">✓ ${sc}% — good. Replay the slow version and shadow the red words.</div>`;
-        } else {
-          fb.innerHTML = `<div class="feedback bad">${sc}% — listen slowly and try again. Focus on the red words.</div>`;
-          // Record as mistake
-          MistakesModule.record({
-            type: 'speak',
-            sig: `speak:${setKey}:${i}`,
-            prompt: `Speak: <b>${target}</b>`,
-            correct: target,
-            your: heard,
-          });
-        }
-      };
-      rec.onerror = () => { mic.classList.remove('listening'); trans.textContent = 'No speech detected. Try again — speak after the beep.'; };
-      rec.onend = () => mic.classList.remove('listening');
+      container.querySelector('#skip').onclick = () => { i++; show(); };
     }
+
     function finish() {
       App.markLessonDone(`speak:${setKey}`);
-      const avg = Math.round(totalScore / s.items.length);
       container.innerHTML = `
-        ${Chrome.render({ back: 'speak', crumbs: ['Speak', s.title, 'Result'] })}
+        ${Chrome.render({ back: 'speak', crumbs: ['Speak', s.title, 'Complete'] })}
         <div class="lesson center">
           <div class="empty">
             <div class="big-icon">🗣️</div>
-            <h2>Session complete</h2>
-            <p>Average word-match score: <b>${avg}%</b></p>
-            <p style="color:var(--mute);margin-top:var(--sp-2)">${avg >= 80 ? 'Native-like rhythm. Keep going.' : avg >= 60 ? 'Solid. Replay the red words from your weak spots.' : 'Shadow the slow audio repeatedly. Quality beats speed.'}</p>
+            <h2>Session done</h2>
+            <p>You shadowed <b>${queue.length}</b> sentence${queue.length === 1 ? '' : 's'}. The "Hard" ones come back tomorrow on a tighter schedule.</p>
+            <p style="color:var(--mute);margin-top:var(--sp-2)">Speaking is the only skill the site cannot grade for you. Your reps are your reps. Do them aloud.</p>
             <div class="spacer"></div>
             <div class="row" style="justify-content:center">
-              <button class="btn primary big" onclick="App.go('speak')">More practice</button>
+              <button class="btn primary big" onclick="App.go('speak')">More speaking</button>
               <button class="btn ghost big" onclick="App.go('path')">Back to Path</button>
             </div>
           </div>
         </div>`;
     }
+
     show();
   }
 

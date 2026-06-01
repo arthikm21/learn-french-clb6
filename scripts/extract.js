@@ -6,10 +6,11 @@ global.window = global;
 
 const ROOT = path.join(__dirname, '..');
 // Load base + extra data files so extractor sees everything.
-['vocab', 'vocab_extra', 'vocab_more', 'vocab_tcf', 'grammar', 'grammar_extra', 'grammar_more', 'lessons',
+['vocab', 'vocab_extra', 'vocab_more', 'vocab_tcf', 'vocab_falsefriends', 'grammar', 'grammar_extra', 'grammar_more', 'lessons',
  'reading', 'reading_extra', 'reading_more', 'reading_tcf', 'listening', 'listening_extra', 'listening_more', 'listening_tcf',
+ 'listening_mastery',
  'writing', 'spoken', 'phonics', 'minpairs', 'dialogues', 'speaktasks', 'pcvsimp',
- 'writetask3', 'speaktask2', 'speaktask3', 'connectors'].forEach(n => {
+ 'writetask3', 'speaktask2', 'speaktask3', 'connectors', 'connectors_mastery', 'scenarios'].forEach(n => {
   require(path.join(ROOT, 'data', n + '.js'));
 });
 
@@ -151,9 +152,46 @@ if (window.CONNECTOR_DRILLS) for (const d of window.CONNECTOR_DRILLS) {
   if (d.sampleContinuations) for (const s of d.sampleContinuations) add(s);
 }
 
+// CONNECTORS (mastery) — examples (stripped), recognize clips, shadow models
+if (window.CONNECTORS) for (const c of window.CONNECTORS) {
+  if (c.examples) c.examples.forEach(ex => add(ex));    // stripTags + stripGloss happens in add()
+  if (c.recognize) add(c.recognize);
+  if (c.shadow && c.shadow.model) add(c.shadow.model);
+}
+
+// LISTENING_MASTERY — every clip's audio string
+if (window.LISTENING_MASTERY) for (const ex of window.LISTENING_MASTERY) {
+  if (ex.audio) add(ex.audio);
+}
+
+// SCENARIOS — dialogue lines (voice-tagged), vocab, grammar examples, shadow lines, speak task model
+// Lines with voice: 'jean' need the male voice; everything else uses default Sylvie.
+const voicedStrings = new Set(); // entries: "VOICE|text"
+if (window.SCENARIOS) for (const sc of window.SCENARIOS) {
+  // Dialogue: respect speaker voice
+  if (sc.dialogue) for (const line of sc.dialogue) {
+    const t = stripEnglishGloss(stripTags(line.text));
+    if (!t) continue;
+    if (line.voice === 'jean') voicedStrings.add('fr-CA-JeanNeural|' + t);
+    else add(t); // default Sylvie
+  }
+  // Vocab — Sylvie
+  if (sc.vocab) for (const v of sc.vocab) add(v.fr);
+  // Grammar focus examples
+  if (sc.grammarFocus && sc.grammarFocus.examples) sc.grammarFocus.examples.forEach(add);
+  // Shadow lines — these are what the learner repeats; Sylvie is the model
+  if (sc.shadowLines) sc.shadowLines.forEach(add);
+  // Speaking model — Sylvie
+  if (sc.speakingTask && sc.speakingTask.model) add(sc.speakingTask.model);
+}
+
 // All sources are curated French content — include everything > 0 chars.
 const finalList = Array.from(strings);
-
 finalList.sort();
+const voicedList = Array.from(voicedStrings);
+voicedList.sort();
+
 fs.writeFileSync(path.join(__dirname, 'strings.json'), JSON.stringify(finalList, null, 2));
-console.log(`Extracted ${finalList.length} unique French strings.`);
+fs.writeFileSync(path.join(__dirname, 'strings_voiced.json'), JSON.stringify(voicedList, null, 2));
+console.log(`Extracted ${finalList.length} unique French strings (Sylvie default).`);
+console.log(`Extracted ${voicedList.length} voice-tagged strings (Jean variants).`);

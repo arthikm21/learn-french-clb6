@@ -46,6 +46,9 @@ window.App = (function () {
     progress: (c) => ProgressModule.render(c),
     gate: (c, p) => PhaseGateModule.render(c, p),
     deepdive: (c, p) => DeepDiveModule.render(c, p),
+    scenario: (c, p) => ScenarioModule.render(c, p),
+    listenmastery: (c, p) => ListenMasteryModule.render(c, p),
+    connectormastery: (c, p) => ConnectorMasteryModule.render(c, p),
     phonics: (c, p) => PhonicsModule.render(c, p),
     vocab: (c, p) => VocabModule.render(c, p),
     grammar: (c, p) => GrammarModule.render(c, p),
@@ -189,6 +192,15 @@ window.App = (function () {
           <p>${next ? escapeHTML(next.desc) : 'You completed every milestone on the path. Time to simulate the real exam.'}</p>
         </div>
         <button class="btn big" onclick="App.${next ? 'continueNext' : 'go(\'mock\')'}()">${next ? 'Continue' : 'Start mock'}<span class="arr">→</span></button>
+      </div>
+
+      <div class="spotlight" onclick="App.go('scenario')" style="cursor:pointer;border:1px solid var(--accent)">
+        <div>
+          <p class="eyebrow" style="color:var(--accent)">🇨🇦 Real-life scenarios</p>
+          <h2>Calling a landlord. Opening a bank account.</h2>
+          <p>One Canadian life situation at a time. Listen → understand → repeat → speak it yourself. No textbooks. Just the conversations you'll actually have.</p>
+        </div>
+        <button class="btn primary big" onclick="event.stopPropagation();App.go('scenario')">Open scenarios<span class="arr">→</span></button>
       </div>
 
       <div class="spotlight" onclick="App.go('mock')" style="cursor:pointer">

@@ -1,13 +1,17 @@
-// Learning path — full CLB 6 progression. 92 milestones, 8 phases, 7 gates + final readiness battery.
-// Each milestone declares its phase (1-8). PHASES drives the path UI + gate logic.
-// 30-45 min/day → CLB 6 in 3-4 months.
+// Learning path — TCF Canada immigration-focused. 8 phases, 7 gates + final readiness battery.
+//
+// Mission: 0 French → CLB 6 Listening/Speaking, CLB 4-5 Reading/Writing for adult
+// immigrants and federal-skilled-worker candidates. 45-60 min/day × 8-12 months.
+//
+// Effort allocation across the path: 40% Listening · 40% Speaking · 10% Reading · 10% Writing.
+// Phonics, grammar, vocab are SUPPORT layers — they unlock oral skills, not goals in themselves.
 
 window.PHASES = [
   {
     id: 1,
     name: 'Foundation',
-    subtitle: 'Sounds & survival phrases',
-    desc: 'Master the 35 French sounds and your first 30 phrases. Speaking starts here.',
+    subtitle: 'Sounds & survival speaking',
+    desc: 'Master the 35 French sounds. Repeat your first 30 phrases aloud until they feel natural. Hearing + speaking start here.',
     eta: '~10 days',
     clb: 'CLB 1-2',
     icon: '🌱',
@@ -18,8 +22,8 @@ window.PHASES = [
   {
     id: 2,
     name: 'Core Grammar A1',
-    subtitle: 'Articles, être, avoir, -er verbs',
-    desc: 'The structural backbone. Gender, basic verb conjugation, negation.',
+    subtitle: 'The minimum grammar to speak',
+    desc: 'Just enough scaffolding to assemble sentences: articles, être, avoir, basic -er verbs, negation. Stop at sufficient. Move back to speaking.',
     eta: '~14 days',
     clb: 'CLB 2-3',
     icon: '🧱',
@@ -29,9 +33,9 @@ window.PHASES = [
   },
   {
     id: 3,
-    name: 'Communication',
-    subtitle: 'Questions, adjectives, daily life',
-    desc: 'Ask, answer, describe. Real conversations begin.',
+    name: 'Conversations',
+    subtitle: 'Ask · answer · describe out loud',
+    desc: 'First real exchanges. Café orders, asking the time, describing your home and family. Listen to native speakers, then speak with them.',
     eta: '~14 days',
     clb: 'CLB 3-4',
     icon: '💬',
@@ -41,9 +45,9 @@ window.PHASES = [
   },
   {
     id: 4,
-    name: 'Past Tense',
-    subtitle: 'Passé composé + everyday vocab',
-    desc: 'Tell what happened. The single most-used past tense in French.',
+    name: 'Past Events',
+    subtitle: 'Tell what happened — passé composé',
+    desc: 'Narrate your day, your week, your weekend. Passé composé is the single past tense you will use 80% of the time in real speech.',
     eta: '~14 days',
     clb: 'CLB 3-4',
     icon: '⏪',
@@ -53,21 +57,21 @@ window.PHASES = [
   },
   {
     id: 5,
-    name: 'Future & Intermediate',
-    subtitle: 'Going-to future + service vocab',
-    desc: 'Plans, doctor visits, shopping, partitive — the practical layer.',
+    name: 'Practical Life',
+    subtitle: 'Service interactions in French',
+    desc: 'Doctor, bank, grocery store, transit, future plans. The exchanges every immigrant has weekly in Quebec. Listening + speaking dominate this phase.',
     eta: '~14 days',
     clb: 'CLB 4',
-    icon: '⏩',
+    icon: '🛠️',
     gateId: 'phase-5',
     gateTitle: 'Future & Service Gate',
     gateDesc: '20 Qs: futur proche, partitive du/de la, health + shopping + money vocab.',
   },
   {
     id: 6,
-    name: 'Imparfait',
-    subtitle: 'Pronouns + past description',
-    desc: 'Describe past habits. Object pronouns, y, en. This is where CLB 5 starts.',
+    name: 'Range & Nuance',
+    subtitle: 'Imparfait + pronouns — sound less robotic',
+    desc: 'Describe past habits. Replace repeated nouns with le / la / lui / leur / y / en. Native speakers do this constantly. This is the CLB 5 boundary.',
     eta: '~14 days',
     clb: 'CLB 4-5',
     icon: '🎭',
@@ -78,8 +82,8 @@ window.PHASES = [
   {
     id: 7,
     name: 'CLB 5 → 6 Push',
-    subtitle: 'Conditionals, subjunctive, connectors',
-    desc: 'Argue, hypothesize, suggest. The bulk of CLB 6 grammar lives here.',
+    subtitle: 'Argue · hypothesize · connect — fluently',
+    desc: 'Express opinions with reasons and examples. Use connectors (cependant, par conséquent, alors que). Conditional + subjunctive give you adult range. This is where CLB 6 speaking is won.',
     eta: '~21 days',
     clb: 'CLB 5-6',
     icon: '🚀',
@@ -257,18 +261,32 @@ window.Path = (function () {
     return gatePassed(phaseId - 1);
   }
 
-  // Skill bucket for a given lesson — used by skill rings on the Progress page.
+  // Skill bucket for a given lesson — drives the 40/40/10/10 visual + Progress rings.
+  // L/S/R/W are the 4 CLB-graded skills. F = foundation (phonics/grammar/vocab/games)
+  // that unlocks the others without being directly graded.
+  const SKILL_LABEL = {
+    L: 'Listening', S: 'Speaking', R: 'Reading', W: 'Writing', F: 'Foundation',
+  };
   function skillOf(n) {
     if (!n) return null;
     if (n.route === 'listen' || n.route === 'dialogue') return 'L';
     if (n.route === 'speak' || n.route === 'speaktasks' || n.route === 'speaktask2' || n.route === 'speaktask3') return 'S';
     if (n.route === 'read') return 'R';
     if (n.route === 'write' || n.route === 'writetask3') return 'W';
-    return null;
+    return 'F'; // phonics, grammar, vocab, games — support layer
+  }
+
+  // Skill distribution across an arbitrary slice (e.g. a phase) — feeds the
+  // "you're spending X% of effort on speaking" bars on the path page.
+  function skillMix(items) {
+    const out = { L: 0, S: 0, R: 0, W: 0, F: 0 };
+    for (const n of items) out[skillOf(n)]++;
+    return out;
   }
 
   return {
     phaseOf, itemsInPhase, doneKey, isItemDone,
-    phaseProgress, gateEligible, gatePassed, phaseUnlocked, skillOf,
+    phaseProgress, gateEligible, gatePassed, phaseUnlocked,
+    skillOf, skillMix, SKILL_LABEL,
   };
 })();
