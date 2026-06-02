@@ -49,6 +49,7 @@ window.WriteTask3Module = (function () {
         <div class="grammar-box">
           <h3>📜 Question</h3>
           <p style="font-style:italic">${t.topic}</p>
+          ${Chrome.gloss(t.topicEn)}
         </div>
         <div class="grammar-box" style="border-left-color:var(--bleu)">
           <h3>👤 Opinion A — ${t.opinionA.author}</h3>
@@ -61,6 +62,7 @@ window.WriteTask3Module = (function () {
         <div class="grammar-box" style="border-left-color:var(--warn)">
           <h3>✍️ Your task</h3>
           <p>${t.promptInstructions}</p>
+          ${Chrome.gloss(t.promptInstructionsEn)}
         </div>
         <textarea class="input" id="wt3-essay" placeholder="Écrivez ici en français (~150 mots)..." style="font-size:16px;min-height:280px">${saved}</textarea>
         <div class="row" style="margin-top:8px;justify-content:space-between;color:var(--mute);font-size:13px">
