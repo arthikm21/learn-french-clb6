@@ -58,28 +58,37 @@
       <span class="stat" title="Progress"><b id="progress-done">0</b>/<b id="progress-total">0</b></span>
       <span class="stat" id="user-chip" title="Profile" style="cursor:pointer">👤 ...</span>
     </div>
-    <nav class="nav" id="nav">
+    <nav class="nav" id="nav" aria-label="Site navigation">
+      <button class="nav-close" id="nav-close" aria-label="Close menu">✕</button>
       <a data-route="home">Home</a>
       <a data-route="path">Path</a>
-      <a data-route="scenario" style="background:rgba(94,92,230,.12);color:var(--accent)">🇨🇦 Scenarios</a>
-      <a data-route="listenmastery" style="background:rgba(10,132,255,.12);color:#0A84FF">🎧 Listen Mastery</a>
-      <a data-route="connectormastery" style="background:rgba(94,92,230,.12);color:var(--accent)">🔗 Connectors</a>
       <a data-route="progress">Progress</a>
       <a data-route="gate">Gates</a>
+
+      <h5 class="nav-group">Oral focus</h5>
+      <a data-route="scenario" class="nav-pill nav-pill-accent">🇨🇦 Scenarios</a>
+      <a data-route="listenmastery" class="nav-pill nav-pill-listen">🎧 Listen Mastery</a>
+      <a data-route="connectormastery" class="nav-pill nav-pill-accent">🔗 Connectors</a>
+      <a data-route="speak">Speak (shadow)</a>
+      <a data-route="speaktasks">TCF speak tasks</a>
+
+      <h5 class="nav-group">Foundations</h5>
       <a data-route="phonics">Phonics</a>
       <a data-route="vocab">Vocab</a>
       <a data-route="grammar">Grammar</a>
-      <a data-route="deepdive">Deep dives</a>
-      <a data-route="listen">Listen</a>
-      <a data-route="dialogue">Dialogues</a>
-      <a data-route="speak">Speak</a>
-      <a data-route="speaktasks">Tasks</a>
+      <a data-route="deepdive">Grammar deep dives</a>
+
+      <h5 class="nav-group">Reading + writing</h5>
       <a data-route="read">Read</a>
-      <a data-route="mock" style="background:var(--rouge);color:white">🎯 Mock</a>
-      <a data-route="tcfguide">TCF Guide</a>
       <a data-route="write">Write</a>
+
+      <h5 class="nav-group">Tests + drills</h5>
+      <a data-route="mock" class="nav-pill nav-pill-mock">🎯 Full mock</a>
+      <a data-route="tcfguide">TCF Canada guide</a>
+      <a data-route="listen">Listen lab (legacy)</a>
+      <a data-route="dialogue">Dialogues (legacy)</a>
       <a data-route="games">Games</a>
-      <a data-route="mistakes">Mistakes</a>
+      <a data-route="mistakes">Weak spots</a>
     </nav>
   </header>
   <div class="nav-backdrop" id="nav-backdrop"></div>

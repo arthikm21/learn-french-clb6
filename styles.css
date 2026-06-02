@@ -329,6 +329,14 @@ p { line-height: var(--lh-base); }
 .nav a.active { background: var(--ink); color: var(--surface); }
 body.dark .nav a.active { background: var(--gray-800); color: var(--gray-50); }
 
+/* Nav pills — color-coded shortcuts (oral focus, mock) */
+.nav .nav-pill-accent { background: rgba(94, 92, 230, .12); color: var(--accent); }
+.nav .nav-pill-listen { background: rgba(10, 132, 255, .12); color: #0A84FF; }
+.nav .nav-pill-mock   { background: var(--rouge); color: #fff; }
+
+/* Drawer-only chrome — only shown when nav is in mobile drawer mode */
+.nav .nav-group, .nav .nav-close { display: none; }
+
 .stats {
   display: flex;
   gap: var(--sp-2);
@@ -367,6 +375,9 @@ body.dark .nav a.active { background: var(--gray-800); color: var(--gray-50); }
   -webkit-backdrop-filter: blur(4px);
 }
 .nav-backdrop.open { display: block; opacity: 1; }
+
+/* Prevent body scroll under the drawer on mobile */
+body.nav-open { overflow: hidden; }
 
 /* =========================================================================
    LAYOUT
@@ -1370,7 +1381,17 @@ body.dark .phase-chip .meter > div { background: var(--gray-700); }
    ========================================================================= */
 @media (max-width: 1100px) {
   .hamburger { display: flex; order: -1; }
-  .topbar { gap: var(--sp-2); padding: 10px var(--sp-4); padding-top: calc(10px + var(--safe-top)); }
+  /* Drop backdrop-filter on mobile — it creates a containing block for the
+     fixed-positioned nav drawer, clamping its height to the topbar instead of
+     the viewport. (Desktop keeps the blur for visual polish.) */
+  .topbar {
+    gap: var(--sp-2);
+    padding: 10px var(--sp-4);
+    padding-top: calc(10px + var(--safe-top));
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: var(--bg);
+  }
   .brand-name { display: none; }
   .brand { font-size: var(--fs-19); }
 
@@ -1382,15 +1403,17 @@ body.dark .phase-chip .meter > div { background: var(--gray-700); }
     flex-direction: column;
     flex-wrap: nowrap;
     gap: 2px;
-    padding: 80px var(--sp-4) var(--sp-6);
+    padding: var(--sp-6) var(--sp-4);
     padding-left: calc(var(--sp-4) + var(--safe-left));
-    padding-top: calc(80px + var(--safe-top));
+    padding-top: calc(var(--sp-6) + var(--safe-top));
     padding-bottom: calc(var(--sp-6) + var(--safe-bottom));
     box-shadow: var(--e4);
     z-index: 60;
     transform: translateX(-100%);
     transition: transform var(--t-slow) var(--ease-out);
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
   }
   .nav.open { transform: translateX(0); }
   .nav a {
@@ -1400,6 +1423,40 @@ body.dark .phase-chip .meter > div { background: var(--gray-700); }
     width: 100%;
     min-height: 44px;
   }
+
+  /* Show drawer-only chrome */
+  .nav .nav-group {
+    display: block;
+    text-transform: uppercase;
+    letter-spacing: var(--ls-wide);
+    font-size: var(--fs-11);
+    font-weight: var(--fw-semi);
+    color: var(--mute);
+    margin: var(--sp-4) var(--sp-2) var(--sp-1);
+    padding-top: var(--sp-2);
+    border-top: 1px solid var(--line);
+  }
+  .nav .nav-group:first-of-type { border-top: none; padding-top: 0; }
+
+  .nav .nav-close {
+    display: flex;
+    position: absolute;
+    top: calc(var(--sp-3) + var(--safe-top));
+    right: var(--sp-3);
+    width: 40px;
+    height: 40px;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: var(--surface-2);
+    color: var(--ink);
+    border-radius: var(--r-pill);
+    font-size: 18px;
+    cursor: pointer;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  .nav .nav-close:hover { background: var(--surface-3); }
 
   .stats { margin-left: auto; gap: 6px; }
   .stat { font-size: var(--fs-12); padding: 5px 10px; min-height: 30px; }
@@ -1458,8 +1515,15 @@ body.dark .phase-chip .meter > div { background: var(--gray-700); }
   .conj-table { font-size: var(--fs-14); }
   .conj-table th, .conj-table td { padding: 8px 10px; }
 
-  .btn { padding: 10px 18px; font-size: var(--fs-14); }
-  .btn.big { padding: 13px 22px; font-size: var(--fs-15); }
+  .btn { padding: 10px 18px; font-size: var(--fs-14); min-height: 44px; }
+  .btn.big { padding: 13px 22px; font-size: var(--fs-15); min-height: 48px; }
+  .btn.sm { min-height: 36px; }
+
+  /* Heatmap on Progress page — let it scroll horizontally on phone */
+  .heatmap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+  /* Decision-tree pages — single column on phone */
+  .deepdive-tree, .tree-grid { grid-template-columns: 1fr !important; }
 
   .mic-btn { width: 84px; height: 84px; font-size: 32px; }
 

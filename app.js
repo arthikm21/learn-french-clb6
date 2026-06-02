@@ -442,24 +442,31 @@ window.App = (function () {
     const ham = document.getElementById('hamburger');
     const nav = document.getElementById('nav');
     const backdrop = document.getElementById('nav-backdrop');
+    const closeBtn = document.getElementById('nav-close');
     if (!ham || !nav || !backdrop) return;
     function close() {
       nav.classList.remove('open');
       backdrop.classList.remove('open');
       ham.setAttribute('aria-expanded', 'false');
+      document.body.classList.remove('nav-open');
     }
     function toggle() {
       const open = !nav.classList.contains('open');
       nav.classList.toggle('open', open);
       backdrop.classList.toggle('open', open);
       ham.setAttribute('aria-expanded', String(open));
+      document.body.classList.toggle('nav-open', open);
     }
     ham.addEventListener('click', toggle);
     backdrop.addEventListener('click', close);
+    if (closeBtn) closeBtn.addEventListener('click', close);
     nav.addEventListener('click', (e) => {
       if (e.target.closest('a[data-route]')) close();
     });
     window.addEventListener('hashchange', close);
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && nav.classList.contains('open')) close();
+    });
   }
 
   // -------- Theme --------
