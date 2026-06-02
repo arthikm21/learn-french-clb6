@@ -469,6 +469,30 @@ window.App = (function () {
     });
   }
 
+  // -------- Author credit modal --------
+  function setupCreditModal() {
+    const link = document.getElementById('credit-link');
+    const modal = document.getElementById('credit-modal');
+    if (!link || !modal) return;
+    function open() {
+      modal.classList.add('open');
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('modal-open');
+    }
+    function close() {
+      modal.classList.remove('open');
+      modal.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('modal-open');
+    }
+    link.addEventListener('click', (e) => { e.preventDefault(); open(); });
+    modal.addEventListener('click', (e) => {
+      if (e.target.closest('[data-close]')) close();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal.classList.contains('open')) close();
+    });
+  }
+
   // -------- Theme --------
   function loadTheme() {
     const t = localStorage.getItem('fr_theme_v1');
@@ -488,6 +512,7 @@ window.App = (function () {
     loadTheme();
     load();
     setupMobileNav();
+    setupCreditModal();
     refreshTopbar();
     document.querySelectorAll('[data-route]').forEach(el => {
       el.onclick = () => go(el.dataset.route);

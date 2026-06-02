@@ -100,8 +100,24 @@
       <a href="#about" style="color:var(--bleu)">About</a> ·
       <a href="#privacy" style="color:var(--bleu)">Privacy</a> ·
       <a href="https://github.com/arthikm21/learn-french-clb6/issues" target="_blank" rel="noopener" style="color:var(--bleu)">Report issue</a>
+      · Built by <a id="credit-link" style="color:var(--bleu);cursor:pointer">Arthik</a>
     </small>
   </footer>
+
+  <!-- Author credit modal (opens when Arthik is clicked in the footer) -->
+  <div class="credit-modal" id="credit-modal" role="dialog" aria-modal="true" aria-labelledby="credit-modal-title" aria-hidden="true">
+    <div class="credit-modal-backdrop" data-close></div>
+    <div class="credit-modal-card">
+      <button class="credit-modal-close" id="credit-modal-close" data-close aria-label="Close">✕</button>
+      <div class="credit-modal-avatar" aria-hidden="true">🐓</div>
+      <h3 id="credit-modal-title" class="credit-modal-name">Arthik Nepal</h3>
+      <p class="credit-modal-tag">Built Bonjour! — free TCF Canada prep, no signup, no tracking.</p>
+      <a class="btn primary big credit-modal-cta" href="https://www.linkedin.com/in/arthiknepal" target="_blank" rel="noopener">
+        Connect on LinkedIn<span class="arr">→</span>
+      </a>
+      <p class="credit-modal-hint">Opens in a new tab.</p>
+    </div>
+  </div>
 
   <script src="data/vocab.js"></script>
   <script src="data/vocab_extra.js"></script>

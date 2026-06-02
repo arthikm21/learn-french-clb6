@@ -377,7 +377,90 @@ body.dark .nav a.active { background: var(--gray-800); color: var(--gray-50); }
 .nav-backdrop.open { display: block; opacity: 1; }
 
 /* Prevent body scroll under the drawer on mobile */
-body.nav-open { overflow: hidden; }
+body.nav-open, body.modal-open { overflow: hidden; }
+
+/* Credit modal — opens from footer "Built by Arthik" link */
+.credit-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: var(--sp-5);
+}
+.credit-modal.open { display: flex; }
+.credit-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, .45);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  animation: cm-fade var(--t-base) var(--ease-in-out);
+}
+.credit-modal-card {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-2xl);
+  padding: var(--sp-7) var(--sp-6) var(--sp-6);
+  width: 100%;
+  max-width: 420px;
+  text-align: center;
+  box-shadow: var(--e4);
+  animation: cm-pop var(--t-slow) var(--ease-snap);
+}
+.credit-modal-close {
+  position: absolute;
+  top: var(--sp-3);
+  right: var(--sp-3);
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: var(--surface-2);
+  color: var(--ink);
+  border-radius: var(--r-pill);
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.credit-modal-close:hover { background: var(--surface-3); }
+.credit-modal-avatar {
+  font-size: 56px;
+  line-height: 1;
+  margin-bottom: var(--sp-3);
+}
+.credit-modal-name {
+  font-size: var(--fs-28);
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--ls-snug);
+  color: var(--ink);
+  margin: 0 0 var(--sp-2);
+}
+.credit-modal-tag {
+  color: var(--ink-2);
+  font-size: var(--fs-15);
+  line-height: var(--lh-base);
+  margin: 0 0 var(--sp-5);
+}
+.credit-modal-cta {
+  display: inline-flex;
+  margin-bottom: var(--sp-3);
+}
+.credit-modal-hint {
+  font-size: var(--fs-12);
+  color: var(--mute);
+  margin: 0;
+}
+@keyframes cm-fade { from { opacity: 0 } to { opacity: 1 } }
+@keyframes cm-pop {
+  from { opacity: 0; transform: translateY(8px) scale(.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
 
 /* Auto-advance row after a quiz answer (Chrome.advance) */
 .advance-row {
