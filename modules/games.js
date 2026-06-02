@@ -65,12 +65,13 @@ window.GamesModule = (function () {
       container.querySelectorAll('[data-g]').forEach(b => {
         b.onclick = () => {
           container.querySelectorAll('[data-g]').forEach(x => x.disabled = true);
-          if (b.dataset.g === c.g) {
+          const right = (b.dataset.g === c.g);
+          if (right) {
             correct++;
             App.addXP(3);
-            container.querySelector('#fb').innerHTML = `<div class="feedback good">✓ Correct! <b>${c.g === 'f' ? 'la' : 'le'} ${noun}</b> — ${c.en}</div>`;
+            container.querySelector('#fb').innerHTML = `<div class="feedback good">✓ Correct! <b>${c.g === 'f' ? 'la' : 'le'} ${noun}</b> — ${c.en}</div><div class="adv-host"></div>`;
           } else {
-            container.querySelector('#fb').innerHTML = `<div class="feedback bad">✗ It's ${c.g === 'f' ? '<b>féminin</b>: la' : '<b>masculin</b>: le'} ${noun}</div>`;
+            container.querySelector('#fb').innerHTML = `<div class="feedback bad">✗ It's ${c.g === 'f' ? '<b>féminin</b>: la' : '<b>masculin</b>: le'} ${noun}</div><div class="adv-host"></div>`;
             MistakesModule.record({
               type: 'gender',
               sig: `gender:${c.fr}`,
@@ -79,7 +80,11 @@ window.GamesModule = (function () {
               your: c.g === 'f' ? `le ${noun}` : `la ${noun}`,
             });
           }
-          setTimeout(() => { i++; show(); }, 1500);
+          Chrome.advance({
+            host: container.querySelector('.adv-host'),
+            onNext: () => { i++; show(); },
+            seconds: right ? 3 : 4,
+          });
         };
       });
     }
@@ -238,13 +243,14 @@ window.GamesModule = (function () {
       container.querySelector('#check').onclick = () => {
         const built = Array.from(answer.querySelectorAll('.token')).map(t => t.dataset.w).join(' ').replace(/\s+/g, ' ').trim();
         const target = s.fr.join(' ');
-        if (built.toLowerCase().replace(/\s+/g, ' ') === target.toLowerCase().replace(/\s+/g, ' ')) {
+        const right = built.toLowerCase().replace(/\s+/g, ' ') === target.toLowerCase().replace(/\s+/g, ' ');
+        if (right) {
           correct++;
           App.addXP(10);
-          container.querySelector('#fb').innerHTML = `<div class="feedback good">✓ Parfait!</div>`;
+          container.querySelector('#fb').innerHTML = `<div class="feedback good">✓ Parfait!</div><div class="adv-host"></div>`;
           TTS.speak(target);
         } else {
-          container.querySelector('#fb').innerHTML = `<div class="feedback bad">✗ Correct: <b>${target}</b></div>`;
+          container.querySelector('#fb').innerHTML = `<div class="feedback bad">✗ Correct: <b>${target}</b></div><div class="adv-host"></div>`;
           MistakesModule.record({
             type: 'sentence',
             sig: `sent:${i}`,
@@ -253,7 +259,11 @@ window.GamesModule = (function () {
             your: built || '(empty)',
           });
         }
-        setTimeout(() => { i++; show(); }, 1800);
+        Chrome.advance({
+          host: container.querySelector('.adv-host'),
+          onNext: () => { i++; show(); },
+          seconds: right ? 3 : 4,
+        });
       };
     }
     function finish() {
@@ -375,16 +385,21 @@ window.GamesModule = (function () {
         el.onclick = () => {
           container.querySelectorAll('.option').forEach(x => x.classList.add('disabled'));
           const sel = parseInt(el.dataset.i);
-          if (sel === correctIdx) {
+          const right = (sel === correctIdx);
+          if (right) {
             el.classList.add('correct'); correct++; App.addXP(4);
-            container.querySelector('#fb').innerHTML = `<div class="feedback good">✓</div>`;
+            container.querySelector('#fb').innerHTML = `<div class="feedback good">✓</div><div class="adv-host"></div>`;
           } else {
             el.classList.add('wrong');
             container.querySelectorAll('.option')[correctIdx].classList.add('correct');
-            container.querySelector('#fb').innerHTML = `<div class="feedback bad">✗ ${c.fr} = <b>${c.en}</b></div>`;
+            container.querySelector('#fb').innerHTML = `<div class="feedback bad">✗ ${c.fr} = <b>${c.en}</b></div><div class="adv-host"></div>`;
             MistakesModule.record({ type: 'vocab', sig: `vocab:${c.fr}`, prompt: `What does <b>${c.fr}</b> mean?`, correct: c.en, your: opts[sel] });
           }
-          setTimeout(() => { i++; show(); }, 1100);
+          Chrome.advance({
+            host: container.querySelector('.adv-host'),
+            onNext: () => { i++; show(); },
+            seconds: right ? 3 : 4,
+          });
         };
       });
     }
@@ -429,16 +444,21 @@ window.GamesModule = (function () {
         el.onclick = () => {
           container.querySelectorAll('.option').forEach(x => x.classList.add('disabled'));
           const sel = parseInt(el.dataset.i);
-          if (sel === d.a) {
+          const right = (sel === d.a);
+          if (right) {
             el.classList.add('correct'); correct++; App.addXP(5);
-            container.querySelector('#fb').innerHTML = `<div class="feedback good">✓ ${d.why}</div>`;
+            container.querySelector('#fb').innerHTML = `<div class="feedback good">✓ ${d.why}</div><div class="adv-host"></div>`;
           } else {
             el.classList.add('wrong');
             container.querySelectorAll('.option')[d.a].classList.add('correct');
-            container.querySelector('#fb').innerHTML = `<div class="feedback bad">✗ ${d.why}</div>`;
+            container.querySelector('#fb').innerHTML = `<div class="feedback bad">✗ ${d.why}</div><div class="adv-host"></div>`;
             MistakesModule.record({ type: 'tense', sig: `tense:${i}`, prompt: d.fr, correct: d.opts[d.a], your: d.opts[sel] });
           }
-          setTimeout(() => { i++; show(); }, 1800);
+          Chrome.advance({
+            host: container.querySelector('.adv-host'),
+            onNext: () => { i++; show(); },
+            seconds: right ? 3 : 5,
+          });
         };
       });
     }
@@ -568,14 +588,19 @@ window.GamesModule = (function () {
       container.querySelector('#hint').onclick = () => { Toast.info(d.hint, 5000); };
       const submit = () => {
         const norm = s => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9 ]/g,'').replace(/\s+/g,' ').trim();
-        if (norm(inp.value) === norm(d.correct)) {
+        const right = norm(inp.value) === norm(d.correct);
+        if (right) {
           correct++;
-          container.querySelector('#fb').innerHTML = `<div class="feedback good">✓ ${d.correct} <br><small>${d.hint}</small></div>`;
+          container.querySelector('#fb').innerHTML = `<div class="feedback good">✓ ${d.correct} <br><small>${d.hint}</small></div><div class="adv-host"></div>`;
         } else {
-          container.querySelector('#fb').innerHTML = `<div class="feedback bad">✗ Correct: <b>${d.correct}</b><br><small>${d.hint}</small></div>`;
+          container.querySelector('#fb').innerHTML = `<div class="feedback bad">✗ Correct: <b>${d.correct}</b><br><small>${d.hint}</small></div><div class="adv-host"></div>`;
           MistakesModule.record({ type: 'error-spot', sig: `errspot:${i}`, prompt: d.wrong, correct: d.correct, your: inp.value || '(empty)' });
         }
-        setTimeout(() => { i++; show(); }, 2400);
+        Chrome.advance({
+          host: container.querySelector('.adv-host'),
+          onNext: () => { i++; show(); },
+          seconds: right ? 3 : 5,
+        });
       };
       container.querySelector('#submit').onclick = submit;
       inp.onkeydown = (e) => { if (e.key === 'Enter') submit(); };
@@ -646,15 +671,20 @@ window.GamesModule = (function () {
       };
       container.querySelector('#check').onclick = () => {
         const built = Array.from(answer.querySelectorAll('.token')).map(t => t.dataset.l).join('');
-        if (built === d.target) {
+        const right = (built === d.target);
+        if (right) {
           correct++;
-          container.querySelector('#fb').innerHTML = `<div class="feedback good">✓ ${d.subj} ${d.target}</div>`;
+          container.querySelector('#fb').innerHTML = `<div class="feedback good">✓ ${d.subj} ${d.target}</div><div class="adv-host"></div>`;
           TTS.speak(d.subj + ' ' + d.target);
         } else {
-          container.querySelector('#fb').innerHTML = `<div class="feedback bad">✗ Should be <b>${d.target}</b>. (You: ${built || '(empty)'})</div>`;
+          container.querySelector('#fb').innerHTML = `<div class="feedback bad">✗ Should be <b>${d.target}</b>. (You: ${built || '(empty)'})</div><div class="adv-host"></div>`;
           MistakesModule.record({ type: 'verb', sig: `anagram:${d.inf}:${d.subj}`, prompt: `${d.subj} ___ (${d.inf})`, correct: d.target, your: built || '(empty)' });
         }
-        setTimeout(() => { i++; show(); }, 1700);
+        Chrome.advance({
+          host: container.querySelector('.adv-host'),
+          onNext: () => { i++; show(); },
+          seconds: right ? 3 : 4,
+        });
       };
     }
     function finish() {

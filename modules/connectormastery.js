@@ -189,11 +189,11 @@ window.ConnectorMasteryModule = (function () {
           const right = picked === correctIdx;
           if (right) {
             el.classList.add('correct');
-            container.querySelector('#fb').innerHTML = `<div class="feedback good">✓ <b>${escapeHTML(c.word)}</b> — ${escapeHTML(c.gloss)}. <small>${c.when}</small></div>`;
+            container.querySelector('#fb').innerHTML = `<div class="feedback good">✓ <b>${escapeHTML(c.word)}</b> — ${escapeHTML(c.gloss)}. <small>${c.when}</small></div><div class="adv-host"></div>`;
           } else {
             el.classList.add('wrong');
             container.querySelectorAll('.option')[correctIdx].classList.add('correct');
-            container.querySelector('#fb').innerHTML = `<div class="feedback bad">✗ Right answer: <b>${escapeHTML(c.word)}</b>. <small>${c.when}</small></div>`;
+            container.querySelector('#fb').innerHTML = `<div class="feedback bad">✗ Right answer: <b>${escapeHTML(c.word)}</b>. <small>${c.when}</small></div><div class="adv-host"></div>`;
             MistakesModule.record({
               type: 'connector',
               sig: `connector-complete:${c.id}`,
@@ -203,7 +203,11 @@ window.ConnectorMasteryModule = (function () {
             });
           }
           App.markLessonDone(`connectormastery:${c.id}`);
-          setTimeout(() => advance(right), right ? 1600 : 2500);
+          Chrome.advance({
+            host: container.querySelector('.adv-host'),
+            onNext: () => advance(right),
+            seconds: right ? 3 : 4,
+          });
         };
       });
     }
@@ -249,11 +253,11 @@ window.ConnectorMasteryModule = (function () {
           const transcript = `<div style="background:var(--surface-2);padding:var(--sp-3);border-radius:var(--r-md);margin-top:var(--sp-3)"><p style="color:var(--ink);font-weight:var(--fw-semi)">${escapeHTML(c.recognize)}</p>${Chrome.gloss(c.recognizeEn)}</div>`;
           if (right) {
             el.classList.add('correct');
-            container.querySelector('#fb').innerHTML = `<div class="feedback good">✓ Heard it.</div>${transcript}`;
+            container.querySelector('#fb').innerHTML = `<div class="feedback good">✓ Heard it.</div>${transcript}<div class="adv-host"></div>`;
           } else {
             el.classList.add('wrong');
             container.querySelectorAll('.option')[correctIdx].classList.add('correct');
-            container.querySelector('#fb').innerHTML = `<div class="feedback bad">✗ It was <b>${escapeHTML(c.word)}</b>.</div>${transcript}`;
+            container.querySelector('#fb').innerHTML = `<div class="feedback bad">✗ It was <b>${escapeHTML(c.word)}</b>.</div>${transcript}<div class="adv-host"></div>`;
             MistakesModule.record({
               type: 'connector',
               sig: `connector-recognize:${c.id}`,
@@ -263,7 +267,11 @@ window.ConnectorMasteryModule = (function () {
             });
           }
           App.markLessonDone(`connectormastery:${c.id}`);
-          setTimeout(() => advance(right), right ? 1800 : 2800);
+          Chrome.advance({
+            host: container.querySelector('.adv-host'),
+            onNext: () => advance(right),
+            seconds: right ? 3 : 4,
+          });
         };
       });
     }

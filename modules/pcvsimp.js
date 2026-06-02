@@ -55,11 +55,11 @@ window.PCvsImpModule = (function () {
           if (right) {
             el.classList.add('correct');
             correct++;
-            container.querySelector('#fb').innerHTML = `<div class="feedback good">✓ Correct! ${d.why}</div>`;
+            container.querySelector('#fb').innerHTML = `<div class="feedback good">✓ Correct! ${d.why}</div><div class="adv-host"></div>`;
           } else {
             el.classList.add('wrong');
             container.querySelectorAll('.option').forEach(x => { if (x.dataset.pick === d.correct) x.classList.add('correct'); });
-            container.querySelector('#fb').innerHTML = `<div class="feedback bad">✗ Should be <b>${d.correct === 'pc' ? d.pc : d.imp}</b>. ${d.why}</div>`;
+            container.querySelector('#fb').innerHTML = `<div class="feedback bad">✗ Should be <b>${d.correct === 'pc' ? d.pc : d.imp}</b>. ${d.why}</div><div class="adv-host"></div>`;
             MistakesModule.record({
               type: 'grammar',
               sig: `pcvsimp:${drillIdx}`,
@@ -68,7 +68,11 @@ window.PCvsImpModule = (function () {
               your: pick === 'pc' ? d.pc : d.imp,
             });
           }
-          setTimeout(() => { drillIdx++; showDrill(); }, 2200);
+          Chrome.advance({
+            host: container.querySelector('.adv-host'),
+            onNext: () => { drillIdx++; showDrill(); },
+            seconds: right ? 3 : 5,
+          });
         };
       });
     }

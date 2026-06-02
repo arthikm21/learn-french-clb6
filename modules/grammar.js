@@ -130,15 +130,16 @@ window.GrammarModule = (function () {
         el.onclick = () => {
           const i = parseInt(el.dataset.i);
           container.querySelectorAll('.option').forEach(x => x.classList.add('disabled'));
-          if (i === q.a) {
+          const right = (i === q.a);
+          if (right) {
             el.classList.add('correct');
             correct++;
             App.addXP(5);
-            container.querySelector('#fb').innerHTML = `<div class="feedback good">✓ Correct! ${q.why ? '<small>' + q.why + '</small>' : ''}</div>`;
+            container.querySelector('#fb').innerHTML = `<div class="feedback good">✓ Correct! ${q.why ? '<small>' + q.why + '</small>' : ''}</div><div class="adv-host"></div>`;
           } else {
             el.classList.add('wrong');
             container.querySelectorAll('.option')[q.a].classList.add('correct');
-            container.querySelector('#fb').innerHTML = `<div class="feedback bad">✗ Not quite. Right answer: <b>${q.opts[q.a]}</b>. ${q.why ? '<small>' + q.why + '</small>' : ''}</div>`;
+            container.querySelector('#fb').innerHTML = `<div class="feedback bad">✗ Not quite. Right answer: <b>${q.opts[q.a]}</b>. ${q.why ? '<small>' + q.why + '</small>' : ''}</div><div class="adv-host"></div>`;
             MistakesModule.record({
               type: 'grammar',
               sig: `grammar:${u.id}:${qi}`,
@@ -147,11 +148,11 @@ window.GrammarModule = (function () {
               your: q.opts[i],
             });
           }
-          setTimeout(() => {
-            qi++;
-            if (qi >= u.quiz.length) finish();
-            else renderQuiz();
-          }, 1400);
+          Chrome.advance({
+            host: container.querySelector('.adv-host'),
+            onNext: () => { qi++; if (qi >= u.quiz.length) finish(); else renderQuiz(); },
+            seconds: right ? 3 : 4,
+          });
         };
       });
     }

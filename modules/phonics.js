@@ -121,13 +121,17 @@ window.PhonicsModule = (function () {
           if (right) {
             el.classList.add('correct');
             correct++;
-            container.querySelector('#fb').innerHTML = `<div class="feedback good">✓ Correct: <b>${target}</b></div>`;
+            container.querySelector('#fb').innerHTML = `<div class="feedback good">✓ Correct: <b>${target}</b></div><div class="adv-host"></div>`;
           } else {
             el.classList.add('wrong');
             container.querySelectorAll('.option').forEach(x => { if ((x.dataset.pick === 'a' && isA) || (x.dataset.pick === 'b' && !isA)) x.classList.add('correct'); });
-            container.querySelector('#fb').innerHTML = `<div class="feedback bad">✗ Was actually <b>${target}</b></div>`;
+            container.querySelector('#fb').innerHTML = `<div class="feedback bad">✗ Was actually <b>${target}</b></div><div class="adv-host"></div>`;
           }
-          setTimeout(() => { i++; show(); }, 1700);
+          Chrome.advance({
+            host: container.querySelector('.adv-host'),
+            onNext: () => { i++; show(); },
+            seconds: right ? 3 : 4,
+          });
         };
       });
     }

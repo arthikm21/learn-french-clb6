@@ -85,9 +85,9 @@ window.ListenModule = (function () {
         if (ok) {
           correct++;
           App.addXP(8);
-          fb.innerHTML = `<div class="feedback good">✓ Correct! <small>${it.audio}</small></div>`;
+          fb.innerHTML = `<div class="feedback good">✓ Correct! <small>${it.audio}</small></div><div class="adv-host"></div>`;
         } else {
-          fb.innerHTML = `<div class="feedback bad">✗ Not quite. <small>You wrote: <b>${escapeHTML(ans)}</b><br>Correct: <b>${escapeHTML(it.audio)}</b></small></div>`;
+          fb.innerHTML = `<div class="feedback bad">✗ Not quite. <small>You wrote: <b>${escapeHTML(ans)}</b><br>Correct: <b>${escapeHTML(it.audio)}</b></small></div><div class="adv-host"></div>`;
           MistakesModule.record({
             type: 'listen',
             sig: `listen:${setKey}:${i}`,
@@ -96,12 +96,20 @@ window.ListenModule = (function () {
             your: ans,
           });
         }
-        setTimeout(() => { i++; show(); }, 2000);
+        Chrome.advance({
+          host: container.querySelector('.adv-host'),
+          onNext: () => { i++; show(); },
+          seconds: ok ? 3 : 5,
+        });
       };
       container.querySelector('#submit').onclick = check;
       container.querySelector('#skip').onclick = () => {
-        fb.innerHTML = `<div class="feedback bad">Answer: <b>${escapeHTML(it.audio)}</b></div>`;
-        setTimeout(() => { i++; show(); }, 2000);
+        fb.innerHTML = `<div class="feedback bad">Answer: <b>${escapeHTML(it.audio)}</b></div><div class="adv-host"></div>`;
+        Chrome.advance({
+          host: container.querySelector('.adv-host'),
+          onNext: () => { i++; show(); },
+          seconds: 4,
+        });
       };
       inp.onkeydown = (e) => { if (e.key === 'Enter') check(); };
     }

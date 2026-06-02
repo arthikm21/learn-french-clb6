@@ -379,6 +379,22 @@ body.dark .nav a.active { background: var(--gray-800); color: var(--gray-50); }
 /* Prevent body scroll under the drawer on mobile */
 body.nav-open { overflow: hidden; }
 
+/* Auto-advance row after a quiz answer (Chrome.advance) */
+.advance-row {
+  display: flex;
+  gap: var(--sp-2);
+  justify-content: center;
+  align-items: center;
+  margin-top: var(--sp-4);
+  flex-wrap: wrap;
+}
+.advance-row .advance-cd {
+  font-variant-numeric: tabular-nums;
+  opacity: .8;
+  margin-left: 4px;
+}
+.advance-row .advance-arrow { margin-left: 2px; }
+
 /* =========================================================================
    LAYOUT
    ========================================================================= */

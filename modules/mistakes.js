@@ -198,15 +198,20 @@ window.MistakesModule = (function () {
         const c = norm(mk.correct).replace(/\([^)]*\)/g, '').trim();
         const c2 = norm(mk.correct); // alternate exact
         if (!v) return;
-        if (v === c || v === c2 || (c && v.includes(c))) {
+        const right = v === c || v === c2 || (c && v.includes(c));
+        if (right) {
           correctCount++;
           promote(mk.sig);
-          container.querySelector('#fb').innerHTML = `<div class="feedback good">✓ Correct! ${mk.level >= 3 ? 'Graduated! Removed from weak spots.' : 'Moved to L' + Math.min(4, (mk.level || 0) + 1) + ' (next review in ' + ['1 day','3 days','7 days','14 days'][mk.level || 0] + ').'}</div>`;
+          container.querySelector('#fb').innerHTML = `<div class="feedback good">✓ Correct! ${mk.level >= 3 ? 'Graduated! Removed from weak spots.' : 'Moved to L' + Math.min(4, (mk.level || 0) + 1) + ' (next review in ' + ['1 day','3 days','7 days','14 days'][mk.level || 0] + ').'}</div><div class="adv-host"></div>`;
         } else {
           demote(mk.sig);
-          container.querySelector('#fb').innerHTML = `<div class="feedback bad">✗ Correct: <b>${escapeHTML(mk.correct)}</b><br><small>Reset to L0 — due immediately next time.</small></div>`;
+          container.querySelector('#fb').innerHTML = `<div class="feedback bad">✗ Correct: <b>${escapeHTML(mk.correct)}</b><br><small>Reset to L0 — due immediately next time.</small></div><div class="adv-host"></div>`;
         }
-        setTimeout(() => { i++; show(); }, 2200);
+        Chrome.advance({
+          host: container.querySelector('.adv-host'),
+          onNext: () => { i++; show(); },
+          seconds: right ? 3 : 5,
+        });
       };
       container.querySelector('#submit').onclick = check;
       inp.onkeydown = e => { if (e.key === 'Enter') check(); };

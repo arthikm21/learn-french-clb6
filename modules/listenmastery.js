@@ -195,11 +195,11 @@ window.ListenMasteryModule = (function () {
           if (right) {
             el.classList.add('correct');
             correct++;
-            fb.innerHTML = `<div class="feedback good">✓ Correct! ${ex.why ? '<small>' + ex.why + '</small>' : ''}</div>${transcript}`;
+            fb.innerHTML = `<div class="feedback good">✓ Correct! ${ex.why ? '<small>' + ex.why + '</small>' : ''}</div>${transcript}<div class="adv-host"></div>`;
           } else {
             el.classList.add('wrong');
             host.querySelectorAll('.option')[ex.a].classList.add('correct');
-            fb.innerHTML = `<div class="feedback bad">✗ Right answer: <b>${escapeHTML(ex.opts[ex.a])}</b>. ${ex.why ? '<small>' + ex.why + '</small>' : ''}</div>${transcript}`;
+            fb.innerHTML = `<div class="feedback bad">✗ Right answer: <b>${escapeHTML(ex.opts[ex.a])}</b>. ${ex.why ? '<small>' + ex.why + '</small>' : ''}</div>${transcript}<div class="adv-host"></div>`;
             MistakesModule.record({
               type: 'listenmastery',
               sig: `listenmastery:${ex.id}`,
@@ -209,7 +209,7 @@ window.ListenMasteryModule = (function () {
             });
           }
           App.markLessonDone(`listenmastery:${ex.id}`);
-          setTimeout(advance, right ? 1500 : 2400);
+          Chrome.advance({ host: fb.querySelector('.adv-host'), onNext: advance, seconds: right ? 3 : 4 });
         };
       });
     }
@@ -263,9 +263,9 @@ window.ListenMasteryModule = (function () {
           const right = placed.every((s, idx) => s === ordered[idx]);
           if (right) {
             correct++;
-            fb.innerHTML = `<div class="feedback good">✓ Perfect order!</div>`;
+            fb.innerHTML = `<div class="feedback good">✓ Perfect order!</div><div class="adv-host"></div>`;
           } else {
-            fb.innerHTML = `<div class="feedback bad">✗ Not quite. Correct order:<br><small>${ordered.map((s, idx) => (idx + 1) + '. ' + escapeHTML(s)).join('<br>')}</small></div>`;
+            fb.innerHTML = `<div class="feedback bad">✗ Not quite. Correct order:<br><small>${ordered.map((s, idx) => (idx + 1) + '. ' + escapeHTML(s)).join('<br>')}</small></div><div class="adv-host"></div>`;
             MistakesModule.record({
               type: 'listenmastery',
               sig: `listenmastery:${ex.id}`,
@@ -277,7 +277,7 @@ window.ListenMasteryModule = (function () {
           App.markLessonDone(`listenmastery:${ex.id}`);
           // disable further interaction
           host.querySelectorAll('button').forEach(b => b.disabled = true);
-          setTimeout(advance, right ? 1500 : 3000);
+          Chrome.advance({ host: fb.querySelector('.adv-host'), onNext: advance, seconds: right ? 3 : 5 });
         };
       }
       repaint();

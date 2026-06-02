@@ -88,5 +88,89 @@ window.Chrome = (function () {
     return `<div class="${cls || 'gloss'}">${escapeHTML(en)}</div>`;
   }
 
-  return { render, escapeHTML, gloss };
+  // Auto-advance row used after quiz answers. Shows a "Wait" button (pauses the
+  // countdown so the user can study the feedback) and a "Next →" button with a
+  // live countdown that fires onNext at zero.
+  //
+  // Usage:
+  //   Chrome.advance({ host: element, onNext: () => i++, seconds: 3 });
+  //
+  // Returns a disposer fn. The helper also disposes on hashchange so the
+  // pending timer doesn't fire after the user navigated away.
+  function advance(opts) {
+    const host = opts && opts.host;
+    const onNext = opts && opts.onNext;
+    const seconds = (opts && opts.seconds) || 3;
+    if (!host || typeof onNext !== 'function') return () => {};
+
+    let remaining = seconds;
+    let timer = null;
+    let paused = false;
+    let fired = false;
+
+    host.innerHTML = `
+      <div class="advance-row" role="group" aria-label="Continue or wait">
+        <button type="button" class="btn ghost advance-wait" data-act="wait">Wait</button>
+        <button type="button" class="btn primary advance-next" data-act="next" aria-live="polite">
+          Next <span class="advance-arrow">→</span> <span class="advance-cd">(${remaining})</span>
+        </button>
+      </div>
+    `;
+
+    const waitBtn = host.querySelector('[data-act="wait"]');
+    const nextBtn = host.querySelector('[data-act="next"]');
+    const cdSpan  = host.querySelector('.advance-cd');
+
+    function paint() {
+      if (paused) {
+        waitBtn.textContent = 'Resume';
+        if (cdSpan) cdSpan.textContent = '';
+      } else {
+        waitBtn.textContent = 'Wait';
+        if (cdSpan) cdSpan.textContent = `(${remaining})`;
+      }
+    }
+    function tick() {
+      if (paused || fired) return;
+      remaining -= 1;
+      if (remaining <= 0) { fire(); return; }
+      paint();
+    }
+    function fire() {
+      if (fired) return;
+      fired = true;
+      clearInterval(timer);
+      document.removeEventListener('keydown', onKey);
+      window.removeEventListener('hashchange', destroy);
+      onNext();
+    }
+    function pause() { paused = true; paint(); }
+    function resume() { paused = false; paint(); }
+    function destroy() {
+      if (fired) return;
+      fired = true;
+      clearInterval(timer);
+      document.removeEventListener('keydown', onKey);
+      window.removeEventListener('hashchange', destroy);
+    }
+
+    function onKey(e) {
+      // Don't hijack typing — only act when focus isn't in a form field
+      const tag = (e.target && e.target.tagName) || '';
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || e.target.isContentEditable) return;
+      if (e.key === 'Enter') { e.preventDefault(); fire(); }
+      else if (e.key === ' ' || e.code === 'Space') { e.preventDefault(); paused ? resume() : pause(); }
+    }
+
+    waitBtn.onclick = () => { paused ? resume() : pause(); };
+    nextBtn.onclick = () => fire();
+
+    timer = setInterval(tick, 1000);
+    document.addEventListener('keydown', onKey);
+    window.addEventListener('hashchange', destroy);
+
+    return destroy;
+  }
+
+  return { render, escapeHTML, gloss, advance };
 })();

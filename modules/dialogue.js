@@ -152,14 +152,15 @@ window.DialogueModule = (function () {
         el.onclick = () => {
           container.querySelectorAll('.option').forEach(x => x.classList.add('disabled'));
           const i = parseInt(el.dataset.i, 10);
-          if (i === q.a) {
+          const right = (i === q.a);
+          if (right) {
             el.classList.add('correct');
             correct++;
-            container.querySelector('#fb').innerHTML = `<div class="feedback good">✓ Correct!</div>`;
+            container.querySelector('#fb').innerHTML = `<div class="feedback good">✓ Correct!</div><div class="adv-host"></div>`;
           } else {
             el.classList.add('wrong');
             container.querySelectorAll('.option')[q.a].classList.add('correct');
-            container.querySelector('#fb').innerHTML = `<div class="feedback bad">✗ Correct: <b>${q.opts[q.a]}</b></div>`;
+            container.querySelector('#fb').innerHTML = `<div class="feedback bad">✗ Correct: <b>${q.opts[q.a]}</b></div><div class="adv-host"></div>`;
             MistakesModule.record({
               type: 'dialogue',
               sig: `dialogue:${id}:${qi}`,
@@ -168,7 +169,11 @@ window.DialogueModule = (function () {
               your: q.opts[i],
             });
           }
-          setTimeout(() => { qi++; qi >= d.questions.length ? finish() : showQuiz(); }, 1500);
+          Chrome.advance({
+            host: container.querySelector('.adv-host'),
+            onNext: () => { qi++; qi >= d.questions.length ? finish() : showQuiz(); },
+            seconds: right ? 3 : 4,
+          });
         };
       });
     }

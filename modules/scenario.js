@@ -382,14 +382,15 @@ window.ScenarioModule = (function () {
           el.onclick = () => {
             const i = parseInt(el.dataset.i, 10);
             container.querySelectorAll('.option').forEach(x => x.classList.add('disabled'));
-            if (i === q.a) {
+            const right = (i === q.a);
+            if (right) {
               el.classList.add('correct');
               correct++;
-              container.querySelector('#fb').innerHTML = `<div class="feedback good">✓ Correct!</div>`;
+              container.querySelector('#fb').innerHTML = `<div class="feedback good">✓ Correct!</div><div class="adv-host"></div>`;
             } else {
               el.classList.add('wrong');
               container.querySelectorAll('.option')[q.a].classList.add('correct');
-              container.querySelector('#fb').innerHTML = `<div class="feedback bad">✗ Right answer: <b>${escapeHTML(q.opts[q.a])}</b></div>`;
+              container.querySelector('#fb').innerHTML = `<div class="feedback bad">✗ Right answer: <b>${escapeHTML(q.opts[q.a])}</b></div><div class="adv-host"></div>`;
               MistakesModule.record({
                 type: 'scenario-comprehension',
                 sig: `scenario:${sc.id}:q${qi}`,
@@ -398,7 +399,11 @@ window.ScenarioModule = (function () {
                 your: q.opts[i],
               });
             }
-            setTimeout(() => { qi++; show(); }, 1200);
+            Chrome.advance({
+              host: container.querySelector('.adv-host'),
+              onNext: () => { qi++; show(); },
+              seconds: right ? 3 : 4,
+            });
           };
         });
       }
