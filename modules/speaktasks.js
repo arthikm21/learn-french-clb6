@@ -47,6 +47,7 @@ window.SpeakTasksModule = (function () {
         <div class="grammar-box" style="border-left-color:var(--warn)">
           <h3>📋 Task</h3>
           <p>${t.prompt}</p>
+          ${Chrome.gloss(t.promptEn)}
           <p style="margin-top:8px;color:var(--mute);font-size:14px">Target: <b>${t.targetWords}+ words</b> in <b>${t.targetTime} seconds</b>.</p>
         </div>
         <div class="center">
@@ -164,6 +165,7 @@ window.SpeakTasksModule = (function () {
           <div class="grammar-box">
             <h3>Question ${qi + 1} of ${t.questions.length}</h3>
             <p style="font-size:18px;line-height:1.5">${q.q}</p>
+            ${Chrome.gloss(q.qEn)}
             <button class="btn secondary" id="hear-q" style="margin-top:10px">🔊 Hear question</button>
             ${q.hint ? `<p style="margin-top:10px;color:var(--mute);font-size:13px"><b>Hint:</b> ${q.hint}</p>` : ''}
             <p style="color:var(--mute);font-size:13px">Target: ${q.minWords}+ words.</p>
@@ -279,6 +281,7 @@ window.SpeakTasksModule = (function () {
           <div class="grammar-box">
             <h3>👤 Other person says:</h3>
             <p style="font-size:18px;line-height:1.5;font-family:'Fredoka',sans-serif;color:var(--bleu)">"${turn.other}"</p>
+            ${Chrome.gloss(turn.otherEn)}
             <button class="btn secondary" id="hear" style="margin-top:8px">🔊 Hear them</button>
           </div>
           <p style="text-align:center;color:var(--mute)"><b>Your turn.</b> ${turn.hint ? '<br>' + turn.hint : ''} Target: ${turn.minWords}+ words.</p>
