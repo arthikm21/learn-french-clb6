@@ -1,11 +1,14 @@
 // TCF Canada — Expression orale Task 3: Argumentative monologue (~5 minutes).
 // User takes a position on an opinion topic, defends it with 3+ reasons + counter-argument.
+// Each item carries `topicEn` + `promptEn` for the EN-gloss toggle.
 window.SPEAK_TASK3 = {
   st3_telework: {
     title: 'Pour ou contre le télétravail',
     level: 'CLB 6',
     topic: 'Le télétravail est-il une bonne chose pour les employés et les entreprises ?',
+    topicEn: "Is remote work a good thing for employees and companies?",
     prompt: "Donnez votre opinion sur le télétravail. Prenez position clairement, défendez-la avec au moins 3 raisons, donnez un exemple concret, et anticipez un contre-argument. Parlez pendant 3 à 5 minutes.",
+    promptEn: "Give your opinion on remote work. Take a clear position, defend it with at least 3 reasons, give a concrete example, and anticipate a counter-argument. Speak for 3 to 5 minutes.",
     targetTime: 300,
     keywords: {
       position: ['je pense', 'à mon avis', 'selon moi', 'personnellement', 'je crois', 'je suis pour', 'je suis contre', 'je trouve'],
@@ -18,7 +21,9 @@ window.SPEAK_TASK3 = {
     title: 'Les écrans chez les enfants',
     level: 'CLB 6',
     topic: 'Faut-il interdire les écrans aux enfants de moins de 10 ans ?',
+    topicEn: "Should screens be banned for children under 10?",
     prompt: "Prenez position sur cette question. Justifiez avec 3 arguments, donnez un exemple personnel ou observé, et mentionnez l'opinion contraire pour la nuancer. Cible : 3-5 minutes.",
+    promptEn: "Take a position on this question. Justify with 3 arguments, give a personal or observed example, and mention the opposite opinion to nuance it. Target: 3-5 minutes.",
     targetTime: 300,
     keywords: {
       position: ['je pense', 'à mon avis', 'selon moi', 'personnellement', 'je suis pour', 'je suis contre'],
@@ -31,7 +36,9 @@ window.SPEAK_TASK3 = {
     title: 'Apprentissage du français obligatoire',
     level: 'CLB 6',
     topic: 'Faut-il rendre l\'apprentissage du français obligatoire pour tous les nouveaux immigrants au Québec ?',
+    topicEn: "Should learning French be made mandatory for all new immigrants to Quebec?",
     prompt: "Donnez votre avis avec au moins 3 raisons. Citez un exemple concret du contexte canadien. Mentionnez et réfutez une objection possible. 3-5 minutes.",
+    promptEn: "Give your opinion with at least 3 reasons. Cite a concrete example from the Canadian context. Mention and rebut a possible objection. 3-5 minutes.",
     targetTime: 300,
     keywords: {
       position: ['je pense', 'à mon avis', 'selon moi', 'je suis pour', 'je suis contre'],
@@ -44,7 +51,9 @@ window.SPEAK_TASK3 = {
     title: 'Gratuité des transports en commun',
     level: 'CLB 5-6',
     topic: 'Les transports en commun devraient-ils être gratuits dans toutes les grandes villes ?',
+    topicEn: "Should public transit be free in all big cities?",
     prompt: "Argumentez votre position avec 3 raisons (sociales, environnementales, économiques). Donnez un exemple. Réfutez l'argument inverse. 3 minutes minimum.",
+    promptEn: "Argue your position with 3 reasons (social, environmental, economic). Give an example. Rebut the opposing argument. 3 minutes minimum.",
     targetTime: 240,
     keywords: {
       position: ['je pense', 'à mon avis', 'selon moi', 'je suis pour', 'je suis contre'],
@@ -57,7 +66,9 @@ window.SPEAK_TASK3 = {
     title: 'Réseaux sociaux : bénéfiques ou nuisibles ?',
     level: 'CLB 6',
     topic: 'Les réseaux sociaux ont-ils plus de bénéfices que de dangers pour la société ?',
+    topicEn: "Do social networks have more benefits than dangers for society?",
     prompt: "Prenez position. Trois raisons solides, un exemple, un contre-argument abordé. 3-5 minutes.",
+    promptEn: "Take a position. Three solid reasons, an example, a counter-argument addressed. 3-5 minutes.",
     targetTime: 300,
     keywords: {
       position: ['je pense', 'à mon avis', 'selon moi', 'personnellement', 'je crois'],
@@ -70,7 +81,9 @@ window.SPEAK_TASK3 = {
     title: 'Réduire la consommation de viande',
     level: 'CLB 6',
     topic: 'Faut-il que tout le monde réduise sa consommation de viande pour le bien de la planète ?',
+    topicEn: "Should everyone reduce their meat consumption for the good of the planet?",
     prompt: "Donnez votre avis avec 3 arguments (santé, environnement, économie). Exemple concret. Mention du contre-argument. 3-4 minutes.",
+    promptEn: "Give your opinion with 3 arguments (health, environment, economy). Concrete example. Mention the counter-argument. 3-4 minutes.",
     targetTime: 240,
     keywords: {
       position: ['je pense', 'à mon avis', 'selon moi', 'personnellement'],
@@ -83,7 +96,9 @@ window.SPEAK_TASK3 = {
     title: 'Université ou métier ?',
     level: 'CLB 6',
     topic: 'Faut-il encourager tous les jeunes à aller à l\'université, ou valoriser autant les métiers manuels ?',
+    topicEn: "Should we encourage all young people to go to university, or value skilled trades just as much?",
     prompt: "Prenez position et défendez avec 3 arguments. Exemple personnel ou observé. Considérez le point de vue opposé. 3-5 minutes.",
+    promptEn: "Take a position and defend it with 3 arguments. Personal or observed example. Consider the opposing view. 3-5 minutes.",
     targetTime: 300,
     keywords: {
       position: ['je pense', 'à mon avis', 'selon moi'],
@@ -96,12 +111,14 @@ window.SPEAK_TASK3 = {
     title: 'CLB 6 Mock — Voyager seul ou en groupe',
     level: 'CLB 6',
     topic: 'Est-il préférable de voyager seul ou en groupe ?',
+    topicEn: "Is it better to travel alone or in a group?",
     prompt: "Donnez votre opinion avec 3 raisons précises. Donnez un exemple personnel d'un voyage. Mentionnez les avantages de l'option opposée. 4-5 minutes.",
+    promptEn: "Give your opinion with 3 specific reasons. Give a personal example from a trip. Mention the advantages of the opposite option. 4-5 minutes.",
     targetTime: 300,
     keywords: {
       position: ['je pense', 'à mon avis', 'selon moi', 'personnellement', 'je préfère'],
       connectors: ['cependant', 'néanmoins', 'par conséquent', 'en revanche', 'd\'une part', 'd\'autre part', 'par ailleurs', 'en outre', 'ainsi'],
-      examples: ['par exemple', 'comme', 'notamment', 'c\'est le cas'],
+      examples: ['par exemple', 'comme', 'notamment', 'c\'est le cas', 'prenons'],
       counter: ['certains préfèrent', 'il est vrai que', 'bien sûr', 'certes'],
     },
   },

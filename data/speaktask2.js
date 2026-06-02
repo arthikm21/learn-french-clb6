@@ -5,6 +5,7 @@ window.SPEAK_TASK2 = {
     title: 'Inscription à un cours de français',
     level: 'CLB 5-6',
     scenario: "Vous voulez vous inscrire à un cours de français à l'Université de Montréal. Vous appelez le bureau des admissions. Posez les questions nécessaires pour obtenir toutes les informations.",
+    scenarioEn: "You want to register for a French course at the Université de Montréal. You call the admissions office. Ask the questions you need to get all the information.",
     requiredInfo: [
       'price (price/cost/fees)',
       'schedule (when classes happen)',
@@ -29,6 +30,7 @@ window.SPEAK_TASK2 = {
     title: 'Visite d\'un appartement',
     level: 'CLB 5',
     scenario: "Vous appelez le propriétaire d'un appartement que vous voulez louer. Posez toutes les questions nécessaires avant de prendre rendez-vous pour le visiter.",
+    scenarioEn: "You call the landlord of an apartment you want to rent. Ask all the questions you need before booking a visit.",
     requiredInfo: [
       'rent (price per month)',
       'utilities (heat, electricity, water included or not)',
@@ -55,6 +57,7 @@ window.SPEAK_TASK2 = {
     title: 'Prise de rendez-vous médical',
     level: 'CLB 5',
     scenario: "Vous appelez une nouvelle clinique médicale pour prendre un premier rendez-vous. Posez les questions pour bien préparer votre visite.",
+    scenarioEn: "You call a new medical clinic to book a first appointment. Ask the questions you need to prepare for your visit.",
     requiredInfo: [
       'next available appointment',
       'documents to bring (RAMQ card, etc.)',
@@ -79,6 +82,7 @@ window.SPEAK_TASK2 = {
     title: 'Ouverture d\'un compte bancaire',
     level: 'CLB 5-6',
     scenario: "Vous êtes nouvellement arrivé(e) au Canada et vous voulez ouvrir un compte bancaire. Vous parlez à un conseiller. Posez les questions essentielles.",
+    scenarioEn: "You're newly arrived in Canada and you want to open a bank account. You're talking to an advisor. Ask the essential questions.",
     requiredInfo: [
       'documents required (passport, NAS, address proof)',
       'monthly fees and conditions',
@@ -103,6 +107,7 @@ window.SPEAK_TASK2 = {
     title: 'Avant un entretien d\'embauche',
     level: 'CLB 6',
     scenario: "Vous avez été convoqué(e) à un entretien d'embauche. Vous appelez le service RH pour vous préparer. Posez les questions nécessaires.",
+    scenarioEn: "You've been called in for a job interview. You call HR to prepare. Ask the questions you need.",
     requiredInfo: [
       'date and time of interview',
       'location and how to get there',
@@ -129,6 +134,7 @@ window.SPEAK_TASK2 = {
     title: 'Réservation d\'un voyage',
     level: 'CLB 5-6',
     scenario: "Vous parlez à un agent de voyage pour planifier un séjour d'une semaine à Québec en hiver. Posez toutes les questions utiles.",
+    scenarioEn: "You're talking to a travel agent to plan a one-week stay in Quebec City in winter. Ask all the useful questions.",
     requiredInfo: [
       'transportation options (train, bus, plane)',
       'cost breakdown',
@@ -155,6 +161,7 @@ window.SPEAK_TASK2 = {
     title: 'Inscription d\'un enfant à la garderie',
     level: 'CLB 5-6',
     scenario: "Vous voulez inscrire votre enfant de 3 ans à une garderie subventionnée. Vous appelez pour avoir toutes les informations.",
+    scenarioEn: "You want to enrol your 3-year-old in a subsidized daycare. You're calling to get all the information.",
     requiredInfo: [
       'places available',
       'cost per day (subsidized)',
@@ -181,6 +188,7 @@ window.SPEAK_TASK2 = {
     title: 'CLB 6 Mock — Demande de services municipaux',
     level: 'CLB 6',
     scenario: "Vous venez d'emménager dans une nouvelle ville. Vous appelez la mairie pour vous renseigner sur les services. Posez 8+ questions précises.",
+    scenarioEn: "You've just moved to a new city. You call city hall to learn about its services. Ask 8+ specific questions.",
     requiredInfo: [
       'garbage collection schedule',
       'recycling rules',

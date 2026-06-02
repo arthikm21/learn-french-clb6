@@ -53,10 +53,12 @@ window.SpeakTask3Module = (function () {
         <div class="grammar-box" style="border-left-color:var(--warn)">
           <h3>📜 Topic</h3>
           <p style="font-size:17px;font-weight:600">${t.topic}</p>
+          ${Chrome.gloss(t.topicEn)}
         </div>
         <div class="grammar-box">
           <h3>📋 Your task</h3>
           <p>${t.prompt}</p>
+          ${Chrome.gloss(t.promptEn)}
         </div>
         <div class="grammar-box" style="background:rgba(0,85,164,.08)">
           <h3>🎯 Build your argument before speaking</h3>

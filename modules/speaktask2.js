@@ -50,6 +50,7 @@ window.SpeakTask2Module = (function () {
         <div class="grammar-box" style="border-left-color:var(--warn)">
           <h3>📋 Scenario</h3>
           <p>${t.scenario}</p>
+          ${Chrome.gloss(t.scenarioEn)}
         </div>
         <div class="grammar-box">
           <h3>📊 Topics you must ask about</h3>
