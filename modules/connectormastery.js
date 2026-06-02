@@ -105,7 +105,12 @@ window.ConnectorMasteryModule = (function () {
 
       <div class="grammar-box">
         <h3>Examples (tap any to hear)</h3>
-        ${c.examples.map((ex, i) => `<div class="example" data-ex="${i}" style="cursor:pointer">${ex}</div>`).join('')}
+        ${c.examples.map((ex, i) => {
+          // Accept both legacy string and { fr, en } shapes
+          const fr = typeof ex === 'string' ? ex : ex.fr;
+          const en = typeof ex === 'string' ? null : ex.en;
+          return `<div class="example" data-ex="${i}" style="cursor:pointer">${fr}${Chrome.gloss(en)}</div>`;
+        }).join('')}
       </div>
 
       <div class="row" style="justify-content:center;margin-top:var(--sp-7);gap:var(--sp-3)">
@@ -116,9 +121,10 @@ window.ConnectorMasteryModule = (function () {
     container.querySelectorAll('[data-ex]').forEach(el => {
       el.onclick = () => {
         const idx = parseInt(el.dataset.ex, 10);
+        const ex = c.examples[idx];
+        const fr = typeof ex === 'string' ? ex : ex.fr;
         // strip HTML tags for TTS
-        const txt = c.examples[idx].replace(/<[^>]+>/g, '');
-        TTS.speak(txt);
+        TTS.speak(fr.replace(/<[^>]+>/g, ''));
       };
     });
   }
@@ -187,13 +193,17 @@ window.ConnectorMasteryModule = (function () {
           const picked = parseInt(el.dataset.i, 10);
           container.querySelectorAll('.option').forEach(x => x.classList.add('disabled'));
           const right = picked === correctIdx;
+          // Reveal full sentence with the answer filled in + English gloss
+          const filled = c.complete.context.replace('___', `<b style="color:var(--accent)">${escapeHTML(c.word)}</b>`);
+          const filledEn = c.complete.contextEn ? c.complete.contextEn.replace('___', `<b>${escapeHTML(c.gloss.split('/')[0].trim())}</b>`) : null;
+          const reveal = `<div style="background:var(--surface-2);padding:var(--sp-3);border-radius:var(--r-md);margin-top:var(--sp-3)"><p style="color:var(--ink);font-weight:var(--fw-semi)">${filled}</p>${filledEn ? Chrome.gloss(filledEn) : ''}</div>`;
           if (right) {
             el.classList.add('correct');
-            container.querySelector('#fb').innerHTML = `<div class="feedback good">✓ <b>${escapeHTML(c.word)}</b> — ${escapeHTML(c.gloss)}. <small>${c.when}</small></div><div class="adv-host"></div>`;
+            container.querySelector('#fb').innerHTML = `<div class="feedback good">✓ <b>${escapeHTML(c.word)}</b> — ${escapeHTML(c.gloss)}. <small>${c.when}</small></div>${reveal}<div class="adv-host"></div>`;
           } else {
             el.classList.add('wrong');
             container.querySelectorAll('.option')[correctIdx].classList.add('correct');
-            container.querySelector('#fb').innerHTML = `<div class="feedback bad">✗ Right answer: <b>${escapeHTML(c.word)}</b>. <small>${c.when}</small></div><div class="adv-host"></div>`;
+            container.querySelector('#fb').innerHTML = `<div class="feedback bad">✗ Right answer: <b>${escapeHTML(c.word)}</b>. <small>${c.when}</small></div>${reveal}<div class="adv-host"></div>`;
             MistakesModule.record({
               type: 'connector',
               sig: `connector-complete:${c.id}`,

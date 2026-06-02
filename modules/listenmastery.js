@@ -261,11 +261,14 @@ window.ListenMasteryModule = (function () {
         const check = host.querySelector('#check-order');
         if (check) check.onclick = () => {
           const right = placed.every((s, idx) => s === ordered[idx]);
+          // Reveal full transcript + English gloss after the answer so the
+          // learner can verify what they actually heard.
+          const transcript = `<div style="background:var(--surface-2);padding:var(--sp-3);border-radius:var(--r-md);margin-top:var(--sp-3)"><p style="font-size:var(--fs-13);color:var(--mute);text-transform:uppercase;letter-spacing:var(--ls-wide);font-weight:var(--fw-semi);margin-bottom:6px">What you heard</p><p style="color:var(--ink);font-weight:var(--fw-semi)">${escapeHTML(ex.audio)}</p>${Chrome.gloss(ex.audioEn)}</div>`;
           if (right) {
             correct++;
-            fb.innerHTML = `<div class="feedback good">✓ Perfect order!</div><div class="adv-host"></div>`;
+            fb.innerHTML = `<div class="feedback good">✓ Perfect order!</div>${transcript}<div class="adv-host"></div>`;
           } else {
-            fb.innerHTML = `<div class="feedback bad">✗ Not quite. Correct order:<br><small>${ordered.map((s, idx) => (idx + 1) + '. ' + escapeHTML(s)).join('<br>')}</small></div><div class="adv-host"></div>`;
+            fb.innerHTML = `<div class="feedback bad">✗ Not quite. Correct order:<br><small>${ordered.map((s, idx) => (idx + 1) + '. ' + escapeHTML(s)).join('<br>')}</small></div>${transcript}<div class="adv-host"></div>`;
             MistakesModule.record({
               type: 'listenmastery',
               sig: `listenmastery:${ex.id}`,

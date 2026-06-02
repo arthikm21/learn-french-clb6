@@ -413,16 +413,16 @@ window.GamesModule = (function () {
   // -------- Tense Picker --------
   function tensePicker(container) {
     const drills = [
-      { fr: 'Hier, je ___ au parc.', opts: ['vais', 'suis allé', 'irai'], a: 1, why: 'Hier → passé composé.' },
-      { fr: 'Demain je ___ mes parents.', opts: ['visite', 'visitais', 'vais visiter'], a: 2, why: 'Demain → futur proche.' },
-      { fr: 'Quand j\'étais petit, je ___ au foot.', opts: ['joue', 'jouais', 'ai joué'], a: 1, why: 'Habit in past → imparfait.' },
-      { fr: 'Si j\'avais le temps, je ___ plus.', opts: ['lirai', 'lirais', 'lis'], a: 1, why: 'Si + imparfait → conditionnel.' },
-      { fr: 'Il faut que je ___ tôt.', opts: ['pars', 'parte', 'partirai'], a: 1, why: 'Il faut que → subjonctif.' },
-      { fr: 'Quand je suis arrivé, le film ___ commencé.', opts: ['a', 'avait', 'aura'], a: 1, why: 'Earlier-past → plus-que-parfait.' },
-      { fr: 'En ce moment, je ___ la télé.', opts: ['regarde', 'regardais', 'ai regardé'], a: 0, why: 'En ce moment → présent.' },
-      { fr: 'L\'année prochaine, je ___ français couramment.', opts: ['parle', 'parlerai', 'parlerais'], a: 1, why: 'L\'année prochaine → futur simple.' },
-      { fr: 'Il ___ tous les soirs avant 2020.', opts: ['lit', 'lisait', 'a lu'], a: 1, why: 'Tous les soirs (past) → imparfait.' },
-      { fr: 'Si tu étudies, tu ___.', opts: ['réussis', 'réussiras', 'réussirais'], a: 1, why: 'Si + présent → futur simple.' },
+      { fr: 'Hier, je ___ au parc.', en: 'Yesterday I ___ to the park.', opts: ['vais', 'suis allé', 'irai'], a: 1, why: 'Hier → passé composé.' },
+      { fr: 'Demain je ___ mes parents.', en: 'Tomorrow I ___ my parents.', opts: ['visite', 'visitais', 'vais visiter'], a: 2, why: 'Demain → futur proche.' },
+      { fr: 'Quand j\'étais petit, je ___ au foot.', en: 'When I was little, I ___ soccer.', opts: ['joue', 'jouais', 'ai joué'], a: 1, why: 'Habit in past → imparfait.' },
+      { fr: 'Si j\'avais le temps, je ___ plus.', en: 'If I had the time, I ___ more.', opts: ['lirai', 'lirais', 'lis'], a: 1, why: 'Si + imparfait → conditionnel.' },
+      { fr: 'Il faut que je ___ tôt.', en: 'I have to ___ early.', opts: ['pars', 'parte', 'partirai'], a: 1, why: 'Il faut que → subjonctif.' },
+      { fr: 'Quand je suis arrivé, le film ___ commencé.', en: 'When I arrived, the film ___ started.', opts: ['a', 'avait', 'aura'], a: 1, why: 'Earlier-past → plus-que-parfait.' },
+      { fr: 'En ce moment, je ___ la télé.', en: 'Right now, I ___ TV.', opts: ['regarde', 'regardais', 'ai regardé'], a: 0, why: 'En ce moment → présent.' },
+      { fr: 'L\'année prochaine, je ___ français couramment.', en: 'Next year, I ___ French fluently.', opts: ['parle', 'parlerai', 'parlerais'], a: 1, why: 'L\'année prochaine → futur simple.' },
+      { fr: 'Il ___ tous les soirs avant 2020.', en: 'He ___ every evening before 2020.', opts: ['lit', 'lisait', 'a lu'], a: 1, why: 'Tous les soirs (past) → imparfait.' },
+      { fr: 'Si tu étudies, tu ___.', en: 'If you study, you ___.', opts: ['réussis', 'réussiras', 'réussirais'], a: 1, why: 'Si + présent → futur simple.' },
     ];
     let queue = drills.sort(() => Math.random() - 0.5);
     let i = 0, correct = 0;
@@ -445,13 +445,16 @@ window.GamesModule = (function () {
           container.querySelectorAll('.option').forEach(x => x.classList.add('disabled'));
           const sel = parseInt(el.dataset.i);
           const right = (sel === d.a);
+          // Reveal full sentence with the answer filled in, plus English gloss
+          const filled = d.fr.replace('___', `<b style="color:var(--accent)">${d.opts[d.a]}</b>`);
+          const reveal = `<div style="background:var(--surface-2);padding:var(--sp-3);border-radius:var(--r-md);margin-top:var(--sp-3)"><p style="color:var(--ink);font-weight:var(--fw-semi)">${filled}</p>${Chrome.gloss(d.en)}</div>`;
           if (right) {
             el.classList.add('correct'); correct++; App.addXP(5);
-            container.querySelector('#fb').innerHTML = `<div class="feedback good">✓ ${d.why}</div><div class="adv-host"></div>`;
+            container.querySelector('#fb').innerHTML = `<div class="feedback good">✓ ${d.why}</div>${reveal}<div class="adv-host"></div>`;
           } else {
             el.classList.add('wrong');
             container.querySelectorAll('.option')[d.a].classList.add('correct');
-            container.querySelector('#fb').innerHTML = `<div class="feedback bad">✗ ${d.why}</div><div class="adv-host"></div>`;
+            container.querySelector('#fb').innerHTML = `<div class="feedback bad">✗ ${d.why}</div>${reveal}<div class="adv-host"></div>`;
             MistakesModule.record({ type: 'tense', sig: `tense:${i}`, prompt: d.fr, correct: d.opts[d.a], your: d.opts[sel] });
           }
           Chrome.advance({
@@ -547,18 +550,18 @@ window.GamesModule = (function () {
   // -------- Spot the Error --------
   function errorSpot(container) {
     const drills = [
-      { wrong: 'Je ai un livre rouge.', correct: "J'ai un livre rouge.", hint: 'Elision required: je + vowel → j\'.' },
-      { wrong: 'Hier, j\'ai allé au parc.', correct: 'Hier, je suis allé au parc.', hint: 'Aller uses être in passé composé.' },
-      { wrong: 'Si je serai riche, je voyagerai.', correct: 'Si je suis riche, je voyagerai.', hint: 'Never use futur after si of condition — use present.' },
-      { wrong: 'Je suis 25 ans.', correct: "J'ai 25 ans.", hint: 'For age, French uses AVOIR.' },
-      { wrong: 'Elle est venu hier.', correct: 'Elle est venue hier.', hint: 'Past participle agrees with subject for être verbs.' },
-      { wrong: 'Un femme habite ici.', correct: 'Une femme habite ici.', hint: 'Femme is feminine — use "une".' },
-      { wrong: 'Le école est fermée.', correct: "L'école est fermée.", hint: 'Elision before vowel: le + é → l\'.' },
-      { wrong: 'Je ne mange.', correct: 'Je ne mange pas.', hint: 'Negation needs both ne AND pas (or jamais/rien/plus).' },
-      { wrong: 'Des chats noir dorment.', correct: 'Des chats noirs dorment.', hint: 'Adjective must agree with plural noun.' },
-      { wrong: 'Quand j\'étais petit, j\'ai joué au foot tous les jours.', correct: 'Quand j\'étais petit, je jouais au foot tous les jours.', hint: 'Tous les jours = habit → imparfait, not passé composé.' },
-      { wrong: 'C\'est meilleur que l\'autre.', correct: 'Il est meilleur que l\'autre.', hint: 'Comparing two things → il/elle est, not c\'est.' },
-      { wrong: 'Il y a un homme qui je connais.', correct: 'Il y a un homme que je connais.', hint: 'Relative pronoun as direct object → que (not qui).' },
+      { wrong: 'Je ai un livre rouge.', correct: "J'ai un livre rouge.", en: "I have a red book.", hint: 'Elision required: je + vowel → j\'.' },
+      { wrong: 'Hier, j\'ai allé au parc.', correct: 'Hier, je suis allé au parc.', en: "Yesterday, I went to the park.", hint: 'Aller uses être in passé composé.' },
+      { wrong: 'Si je serai riche, je voyagerai.', correct: 'Si je suis riche, je voyagerai.', en: "If I'm rich, I'll travel.", hint: 'Never use futur after si of condition — use present.' },
+      { wrong: 'Je suis 25 ans.', correct: "J'ai 25 ans.", en: "I'm 25 years old.", hint: 'For age, French uses AVOIR.' },
+      { wrong: 'Elle est venu hier.', correct: 'Elle est venue hier.', en: "She came yesterday.", hint: 'Past participle agrees with subject for être verbs.' },
+      { wrong: 'Un femme habite ici.', correct: 'Une femme habite ici.', en: "A woman lives here.", hint: 'Femme is feminine — use "une".' },
+      { wrong: 'Le école est fermée.', correct: "L'école est fermée.", en: "The school is closed.", hint: 'Elision before vowel: le + é → l\'.' },
+      { wrong: 'Je ne mange.', correct: 'Je ne mange pas.', en: "I don't eat.", hint: 'Negation needs both ne AND pas (or jamais/rien/plus).' },
+      { wrong: 'Des chats noir dorment.', correct: 'Des chats noirs dorment.', en: "Black cats are sleeping.", hint: 'Adjective must agree with plural noun.' },
+      { wrong: 'Quand j\'étais petit, j\'ai joué au foot tous les jours.', correct: 'Quand j\'étais petit, je jouais au foot tous les jours.', en: "When I was little, I played soccer every day.", hint: 'Tous les jours = habit → imparfait, not passé composé.' },
+      { wrong: 'C\'est meilleur que l\'autre.', correct: 'Il est meilleur que l\'autre.', en: "He / it is better than the other.", hint: 'Comparing two things → il/elle est, not c\'est.' },
+      { wrong: 'Il y a un homme qui je connais.', correct: 'Il y a un homme que je connais.', en: "There's a man (whom) I know.", hint: 'Relative pronoun as direct object → que (not qui).' },
     ];
     let queue = drills.sort(() => Math.random() - 0.5).slice(0, 8);
     let i = 0, correct = 0;
@@ -589,11 +592,12 @@ window.GamesModule = (function () {
       const submit = () => {
         const norm = s => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9 ]/g,'').replace(/\s+/g,' ').trim();
         const right = norm(inp.value) === norm(d.correct);
+        const glossLine = Chrome.gloss(d.en);
         if (right) {
           correct++;
-          container.querySelector('#fb').innerHTML = `<div class="feedback good">✓ ${d.correct} <br><small>${d.hint}</small></div><div class="adv-host"></div>`;
+          container.querySelector('#fb').innerHTML = `<div class="feedback good">✓ ${d.correct}${glossLine}<br><small>${d.hint}</small></div><div class="adv-host"></div>`;
         } else {
-          container.querySelector('#fb').innerHTML = `<div class="feedback bad">✗ Correct: <b>${d.correct}</b><br><small>${d.hint}</small></div><div class="adv-host"></div>`;
+          container.querySelector('#fb').innerHTML = `<div class="feedback bad">✗ Correct: <b>${d.correct}</b>${glossLine}<br><small>${d.hint}</small></div><div class="adv-host"></div>`;
           MistakesModule.record({ type: 'error-spot', sig: `errspot:${i}`, prompt: d.wrong, correct: d.correct, your: inp.value || '(empty)' });
         }
         Chrome.advance({

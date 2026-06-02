@@ -52,14 +52,18 @@ window.PCvsImpModule = (function () {
           container.querySelectorAll('.option').forEach(x => x.classList.add('disabled'));
           const pick = el.dataset.pick;
           const right = pick === d.correct;
+          // Reveal full filled sentence + English gloss
+          const verb = d.correct === 'pc' ? d.pc : d.imp;
+          const filled = d.sentence.replace('___', `<b style="color:var(--accent)">${verb}</b>`);
+          const reveal = `<div style="background:var(--surface-2);padding:var(--sp-3);border-radius:var(--r-md);margin-top:var(--sp-3)"><p style="color:var(--ink);font-weight:var(--fw-semi)">${filled}</p>${Chrome.gloss(d.en)}</div>`;
           if (right) {
             el.classList.add('correct');
             correct++;
-            container.querySelector('#fb').innerHTML = `<div class="feedback good">✓ Correct! ${d.why}</div><div class="adv-host"></div>`;
+            container.querySelector('#fb').innerHTML = `<div class="feedback good">✓ Correct! ${d.why}</div>${reveal}<div class="adv-host"></div>`;
           } else {
             el.classList.add('wrong');
             container.querySelectorAll('.option').forEach(x => { if (x.dataset.pick === d.correct) x.classList.add('correct'); });
-            container.querySelector('#fb').innerHTML = `<div class="feedback bad">✗ Should be <b>${d.correct === 'pc' ? d.pc : d.imp}</b>. ${d.why}</div><div class="adv-host"></div>`;
+            container.querySelector('#fb').innerHTML = `<div class="feedback bad">✗ Should be <b>${d.correct === 'pc' ? d.pc : d.imp}</b>. ${d.why}</div>${reveal}<div class="adv-host"></div>`;
             MistakesModule.record({
               type: 'grammar',
               sig: `pcvsimp:${drillIdx}`,
