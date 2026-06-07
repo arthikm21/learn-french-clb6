@@ -298,20 +298,27 @@ window.Sounds = (function () {
   // ─────────────────── E4 — PER-SURFACE SOUND PALETTE ───────────────────
 
   // Navigation tap — going somewhere new (route change, card → page).
-  // A "rich simple" arrival chime: tap attack, mid body tone, octave-up bell
-  // ping — three layers in 120ms so it reads as ONE event, not a sequence.
-  function playNav() {
+  // Layered arrival chime: noise click + mid tap + sub thump + bell + harmonic.
+  // Total ~160ms so it reads as ONE event. The bell pitch is parameterised
+  // so the per-tab variant (playNavTab) can play a different note per top-nav
+  // button — turning the row of nav links into a small xylophone.
+  function playNav(opts) {
     if (!allowed('nav') || !ensureCtx()) return;
     maybeResume();
-    // Tactile click attack — gives the chime a real "press" feel
+    const bell = (opts && opts.bell) || 660; // default = E5
     noiseBurst({ dur: 0.005, gain: 0.08, hp: 3500 });
-    // Mid-body tap (E4 → A3, brief)
-    tone({ type: 'sine',     f0: 330,  f1: 220, dur: 0.05, gain: 0.13, attack: 0.001 });
-    // Sub thump for weight
-    tone({ type: 'sine',     f0: 110,  f1: 80,  dur: 0.03, gain: 0.14, attack: 0.001 });
-    // Bell ping on top — E5, triangle for richer overtones, slightly delayed
-    tone({ type: 'triangle', f0: 660,  dur: 0.16, gain: 0.10, attack: 0.003, delay: 0.02 });
-    tone({ type: 'sine',     f0: 1320, dur: 0.12, gain: 0.04, delay: 0.03 });
+    tone({ type: 'sine',     f0: 330,    f1: 220, dur: 0.05, gain: 0.13, attack: 0.001 });
+    tone({ type: 'sine',     f0: 110,    f1: 80,  dur: 0.03, gain: 0.14, attack: 0.001 });
+    tone({ type: 'triangle', f0: bell,            dur: 0.16, gain: 0.10, attack: 0.003, delay: 0.02 });
+    tone({ type: 'sine',     f0: bell * 2,        dur: 0.12, gain: 0.04, delay: 0.03 });
+  }
+
+  // C-major scale that climbs through the top nav. 12 notes covers C5 → G6,
+  // matching the current 12 top-nav buttons; longer nav bars just wrap.
+  const NAV_SCALE = [523, 587, 659, 698, 783, 880, 988, 1046, 1175, 1318, 1397, 1568];
+  function playNavTab(index) {
+    const i = ((index % NAV_SCALE.length) + NAV_SCALE.length) % NAV_SCALE.length;
+    playNav({ bell: NAV_SCALE[i] });
   }
 
   // Path step — forward progression through the curriculum.
@@ -566,6 +573,19 @@ window.Sounds = (function () {
       if (e.button != null && e.button !== 0) return;
       const name = shouldTick(e.target);
       if (!name) return;
+      // Top-nav links get a per-position pitch on the C-major scale so the
+      // row of routes sounds like a small xylophone. Everything else falls
+      // back to the standard dispatch.
+      if (name === 'nav') {
+        const navLink = e.target.closest && e.target.closest('.nav a[data-route]');
+        if (navLink) {
+          const siblings = navLink.parentElement
+            ? Array.from(navLink.parentElement.querySelectorAll('a[data-route]'))
+            : [];
+          const idx = siblings.indexOf(navLink);
+          if (idx >= 0) { playNavTab(idx); return; }
+        }
+      }
       play(name);
     };
     document.addEventListener('pointerdown', handler, true);
