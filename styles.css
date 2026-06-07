@@ -440,7 +440,10 @@ body.nav-open, body.modal-open { overflow: hidden; }
   letter-spacing: var(--ls-snug);
   color: var(--ink);
   margin: 0 0 var(--sp-2);
+  text-decoration: none;
 }
+a.credit-modal-name { transition: color var(--t-fast); }
+a.credit-modal-name:hover { color: var(--accent); text-decoration: underline; }
 .credit-modal-tag {
   color: var(--ink-2);
   font-size: var(--fs-15);
