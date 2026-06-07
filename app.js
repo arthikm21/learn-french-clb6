@@ -42,6 +42,10 @@ window.App = (function () {
           setTimeout(() => logo.classList.remove('celebrating'), 800);
         }
       }
+      // Confetti burst — bigger for a gate pass, modest for regular lessons
+      if (window.Celebrate && typeof Celebrate.confetti === 'function') {
+        try { Celebrate.confetti({ intensity: key.startsWith('gate:') ? 'large' : 'small' }); } catch {}
+      }
     }
   }
 

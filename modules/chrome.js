@@ -108,6 +108,19 @@ window.Chrome = (function () {
     if (result && window.Sounds && typeof Sounds.play === 'function') {
       try { Sounds.play(result); } catch {}
     }
+    // Visual celebrations on correct answers — sparkle from the picked option,
+    // speed lines on a 3+ hot streak (across this session).
+    if (result === 'correct' && window.Celebrate) {
+      try {
+        const picked = document.querySelector('.option.correct');
+        if (picked) Celebrate.sparkle(picked);
+        // Hot streak across the page lifetime
+        advance._streak = (advance._streak || 0) + 1;
+        if (advance._streak >= 3 && picked) Celebrate.speedLines(picked);
+      } catch {}
+    } else if (result === 'wrong') {
+      advance._streak = 0;
+    }
 
     let remaining = seconds;
     let timer = null;
