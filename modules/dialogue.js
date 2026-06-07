@@ -173,6 +173,7 @@ window.DialogueModule = (function () {
             host: container.querySelector('.adv-host'),
             onNext: () => { qi++; qi >= d.questions.length ? finish() : showQuiz(); },
             seconds: right ? 3 : 4,
+            result: right ? 'correct' : 'wrong',
           });
         };
       });

@@ -106,6 +106,11 @@ window.TTS = (function () {
         a.playbackRate = rate;
         a.preload = 'auto';
         currentAudio = a;
+        // Duck the UI sound bus while pronunciation plays — so the click
+        // tick + countdown beep don't fight the French audio for attention.
+        if (window.Sounds && typeof Sounds.duck === 'function') {
+          try { Sounds.duck(1200); } catch {}
+        }
         await a.play();
         return;
       } catch (e) {

@@ -209,7 +209,7 @@ window.ListenMasteryModule = (function () {
             });
           }
           App.markLessonDone(`listenmastery:${ex.id}`);
-          Chrome.advance({ host: fb.querySelector('.adv-host'), onNext: advance, seconds: right ? 3 : 4 });
+          Chrome.advance({ host: fb.querySelector('.adv-host'), onNext: advance, seconds: right ? 3 : 4, result: right ? 'correct' : 'wrong' });
         };
       });
     }
@@ -280,7 +280,7 @@ window.ListenMasteryModule = (function () {
           App.markLessonDone(`listenmastery:${ex.id}`);
           // disable further interaction
           host.querySelectorAll('button').forEach(b => b.disabled = true);
-          Chrome.advance({ host: fb.querySelector('.adv-host'), onNext: advance, seconds: right ? 3 : 5 });
+          Chrome.advance({ host: fb.querySelector('.adv-host'), onNext: advance, seconds: right ? 3 : 5, result: right ? 'correct' : 'wrong' });
         };
       }
       repaint();

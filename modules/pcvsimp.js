@@ -76,6 +76,7 @@ window.PCvsImpModule = (function () {
             host: container.querySelector('.adv-host'),
             onNext: () => { drillIdx++; showDrill(); },
             seconds: right ? 3 : 5,
+            result: right ? 'correct' : 'wrong',
           });
         };
       });

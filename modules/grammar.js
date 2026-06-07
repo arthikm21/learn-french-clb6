@@ -152,6 +152,7 @@ window.GrammarModule = (function () {
             host: container.querySelector('.adv-host'),
             onNext: () => { qi++; if (qi >= u.quiz.length) finish(); else renderQuiz(); },
             seconds: right ? 3 : 4,
+            result: right ? 'correct' : 'wrong',
           });
         };
       });

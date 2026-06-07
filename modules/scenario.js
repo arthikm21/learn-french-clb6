@@ -403,6 +403,7 @@ window.ScenarioModule = (function () {
               host: container.querySelector('.adv-host'),
               onNext: () => { qi++; show(); },
               seconds: right ? 3 : 4,
+              result: right ? 'correct' : 'wrong',
             });
           };
         });

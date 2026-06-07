@@ -100,6 +100,7 @@ window.ListenModule = (function () {
           host: container.querySelector('.adv-host'),
           onNext: () => { i++; show(); },
           seconds: ok ? 3 : 5,
+          result: ok ? 'correct' : 'wrong',
         });
       };
       container.querySelector('#submit').onclick = check;
@@ -109,6 +110,7 @@ window.ListenModule = (function () {
           host: container.querySelector('.adv-host'),
           onNext: () => { i++; show(); },
           seconds: 4,
+          result: 'wrong',
         });
       };
       inp.onkeydown = (e) => { if (e.key === 'Enter') check(); };

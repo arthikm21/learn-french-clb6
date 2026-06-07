@@ -131,6 +131,7 @@ window.PhonicsModule = (function () {
             host: container.querySelector('.adv-host'),
             onNext: () => { i++; show(); },
             seconds: right ? 3 : 4,
+            result: right ? 'correct' : 'wrong',
           });
         };
       });

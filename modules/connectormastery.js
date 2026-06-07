@@ -217,6 +217,7 @@ window.ConnectorMasteryModule = (function () {
             host: container.querySelector('.adv-host'),
             onNext: () => advance(right),
             seconds: right ? 3 : 4,
+            result: right ? 'correct' : 'wrong',
           });
         };
       });
@@ -281,6 +282,7 @@ window.ConnectorMasteryModule = (function () {
             host: container.querySelector('.adv-host'),
             onNext: () => advance(right),
             seconds: right ? 3 : 4,
+            result: right ? 'correct' : 'wrong',
           });
         };
       });

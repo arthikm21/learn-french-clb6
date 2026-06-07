@@ -84,6 +84,7 @@ window.GamesModule = (function () {
             host: container.querySelector('.adv-host'),
             onNext: () => { i++; show(); },
             seconds: right ? 3 : 4,
+            result: right ? 'correct' : 'wrong',
           });
         };
       });
@@ -263,6 +264,7 @@ window.GamesModule = (function () {
           host: container.querySelector('.adv-host'),
           onNext: () => { i++; show(); },
           seconds: right ? 3 : 4,
+          result: right ? 'correct' : 'wrong',
         });
       };
     }
@@ -399,6 +401,7 @@ window.GamesModule = (function () {
             host: container.querySelector('.adv-host'),
             onNext: () => { i++; show(); },
             seconds: right ? 3 : 4,
+            result: right ? 'correct' : 'wrong',
           });
         };
       });
@@ -461,6 +464,7 @@ window.GamesModule = (function () {
             host: container.querySelector('.adv-host'),
             onNext: () => { i++; show(); },
             seconds: right ? 3 : 5,
+            result: right ? 'correct' : 'wrong',
           });
         };
       });
@@ -604,6 +608,7 @@ window.GamesModule = (function () {
           host: container.querySelector('.adv-host'),
           onNext: () => { i++; show(); },
           seconds: right ? 3 : 5,
+          result: right ? 'correct' : 'wrong',
         });
       };
       container.querySelector('#submit').onclick = submit;
@@ -688,6 +693,7 @@ window.GamesModule = (function () {
           host: container.querySelector('.adv-host'),
           onNext: () => { i++; show(); },
           seconds: right ? 3 : 4,
+          result: right ? 'correct' : 'wrong',
         });
       };
     }

@@ -200,14 +200,39 @@ window.ProfileModule = (function () {
       </div>
 
       <div class="grammar-box">
-        <h3>Sound &amp; speech</h3>
-        <p style="color:var(--ink-2);font-size:var(--fs-14);margin-bottom:var(--sp-3)">Subtle audio feedback. Turn off if you prefer silence.</p>
+        <h3>🔊 Sound</h3>
+        <p style="color:var(--ink-2);font-size:var(--fs-14);margin-bottom:var(--sp-3)">Tactile click + reward sounds. Tune the mix to taste.</p>
         <div class="toggle-row">
           <div class="info">
             <h4>UI click sounds</h4>
-            <p>A soft tick when you tap buttons, options, cards. Very subtle.</p>
+            <p>A tactile clack when you tap buttons, options, cards.</p>
           </div>
           <input type="checkbox" class="toggle" id="set-clicks" ${Settings.isClickSoundOn() ? 'checked' : ''} aria-label="UI click sounds"/>
+        </div>
+        <div class="toggle-row">
+          <div class="info">
+            <h4>Click style</h4>
+            <p>Soft = thin, Default = layered clack, Mechanical = MX-blue-style.</p>
+          </div>
+          <select class="input" id="set-click-style" style="max-width:160px">
+            <option value="soft"${Settings.getClickStyle() === 'soft' ? ' selected' : ''}>Soft</option>
+            <option value="default"${Settings.getClickStyle() === 'default' ? ' selected' : ''}>Default</option>
+            <option value="mechanical"${Settings.getClickStyle() === 'mechanical' ? ' selected' : ''}>Mechanical</option>
+          </select>
+        </div>
+        <div class="toggle-row">
+          <div class="info">
+            <h4>Master volume</h4>
+            <p>Controls all UI sounds. Doesn't affect TTS / pronunciation playback.</p>
+          </div>
+          <input type="range" id="set-volume" min="0" max="100" step="5" value="${Math.round(Settings.getMasterVolume() * 100)}" aria-label="Master volume" style="width:160px"/>
+        </div>
+        <div class="toggle-row">
+          <div class="info">
+            <h4>Celebration sounds</h4>
+            <p>Chime on right answer, soft bonk on wrong, fanfare on lesson + gate.</p>
+          </div>
+          <input type="checkbox" class="toggle" id="set-celebrations" ${Settings.isCelebrationsOn() ? 'checked' : ''} aria-label="Celebration sounds"/>
         </div>
         <div class="toggle-row">
           <div class="info">
@@ -222,6 +247,36 @@ window.ProfileModule = (function () {
             <p>Display the English meaning under French sentences in dialogues, shadow lines, and clips. Turn off once you're comfortable reading French directly.</p>
           </div>
           <input type="checkbox" class="toggle" id="set-gloss" ${Settings.isShowGloss() ? 'checked' : ''} aria-label="Show English translations"/>
+        </div>
+      </div>
+
+      <div class="grammar-box">
+        <h3>🎬 Motion</h3>
+        <p style="color:var(--ink-2);font-size:var(--fs-14);margin-bottom:var(--sp-3)">Animations bring the app alive. Turn down if it feels too busy.</p>
+        <div class="toggle-row">
+          <div class="info">
+            <h4>Animation level</h4>
+            <p>Off = instant. Subtle = fades only. Full = springs + sparkles. Auto-detects "Reduce motion" in your OS.</p>
+          </div>
+          <select class="input" id="set-anim-level" style="max-width:160px">
+            <option value="off"${Settings.getAnimLevel() === 'off' ? ' selected' : ''}>Off</option>
+            <option value="subtle"${Settings.getAnimLevel() === 'subtle' ? ' selected' : ''}>Subtle</option>
+            <option value="full"${Settings.getAnimLevel() === 'full' ? ' selected' : ''}>Full</option>
+          </select>
+        </div>
+        <div class="toggle-row">
+          <div class="info">
+            <h4>Confetti on milestones</h4>
+            <p>Burst when you complete a lesson, pass a gate, or hit a streak.</p>
+          </div>
+          <input type="checkbox" class="toggle" id="set-confetti" ${Settings.isConfettiOn() ? 'checked' : ''} aria-label="Confetti on milestones"/>
+        </div>
+        <div class="toggle-row">
+          <div class="info">
+            <h4>Mascot animations</h4>
+            <p>Tiny life signals on the 🐓 logo — bobs idle, flaps on wins.</p>
+          </div>
+          <input type="checkbox" class="toggle" id="set-mascot" ${Settings.isMascotOn() ? 'checked' : ''} aria-label="Mascot animations"/>
         </div>
       </div>
 
@@ -259,8 +314,25 @@ window.ProfileModule = (function () {
     const clicks = container.querySelector('#set-clicks');
     if (clicks) clicks.onchange = (e) => {
       Settings.setClickSound(e.target.checked);
-      if (e.target.checked && window.Sounds) Sounds.tick();
+      if (e.target.checked && window.Sounds) Sounds.play('click');
       Toast.info(e.target.checked ? 'Click sounds on' : 'Click sounds off');
+    };
+    const clickStyle = container.querySelector('#set-click-style');
+    if (clickStyle) clickStyle.onchange = (e) => {
+      Settings.setClickStyle(e.target.value);
+      if (window.Sounds) Sounds.play('click');
+      Toast.info('Click style: ' + e.target.value);
+    };
+    const volume = container.querySelector('#set-volume');
+    if (volume) volume.oninput = (e) => {
+      Settings.setMasterVolume(parseInt(e.target.value, 10) / 100);
+      if (window.Sounds) Sounds.play('click');
+    };
+    const celeb = container.querySelector('#set-celebrations');
+    if (celeb) celeb.onchange = (e) => {
+      Settings.setCelebrations(e.target.checked);
+      if (e.target.checked && window.Sounds) Sounds.play('correct');
+      Toast.info(e.target.checked ? 'Celebration sounds on' : 'Celebration sounds off');
     };
     const pron = container.querySelector('#set-pron');
     if (pron) pron.onchange = (e) => {
@@ -271,6 +343,21 @@ window.ProfileModule = (function () {
     if (gloss) gloss.onchange = (e) => {
       Settings.setShowGloss(e.target.checked);
       Toast.info(e.target.checked ? 'English translations on' : 'English translations off');
+    };
+    const animLevel = container.querySelector('#set-anim-level');
+    if (animLevel) animLevel.onchange = (e) => {
+      Settings.setAnimLevel(e.target.value);
+      Toast.info('Animation: ' + e.target.value);
+    };
+    const confetti = container.querySelector('#set-confetti');
+    if (confetti) confetti.onchange = (e) => {
+      Settings.setConfetti(e.target.checked);
+      Toast.info(e.target.checked ? 'Confetti on' : 'Confetti off');
+    };
+    const mascot = container.querySelector('#set-mascot');
+    if (mascot) mascot.onchange = (e) => {
+      Settings.setMascot(e.target.checked);
+      Toast.info(e.target.checked ? 'Mascot animations on' : 'Mascot animations off');
     };
 
     container.querySelectorAll('[data-switch]').forEach(b => {

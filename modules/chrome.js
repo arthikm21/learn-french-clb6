@@ -101,7 +101,13 @@ window.Chrome = (function () {
     const host = opts && opts.host;
     const onNext = opts && opts.onNext;
     const seconds = (opts && opts.seconds) || 3;
+    const result = opts && opts.result; // 'correct' | 'wrong' | undefined
     if (!host || typeof onNext !== 'function') return () => {};
+
+    // Reward / acknowledgement sound — fires once on render.
+    if (result && window.Sounds && typeof Sounds.play === 'function') {
+      try { Sounds.play(result); } catch {}
+    }
 
     let remaining = seconds;
     let timer = null;
@@ -135,6 +141,7 @@ window.Chrome = (function () {
       remaining -= 1;
       if (remaining <= 0) { fire(); return; }
       paint();
+      if (window.Sounds) try { Sounds.play('tickCountdown'); } catch {}
     }
     function fire() {
       if (fired) return;

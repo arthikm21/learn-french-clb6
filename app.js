@@ -26,6 +26,11 @@ window.App = (function () {
       if (window.ProgressModule && typeof ProgressModule.logActivity === 'function') {
         ProgressModule.logActivity();
       }
+      // Reward sound — gate passes get the bigger fanfare, regular lessons
+      // the standard complete chime.
+      if (window.Sounds && typeof Sounds.play === 'function') {
+        try { Sounds.play(key.startsWith('gate:') ? 'gate' : 'complete'); } catch {}
+      }
     }
   }
 

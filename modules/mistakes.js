@@ -211,6 +211,7 @@ window.MistakesModule = (function () {
           host: container.querySelector('.adv-host'),
           onNext: () => { i++; show(); },
           seconds: right ? 3 : 5,
+          result: right ? 'correct' : 'wrong',
         });
       };
       container.querySelector('#submit').onclick = check;
