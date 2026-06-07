@@ -298,12 +298,20 @@ window.Sounds = (function () {
   // ─────────────────── E4 — PER-SURFACE SOUND PALETTE ───────────────────
 
   // Navigation tap — going somewhere new (route change, card → page).
-  // D5 descending to A4, brief, airy.
+  // A "rich simple" arrival chime: tap attack, mid body tone, octave-up bell
+  // ping — three layers in 120ms so it reads as ONE event, not a sequence.
   function playNav() {
     if (!allowed('nav') || !ensureCtx()) return;
     maybeResume();
-    tone({ type: 'sine', f0: 587.33, f1: 440, dur: 0.11, gain: 0.10, attack: 0.002 });
-    tone({ type: 'sine', f0: 130,    f1: 100, dur: 0.04, gain: 0.10 });
+    // Tactile click attack — gives the chime a real "press" feel
+    noiseBurst({ dur: 0.005, gain: 0.08, hp: 3500 });
+    // Mid-body tap (E4 → A3, brief)
+    tone({ type: 'sine',     f0: 330,  f1: 220, dur: 0.05, gain: 0.13, attack: 0.001 });
+    // Sub thump for weight
+    tone({ type: 'sine',     f0: 110,  f1: 80,  dur: 0.03, gain: 0.14, attack: 0.001 });
+    // Bell ping on top — E5, triangle for richer overtones, slightly delayed
+    tone({ type: 'triangle', f0: 660,  dur: 0.16, gain: 0.10, attack: 0.003, delay: 0.02 });
+    tone({ type: 'sine',     f0: 1320, dur: 0.12, gain: 0.04, delay: 0.03 });
   }
 
   // Path step — forward progression through the curriculum.

@@ -1683,6 +1683,75 @@ body[data-anim="full"] .btn { transition: background var(--t-fast), color var(--
 body[data-anim="full"] .btn.primary:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(94,92,230,.22); }
 body[data-anim="full"] .btn.big:hover     { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(15,17,21,.10); }
 
+/* ── Top nav links: lift + accent underline grow on hover ────────────── */
+body[data-anim="full"] .nav a {
+  transition: transform var(--t-fast) var(--ease-out), background var(--t-fast), color var(--t-fast), box-shadow var(--t-fast);
+  position: relative;
+}
+body[data-anim="full"] .nav a:hover {
+  transform: translateY(-1px);
+}
+body[data-anim="full"] .nav a:active {
+  transform: translateY(0) scale(.97);
+  transition-duration: 60ms;
+}
+
+/* ── Topbar stat chips (Progress, User) ─────────────────────────────── */
+body[data-anim="full"] .stat {
+  transition: transform var(--t-fast) var(--ease-out), background var(--t-fast), box-shadow var(--t-fast);
+}
+body[data-anim="full"] .stat:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(15,17,21,.08);
+}
+body[data-anim="full"] .stat:active {
+  transform: translateY(0) scale(.97);
+  transition-duration: 60ms;
+}
+
+/* ── Back / icon buttons / hamburger ────────────────────────────────── */
+body[data-anim="full"] .chrome-back,
+body[data-anim="full"] .icon-btn,
+body[data-anim="full"] .hamburger {
+  transition: transform var(--t-fast) var(--ease-out), background var(--t-fast);
+}
+body[data-anim="full"] .chrome-back:hover,
+body[data-anim="full"] .icon-btn:hover {
+  transform: translateX(-2px);
+}
+body[data-anim="full"] .hamburger:hover {
+  transform: scale(1.06);
+}
+
+/* ── Brand logo: lift + sway on hover (interrupts idle bob briefly) ─── */
+body[data-anim="full"] .brand {
+  transition: transform var(--t-fast) var(--ease-out);
+  cursor: pointer;
+}
+body[data-anim="full"] .brand:hover .logo {
+  animation: mascot-peek 600ms var(--ease-snap) infinite;
+}
+@keyframes mascot-peek {
+  0%, 100% { transform: translateY(-2px) rotate(-5deg); }
+  50%      { transform: translateY(-4px) rotate(5deg);  }
+}
+
+/* ── Footer links: subtle slide ─────────────────────────────────────── */
+body[data-anim="full"] .footer a,
+body[data-anim="full"] #credit-link {
+  transition: transform var(--t-fast) var(--ease-out), color var(--t-fast);
+  display: inline-block;
+}
+body[data-anim="full"] .footer a:hover,
+body[data-anim="full"] #credit-link:hover {
+  transform: translateY(-1px);
+}
+
+/* ── Speed selector buttons (🐢 / 🚶 / 🐇) get an emoji wiggle ──────── */
+body[data-anim="full"] [data-rate]:hover {
+  transform: translateY(-1px) scale(1.02);
+}
+
 /* ── Card hover: lift + slight rotate ───────────────────────────────────── */
 body[data-anim="full"] .card {
   transition: transform var(--t-base) var(--ease-out), box-shadow var(--t-base) var(--ease-out), border-color var(--t-fast);
