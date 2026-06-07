@@ -1658,10 +1658,229 @@ body.dark .phase-chip .meter > div { background: var(--gray-700); }
 }
 
 /* =========================================================================
+   MOTION LANGUAGE — bring the app to life
+   =========================================================================
+   Scoped to body[data-anim]. Three tiers:
+     • full   — springs, particles, mascot, page slides (default)
+     • subtle — opacity-only transitions, no springs or shakes
+     • off    — all animations zeroed
+   Respects OS "Reduce motion" on first paint (handled in modules/settings.js).
+   ========================================================================= */
+
+/* ── Button press: bouncy spring with subtle overshoot ───────────────────── */
+body[data-anim="full"] .btn:active,
+body[data-anim="full"] .icon-btn:active,
+body[data-anim="full"] .chrome-back:active {
+  animation: btn-spring 280ms var(--ease-snap);
+}
+@keyframes btn-spring {
+  0%   { transform: scale(1); }
+  35%  { transform: scale(.92); }
+  60%  { transform: scale(1.04); }
+  100% { transform: scale(1); }
+}
+body[data-anim="full"] .btn { transition: background var(--t-fast), color var(--t-fast), transform var(--t-fast), box-shadow var(--t-base); }
+body[data-anim="full"] .btn.primary:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(94,92,230,.22); }
+body[data-anim="full"] .btn.big:hover     { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(15,17,21,.10); }
+
+/* ── Card hover: lift + slight rotate ───────────────────────────────────── */
+body[data-anim="full"] .card {
+  transition: transform var(--t-base) var(--ease-out), box-shadow var(--t-base) var(--ease-out), border-color var(--t-fast);
+}
+body[data-anim="full"] .card:hover {
+  transform: translateY(-3px) rotate(.4deg) scale(1.005);
+  box-shadow: var(--e3);
+}
+
+/* ── Option select: correct pulses, wrong shakes ───────────────────────── */
+body[data-anim="full"] .option {
+  transition: transform var(--t-fast) var(--ease-out), border-color var(--t-fast), background var(--t-fast);
+}
+body[data-anim="full"] .option:hover { transform: translateY(-1px) scale(1.005); }
+body[data-anim="full"] .option:active { transform: scale(.97); }
+body[data-anim="full"] .option.correct {
+  animation: opt-correct 560ms var(--ease-snap);
+}
+@keyframes opt-correct {
+  0%   { transform: scale(1); }
+  30%  { transform: scale(1.06); box-shadow: 0 0 0 0 rgba(52,199,89,.45); }
+  60%  { transform: scale(1.0);  box-shadow: 0 0 0 14px rgba(52,199,89,0); }
+  100% { transform: scale(1.0);  box-shadow: 0 0 0 0 rgba(52,199,89,0); }
+}
+body[data-anim="full"] .option.wrong {
+  animation: opt-wrong 380ms var(--ease-in-out);
+}
+@keyframes opt-wrong {
+  0%, 100% { transform: translateX(0); }
+  15% { transform: translateX(-7px); }
+  30% { transform: translateX(6px); }
+  45% { transform: translateX(-4px); }
+  60% { transform: translateX(3px); }
+  75% { transform: translateX(-2px); }
+}
+
+/* ── Feedback entrance: slide up + fade ─────────────────────────────────── */
+body[data-anim="full"] .feedback {
+  animation: fb-enter 320ms var(--ease-snap);
+}
+body[data-anim="subtle"] .feedback {
+  animation: fb-fade 240ms var(--ease-out);
+}
+@keyframes fb-enter {
+  0%   { opacity: 0; transform: translateY(12px) scale(.96); }
+  60%  { opacity: 1; transform: translateY(-2px) scale(1.02); }
+  100% { opacity: 1; transform: translateY(0)    scale(1); }
+}
+@keyframes fb-fade {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Advance row entrance: stagger after feedback ───────────────────────── */
+body[data-anim="full"] .advance-row {
+  animation: adv-enter 380ms var(--ease-snap) 180ms backwards;
+}
+body[data-anim="subtle"] .advance-row {
+  animation: fb-fade 240ms var(--ease-out) 120ms backwards;
+}
+@keyframes adv-enter {
+  0%   { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Transcript reveal: gentle fade ─────────────────────────────────────── */
+body[data-anim="full"] .feedback + div,
+body[data-anim="subtle"] .feedback + div {
+  animation: tx-enter 320ms var(--ease-out) 80ms backwards;
+}
+@keyframes tx-enter {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Page transitions ───────────────────────────────────────────────────── */
+body[data-anim="full"] main > * {
+  animation: page-in 320ms var(--ease-snap);
+}
+body[data-anim="subtle"] main > * {
+  animation: page-fade 240ms var(--ease-out);
+}
+@keyframes page-in {
+  0%   { opacity: 0; transform: translateX(12px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+@keyframes page-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Mascot 🐓: idle bob + flap on win ──────────────────────────────────── */
+body[data-anim="full"] .logo {
+  display: inline-block;
+  animation: mascot-bob 3.6s ease-in-out infinite;
+  transform-origin: 50% 70%;
+}
+@keyframes mascot-bob {
+  0%, 100% { transform: translateY(0)    rotate(0deg);  }
+  50%      { transform: translateY(-2px) rotate(-2deg); }
+}
+body[data-anim="full"] .logo.celebrating {
+  animation: mascot-flap 700ms var(--ease-snap);
+}
+@keyframes mascot-flap {
+  0%   { transform: translateY(0)    rotate(0deg)   scale(1);   }
+  20%  { transform: translateY(-12px) rotate(-12deg) scale(1.15); }
+  45%  { transform: translateY(-4px)  rotate(8deg)   scale(1.10); }
+  70%  { transform: translateY(-8px)  rotate(-6deg)  scale(1.12); }
+  100% { transform: translateY(0)    rotate(0deg)   scale(1);   }
+}
+
+/* ── Confetti / sparkle particles ──────────────────────────────────────── */
+.confetti-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 300;
+  overflow: hidden;
+}
+.confetti-piece {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 10px;
+  height: 14px;
+  border-radius: 2px;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+.confetti-piece.go {
+  animation: confetti-burst 1.4s var(--ease-out) forwards;
+}
+@keyframes confetti-burst {
+  0%   { opacity: 0; transform: translate(-50%, -50%) rotate(0); }
+  10%  { opacity: 1; }
+  100% { opacity: 0; transform: translate(calc(-50% + var(--dx, 0px)), calc(-50% + var(--dy, 0px))) rotate(var(--rz, 540deg)); }
+}
+
+/* ── Sparkles emitted from correct option ──────────────────────────────── */
+.sparkle-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: visible;
+}
+.sparkle {
+  position: absolute;
+  font-size: 16px;
+  opacity: 0;
+  animation: sparkle-rise 700ms var(--ease-out) forwards;
+}
+@keyframes sparkle-rise {
+  0%   { opacity: 0; transform: translate(0, 0)     scale(.6); }
+  30%  { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--dx, 0px), var(--dy, -60px)) scale(1.1); }
+}
+
+/* ── Speed lines for streak hot-state ──────────────────────────────────── */
+body[data-anim="full"] .speed-lines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  animation: speed-out 400ms var(--ease-out) forwards;
+}
+@keyframes speed-out {
+  from { opacity: .8; transform: scale(.7); }
+  to   { opacity: 0;  transform: scale(1.4); }
+}
+
+/* ── Anim level: subtle disables springs but keeps fades ───────────────── */
+body[data-anim="subtle"] .option:hover,
+body[data-anim="subtle"] .card:hover,
+body[data-anim="subtle"] .btn.primary:hover,
+body[data-anim="subtle"] .btn.big:hover { transform: none !important; }
+body[data-anim="subtle"] .option.correct,
+body[data-anim="subtle"] .option.wrong,
+body[data-anim="subtle"] .btn:active { animation: none !important; }
+
+/* ── Anim level: off truly disables everything ─────────────────────────── */
+body[data-anim="off"] *,
+body[data-anim="off"] *::before,
+body[data-anim="off"] *::after {
+  animation-duration: 0s !important;
+  animation-delay: 0s !important;
+  transition-duration: 0s !important;
+}
+body[data-anim="off"] .confetti-layer,
+body[data-anim="off"] .sparkle-layer,
+body[data-anim="off"] .speed-lines { display: none !important; }
+
+/* =========================================================================
    ACCESSIBILITY
    ========================================================================= */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  body:not([data-anim="full"]) *,
+  body:not([data-anim="full"]) *::before,
+  body:not([data-anim="full"]) *::after {
     animation-duration: .01ms !important;
     transition-duration: .01ms !important;
     scroll-behavior: auto !important;

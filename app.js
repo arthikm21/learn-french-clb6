@@ -31,6 +31,17 @@ window.App = (function () {
       if (window.Sounds && typeof Sounds.play === 'function') {
         try { Sounds.play(key.startsWith('gate:') ? 'gate' : 'complete'); } catch {}
       }
+      // Mascot wing flap — visual confirmation in the topbar
+      if (window.Settings && Settings.isMascotOn && Settings.isMascotOn()) {
+        const logo = document.querySelector('.logo');
+        if (logo) {
+          logo.classList.remove('celebrating');
+          // Force reflow so the next add restarts the animation
+          void logo.offsetWidth;
+          logo.classList.add('celebrating');
+          setTimeout(() => logo.classList.remove('celebrating'), 800);
+        }
+      }
     }
   }
 
