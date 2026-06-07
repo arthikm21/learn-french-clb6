@@ -35,6 +35,11 @@ window.Sounds = (function () {
     click: 70, clickBack: 70, clickOption: 70,
     correct: 250, wrong: 250, complete: 600, gate: 800, streak: 400,
     swoosh: 150, pop: 100, tickCountdown: 0, warn: 200,
+    // E4 — per-surface tonal palette
+    nav: 100, pathStep: 100, locked: 200, tabSwap: 120,
+    toggleOn: 80, toggleOff: 80, selectChange: 80,
+    speedSlow: 60, speedNormal: 60, speedFast: 60,
+    mascotChirp: 200, themeFlip: 300, dangerArm: 150, playAudio: 50,
   };
   const lastAt = {};
 
@@ -79,11 +84,18 @@ window.Sounds = (function () {
 
   function allowed(category) {
     if (window.Settings) {
-      // Clicks gated by isClickSoundOn; celebrations gated by isCelebrationsOn.
-      const isClickCat = category === 'click' || category === 'clickBack' || category === 'clickOption' || category === 'tickCountdown' || category === 'pop' || category === 'swoosh';
-      if (isClickCat && !Settings.isClickSoundOn()) return false;
-      const isCelebrationCat = category === 'correct' || category === 'wrong' || category === 'complete' || category === 'gate' || category === 'streak' || category === 'warn';
-      if (isCelebrationCat && typeof Settings.isCelebrationsOn === 'function' && !Settings.isCelebrationsOn()) return false;
+      // Every UI tap-feedback sound is gated by isClickSoundOn.
+      const CLICK_CATS = new Set([
+        'click', 'clickBack', 'clickOption', 'tickCountdown', 'pop', 'swoosh',
+        // E4 per-surface palette — all click-gated since they're tap responses
+        'nav', 'pathStep', 'locked', 'tabSwap',
+        'toggleOn', 'toggleOff', 'selectChange',
+        'speedSlow', 'speedNormal', 'speedFast',
+        'mascotChirp', 'themeFlip', 'dangerArm', 'playAudio',
+      ]);
+      if (CLICK_CATS.has(category) && !Settings.isClickSoundOn()) return false;
+      const CELEBRATION_CATS = new Set(['correct', 'wrong', 'complete', 'gate', 'streak', 'warn']);
+      if (CELEBRATION_CATS.has(category) && typeof Settings.isCelebrationsOn === 'function' && !Settings.isCelebrationsOn()) return false;
     }
     if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return false;
     const now = Date.now();
@@ -283,6 +295,140 @@ window.Sounds = (function () {
     tone({ type: 'triangle', f0: 350, dur: 0.10, gain: 0.10, delay: 0.10 });
   }
 
+  // ─────────────────── E4 — PER-SURFACE SOUND PALETTE ───────────────────
+
+  // Navigation tap — going somewhere new (route change, card → page).
+  // D5 descending to A4, brief, airy.
+  function playNav() {
+    if (!allowed('nav') || !ensureCtx()) return;
+    maybeResume();
+    tone({ type: 'sine', f0: 587.33, f1: 440, dur: 0.11, gain: 0.10, attack: 0.002 });
+    tone({ type: 'sine', f0: 130,    f1: 100, dur: 0.04, gain: 0.10 });
+  }
+
+  // Path step — forward progression through the curriculum.
+  // Tap + a hint of upward bell — feels like "next lesson loading".
+  function playPathStep() {
+    if (!allowed('pathStep') || !ensureCtx()) return;
+    maybeResume();
+    tone({ type: 'sine',     f0: 392,  dur: 0.045, gain: 0.13, attack: 0.001 }); // G4 tap
+    tone({ type: 'sine',     f0: 120,  dur: 0.020, gain: 0.14 });                 // thump
+    tone({ type: 'triangle', f0: 988,  dur: 0.10,  gain: 0.06, delay: 0.05 });   // upward bell hint
+  }
+
+  // Locked — clicking a node you can't open. Muted thud, dead-end.
+  function playLocked() {
+    if (!allowed('locked') || !ensureCtx()) return;
+    maybeResume();
+    // Low square, low-passed — feels heavy and blocked.
+    tone({ type: 'square', f0: 110, f1: 70, dur: 0.08, gain: 0.08, attack: 0.002 });
+    tone({ type: 'sine',   f0: 80,  dur: 0.06, gain: 0.06 });
+  }
+
+  // Tab swap — lateral move between sibling tabs / phases / categories.
+  function playTabSwap() {
+    if (!allowed('tabSwap') || !ensureCtx()) return;
+    maybeResume();
+    const c = ctx;
+    const t0 = c.currentTime;
+    const dur = 0.09;
+    const buf = c.createBuffer(1, Math.ceil(c.sampleRate * dur), c.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * 0.5;
+    const ns = c.createBufferSource();
+    ns.buffer = buf;
+    const bp = c.createBiquadFilter();
+    bp.type = 'bandpass';
+    bp.Q.value = 1.6;
+    bp.frequency.setValueAtTime(800, t0);
+    bp.frequency.exponentialRampToValueAtTime(1800, t0 + dur);
+    const g = c.createGain();
+    g.gain.value = 0;
+    g.gain.linearRampToValueAtTime(0.05 * currentGainMult(), t0 + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    ns.connect(bp).connect(g).connect(master);
+    ns.start(t0);
+    // tiny tick after the swipe
+    tone({ type: 'sine', f0: 1400, dur: 0.025, gain: 0.06, delay: dur });
+  }
+
+  // Toggle ON — rising confirmation sweep.
+  function playToggleOn() {
+    if (!allowed('toggleOn') || !ensureCtx()) return;
+    maybeResume();
+    tone({ type: 'triangle', f0: 800, f1: 1400, dur: 0.10, gain: 0.13, attack: 0.002 });
+  }
+
+  // Toggle OFF — falling confirmation sweep.
+  function playToggleOff() {
+    if (!allowed('toggleOff') || !ensureCtx()) return;
+    maybeResume();
+    tone({ type: 'triangle', f0: 1400, f1: 700, dur: 0.10, gain: 0.13, attack: 0.002 });
+  }
+
+  // Select change — dropdown / radio pick. Soft confirm pop.
+  function playSelectChange() {
+    if (!allowed('selectChange') || !ensureCtx()) return;
+    maybeResume();
+    tone({ type: 'sine', f0: 1100, f1: 880, dur: 0.060, gain: 0.10, attack: 0.001 });
+    tone({ type: 'sine', f0: 1500, dur: 0.030, gain: 0.05, delay: 0.04 });
+  }
+
+  // Speed selector — pitch matches the speed metaphor.
+  function playSpeedSlow()   { if (!allowed('speedSlow')   || !ensureCtx()) return; maybeResume(); tone({ type: 'sine', f0: 480,  dur: 0.060, gain: 0.13, attack: 0.001 }); }
+  function playSpeedNormal() { if (!allowed('speedNormal') || !ensureCtx()) return; maybeResume(); tone({ type: 'sine', f0: 820,  dur: 0.050, gain: 0.13, attack: 0.001 }); }
+  function playSpeedFast()   { if (!allowed('speedFast')   || !ensureCtx()) return; maybeResume(); tone({ type: 'sine', f0: 1280, dur: 0.040, gain: 0.13, attack: 0.001 }); }
+
+  // Mascot chirp — clicking the 🐓 logo. Playful two-note rise.
+  function playMascotChirp() {
+    if (!allowed('mascotChirp') || !ensureCtx()) return;
+    maybeResume();
+    tone({ type: 'triangle', f0: 1800, dur: 0.055, gain: 0.13, attack: 0.001 });
+    tone({ type: 'triangle', f0: 2500, dur: 0.060, gain: 0.13, attack: 0.001, delay: 0.05 });
+  }
+
+  // Theme flip — light/dark toggle. Bell + soft wind underneath.
+  function playThemeFlip() {
+    if (!allowed('themeFlip') || !ensureCtx()) return;
+    maybeResume();
+    tone({ type: 'sine',     f0: 800,  dur: 0.18, gain: 0.12, attack: 0.003 });
+    tone({ type: 'triangle', f0: 1600, dur: 0.16, gain: 0.06, delay: 0.02 });
+    // Quiet noise wash for the transition feel
+    const c = ctx;
+    const t0 = c.currentTime;
+    const dur = 0.20;
+    const buf = c.createBuffer(1, Math.ceil(c.sampleRate * dur), c.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * 0.4;
+    const ns = c.createBufferSource();
+    ns.buffer = buf;
+    const bp = c.createBiquadFilter();
+    bp.type = 'bandpass';
+    bp.frequency.value = 1200;
+    bp.Q.value = 0.7;
+    const g = c.createGain();
+    g.gain.value = 0;
+    g.gain.linearRampToValueAtTime(0.03 * currentGainMult(), t0 + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    ns.connect(bp).connect(g).connect(master);
+    ns.start(t0);
+  }
+
+  // Danger arm — clicking a destructive button. Warning, not alarm.
+  function playDangerArm() {
+    if (!allowed('dangerArm') || !ensureCtx()) return;
+    maybeResume();
+    tone({ type: 'triangle', f0: 600, f1: 480, dur: 0.18, gain: 0.16, attack: 0.003 });
+    tone({ type: 'sine',     f0: 300, dur: 0.18, gain: 0.10 });
+  }
+
+  // Play audio — pre-roll tick before TTS / clip plays. Very quiet.
+  function playPlayAudio() {
+    if (!allowed('playAudio') || !ensureCtx()) return;
+    maybeResume();
+    tone({ type: 'sine', f0: 1500, dur: 0.018, gain: 0.04, attack: 0.001 });
+  }
+
   // Single dispatch entrypoint — modules call Sounds.play('correct') etc.
   function play(name) {
     switch (name) {
@@ -298,38 +444,129 @@ window.Sounds = (function () {
       case 'pop':           return playPop();
       case 'tickCountdown': return playTickCountdown();
       case 'warn':          return playWarn();
+      // E4 palette
+      case 'nav':           return playNav();
+      case 'pathStep':      return playPathStep();
+      case 'locked':        return playLocked();
+      case 'tabSwap':       return playTabSwap();
+      case 'toggleOn':      return playToggleOn();
+      case 'toggleOff':     return playToggleOff();
+      case 'selectChange':  return playSelectChange();
+      case 'speedSlow':     return playSpeedSlow();
+      case 'speedNormal':   return playSpeedNormal();
+      case 'speedFast':     return playSpeedFast();
+      case 'mascotChirp':   return playMascotChirp();
+      case 'themeFlip':     return playThemeFlip();
+      case 'dangerArm':     return playDangerArm();
+      case 'playAudio':     return playPlayAudio();
     }
   }
 
   // ─────────────────────── GLOBAL CLICK DELEGATION ───────────────────────
+  //
+  // Routes a pointerdown event to ONE sound from the palette. Specific matchers
+  // run BEFORE generic ones; the first match wins. Returns a sound name or null.
 
   function shouldTick(target) {
     if (!target || target.nodeType !== 1) return null;
+    // Always skip: form inputs (typing has its own keyboard sound) + explicit opt-outs.
     if (target.closest('input, textarea, [data-no-tick]')) return null;
-    if (target.closest('.mic-btn, .wp-play, [data-play], [data-rate], #r-play, #r-stop, #play, #replay, #hear, .wp-close')) return null;
-    const btn = target.closest('button, .btn');
-    if (btn && btn.disabled) return null;
-    if (target.closest('.chrome-back, .icon-btn, .hamburger, #nav-close, .credit-modal-close')) return 'back';
-    if (target.closest('.option, [data-pick], [data-i], [data-g]')) return 'option';
-    if (target.closest('.btn, .token, .mem-card, .nav a, [data-route], [data-phase], [data-ph], [data-q], [data-switch], [data-u], [data-filter], [data-sig]')) return 'main';
-    if (target.closest('.card, .path-node, .phase-chip, .spotlight[onclick]')) {
-      const card = target.closest('.card, .path-node, .phase-chip, .spotlight');
-      if (card && card.style.cursor === 'default') return null;
-      return 'main';
+
+    // Mic + audio-playing controls: route to a quiet pre-roll tick instead of the
+    // generic click — the actual audio is the main feedback, the tick is overlay.
+    if (target.closest('.mic-btn')) return null; // mic has its own pulse + audio
+    if (target.closest('.wp-play, .wp-close')) return null; // word-pop manages its own
+    if (target.closest('[data-rate]')) {
+      const rate = parseFloat(target.closest('[data-rate]').dataset.rate);
+      if (rate <= 0.75) return 'speedSlow';
+      if (rate >= 1.15) return 'speedFast';
+      return 'speedNormal';
     }
+    if (target.closest('[data-play], #r-play, #r-stop, #play, #replay, #hear, .btn-play, [data-replay]')) return 'playAudio';
+
+    // Disabled buttons:
+    const btn = target.closest('button, .btn');
+    if (btn && btn.disabled) {
+      // A disabled .path-node or "locked" gate still deserves a "no" sound
+      if (target.closest('.path-node, [data-phase], .phase-chip')) return 'locked';
+      return null;
+    }
+
+    // Destructive buttons get a warning tone.
+    if (target.closest('#reset, #delete, .btn.danger')) return 'dangerArm';
+
+    // Theme toggle is special — light/dark flip sound.
+    if (target.closest('#theme-toggle')) return 'themeFlip';
+
+    // Mascot 🐓 chirp on the brand logo.
+    if (target.closest('.logo')) return 'mascotChirp';
+
+    // Drawer chrome — swoosh in / swoosh out feel.
+    if (target.closest('.hamburger, #nav-close')) return 'swoosh';
+
+    // Profile toggles (checkbox switches) — on/off based on current state.
+    if (target.closest('input.toggle[type="checkbox"]')) {
+      const box = target.closest('input.toggle[type="checkbox"]');
+      // The DOM state flips AFTER the pointerdown; predict by inverting.
+      return box.checked ? 'toggleOff' : 'toggleOn';
+    }
+
+    // Native <select> dropdown changes — bind via change handler elsewhere,
+    // but a pointerdown on the select itself signals interaction; tick subtly.
+    if (target.closest('select.input, select')) return 'selectChange';
+
+    // Back / icon / modal-close → woody tap (clickBack).
+    if (target.closest('.chrome-back, .icon-btn, .credit-modal-close')) return 'clickBack';
+
+    // Path nodes — forward progression. Locked ones get the muted thud.
+    // Checked BEFORE the phase-chip / [data-phase] rule because path-nodes are
+    // children of [data-phase] groupings on the Path page.
+    if (target.closest('.path-node')) {
+      const node = target.closest('.path-node');
+      if (node.classList.contains('locked') || node.getAttribute('aria-disabled') === 'true') return 'locked';
+      return 'pathStep';
+    }
+
+    // Phase chips, phase cards → tabSwap (lateral progression).
+    if (target.closest('.phase-chip, [data-phase]')) {
+      const el = target.closest('.phase-chip, [data-phase]');
+      if (el && (el.classList.contains('locked') || el.dataset.locked === '1')) return 'locked';
+      return 'tabSwap';
+    }
+
+    // Multiple-choice options / interactive picker tiles.
+    if (target.closest('.option, [data-pick], [data-i], [data-g]')) return 'clickOption';
+
+    // Home grid cards + spotlight (going to a new section) → nav swoosh.
+    if (target.closest('.card, .spotlight[onclick], [data-route], #user-chip, #credit-link, .footer a')) {
+      const card = target.closest('.card, .spotlight');
+      if (card && card.style.cursor === 'default') return null;
+      return 'nav';
+    }
+    if (target.closest('.nav a')) return 'nav';
+
+    // Generic primary tap surfaces — fall through to the main clack.
+    if (target.closest('.btn, .token, .mem-card, [data-ph], [data-q], [data-switch], [data-u], [data-filter], [data-sig]')) {
+      return 'click';
+    }
+
     return null;
   }
 
   function setup() {
     const handler = (e) => {
       if (e.button != null && e.button !== 0) return;
-      const kind = shouldTick(e.target);
-      if (!kind) return;
-      if (kind === 'back')   playClickBack();
-      else if (kind === 'option') playClickOption();
-      else playClick();
+      const name = shouldTick(e.target);
+      if (!name) return;
+      play(name);
     };
     document.addEventListener('pointerdown', handler, true);
+
+    // <select> change events emit selectChange even when opened via keyboard.
+    document.addEventListener('change', (e) => {
+      const sel = e.target && e.target.closest && e.target.closest('select');
+      if (sel) play('selectChange');
+    }, true);
   }
 
   if (typeof window !== 'undefined') {
