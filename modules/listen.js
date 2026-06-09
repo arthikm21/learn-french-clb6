@@ -32,6 +32,9 @@ window.ListenModule = (function () {
     const grid = container.querySelector('#l-grid');
     for (const k of Object.keys(LISTENING)) {
       const s = LISTENING[k];
+      // TCF mock segments (transcript/questions shape) share this global but
+      // belong to the mock test — only dictation sets render here.
+      if (!s.items) continue;
       const card = document.createElement('div');
       card.className = 'card';
       card.innerHTML = `<div class="icon">🔊</div><h3>${s.title}</h3><p><span class="tag">${s.level}</span></p><p style="margin-top:8px">${s.items.length} items</p>`;
@@ -42,6 +45,7 @@ window.ListenModule = (function () {
 
   function renderSet(container, setKey) {
     const s = LISTENING[setKey];
+    if (!s || !s.items) { renderList(container); return; }
     let i = 0, correct = 0;
     function show() {
       if (i >= s.items.length) return finish();
