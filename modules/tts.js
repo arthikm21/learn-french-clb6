@@ -19,7 +19,16 @@ window.TTS = (function () {
       .catch(() => { manifest = {}; return manifest; });
     return manifestPromise;
   }
-  // Manifest is lazy: only fetched on first speak() call.
+  // Manifest is lazy: fetched on first speak() call, but also warmed in the
+  // background once the page is idle — so the first tap-to-pronounce doesn't
+  // pay the ~370KB fetch latency.
+  if (typeof window !== 'undefined') {
+    window.addEventListener('load', () => {
+      const warm = () => { loadManifest(); };
+      if ('requestIdleCallback' in window) requestIdleCallback(warm, { timeout: 4000 });
+      else setTimeout(warm, 2500);
+    });
+  }
 
   // Unlock audio context on first user interaction (iOS Safari requirement).
   function unlock() {

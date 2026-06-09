@@ -265,6 +265,9 @@ window.App = (function () {
       <p class="section-sub">Every module is open. Path orders them. Mistakes feed back into review.</p>
       <div class="grid">
         <div class="card" onclick="App.go('path')"><div class="icon">🗺️</div><h3>Learning Path</h3><p>Ordered path through 8 phases. Next step always highlighted.</p></div>
+        <div class="card" onclick="App.go('scenario')"><div class="icon">🇨🇦</div><h3>Scenarios <span class="tag verb">Oral</span></h3><p>30 real Canadian life situations. Listen → vocab → shadow → speak it yourself.</p></div>
+        <div class="card" onclick="App.go('listenmastery')"><div class="icon">🎧</div><h3>Listen Mastery <span class="tag verb">Oral</span></h3><p>75 clips, 5 exercise types, 15 categories. Speed ramps from 0.7x to 1.2x.</p></div>
+        <div class="card" onclick="App.go('connectormastery')"><div class="icon">🔗</div><h3>Connector Mastery <span class="tag verb">Oral</span></h3><p>22 connectors that move you from CLB 4-5 to CLB 6. Library + 4 drill types.</p></div>
         <div class="card" onclick="App.go('phonics')"><div class="icon">🔊</div><h3>Phonics &amp; Sounds</h3><p>7 units plus minimal-pair ear drills — u vs ou, nasals, é vs è, liaison.</p></div>
         <div class="card" onclick="App.go('vocab')"><div class="icon">🃏</div><h3>Vocabulary</h3><p>28 themed decks, ~570 cards. SRS schedules your reviews automatically.</p></div>
         <div class="card" onclick="App.go('grammar')"><div class="icon">📐</div><h3>Grammar</h3><p>29 units, A1 to B1. From articles to subjunctive and connectors.</p></div>
@@ -277,7 +280,6 @@ window.App = (function () {
         <div class="card" onclick="App.go('writetask3')"><div class="icon">✍️</div><h3>Writing Task 3 <span class="tag verb">TCF</span></h3><p>Compare 2 opinions and give your own view. The hardest TCF EE task.</p></div>
         <div class="card" onclick="App.go('speaktask2')"><div class="icon">❓</div><h3>Speaking Task 2 <span class="tag verb">TCF</span></h3><p>Ask the examiner questions to gather info. Unique to TCF Canada.</p></div>
         <div class="card" onclick="App.go('speaktask3')"><div class="icon">🎤</div><h3>Speaking Task 3 <span class="tag verb">TCF</span></h3><p>Argue your opinion for 3-5 minutes. Most-weighted EO task.</p></div>
-        <div class="card" onclick="App.go('connectors')"><div class="icon">🔗</div><h3>Connector Drill <span class="tag verb">TCF</span></h3><p>30-second timed production: continue an idea using cependant, par conséquent, etc.</p></div>
         <div class="card" onclick="App.go('tcfguide')"><div class="icon">📚</div><h3>TCF Prep Guide <span class="tag verb">TCF</span></h3><p>Strategy, score conversion, test-day checklist, mock history.</p></div>
         <div class="card" onclick="App.go('read')"><div class="icon">📖</div><h3>Reading</h3><p>30 graded texts from CLB 3 to 6 — emails, ads, news, brochures, fiction.</p></div>
         <div class="card" onclick="App.go('write')"><div class="icon">✍️</div><h3>Writing Workshop</h3><p>8 prompts. Real grammar checker detects gender, tense, elision errors.</p></div>

@@ -1,4 +1,4 @@
-// Connector Mastery — the 14 most-tested CLB 6 connectors, each with rich
+// Connector Mastery — the 22 most-tested CLB 6 connectors, each with rich
 // teaching content + drill items across 4 exercise types.
 //
 // Per masterplan: connector usage is one of the strongest predictors of CLB 6
@@ -221,5 +221,127 @@ window.CONNECTORS = [
     recognize: "Cette ville attire les touristes. En effet, elle reçoit dix millions de visiteurs par an.",
     recognizeEn: "This city attracts tourists. Indeed, it receives ten million visitors per year.",
     shadow: { prompt: "Use «en effet» to back up your claim with evidence:", lead: "Le marché du travail est tendu…", leadEn: "The job market is tight…", model: "Le marché du travail est tendu. En effet, beaucoup d'entreprises peinent à recruter.", modelEn: "The job market is tight. Indeed, many companies are struggling to recruit." },
+  },
+
+  // ─────────── SEQUENCE ───────────
+  {
+    id: 'd-abord', word: "d'abord", category: 'Sequence',
+    gloss: 'first / first of all',
+    when: "Opens a list of steps or arguments. THE way to start a structured answer in the TCF speaking tasks: d'abord… ensuite… enfin.",
+    examples: [
+      { fr: "<b>D'abord</b>, je vais présenter le problème.", en: "First, I will present the problem." },
+      { fr: "<b>D'abord</b>, faites bouillir l'eau.", en: "First, boil the water." },
+      { fr: "<b>D'abord</b>, il faut remplir le formulaire en ligne.", en: "First, you have to fill out the form online." },
+    ],
+    complete: { context: "___, nous allons visiter l'appartement ; ensuite, nous signerons le bail.", contextEn: "___, we will visit the apartment; then we will sign the lease." },
+    recognize: "D'abord, je voudrais vous remercier d'être venus.",
+    recognizeEn: "First of all, I would like to thank you for coming.",
+    shadow: { prompt: "Start a structured answer with «d'abord»:", lead: "Pourquoi voulez-vous immigrer au Canada ?", leadEn: "Why do you want to immigrate to Canada?", model: "D'abord, je veux offrir une meilleure éducation à mes enfants.", modelEn: "First, I want to offer a better education to my children." },
+  },
+  {
+    id: 'ensuite', word: 'ensuite', category: 'Sequence',
+    gloss: 'then / next',
+    when: "The middle step. Chains actions or arguments after d'abord. Interchangeable with 'puis' in most contexts.",
+    examples: [
+      { fr: "<b>Ensuite</b>, ajoutez le sel et le poivre.", en: "Next, add the salt and pepper." },
+      { fr: "Nous avons visité le musée, <b>ensuite</b> nous avons mangé au restaurant.", en: "We visited the museum, then we ate at the restaurant." },
+      { fr: "<b>Ensuite</b>, vous recevrez une confirmation par courriel.", en: "Then you will receive a confirmation by email." },
+    ],
+    complete: { context: "D'abord, remplissez le formulaire ; ___, envoyez-le avec vos documents.", contextEn: "First, fill out the form; ___, send it with your documents." },
+    recognize: "Ensuite, le médecin m'a prescrit des antibiotiques.",
+    recognizeEn: "Then the doctor prescribed me antibiotics.",
+    shadow: { prompt: "Continue the steps with «ensuite»:", lead: "D'abord, j'ai cherché un logement…", leadEn: "First, I looked for housing…", model: "D'abord, j'ai cherché un logement, ensuite j'ai ouvert un compte bancaire.", modelEn: "First I looked for housing, then I opened a bank account." },
+  },
+  {
+    id: 'enfin', word: 'enfin', category: 'Sequence',
+    gloss: 'finally / lastly',
+    when: "Closes the list — the last step or final argument. In speech it can also mean relief: Enfin ! (At last!)",
+    examples: [
+      { fr: "<b>Enfin</b>, n'oubliez pas de signer le document.", en: "Finally, don't forget to sign the document." },
+      { fr: "<b>Enfin</b>, je voudrais parler du coût de la vie.", en: "Lastly, I would like to talk about the cost of living." },
+      { fr: "Après six mois d'attente, le visa est <b>enfin</b> arrivé !", en: "After six months of waiting, the visa finally arrived!" },
+    ],
+    complete: { context: "D'abord le passeport, ensuite les photos, et ___ le paiement des frais.", contextEn: "First the passport, then the photos, and ___ the payment of fees." },
+    recognize: "Enfin, je recommande de réserver à l'avance.",
+    recognizeEn: "Finally, I recommend booking in advance.",
+    shadow: { prompt: "Close your argument with «enfin»:", lead: "D'abord le climat, ensuite le travail…", leadEn: "First the climate, then work…", model: "D'abord le climat, ensuite le travail, et enfin la qualité de vie : voilà pourquoi j'ai choisi le Canada.", modelEn: "First the climate, then work, and finally quality of life: that's why I chose Canada." },
+  },
+
+  // ─────────── ADDITION (more) ───────────
+  {
+    id: 'de-plus', word: 'de plus', category: 'Addition',
+    gloss: 'in addition / furthermore',
+    when: "Stacks a second argument on top of the first. More formal than 'aussi' — perfect for TCF writing and the opinion monologue.",
+    examples: [
+      { fr: "Le vélo est économique. <b>De plus</b>, il est bon pour la santé.", en: "Cycling is economical. In addition, it is good for your health." },
+      { fr: "Cet appartement est bien situé. <b>De plus</b>, le loyer est raisonnable.", en: "This apartment is well located. Furthermore, the rent is reasonable." },
+      { fr: "Le télétravail fait gagner du temps. <b>De plus</b>, il réduit le stress.", en: "Remote work saves time. In addition, it reduces stress." },
+    ],
+    complete: { context: "Apprendre le français ouvre des portes au travail. ___, c'est essentiel pour la vie quotidienne au Québec.", contextEn: "Learning French opens doors at work. ___, it's essential for daily life in Quebec." },
+    recognize: "Ce quartier est sécuritaire. De plus, il y a une école à deux minutes.",
+    recognizeEn: "This neighbourhood is safe. In addition, there is a school two minutes away.",
+    shadow: { prompt: "Add a second argument with «de plus»:", lead: "Les transports en commun sont pratiques…", leadEn: "Public transit is convenient…", model: "Les transports en commun sont pratiques. De plus, ils sont meilleurs pour l'environnement.", modelEn: "Public transit is convenient. In addition, it is better for the environment." },
+  },
+
+  // ─────────── ILLUSTRATION ───────────
+  {
+    id: 'par-exemple', word: 'par exemple', category: 'Illustration',
+    gloss: 'for example',
+    when: "Backs an argument with a concrete case. Examiners reward speakers who illustrate every claim — make this automatic.",
+    examples: [
+      { fr: "J'aime les sports d'hiver, <b>par exemple</b> le ski et le patinage.", en: "I like winter sports, for example skiing and skating." },
+      { fr: "Certains services sont gratuits, <b>par exemple</b> la bibliothèque.", en: "Some services are free, for example the library." },
+      { fr: "Il y a plusieurs solutions. <b>Par exemple</b>, on pourrait covoiturer.", en: "There are several solutions. For example, we could carpool." },
+    ],
+    complete: { context: "La ville offre beaucoup d'activités gratuites, ___ les festivals d'été.", contextEn: "The city offers many free activities, ___ the summer festivals." },
+    recognize: "Plusieurs langues sont parlées ici, par exemple l'arabe et l'espagnol.",
+    recognizeEn: "Several languages are spoken here, for example Arabic and Spanish.",
+    shadow: { prompt: "Illustrate your claim with «par exemple»:", lead: "La vie au Canada a des avantages…", leadEn: "Life in Canada has advantages…", model: "La vie au Canada a des avantages, par exemple la sécurité et les services publics.", modelEn: "Life in Canada has advantages, for example safety and public services." },
+  },
+
+  // ─────────── CAUSE (more) ───────────
+  {
+    id: 'grace-a', word: 'grâce à', category: 'Cause',
+    gloss: 'thanks to (positive cause)',
+    when: "Positive causes ONLY — something good happened because of it. Followed by a NOUN, not a clause.",
+    examples: [
+      { fr: "<b>Grâce à</b> mes cours, je parle mieux français.", en: "Thanks to my classes, I speak French better." },
+      { fr: "<b>Grâce au</b> métro, j'arrive toujours à l'heure.", en: "Thanks to the metro, I always arrive on time." },
+      { fr: "Elle a trouvé un emploi <b>grâce à</b> son réseau.", en: "She found a job thanks to her network." },
+    ],
+    complete: { context: "J'ai réussi mon examen ___ l'aide de mon professeur.", contextEn: "I passed my exam ___ the help of my teacher." },
+    recognize: "Grâce à l'application, je pratique mon français tous les jours.",
+    recognizeEn: "Thanks to the app, I practise my French every day.",
+    shadow: { prompt: "Credit a positive cause with «grâce à»:", lead: "J'ai trouvé mon appartement…", leadEn: "I found my apartment…", model: "J'ai trouvé mon appartement grâce à un ami qui connaissait le propriétaire.", modelEn: "I found my apartment thanks to a friend who knew the landlord." },
+  },
+  {
+    id: 'a-cause-de', word: 'à cause de', category: 'Cause',
+    gloss: 'because of (negative cause)',
+    when: "Negative or neutral causes — problems, delays, bad weather. Followed by a NOUN. The evil twin of grâce à.",
+    examples: [
+      { fr: "Le vol est annulé <b>à cause de</b> la tempête.", en: "The flight is cancelled because of the storm." },
+      { fr: "Je suis en retard <b>à cause du</b> trafic.", en: "I am late because of the traffic." },
+      { fr: "<b>À cause des</b> travaux, la rue est fermée.", en: "Because of the construction, the street is closed." },
+    ],
+    complete: { context: "L'école est fermée aujourd'hui ___ la tempête de neige.", contextEn: "School is closed today ___ the snowstorm." },
+    recognize: "À cause de la grève, les autobus ne circulent pas.",
+    recognizeEn: "Because of the strike, the buses are not running.",
+    shadow: { prompt: "Explain a problem with «à cause de»:", lead: "Je n'ai pas pu venir à la réunion…", leadEn: "I couldn't come to the meeting…", model: "Je n'ai pas pu venir à la réunion à cause d'un rendez-vous chez le médecin.", modelEn: "I couldn't come to the meeting because of a doctor's appointment." },
+  },
+
+  // ─────────── CONCESSION ───────────
+  {
+    id: 'quand-meme', word: 'quand même', category: 'Contrast',
+    gloss: 'still / anyway / all the same',
+    when: "Spoken French's favourite concession: despite the obstacle, the thing happens anyway. Usually placed AFTER the verb.",
+    examples: [
+      { fr: "Il pleuvait, mais on est sortis <b>quand même</b>.", en: "It was raining, but we went out anyway." },
+      { fr: "C'est cher, mais je vais le prendre <b>quand même</b>.", en: "It's expensive, but I'll take it anyway." },
+      { fr: "Je suis fatigué, mais je vais <b>quand même</b> finir le travail.", en: "I'm tired, but I'll still finish the work." },
+    ],
+    complete: { context: "Le restaurant était complet, mais on a ___ trouvé une petite table.", contextEn: "The restaurant was full, but we ___ found a small table." },
+    recognize: "C'était difficile, mais j'ai quand même réussi l'examen.",
+    recognizeEn: "It was hard, but I still passed the exam.",
+    shadow: { prompt: "Concede the obstacle, then push through with «quand même»:", lead: "Le français est difficile…", leadEn: "French is difficult…", model: "Le français est difficile, mais je pratique quand même tous les jours.", modelEn: "French is difficult, but I still practise every day." },
   },
 ];

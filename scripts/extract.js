@@ -154,7 +154,8 @@ if (window.CONNECTOR_DRILLS) for (const d of window.CONNECTOR_DRILLS) {
 
 // CONNECTORS (mastery) — examples (stripped), recognize clips, shadow models
 if (window.CONNECTORS) for (const c of window.CONNECTORS) {
-  if (c.examples) c.examples.forEach(ex => add(ex));    // stripTags + stripGloss happens in add()
+  // examples are { fr, en } objects (legacy: plain strings)
+  if (c.examples) c.examples.forEach(ex => add(typeof ex === 'string' ? ex : ex.fr));
   if (c.recognize) add(c.recognize);
   if (c.shadow && c.shadow.model) add(c.shadow.model);
 }

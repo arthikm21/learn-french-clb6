@@ -1,8 +1,8 @@
-// Connector Mastery — the 14 most-tested CLB 6 connectors, presented as a
+// Connector Mastery — the most-tested CLB 6 connectors, presented as a
 // library + 4 drill exercise types.
 //
 // Routes:
-//   #connectormastery                  → library (14 connectors grouped by category)
+//   #connectormastery                  → library (all connectors grouped by category)
 //   #connectormastery?focus=<id>       → deep view of one connector
 //   #connectormastery?drill=mixed      → 12-question shuffled drill across all 4 types
 //   #connectormastery?drill=complete   → fill-the-blank only
@@ -52,14 +52,14 @@ window.ConnectorMasteryModule = (function () {
         <div class="flag-stripes"></div>
         <p class="eyebrow-h">Connector Mastery</p>
         <h1>Fourteen words.<br/>One CLB 6 marker.</h1>
-        <p style="margin-top:var(--sp-4)">Using connectors automatically is one of the strongest predictors of CLB 6 speaking and writing. Learn the 14 below — when each one fits, then drill until they appear in your output without thinking.</p>
+        <p style="margin-top:var(--sp-4)">Using connectors automatically is one of the strongest predictors of CLB 6 speaking and writing. Learn the ${CONNECTORS.length} below — when each one fits, then drill until they appear in your output without thinking.</p>
       </section>
 
       <div class="spotlight" style="cursor:pointer" data-drill="mixed">
         <div>
           <p class="eyebrow">Drill</p>
           <h2>Mixed practice — 12 questions, all 4 types</h2>
-          <p>Fill blanks · listen + identify · shadow + repeat. Drawn at random from all 14 connectors.</p>
+          <p>Fill blanks · listen + identify · shadow + repeat. Drawn at random from all ${CONNECTORS.length} connectors.</p>
         </div>
         <button class="btn primary big">Start drill<span class="arr">→</span></button>
       </div>
@@ -74,7 +74,7 @@ window.ConnectorMasteryModule = (function () {
 
       <div class="spacer lg"></div>
       <div class="grammar-box">
-        <h3>Why these 14?</h3>
+        <h3>Why these ${CONNECTORS.length}?</h3>
         <p>TCF graders score speaking and writing on <b>structuration du discours</b> — how organized your ideas are. Connectors are the visible signal of organization. Using <i>cependant</i> instead of <i>mais</i>, <i>par conséquent</i> instead of <i>donc</i>, <i>en effet</i> to back up a claim — these single-word swaps move you from CLB 4-5 to CLB 6 in the rater's ear.</p>
       </div>
     `;
@@ -114,7 +114,7 @@ window.ConnectorMasteryModule = (function () {
       </div>
 
       <div class="row" style="justify-content:center;margin-top:var(--sp-7);gap:var(--sp-3)">
-        <button class="btn primary big" onclick="App.go('connectormastery', { drill: 'mixed' })">Drill all 14<span class="arr">→</span></button>
+        <button class="btn primary big" onclick="App.go('connectormastery', { drill: 'mixed' })">Drill them all<span class="arr">→</span></button>
         <button class="btn ghost" onclick="App.go('connectormastery')">Back to library</button>
       </div>
     `;
