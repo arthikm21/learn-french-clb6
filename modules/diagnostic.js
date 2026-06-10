@@ -1,48 +1,37 @@
-// Diagnostic placement test — 20 questions, marks early lessons as done if learner already knows them.
+// Diagnostic placement test — draws a stratified random 20 from the
+// 100-question bank in data/diagnostic.js, so every attempt is different.
+// Correct answers auto-mark the mapped lessons done.
 window.DiagnosticModule = (function () {
 
-  const Q = [
-    // Foundation (CLB 2-3)
-    { id: 'q1', topic: 'greeting', skipIfPass: ['vocab:greetings'], q: 'How do you say "hello" in French?', opts: ['adieu', 'bonjour', 'aurevoir'], a: 1 },
-    { id: 'q2', topic: 'numbers', skipIfPass: ['vocab:numbers'], q: 'What is "quinze" in English?', opts: ['5', '15', '50'], a: 1 },
-    { id: 'q3', topic: 'gender', skipIfPass: ['grammar:g1-articles'], q: 'Which is correct?', opts: ['un femme', 'une femme', 'la homme'], a: 1 },
-    { id: 'q4', topic: 'colors', skipIfPass: ['vocab:colors'], q: '"Bleu" means...', opts: ['red', 'green', 'blue'], a: 2 },
-    // A1
-    { id: 'q5', topic: 'etre', skipIfPass: ['grammar:g2-etre'], q: 'Choose: Nous ___ Canadiens.', opts: ['êtes', 'sommes', 'sont'], a: 1 },
-    { id: 'q6', topic: 'avoir', skipIfPass: ['grammar:g3-avoir'], q: 'Choose: Elle ___ deux frères.', opts: ['a', 'as', 'est'], a: 0 },
-    { id: 'q7', topic: 'er-verbs', skipIfPass: ['grammar:g4-er-verbs'], q: 'Conjugate "parler" for "vous":', opts: ['parlez', 'parlons', 'parlent'], a: 0 },
-    { id: 'q8', topic: 'negation', skipIfPass: ['grammar:g5-negation'], q: 'How do you say "I do not eat meat"?', opts: ['Je mange pas viande', 'Je ne mange pas de viande', 'Je ne pas mange viande'], a: 1 },
-    // A2
-    { id: 'q9', topic: 'family', skipIfPass: ['vocab:family'], q: '"Ma sœur" means...', opts: ['my brother', 'my sister', 'my mother'], a: 1 },
-    { id: 'q10', topic: 'time', skipIfPass: ['vocab:time'], q: '"Demain" means...', opts: ['yesterday', 'today', 'tomorrow'], a: 2 },
-    { id: 'q11', topic: 'passe-compose', skipIfPass: ['grammar:g8-passe-compose'], q: 'Choose: Hier, je ___ au marché.', opts: ['vais', 'suis allé', 'allais'], a: 1 },
-    { id: 'q12', topic: 'futur-proche', skipIfPass: ['grammar:g9-futur-proche'], q: '"I am going to eat" =', opts: ['Je mange', 'Je vais manger', 'Je mangerai'], a: 1 },
-    // B1
-    { id: 'q13', topic: 'imparfait', skipIfPass: ['grammar:g10-imparfait'], q: 'Choose: Quand j\'étais petit, je ___ au foot.', opts: ['joue', 'jouais', 'ai joué'], a: 1 },
-    { id: 'q14', topic: 'pronouns', skipIfPass: ['grammar:g11-pronouns'], q: '"Je vois le film" → Je ___ vois.', opts: ['le', 'la', 'lui'], a: 0 },
-    { id: 'q15', topic: 'y-en', skipIfPass: ['grammar:g14-y-en'], q: '"Je mange du pain" → J\'___ mange.', opts: ['y', 'en', 'le'], a: 1 },
-    { id: 'q16', topic: 'relative', skipIfPass: ['grammar:g15-relative'], q: 'Choose: Le livre ___ je lis est intéressant.', opts: ['qui', 'que', 'dont'], a: 1 },
-    { id: 'q17', topic: 'conditional', skipIfPass: ['grammar:g17-conditional'], q: 'Choose: Je ___ un café, s\'il vous plaît. (polite request)', opts: ['veux', 'voudrais', 'voudrai'], a: 1 },
-    { id: 'q18', topic: 'si-clauses', skipIfPass: ['grammar:g18-si'], q: 'Choose: Si j\'avais de l\'argent, je ___ voyager.', opts: ['vais', 'voudrais', 'voudrai'], a: 1 },
-    // CLB 6 grammar
-    { id: 'q19', topic: 'subjunctive', skipIfPass: ['grammar:g20-subjunctive'], q: 'Choose: Il faut que tu ___ patient. (être)', opts: ['es', 'soit', 'sois'], a: 2 },
-    { id: 'q20', topic: 'pcvsimp', skipIfPass: ['grammar:g30-pc-vs-imp'], q: 'Choose: Hier, il pleuvait quand je ___ au bureau. (arriver)', opts: ['arrivais', 'suis arrivé', 'arriverai'], a: 1 },
-  ];
+  // Stratified random draw: N questions per level (DIAGNOSTIC_DRAW),
+  // shuffled within each stratum, then ordered easy → hard.
+  function drawQuestions() {
+    const order = ['F', 'A1', 'A2', 'B1', 'B2'];
+    const out = [];
+    for (const lvl of order) {
+      const pool = DIAGNOSTIC_BANK.filter(q => q.level === lvl)
+        .sort(() => Math.random() - 0.5)
+        .slice(0, DIAGNOSTIC_DRAW[lvl] || 0);
+      out.push(...pool);
+    }
+    return out;
+  }
 
   function render(container) {
     container.innerHTML = `
       <div class="hero">
         <div class="flag-stripes"></div>
         <h1>📍 Placement Test</h1>
-        <p>20 quick questions to find your level. Lessons you clearly know will be marked done so you can skip ahead. Takes ~5 minutes.</p>
+        <p>20 questions drawn at random from a bank of ${DIAGNOSTIC_BANK.length} — every attempt is different. Lessons you clearly know will be marked done so you can skip ahead. Takes ~5 minutes.</p>
       </div>
       <div class="grammar-box">
         <h3>What this does</h3>
         <ul style="margin-left:20px;line-height:1.8">
-          <li>Tests vocabulary, grammar (present → conditional), past tense, and the hardest CLB 6 grammar point.</li>
+          <li>Tests vocabulary and grammar from absolute beginner up to the hardest CLB 6 traps.</li>
+          <li>Questions are drawn fresh from a ${DIAGNOSTIC_BANK.length}-question bank, balanced across 5 difficulty levels.</li>
           <li>You get one shot per question — pick the answer you'd give without checking.</li>
           <li>If you pass a question, the corresponding lesson is auto-marked done.</li>
-          <li>You can re-take the test anytime; passes are additive, never subtractive.</li>
+          <li>Re-take it anytime — you'll get different questions; passes are additive, never subtractive.</li>
         </ul>
       </div>
       <div class="center" style="margin-top:24px">
@@ -53,6 +42,7 @@ window.DiagnosticModule = (function () {
   }
 
   function startTest(container) {
+    const Q = drawQuestions();
     let i = 0;
     const answers = [];
     function show() {

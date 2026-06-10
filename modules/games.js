@@ -1,24 +1,37 @@
 // Interactive games — all click/tap-based for mobile compatibility.
 window.GamesModule = (function () {
+  const GAME_LIST = [
+    { id: 'gender',    icon: '⚖️', title: 'Gender Sort',       desc: 'Tap noun, tap masculin or féminin. Fastest gender-mastery drill.' },
+    { id: 'conjrace',  icon: '🏁', title: 'Conjugation Race',  desc: 'Type the right verb form before time runs out.' },
+    { id: 'sentence',  icon: '🧩', title: 'Sentence Builder',  desc: 'Arrange words into correct French sentences.' },
+    { id: 'memory',    icon: '🧠', title: 'Memory Match',      desc: 'Match French to English. Builds recognition speed.' },
+    { id: 'translate', icon: '🌐', title: 'Quick Translate',   desc: 'See French → pick English meaning. Speed-builds vocab.' },
+    { id: 'verb',      icon: '⚡', title: 'Tense Picker',      desc: 'Which tense fits? Pick passé composé, imparfait, futur...' },
+    { id: 'dictation', icon: '📝', title: 'Dictation Race',    desc: 'Hear a sentence, type it within the time limit. Builds ear+spelling.' },
+    { id: 'errorspot', icon: '🔍', title: 'Spot the Error',    desc: 'See a sentence with one mistake — find and fix it.' },
+    { id: 'anagram',   icon: '🔤', title: 'Verb Anagram',      desc: 'Scrambled letters → spell the correct verb conjugation.' },
+  ];
+
   function renderList(container) {
+    const doneCount = GAME_LIST.filter(g => App.state.lessons['games:' + g.id]).length;
     container.innerHTML = `
       ${Chrome.render({ back: 'home', crumbs: ['Home', 'Games'] })}
       <section class="hero">
         <div class="flag-stripes"></div>
         <p class="eyebrow-h">Games</p>
         <h1>Drill it.<br/>Through play.</h1>
-        <p style="margin-top:var(--sp-4)">Nine games. Pattern recognition through repetition without grinding.</p>
+        <p style="margin-top:var(--sp-4)">Nine games. Pattern recognition through repetition without grinding.${doneCount ? ` <b>${doneCount}/${GAME_LIST.length} completed.</b>` : ''}</p>
       </section>
       <div class="grid">
-        <div class="card" onclick="App.go('games', { game: 'gender' })"><div class="icon">⚖️</div><h3>Gender Sort</h3><p>Tap noun, tap masculin or féminin. Fastest gender-mastery drill.</p></div>
-        <div class="card" onclick="App.go('games', { game: 'conjrace' })"><div class="icon">🏁</div><h3>Conjugation Race</h3><p>Type the right verb form before time runs out.</p></div>
-        <div class="card" onclick="App.go('games', { game: 'sentence' })"><div class="icon">🧩</div><h3>Sentence Builder</h3><p>Arrange words into correct French sentences.</p></div>
-        <div class="card" onclick="App.go('games', { game: 'memory' })"><div class="icon">🧠</div><h3>Memory Match</h3><p>Match French to English. Builds recognition speed.</p></div>
-        <div class="card" onclick="App.go('games', { game: 'translate' })"><div class="icon">🌐</div><h3>Quick Translate</h3><p>See French → pick English meaning. Speed-builds vocab.</p></div>
-        <div class="card" onclick="App.go('games', { game: 'verb' })"><div class="icon">⚡</div><h3>Tense Picker</h3><p>Which tense fits? Pick passé composé, imparfait, futur...</p></div>
-        <div class="card" onclick="App.go('games', { game: 'dictation' })"><div class="icon">📝</div><h3>Dictation Race</h3><p>Hear a sentence, type it within the time limit. Builds ear+spelling.</p></div>
-        <div class="card" onclick="App.go('games', { game: 'errorspot' })"><div class="icon">🔍</div><h3>Spot the Error</h3><p>See a sentence with one mistake — find and fix it.</p></div>
-        <div class="card" onclick="App.go('games', { game: 'anagram' })"><div class="icon">🔤</div><h3>Verb Anagram</h3><p>Scrambled letters → spell the correct verb conjugation.</p></div>
+        ${GAME_LIST.map(g => {
+          const done = !!App.state.lessons['games:' + g.id];
+          return `
+        <div class="card" onclick="App.go('games', { game: '${g.id}' })"${done ? ' style="border-color:var(--good)"' : ''}>
+          <div class="icon">${g.icon}</div>
+          <h3>${g.title}${done ? ' <span class="tag" style="background:var(--good);color:#fff">✓ Done</span>' : ''}</h3>
+          <p>${g.desc}</p>
+        </div>`;
+        }).join('')}
       </div>`;
   }
 
