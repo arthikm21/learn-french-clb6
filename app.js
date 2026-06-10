@@ -265,7 +265,7 @@ window.App = (function () {
       <p class="section-sub">Every module is open. Path orders them. Mistakes feed back into review.</p>
       <div class="grid">
         <div class="card" onclick="App.go('path')"><div class="icon">🗺️</div><h3>Learning Path</h3><p>Ordered path through 8 phases. Next step always highlighted.</p></div>
-        <div class="card" onclick="App.go('scenario')"><div class="icon">🇨🇦</div><h3>Scenarios <span class="tag verb">Oral</span></h3><p>30 real Canadian life situations. Listen → vocab → shadow → speak it yourself.</p></div>
+        <div class="card" onclick="App.go('scenario')"><div class="icon">🇨🇦</div><h3>Scenarios <span class="tag verb">Oral</span></h3><p>50 real Canadian life situations. Listen → vocab → shadow → speak it yourself.</p></div>
         <div class="card" onclick="App.go('listenmastery')"><div class="icon">🎧</div><h3>Listen Mastery <span class="tag verb">Oral</span></h3><p>75 clips, 5 exercise types, 15 categories. Speed ramps from 0.7x to 1.2x.</p></div>
         <div class="card" onclick="App.go('connectormastery')"><div class="icon">🔗</div><h3>Connector Mastery <span class="tag verb">Oral</span></h3><p>22 connectors that move you from CLB 4-5 to CLB 6. Library + 4 drill types.</p></div>
         <div class="card" onclick="App.go('phonics')"><div class="icon">🔊</div><h3>Phonics &amp; Sounds</h3><p>7 units plus minimal-pair ear drills — u vs ou, nasals, é vs è, liaison.</p></div>
