@@ -122,7 +122,7 @@ window.PhaseGateModule = (function () {
         <div class="flag-stripes"></div>
         <p class="eyebrow-h">${phase.icon} Phase ${phase.id} · ${escapeHTML(phase.clb)}</p>
         <h1>${escapeHTML(phase.gateTitle)}</h1>
-        <p style="margin-top:var(--sp-4)">${escapeHTML(gate.questions.length)} questions · ${Math.round(gate.pass * 100)}% to pass · wrong answers → Weak Spots.</p>
+        <p style="margin-top:var(--sp-4)">${Math.min(gate.draw || 20, gate.questions.length)} questions drawn at random from a pool of ${gate.questions.length} · ${Math.round(gate.pass * 100)}% to pass · wrong answers → Weak Spots.</p>
       </section>
 
       <div class="grammar-box">
@@ -161,16 +161,22 @@ window.PhaseGateModule = (function () {
   function renderQuiz(container, phase) {
     const gate = GATES[phase.gateId];
     if (!gate) { App.go('gate'); return; }
+    // Random draw per attempt — retakes get different questions.
+    const drawN = Math.min(gate.draw || 20, gate.questions.length);
+    const quiz = gate.questions
+      .map((q, poolIdx) => ({ q, poolIdx }))
+      .sort(() => Math.random() - 0.5)
+      .slice(0, drawN);
     let qi = 0, correct = 0;
 
     function show() {
-      if (qi >= gate.questions.length) return finish();
-      const q = gate.questions[qi];
+      if (qi >= quiz.length) return finish();
+      const q = quiz[qi].q;
       container.innerHTML = `
         ${Chrome.render({
           back: () => `App.go('gate', { phase: '${phase.id}' })`,
           crumbs: ['Gates', `Phase ${phase.id}`, 'Quiz'],
-          progress: { current: qi, total: gate.questions.length }
+          progress: { current: qi, total: quiz.length }
         })}
         <div class="lesson">
           <h2>${phase.icon} ${escapeHTML(gate.title)}</h2>
@@ -195,7 +201,7 @@ window.PhaseGateModule = (function () {
             container.querySelector('#fb').innerHTML = `<div class="feedback bad">✗ Right answer: <b>${escapeHTML(q.opts[q.a])}</b>. ${q.why ? '<small>' + q.why + '</small>' : ''}</div><div class="adv-host"></div>`;
             MistakesModule.record({
               type: 'gate',
-              sig: `gate:${phase.id}:${qi}`,
+              sig: `gate:${phase.id}:${quiz[qi].poolIdx}`,
               prompt: `[Phase ${phase.id} gate] ${q.q}`,
               correct: q.opts[q.a],
               your: q.opts[i],
@@ -212,8 +218,8 @@ window.PhaseGateModule = (function () {
     }
 
     function finish() {
-      const pct = Math.round((correct / gate.questions.length) * 100);
-      const pass = (correct / gate.questions.length) >= gate.pass;
+      const pct = Math.round((correct / quiz.length) * 100);
+      const pass = (correct / quiz.length) >= gate.pass;
       if (pass) App.markLessonDone(`gate:phase-${phase.id}`);
       const nextPh = PHASES.find(p => p.id === phase.id + 1);
 
@@ -223,7 +229,7 @@ window.PhaseGateModule = (function () {
           <div class="flag-stripes"></div>
           <p class="eyebrow-h" style="${pass ? 'color:rgba(255,255,255,.7)' : ''}">Gate Result</p>
           <h1>${pass ? '🏆 Gate passed.' : '💪 Almost there.'}</h1>
-          <p style="margin-top:var(--sp-4)">Score: <b>${correct}/${gate.questions.length}</b> (${pct}%) · Threshold: ${Math.round(gate.pass * 100)}%</p>
+          <p style="margin-top:var(--sp-4)">Score: <b>${correct}/${quiz.length}</b> (${pct}%) · Threshold: ${Math.round(gate.pass * 100)}%</p>
         </section>
 
         ${pass ? `
