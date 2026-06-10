@@ -123,3 +123,48 @@ window.SPEAK_TASK3 = {
     },
   },
 };
+
+// ───────────── Batch 4 expansion (22 new topics) ─────────────
+// All use the standard prompt structure + the same scoring keyword set as
+// the originals — only the topic changes, exactly like the real exam.
+(function () {
+  const KW = {
+    position: ['je pense', 'à mon avis', 'selon moi', 'personnellement', 'je crois', 'je suis pour', 'je suis contre', 'je trouve'],
+    connectors: ['cependant', 'néanmoins', 'par conséquent', 'en revanche', "d'abord", 'ensuite', 'enfin', "d'une part", "d'autre part", 'par ailleurs', 'en outre', 'en effet', 'ainsi', 'donc', 'de plus'],
+    examples: ['par exemple', 'comme', 'notamment', "c'est le cas", 'prenons'],
+    counter: ['certains pensent', 'on pourrait dire', 'il est vrai que', 'bien sûr', 'certes', 'évidemment'],
+  };
+  const PROMPT = "Prenez position clairement, défendez-la avec au moins 3 raisons, donnez un exemple concret, et anticipez un contre-argument. Parlez pendant 3 à 5 minutes.";
+  const PROMPT_EN = "Take a clear position, defend it with at least 3 reasons, give a concrete example, and anticipate a counter-argument. Speak for 3 to 5 minutes.";
+  const TOPICS = [
+    ['st3_cars_city', 'Les voitures au centre-ville', 'Faut-il interdire les voitures dans les centres-villes ?', 'Should cars be banned from city centres?'],
+    ['st3_fastfood', 'La taxe sur la malbouffe', 'Faut-il taxer davantage la malbouffe pour financer la santé publique ?', 'Should junk food be taxed more to fund public health?'],
+    ['st3_uniform', "L'uniforme à l'école", "L'uniforme scolaire devrait-il être obligatoire ?", 'Should school uniforms be mandatory?'],
+    ['st3_pets_apartments', 'Les animaux en logement', 'Les propriétaires devraient-ils avoir le droit de refuser les animaux ?', 'Should landlords have the right to refuse pets?'],
+    ['st3_retirement', "L'âge de la retraite", "Faut-il repousser l'âge de la retraite ?", 'Should the retirement age be raised?'],
+    ['st3_bilingual_kids', 'Les enfants bilingues', 'Élever ses enfants dans deux langues : avantage ou source de confusion ?', 'Raising children in two languages: advantage or source of confusion?'],
+    ['st3_online_shopping', "L'achat en ligne", "L'achat en ligne menace-t-il les commerces de quartier ?", 'Does online shopping threaten local businesses?'],
+    ['st3_fourday_week', 'La semaine de quatre jours', 'La semaine de travail de quatre jours devrait-elle devenir la norme ?', 'Should the four-day work week become the norm?'],
+    ['st3_phones_school', "Les téléphones à l'école", 'Faut-il interdire les téléphones cellulaires dans les écoles secondaires ?', 'Should cell phones be banned in high schools?'],
+    ['st3_public_daycare', 'Les garderies universelles', 'Les garderies subventionnées devraient-elles être accessibles à toutes les familles ?', 'Should subsidized daycare be accessible to all families?'],
+    ['st3_mass_tourism', 'Le tourisme de masse', 'Le tourisme de masse fait-il plus de mal que de bien ?', 'Does mass tourism do more harm than good?'],
+    ['st3_composting', 'Le compostage obligatoire', 'Le compostage devrait-il être obligatoire pour tous les ménages ?', 'Should composting be mandatory for all households?'],
+    ['st3_multigen', 'Vivre avec ses parents âgés', 'Devrait-on vivre avec ses parents âgés plutôt que de les placer en résidence ?', 'Should we live with our elderly parents rather than placing them in a home?'],
+    ['st3_minwage', 'Le salaire minimum', 'Faut-il augmenter fortement le salaire minimum ?', 'Should the minimum wage be raised significantly?'],
+    ['st3_ai_jobs', "L'intelligence artificielle au travail", "L'intelligence artificielle menace-t-elle nos emplois ?", 'Does artificial intelligence threaten our jobs?'],
+    ['st3_kids_sports', 'La compétition chez les jeunes', 'Le sport de compétition est-il bon pour les enfants ?', 'Are competitive sports good for children?'],
+    ['st3_homework', 'Les devoirs à la maison', 'Faut-il abolir les devoirs au primaire ?', 'Should homework be abolished in elementary school?'],
+    ['st3_youth_service', 'Le bénévolat obligatoire', 'Les jeunes devraient-ils faire du bénévolat obligatoire avant 18 ans ?', 'Should young people do mandatory volunteer work before 18?'],
+    ['st3_bike_lanes', 'Les pistes cyclables', 'Faut-il construire plus de pistes cyclables, même au détriment du stationnement ?', 'Should more bike lanes be built, even at the expense of parking?'],
+    ['st3_tipping', 'La culture du pourboire', "Faut-il abolir le pourboire et augmenter les salaires des serveurs ?", "Should tipping be abolished and servers' wages raised?"],
+    ['st3_regions', "S'installer en région", "Les nouveaux arrivants devraient-ils s'installer en région plutôt que dans les grandes villes ?", 'Should newcomers settle in smaller regions rather than big cities?'],
+    ['st3_socialmedia_age', "L'âge minimum pour les réseaux sociaux", 'Faut-il imposer un âge minimum de seize ans pour les réseaux sociaux ?', 'Should a minimum age of 16 be imposed for social media?'],
+  ];
+  for (const [id, title, topic, topicEn] of TOPICS) {
+    window.SPEAK_TASK3[id] = {
+      title, level: 'CLB 6', topic, topicEn,
+      prompt: PROMPT, promptEn: PROMPT_EN,
+      targetTime: 300, keywords: KW,
+    };
+  }
+})();
