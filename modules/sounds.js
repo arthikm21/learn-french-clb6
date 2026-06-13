@@ -43,6 +43,31 @@ window.Sounds = (function () {
   };
   const lastAt = {};
 
+  // ── Mobile mix ──────────────────────────────────────────────────────────
+  // Touch-primary devices (phones/tablets) get a quieter, sparser mix. The
+  // same palette that feels crisp and tactile on a desktop is fatiguing on a
+  // phone held to the ear, where the thumb also fires many more taps. Computed
+  // live (not cached) so hybrid/convertible devices and dev-tools emulation
+  // stay correct.
+  function isTouchPrimary() {
+    try {
+      if (window.matchMedia &&
+          (window.matchMedia('(pointer: coarse)').matches ||
+           window.matchMedia('(hover: none)').matches)) return true;
+    } catch {}
+    return (navigator && navigator.maxTouchPoints || 0) > 0;
+  }
+  const MOBILE_VOL = 0.6; // master volume multiplier on touch devices
+  function effectiveVolume(v) { return isTouchPrimary() ? v * MOBILE_VOL : v; }
+  // Extra spacing (ms floor) for the chatty navigation/transition sounds on
+  // touch — rapid section-hopping by thumb shouldn't machine-gun.
+  const MOBILE_THROTTLE = {
+    nav: 220, swoosh: 320, tabSwap: 260, pathStep: 220, locked: 320,
+    selectChange: 180, clickBack: 140,
+  };
+  // Purely decorative / repetitive sounds we drop entirely on touch.
+  const MOBILE_MUTE = new Set(['tickCountdown']);
+
   function ensureCtx() {
     if (ctx) return ctx;
     try {
@@ -50,7 +75,7 @@ window.Sounds = (function () {
       if (!AC) return null;
       ctx = new AC();
       master = ctx.createGain();
-      master.gain.value = readMasterVolume();
+      master.gain.value = effectiveVolume(readMasterVolume());
       master.connect(ctx.destination);
     } catch { ctx = null; master = null; }
     return ctx;
@@ -71,7 +96,7 @@ window.Sounds = (function () {
   function setMasterVolume(v) {
     if (!master) return;
     master.gain.cancelScheduledValues(ctx.currentTime);
-    master.gain.setValueAtTime(v, ctx.currentTime);
+    master.gain.setValueAtTime(effectiveVolume(v), ctx.currentTime);
   }
 
   // Duck UI sounds while TTS plays so they don't fight for attention.
@@ -98,8 +123,13 @@ window.Sounds = (function () {
       if (CELEBRATION_CATS.has(category) && typeof Settings.isCelebrationsOn === 'function' && !Settings.isCelebrationsOn()) return false;
     }
     if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return false;
+    // Mobile: drop decorative/repetitive sounds and space out nav chatter.
+    const touch = isTouchPrimary();
+    if (touch && MOBILE_MUTE.has(category)) return false;
     const now = Date.now();
-    if ((now - (lastAt[category] || 0)) < (throttleMs[category] || 0)) return false;
+    let win = throttleMs[category] || 0;
+    if (touch && MOBILE_THROTTLE[category]) win = Math.max(win, MOBILE_THROTTLE[category]);
+    if ((now - (lastAt[category] || 0)) < win) return false;
     lastAt[category] = now;
     return true;
   }
@@ -569,15 +599,22 @@ window.Sounds = (function () {
   }
 
   function setup() {
-    const handler = (e) => {
-      if (e.button != null && e.button !== 0) return;
-      const name = shouldTick(e.target);
-      if (!name) return;
+    // Sounds fire on a *deliberate tap*, not on touch-start. On mobile,
+    // pointerdown fires the instant a finger lands — before the browser knows
+    // whether it's a tap or the start of a scroll. Arming on pointerdown but
+    // only playing on pointerup (and cancelling if the finger moves past a
+    // small threshold, or the gesture turns into a scroll) means scrolling past
+    // a card/option no longer makes noise. Tap latency is imperceptible.
+    const MOVE_TOL = 10; // px of drift before we treat the gesture as a scroll
+    let pending = null;  // { name, x, y, target }
+
+    function dispatch(p) {
+      const name = p.name;
       // Top-nav links get a per-position pitch on the C-major scale so the
       // row of routes sounds like a small xylophone. Everything else falls
       // back to the standard dispatch.
       if (name === 'nav') {
-        const navLink = e.target.closest && e.target.closest('.nav a[data-route]');
+        const navLink = p.target.closest && p.target.closest('.nav a[data-route]');
         if (navLink) {
           const siblings = navLink.parentElement
             ? Array.from(navLink.parentElement.querySelectorAll('a[data-route]'))
@@ -587,8 +624,33 @@ window.Sounds = (function () {
         }
       }
       play(name);
-    };
-    document.addEventListener('pointerdown', handler, true);
+    }
+
+    document.addEventListener('pointerdown', (e) => {
+      pending = null;
+      if (e.button != null && e.button !== 0) return;
+      const name = shouldTick(e.target);
+      if (!name) return;
+      pending = { name, x: e.clientX, y: e.clientY, target: e.target };
+    }, true);
+
+    document.addEventListener('pointermove', (e) => {
+      if (!pending) return;
+      // Finger/cursor drifted too far → this is a scroll or drag, not a tap.
+      if (Math.abs(e.clientX - pending.x) > MOVE_TOL ||
+          Math.abs(e.clientY - pending.y) > MOVE_TOL) {
+        pending = null;
+      }
+    }, true);
+
+    // Browser took over the gesture for scrolling → never a tap.
+    document.addEventListener('pointercancel', () => { pending = null; }, true);
+
+    document.addEventListener('pointerup', () => {
+      const p = pending;
+      pending = null;
+      if (p) dispatch(p);
+    }, true);
 
     // <select> change events emit selectChange even when opened via keyboard.
     document.addEventListener('change', (e) => {
