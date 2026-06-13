@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+# No crawl value in the audio blobs or build/data internals
+Disallow: /audio/
+Disallow: /data/
+Disallow: /modules/
+Disallow: /scripts/
+
+Sitemap: https://frenchclb6.ca/sitemap.xml

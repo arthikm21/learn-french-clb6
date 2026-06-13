@@ -2151,3 +2151,31 @@ body.dark .reading-text .r-sent.active { background: rgba(255, 159, 10, .5); }
   border-radius: var(--r-md);
   flex-wrap: wrap;
 }
+
+/* =========================================================================
+   STATIC SEO CONTENT BAND — crawlable content below the app, above the footer
+   ========================================================================= */
+.seo-content {
+  border-top: 1px solid var(--line);
+  margin-top: var(--sp-7);
+  padding: var(--sp-7) var(--sp-5) var(--sp-5);
+  color: var(--ink-2);
+}
+.seo-content-inner {
+  max-width: 760px;
+  margin: 0 auto;
+}
+.seo-content h2 {
+  font-size: var(--fs-22);
+  color: var(--ink);
+  letter-spacing: var(--ls-snug);
+}
+.seo-content h3 {
+  font-size: var(--fs-16);
+  color: var(--ink);
+  margin: var(--sp-5) 0 var(--sp-2);
+}
+.seo-content p { margin-top: var(--sp-3); line-height: var(--lh-loose); font-size: var(--fs-15); }
+.seo-content .seo-links { margin: var(--sp-3) 0 0; padding-left: 18px; line-height: 1.85; font-size: var(--fs-15); }
+.seo-content .seo-links a { color: var(--bleu); font-weight: var(--fw-semi); }
+.seo-content .seo-foot { margin-top: var(--sp-5); font-size: var(--fs-13); color: var(--mute); }

@@ -9,7 +9,6 @@
   <meta name="apple-mobile-web-app-title" content="Bonjour!" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="format-detection" content="telephone=no" />
-  <meta name="description" content="Free TCF Canada CLB 6 prep — phonics, vocab, grammar, listening, speaking, reading, writing, mock tests. No signup, no tracking, native Canadian French audio." />
   <link rel="canonical" href="https://frenchclb6.ca/" />
   <!-- Canonical host: the old *.pages.dev URL redirects to the custom domain. -->
   <script>
@@ -18,8 +17,8 @@
     }
   </script>
 
-  <title>Bonjour! — Free French Prep for CLB 6 / TCF Canada</title>
-  <meta name="description" content="Free no-signup French learning site for CLB 6 / TCF Canada. Neural Canadian audio, real TCF mock test, speaking tasks, writing grader, 22 grammar units. Built for Express Entry candidates and federal job seekers.">
+  <title>Free CLB 6 French Course — TCF / TEF Canada Prep | Bonjour!</title>
+  <meta name="description" content="Free CLB 6 French course for Canada. Native Canadian audio, full TCF Canada mock test, grammar, speaking and writing practice. No signup, no tracking — built for Express Entry and federal jobs.">
 
   <!-- Open Graph -->
   <meta property="og:type" content="website">
@@ -39,19 +38,69 @@
   <meta name="twitter:description" content="No signup. Neural Canadian audio. Real TCF mock test. Built for serious learners.">
   <meta name="twitter:image" content="https://frenchclb6.ca/og-image.jpg">
 
-  <!-- Theme color for mobile browsers -->
-  <meta name="theme-color" content="#0055A4">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Bonjour!">
+  <!-- Structured data: site, organization, course, FAQ -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": "https://frenchclb6.ca/#website",
+        "url": "https://frenchclb6.ca/",
+        "name": "Bonjour! — Free CLB 6 French Course",
+        "description": "Free CLB 6 / TCF Canada French course. No signup, no tracking.",
+        "inLanguage": "en-CA",
+        "publisher": { "@id": "https://frenchclb6.ca/#org" }
+      },
+      {
+        "@type": "EducationalOrganization",
+        "@id": "https://frenchclb6.ca/#org",
+        "name": "Bonjour!",
+        "url": "https://frenchclb6.ca/",
+        "logo": "https://frenchclb6.ca/og-image.jpg",
+        "description": "Free French course for CLB 6 / TCF Canada, built for Express Entry and federal job candidates."
+      },
+      {
+        "@type": "Course",
+        "name": "Free CLB 6 French Course (TCF / TEF Canada)",
+        "description": "A free, no-signup French course built for CLB 6 and the TCF / TEF Canada exams: phonics, vocabulary, grammar, listening, speaking, reading, writing, and a full mock test, with native Canadian French audio.",
+        "inLanguage": "en-CA",
+        "teaches": "French for CLB 6 / TCF Canada",
+        "isAccessibleForFree": true,
+        "provider": { "@id": "https://frenchclb6.ca/#org" },
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "CAD", "category": "Free" }
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Is this CLB 6 French course free?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Yes. The entire course is free with no signup, no email, and no payment. Your progress is stored only in your browser and never leaves your device." }
+          },
+          {
+            "@type": "Question",
+            "name": "How long does it take to reach CLB 6 in French?",
+            "acceptedAnswer": { "@type": "Answer", "text": "From a CLB 4–5 base, most learners reach CLB 6 in 3–4 months of focused daily study (30–45 minutes) plus regular French listening input." }
+          },
+          {
+            "@type": "Question",
+            "name": "Does the course use Canadian French?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Yes. Every phrase plays in a neural Canadian French voice, calibrated to the CLB 6 ceiling used for TCF / TEF Canada." }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
 
   <!-- Inter — primary UI typeface (variable, single request) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" /></noscript>
-  <link rel="stylesheet" href="styles.css?v=202606131259" />
-  <link rel="stylesheet" href="fonts/fonts.css?v=202606131259" />
+  <link rel="stylesheet" href="styles.css?v=202606131731" />
+  <link rel="stylesheet" href="fonts/fonts.css?v=202606131731" />
 </head>
 <body>
   <header class="topbar">
@@ -103,6 +152,37 @@
 
   <main id="app"></main>
 
+  <!-- Static, crawlable content. Lives outside #app so the SPA never overwrites
+       it — gives search engines and first-time visitors real content even before
+       the app hydrates. -->
+  <section class="seo-content" aria-label="About this course">
+    <div class="seo-content-inner">
+      <h2>A free CLB 6 French course for Canada</h2>
+      <p>Bonjour! is a free, no-signup French course built for one outcome: reaching
+        <strong>CLB 6</strong> (roughly B1) across all four skills on the
+        <strong>TCF Canada</strong> and <strong>TEF Canada</strong> exams. It is made for
+        Express Entry candidates, federal job seekers, and anyone who needs Canadian
+        Language Benchmark 6 in French — with native Canadian French audio, a full
+        exam-format mock test, and no tracking.</p>
+
+      <h3>What you can practise</h3>
+      <p>Phonics and minimal-pair ear training, themed vocabulary with spaced repetition,
+        grammar from A1 to B1, graded listening and reading, speaking shadowing with
+        pronunciation feedback, a writing grader, and the exact TCF Canada speaking and
+        writing task formats — all ordered into an eight-phase path with gate quizzes
+        between phases.</p>
+
+      <h3>Helpful guides</h3>
+      <ul class="seo-links">
+        <li><a href="/how-to-score-clb6">How to score CLB 6 in French</a> — band thresholds, a 3–4 month study plan, and the grammar traps that decide the exam.</li>
+        <li><a href="/clb6-french-course">The CLB 6 French course</a> — the full eight-phase path, explained.</li>
+        <li><a href="/free-french-course-canada">Free French course for Canada</a> — why it's free and what's inside.</li>
+      </ul>
+
+      <p class="seo-foot">Free CLB 6 / TCF Canada prep · No accounts · No tracking · Native Canadian French audio.</p>
+    </div>
+  </section>
+
   <footer class="footer">
     <small>Built for CLB 6 mastery · No accounts · No tracking ·
       <a href="#about" style="color:var(--bleu)">About</a> ·
@@ -127,78 +207,78 @@
     </div>
   </div>
 
-  <script defer src="data/vocab.js?v=202606131259"></script>
-  <script defer src="data/vocab_extra.js?v=202606131259"></script>
-  <script defer src="data/vocab_more.js?v=202606131259"></script>
-  <script defer src="data/vocab_tcf.js?v=202606131259"></script>
-  <script defer src="data/vocab_falsefriends.js?v=202606131259"></script>
-  <script defer src="data/grammar.js?v=202606131259"></script>
-  <script defer src="data/grammar_extra.js?v=202606131259"></script>
-  <script defer src="data/grammar_more.js?v=202606131259"></script>
-  <script defer src="data/grammar_deepdive.js?v=202606131259"></script>
-  <script defer src="data/reading.js?v=202606131259"></script>
-  <script defer src="data/reading_extra.js?v=202606131259"></script>
-  <script defer src="data/reading_more.js?v=202606131259"></script>
-  <script defer src="data/reading_tcf.js?v=202606131259"></script>
-  <script defer src="data/listening.js?v=202606131259"></script>
-  <script defer src="data/listening_extra.js?v=202606131259"></script>
-  <script defer src="data/listening_more.js?v=202606131259"></script>
-  <script defer src="data/listening_tcf.js?v=202606131259"></script>
-  <script defer src="data/listening_mastery.js?v=202606131259"></script>
-  <script defer src="data/writing.js?v=202606131259"></script>
-  <script defer src="data/spoken.js?v=202606131259"></script>
-  <script defer src="data/phonics.js?v=202606131259"></script>
-  <script defer src="data/minpairs.js?v=202606131259"></script>
-  <script defer src="data/dialogues.js?v=202606131259"></script>
-  <script defer src="data/speaktasks.js?v=202606131259"></script>
-  <script defer src="data/writetask3.js?v=202606131259"></script>
-  <script defer src="data/speaktask2.js?v=202606131259"></script>
-  <script defer src="data/speaktask3.js?v=202606131259"></script>
-  <script defer src="data/connectors.js?v=202606131259"></script>
-  <script defer src="data/connectors_mastery.js?v=202606131259"></script>
-  <script defer src="data/mock.js?v=202606131259"></script>
-  <script defer src="data/pcvsimp.js?v=202606131259"></script>
-  <script defer src="data/lessons.js?v=202606131259"></script>
-  <script defer src="data/gates.js?v=202606131259"></script>
-  <script defer src="data/scenarios.js?v=202606131259"></script>
-  <script defer src="data/diagnostic.js?v=202606131259"></script>
-  <script defer src="modules/settings.js?v=202606131259"></script>
-  <script defer src="modules/sounds.js?v=202606131259"></script>
-  <script defer src="modules/celebrate.js?v=202606131259"></script>
-  <script defer src="modules/profile.js?v=202606131259"></script>
-  <script defer src="modules/chrome.js?v=202606131259"></script>
-  <script defer src="modules/toast.js?v=202606131259"></script>
-  <script defer src="modules/srs.js?v=202606131259"></script>
-  <script defer src="modules/tts.js?v=202606131259"></script>
-  <script defer src="modules/wordpop.js?v=202606131259"></script>
-  <script defer src="modules/keyboard.js?v=202606131259"></script>
-  <script defer src="modules/grammarcheck.js?v=202606131259"></script>
-  <script defer src="modules/vocab.js?v=202606131259"></script>
-  <script defer src="modules/grammar.js?v=202606131259"></script>
-  <script defer src="modules/listen.js?v=202606131259"></script>
-  <script defer src="modules/speak.js?v=202606131259"></script>
-  <script defer src="modules/read.js?v=202606131259"></script>
-  <script defer src="modules/write.js?v=202606131259"></script>
-  <script defer src="modules/games.js?v=202606131259"></script>
-  <script defer src="modules/phonics.js?v=202606131259"></script>
-  <script defer src="modules/dialogue.js?v=202606131259"></script>
-  <script defer src="modules/speaktasks.js?v=202606131259"></script>
-  <script defer src="modules/writetask3.js?v=202606131259"></script>
-  <script defer src="modules/speaktask2.js?v=202606131259"></script>
-  <script defer src="modules/speaktask3.js?v=202606131259"></script>
-  <script defer src="modules/connectors.js?v=202606131259"></script>
-  <script defer src="modules/mock.js?v=202606131259"></script>
-  <script defer src="modules/tcfguide.js?v=202606131259"></script>
-  <script defer src="modules/pcvsimp.js?v=202606131259"></script>
-  <script defer src="modules/diagnostic.js?v=202606131259"></script>
-  <script defer src="modules/mistakes.js?v=202606131259"></script>
-  <script defer src="modules/path.js?v=202606131259"></script>
-  <script defer src="modules/phasegate.js?v=202606131259"></script>
-  <script defer src="modules/progress.js?v=202606131259"></script>
-  <script defer src="modules/deepdive.js?v=202606131259"></script>
-  <script defer src="modules/scenario.js?v=202606131259"></script>
-  <script defer src="modules/listenmastery.js?v=202606131259"></script>
-  <script defer src="modules/connectormastery.js?v=202606131259"></script>
-  <script defer src="app.js?v=202606131259"></script>
+  <script defer src="data/vocab.js?v=202606131731"></script>
+  <script defer src="data/vocab_extra.js?v=202606131731"></script>
+  <script defer src="data/vocab_more.js?v=202606131731"></script>
+  <script defer src="data/vocab_tcf.js?v=202606131731"></script>
+  <script defer src="data/vocab_falsefriends.js?v=202606131731"></script>
+  <script defer src="data/grammar.js?v=202606131731"></script>
+  <script defer src="data/grammar_extra.js?v=202606131731"></script>
+  <script defer src="data/grammar_more.js?v=202606131731"></script>
+  <script defer src="data/grammar_deepdive.js?v=202606131731"></script>
+  <script defer src="data/reading.js?v=202606131731"></script>
+  <script defer src="data/reading_extra.js?v=202606131731"></script>
+  <script defer src="data/reading_more.js?v=202606131731"></script>
+  <script defer src="data/reading_tcf.js?v=202606131731"></script>
+  <script defer src="data/listening.js?v=202606131731"></script>
+  <script defer src="data/listening_extra.js?v=202606131731"></script>
+  <script defer src="data/listening_more.js?v=202606131731"></script>
+  <script defer src="data/listening_tcf.js?v=202606131731"></script>
+  <script defer src="data/listening_mastery.js?v=202606131731"></script>
+  <script defer src="data/writing.js?v=202606131731"></script>
+  <script defer src="data/spoken.js?v=202606131731"></script>
+  <script defer src="data/phonics.js?v=202606131731"></script>
+  <script defer src="data/minpairs.js?v=202606131731"></script>
+  <script defer src="data/dialogues.js?v=202606131731"></script>
+  <script defer src="data/speaktasks.js?v=202606131731"></script>
+  <script defer src="data/writetask3.js?v=202606131731"></script>
+  <script defer src="data/speaktask2.js?v=202606131731"></script>
+  <script defer src="data/speaktask3.js?v=202606131731"></script>
+  <script defer src="data/connectors.js?v=202606131731"></script>
+  <script defer src="data/connectors_mastery.js?v=202606131731"></script>
+  <script defer src="data/mock.js?v=202606131731"></script>
+  <script defer src="data/pcvsimp.js?v=202606131731"></script>
+  <script defer src="data/lessons.js?v=202606131731"></script>
+  <script defer src="data/gates.js?v=202606131731"></script>
+  <script defer src="data/scenarios.js?v=202606131731"></script>
+  <script defer src="data/diagnostic.js?v=202606131731"></script>
+  <script defer src="modules/settings.js?v=202606131731"></script>
+  <script defer src="modules/sounds.js?v=202606131731"></script>
+  <script defer src="modules/celebrate.js?v=202606131731"></script>
+  <script defer src="modules/profile.js?v=202606131731"></script>
+  <script defer src="modules/chrome.js?v=202606131731"></script>
+  <script defer src="modules/toast.js?v=202606131731"></script>
+  <script defer src="modules/srs.js?v=202606131731"></script>
+  <script defer src="modules/tts.js?v=202606131731"></script>
+  <script defer src="modules/wordpop.js?v=202606131731"></script>
+  <script defer src="modules/keyboard.js?v=202606131731"></script>
+  <script defer src="modules/grammarcheck.js?v=202606131731"></script>
+  <script defer src="modules/vocab.js?v=202606131731"></script>
+  <script defer src="modules/grammar.js?v=202606131731"></script>
+  <script defer src="modules/listen.js?v=202606131731"></script>
+  <script defer src="modules/speak.js?v=202606131731"></script>
+  <script defer src="modules/read.js?v=202606131731"></script>
+  <script defer src="modules/write.js?v=202606131731"></script>
+  <script defer src="modules/games.js?v=202606131731"></script>
+  <script defer src="modules/phonics.js?v=202606131731"></script>
+  <script defer src="modules/dialogue.js?v=202606131731"></script>
+  <script defer src="modules/speaktasks.js?v=202606131731"></script>
+  <script defer src="modules/writetask3.js?v=202606131731"></script>
+  <script defer src="modules/speaktask2.js?v=202606131731"></script>
+  <script defer src="modules/speaktask3.js?v=202606131731"></script>
+  <script defer src="modules/connectors.js?v=202606131731"></script>
+  <script defer src="modules/mock.js?v=202606131731"></script>
+  <script defer src="modules/tcfguide.js?v=202606131731"></script>
+  <script defer src="modules/pcvsimp.js?v=202606131731"></script>
+  <script defer src="modules/diagnostic.js?v=202606131731"></script>
+  <script defer src="modules/mistakes.js?v=202606131731"></script>
+  <script defer src="modules/path.js?v=202606131731"></script>
+  <script defer src="modules/phasegate.js?v=202606131731"></script>
+  <script defer src="modules/progress.js?v=202606131731"></script>
+  <script defer src="modules/deepdive.js?v=202606131731"></script>
+  <script defer src="modules/scenario.js?v=202606131731"></script>
+  <script defer src="modules/listenmastery.js?v=202606131731"></script>
+  <script defer src="modules/connectormastery.js?v=202606131731"></script>
+  <script defer src="app.js?v=202606131731"></script>
 </body>
 </html>
