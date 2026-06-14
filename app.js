@@ -147,7 +147,40 @@ window.App = (function () {
     document.querySelectorAll('.nav a').forEach(a => {
       a.classList.toggle('active', a.dataset.route === route);
     });
+    // Accessibility: move focus to the new page's heading and announce the
+    // route, so keyboard and screen-reader users aren't stranded on stale focus.
+    focusHeading(container);
+    const h = container.querySelector('h1, h2');
+    announceRoute((h ? h.textContent.trim() : route) + ' — page loaded');
     refreshTopbar();
+  }
+
+  // Polite live region for route changes. Created once, reused.
+  function announceRoute(msg) {
+    let a = document.getElementById('route-announcer');
+    if (!a) {
+      a = document.createElement('div');
+      a.id = 'route-announcer';
+      a.className = 'sr-only';
+      a.setAttribute('aria-live', 'polite');
+      a.setAttribute('aria-atomic', 'true');
+      document.body.appendChild(a);
+    }
+    a.textContent = '';
+    // Clear then set on the next tick so repeat routes still re-announce.
+    setTimeout(() => { a.textContent = msg; }, 50);
+  }
+
+  function focusHeading(container) {
+    // Don't steal focus from an element a module just autofocused (e.g. the
+    // welcome username field).
+    const active = document.activeElement;
+    if (active && active !== document.body && container.contains(active)) return;
+    const h = container.querySelector('h1, h2');
+    if (h) {
+      h.setAttribute('tabindex', '-1');
+      h.focus({ preventScroll: true });
+    }
   }
 
   function hideNav() {

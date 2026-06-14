@@ -2153,6 +2153,53 @@ body.dark .reading-text .r-sent.active { background: rgba(255, 159, 10, .5); }
 }
 
 /* =========================================================================
+   ACCESSIBILITY HELPERS
+   ========================================================================= */
+.sr-only {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Number keycaps on quiz options — only where a physical keyboard is likely
+   (fine pointer / hover). On touch they'd be pure noise since 1-4 do nothing. */
+@media (hover: hover) and (pointer: fine) {
+  .options[role="radiogroup"] .option {
+    position: relative;
+    padding-left: calc(var(--sp-5) + 26px);
+  }
+  .options[role="radiogroup"] .option[data-key]::before {
+    content: attr(data-key);
+    position: absolute;
+    left: var(--sp-4);
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    display: grid;
+    place-items: center;
+    font-size: var(--fs-12);
+    font-weight: var(--fw-semi);
+    font-variant-numeric: tabular-nums;
+    color: var(--mute);
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: var(--r-sm);
+  }
+  .options[role="radiogroup"] .option:focus-visible[data-key]::before,
+  .options[role="radiogroup"] .option:hover[data-key]::before {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+  .options[role="radiogroup"] .option.correct[data-key]::before { color: var(--good); border-color: var(--good); }
+  .options[role="radiogroup"] .option.wrong[data-key]::before { color: var(--bad); border-color: var(--bad); }
+}
+
+/* =========================================================================
    STATIC SEO CONTENT BAND — crawlable content below the app, above the footer
    ========================================================================= */
 .seo-content {
