@@ -112,7 +112,7 @@ window.PhonicsModule = (function () {
           <div id="fb"></div>
         </div>`;
       container.querySelector('#replay').onclick = () => TTS.speak(target, 0.85);
-      setTimeout(() => TTS.speak(target, 0.85), 300);
+      TTS.speakSoon(target, 0.85, 300);
       container.querySelectorAll('.option').forEach(el => {
         el.onclick = () => {
           container.querySelectorAll('.option').forEach(x => x.classList.add('disabled'));

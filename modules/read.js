@@ -65,8 +65,9 @@ window.ReadModule = (function () {
         stopped = false;
         playBtn.disabled = true;
         stopBtn.disabled = false;
+        const seqEpoch = TTS.epoch();
         function next() {
-          if (stopped || idx >= sentences.length) {
+          if (stopped || TTS.epoch() !== seqEpoch || idx >= sentences.length) {
             playBtn.disabled = false;
             stopBtn.disabled = true;
             playBtn.textContent = '▶ Listen again';

@@ -5,6 +5,12 @@ window.TTS = (function () {
   let manifest = null;
   let manifestPromise = null;
   let currentAudio = null;
+  // Playback epoch: bumped by stop() (navigation / explicit Stop). Any in-flight
+  // async speak()/speakLine(), scheduled auto-play, or sequence continuation that
+  // captured an older epoch becomes a no-op. This is what kills the "audio keeps
+  // playing after you leave the screen" bug.
+  let epoch = 0;
+  const pendingTimers = new Set();
   let fallbackVoice = null;
   let audioUnlocked = false;
   const IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
@@ -93,27 +99,50 @@ window.TTS = (function () {
     speechSynthesis.speak(u);
   }
 
-  function stop() {
+  // Internal: halt whatever is currently sounding WITHOUT invalidating the epoch.
+  // Used by speak()/speakLine() to interrupt the previous clip before starting
+  // the next one within the same screen.
+  function haltCurrent() {
     if (currentAudio) {
-      try { currentAudio.pause(); currentAudio.currentTime = 0; } catch {}
+      try {
+        currentAudio.pause();
+        currentAudio.currentTime = 0;
+        currentAudio.onended = null;
+        currentAudio.onerror = null;
+      } catch {}
       currentAudio = null;
     }
-    if ('speechSynthesis' in window) speechSynthesis.cancel();
+    if ('speechSynthesis' in window) {
+      try { speechSynthesis.cancel(); } catch {}
+    }
+  }
+
+  // Public hard stop: halt audio AND invalidate every in-flight / scheduled /
+  // sequenced playback. Called on every navigation (app.js renderActive, scenario
+  // step changes) and by explicit Stop buttons.
+  function stop() {
+    epoch++;
+    pendingTimers.forEach(id => clearTimeout(id));
+    pendingTimers.clear();
+    haltCurrent();
   }
 
   async function speak(text, rate = 1.0) {
-    stop();
+    haltCurrent();
+    const myEpoch = epoch;
     const key = normalize(text);
     if (!key) return;
     // On iOS, if audio not yet unlocked by user gesture, skip silent auto-plays.
     if (IS_IOS && !audioUnlocked) return;
     const m = await loadManifest();
+    if (myEpoch !== epoch) return; // navigated/stopped while the manifest loaded
     const src = m[key];
     if (src) {
       try {
         const a = new Audio(src);
         a.playbackRate = rate;
         a.preload = 'auto';
+        if (myEpoch !== epoch) return; // a stop() slipped in just before we play
         currentAudio = a;
         // Duck the UI sound bus while pronunciation plays — so the click
         // tick + countdown beep don't fight the French audio for attention.
@@ -121,21 +150,31 @@ window.TTS = (function () {
           try { Sounds.duck(1200); } catch {}
         }
         await a.play();
+        // play() resolves once playback STARTS; if a stop() landed during that
+        // window, halt the clip we just started.
+        if (myEpoch !== epoch) { try { a.pause(); a.currentTime = 0; } catch {} }
         return;
       } catch (e) {
-        // Autoplay block, network, or codec — fall through.
+        // Autoplay block, network, codec, or interrupted-by-stop — fall through.
       }
     }
+    if (myEpoch !== epoch) return; // don't fall back to speech-synth after a stop
     fallbackSpeak(text, rate * 0.9);
   }
 
   // Sequential playback with onDone callback. Voice = 'fr-CA-SylvieNeural' (default) or 'fr-CA-JeanNeural'.
   async function speakLine(text, voice, onDone) {
-    stop();
+    haltCurrent();
+    const myEpoch = epoch;
+    // onDone advances sequence loops (mock/scenario/read/dialogue). Only fire it
+    // while our epoch is still current — otherwise a navigation mid-sequence
+    // would keep marching through the remaining lines.
+    const done = () => { if (myEpoch === epoch && onDone) onDone(); };
     const key = normalize(text);
-    if (!key) { onDone && onDone(); return; }
-    if (IS_IOS && !audioUnlocked) { onDone && onDone(); return; }
+    if (!key) { done(); return; }
+    if (IS_IOS && !audioUnlocked) { done(); return; }
     const m = await loadManifest();
+    if (myEpoch !== epoch) return; // navigated/stopped: kill the chain (no onDone)
     // Look up voice-tagged first, then default (Sylvie)
     const voiceKey = voice && voice !== 'fr-CA-SylvieNeural' ? (voice + '|' + key) : null;
     const src = (voiceKey && m[voiceKey]) || m[key];
@@ -144,17 +183,20 @@ window.TTS = (function () {
         const a = new Audio(src);
         a.playbackRate = 1.0;
         a.preload = 'auto';
+        if (myEpoch !== epoch) return;
         currentAudio = a;
-        a.onended = () => { onDone && onDone(); };
-        a.onerror = () => { onDone && onDone(); };
+        a.onended = done;
+        a.onerror = done;
         await a.play();
+        if (myEpoch !== epoch) { try { a.pause(); a.currentTime = 0; } catch {} }
         return;
       } catch (e) {
         // fall through to SpeechSynthesis
       }
     }
+    if (myEpoch !== epoch) return;
     // Fallback: SpeechSynthesis with different voice
-    if (!('speechSynthesis' in window)) { onDone && onDone(); return; }
+    if (!('speechSynthesis' in window)) { done(); return; }
     const u = new SpeechSynthesisUtterance(text);
     u.lang = 'fr-CA';
     if (voice === 'fr-CA-JeanNeural') {
@@ -162,11 +204,24 @@ window.TTS = (function () {
     }
     u.rate = 0.9;
     if (fallbackVoice) u.voice = fallbackVoice;
-    u.onend = () => { onDone && onDone(); };
+    u.onend = done;
     speechSynthesis.speak(u);
+  }
+
+  // Auto-play after a short delay, cancelling cleanly if the user navigates away
+  // before it fires. Drop-in replacement for `setTimeout(() => TTS.speak(...))`.
+  function speakSoon(text, rate = 1.0, delay = 250) {
+    const myEpoch = epoch;
+    const id = setTimeout(() => {
+      pendingTimers.delete(id);
+      if (myEpoch !== epoch) return; // navigated/stopped before it fired
+      speak(text, rate);
+    }, delay);
+    pendingTimers.add(id);
+    return id;
   }
 
   function available() { return true; }
 
-  return { speak, speakLine, stop, available, isIOS: () => IS_IOS };
+  return { speak, speakSoon, speakLine, stop, epoch: () => epoch, available, isIOS: () => IS_IOS };
 })();

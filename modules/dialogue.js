@@ -44,8 +44,9 @@ window.DialogueModule = (function () {
       const idxEl = container.querySelector('#line-idx');
       const toQuiz = container.querySelector('#to-quiz');
       if (!tcfMode && btn) btn.textContent = '⏸ Stop';
+      const seqEpoch = TTS.epoch();
       function next() {
-        if (stopped || playIdx >= d.lines.length) {
+        if (stopped || TTS.epoch() !== seqEpoch || playIdx >= d.lines.length) {
           if (tcfMode) {
             if (btn) { btn.textContent = '✓ Audio finished'; btn.disabled = true; }
             if (toQuiz) toQuiz.disabled = false;

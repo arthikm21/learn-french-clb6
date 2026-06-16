@@ -81,7 +81,8 @@ window.ListenModule = (function () {
       container.querySelectorAll('[data-rate]').forEach(b => {
         b.onclick = () => TTS.speak(it.audio, parseFloat(b.dataset.rate));
       });
-      setTimeout(() => { TTS.speak(it.audio, 0.85); inp.focus(); }, 300);
+      TTS.speakSoon(it.audio, 0.85, 300);
+      setTimeout(() => inp.focus(), 300);
       const check = () => {
         const ans = inp.value.trim();
         if (!ans) return;

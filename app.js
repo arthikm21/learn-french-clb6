@@ -112,6 +112,10 @@ window.App = (function () {
   }
 
   function renderActive() {
+    // Stop any audio from the page we're leaving — TTS clips, sequenced
+    // dialogues, and scheduled auto-plays — so nothing keeps playing in the
+    // background after navigation. Safe to call even if nothing is playing.
+    if (window.TTS && typeof TTS.stop === 'function') TTS.stop();
     // Gate everything behind welcome screen if no current user.
     const cur = window.Storage.getCurrentUser();
     const container = document.getElementById('app');

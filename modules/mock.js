@@ -176,7 +176,9 @@ window.MockModule = (function () {
         playBtn.disabled = true;
         playBtn.textContent = '🔊 Playing...';
         let playIdx = 0;
+        const seqEpoch = TTS.epoch();
         function next() {
+          if (TTS.epoch() !== seqEpoch) return; // navigated away mid-dialogue — stop
           if (playIdx >= d.lines.length) {
             playBtn.textContent = '✓ Audio finished';
             renderQuestions();

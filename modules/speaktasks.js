@@ -185,7 +185,7 @@ window.SpeakTasksModule = (function () {
           </div>
         </div>`;
       container.querySelector('#hear-q').onclick = () => TTS.speak(q.q);
-      setTimeout(() => TTS.speak(q.q), 200);
+      TTS.speakSoon(q.q, 1.0, 200);
       const mic = container.querySelector('#mic');
       const status = container.querySelector('#status');
       const trans = container.querySelector('#trans');
@@ -296,7 +296,7 @@ window.SpeakTasksModule = (function () {
           </div>
         </div>`;
       container.querySelector('#hear').onclick = () => TTS.speak(turn.other);
-      setTimeout(() => TTS.speak(turn.other), 200);
+      TTS.speakSoon(turn.other, 1.0, 200);
       const mic = container.querySelector('#mic');
       const trans = container.querySelector('#trans');
       const nextBtn = container.querySelector('#next-turn');

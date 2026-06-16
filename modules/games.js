@@ -74,7 +74,7 @@ window.GamesModule = (function () {
           </div>
         </div>`;
       container.querySelector('#hear').onclick = () => TTS.speak(c.fr);
-      setTimeout(() => TTS.speak(c.fr), 300);
+      TTS.speakSoon(c.fr, 1.0, 300);
       container.querySelectorAll('[data-g]').forEach(b => {
         b.onclick = () => {
           container.querySelectorAll('[data-g]').forEach(x => x.disabled = true);
@@ -395,7 +395,7 @@ window.GamesModule = (function () {
           <div class="row"><button class="btn ghost" onclick="App.go('games')">← Quit</button></div>
         </div>`;
       container.querySelector('#hear').onclick = () => TTS.speak(c.fr);
-      setTimeout(() => TTS.speak(c.fr), 200);
+      TTS.speakSoon(c.fr, 1.0, 200);
       container.querySelectorAll('.option').forEach(el => {
         el.onclick = () => {
           container.querySelectorAll('.option').forEach(x => x.classList.add('disabled'));
@@ -536,7 +536,7 @@ window.GamesModule = (function () {
         </div>`;
       container.querySelector('#play').onclick = () => TTS.speak(target, 0.95);
       container.querySelector('#slow').onclick = () => TTS.speak(target, 0.65);
-      setTimeout(() => TTS.speak(target, 0.9), 200);
+      TTS.speakSoon(target, 0.9, 200);
       const inp = container.querySelector('#ans');
       inp.focus();
       const submit = () => {

@@ -108,7 +108,7 @@ window.SpeakModule = (function () {
         </div>`;
 
       // Auto-play on first appear, then bind buttons.
-      setTimeout(() => TTS.speak(target, 1.0), 250);
+      TTS.speakSoon(target, 1.0, 250);
 
       container.querySelectorAll('[data-rate]').forEach(b => {
         b.onclick = () => TTS.speak(target, parseFloat(b.dataset.rate));

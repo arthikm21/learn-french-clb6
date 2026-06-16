@@ -136,7 +136,7 @@ window.ListenMasteryModule = (function () {
         </div>`;
 
       // Auto-play once at level-appropriate speed on first appearance
-      setTimeout(() => TTS.speak(ex.audio, initialRate), 300);
+      TTS.speakSoon(ex.audio, initialRate, 300);
       let currentRate = initialRate;
 
       function rebindSpeeds() {

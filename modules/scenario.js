@@ -108,6 +108,10 @@ window.ScenarioModule = (function () {
     }
 
     function render() {
+      // Stop dialogue/word audio from the previous step before swapping views —
+      // scenario steps re-render in place (no route change) so the router's stop
+      // doesn't fire here.
+      if (window.TTS && typeof TTS.stop === 'function') TTS.stop();
       const which = STEPS[step];
       if (which === 'situation')     return renderSituation();
       if (which === 'listen')        return renderListen();
@@ -211,8 +215,9 @@ window.ScenarioModule = (function () {
       function playFrom(idx) {
         stopped = false;
         playIdx = idx;
+        const seqEpoch = TTS.epoch();
         function next() {
-          if (stopped || playIdx >= sc.dialogue.length) {
+          if (stopped || TTS.epoch() !== seqEpoch || playIdx >= sc.dialogue.length) {
             playBtn.textContent = '▶ Play again';
             container.querySelectorAll('.dialogue-line').forEach(el => el.classList.remove('active'));
             return;
@@ -323,7 +328,7 @@ window.ScenarioModule = (function () {
             </div>
           </div>`;
 
-        setTimeout(() => TTS.speak(line, 1.0), 250);
+        TTS.speakSoon(line, 1.0, 250);
 
         container.querySelectorAll('[data-rate]').forEach(b => {
           b.onclick = () => TTS.speak(line, parseFloat(b.dataset.rate));

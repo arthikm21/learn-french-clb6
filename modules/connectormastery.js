@@ -248,7 +248,7 @@ window.ConnectorMasteryModule = (function () {
           <div id="fb"></div>
         </div>`;
 
-      setTimeout(() => TTS.speak(c.recognize, 1.0), 300);
+      TTS.speakSoon(c.recognize, 1.0, 300);
       container.querySelector('#play').onclick = () => TTS.speak(c.recognize, 1.0);
       container.querySelectorAll('[data-rate]').forEach(b => {
         b.onclick = () => TTS.speak(c.recognize, parseFloat(b.dataset.rate));
@@ -325,7 +325,7 @@ window.ConnectorMasteryModule = (function () {
           </div>
         </div>`;
 
-      setTimeout(() => TTS.speak(s.model, 1.0), 350);
+      TTS.speakSoon(s.model, 1.0, 350);
       container.querySelectorAll('[data-rate]').forEach(b => {
         b.onclick = () => TTS.speak(s.model, parseFloat(b.dataset.rate));
       });
