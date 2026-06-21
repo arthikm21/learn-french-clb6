@@ -432,7 +432,7 @@ window.App = (function () {
         <p>This site provides roughly <b>70-80%</b> of what an immigrant or professional needs to pass CLB 6 on the TEF Canada / TCF Canada. For the remaining 20-30%:</p>
         <ul style="margin-left:20px;line-height:1.9;margin-top:6px">
           <li><b>Daily input</b>: 30 minutes of Radio-Canada news or Téléjournal. Free, native-speed, current affairs vocabulary.</li>
-          <li><b>Weekly conversation</b>: an iTalki / Preply tutor (~$15-25/hr). One hour per week of pure speaking with a human is irreplaceable.</li>
+          <li><b>Weekly conversation</b>: an iTalki / <a href="https://preply.com/en/?pref=MzAyOTI0MjU=&id=1782003909.94983&ep=w1" target="_blank" rel="sponsored noopener" style="color:var(--bleu)">Preply tutor</a> (~$15-25/hr). One hour per week of pure speaking with a human is irreplaceable.</li>
           <li><b>Last month before exam</b>: buy the official TEF Canada or TCF Canada practice book. Familiarity with the exam format itself adds 1-2 CLB points on test day.</li>
           <li><b>Immersion</b>: change phone to French, watch a Quebec series (<em>District 31</em>, <em>STAT</em>) with French subtitles, listen to a French podcast on your commute.</li>
         </ul>
@@ -442,6 +442,15 @@ window.App = (function () {
       <div class="grammar-box">
         <h3>💬 Found a typo or have a suggestion?</h3>
         <p>Open an issue on GitHub: <a href="https://github.com/arthikm21/learn-french-clb6/issues" target="_blank" rel="noopener" style="color:var(--bleu)">github.com/arthikm21/learn-french-clb6/issues</a></p>
+      </div>
+
+      <div class="grammar-box">
+        <h3>☕ Support this project</h3>
+        <p>Bonjour! is free and always will be — no paywall, no accounts. If it's helping you, you can help keep it online:</p>
+        <div class="center" style="margin-top:12px">
+          <a class="btn primary" href="https://buymeacoffee.com/frenchclb6" target="_blank" rel="noopener">☕ Buy me a coffee</a>
+        </div>
+        <p style="color:var(--mute);font-size:13px;margin-top:12px">Some outbound links to tutors and tools (for example Preply) are affiliate links: if you sign up through them, we may earn a small commission at no extra cost to you. That's part of how this free site stays online.</p>
       </div>
       <div class="center" style="margin-top:24px">
         <button class="btn big" onclick="App.go('home')">← Home</button>
@@ -460,6 +469,7 @@ window.App = (function () {
         <p>Your progress (lesson completion, SRS schedule, weak-spot mistakes, writing drafts) is stored entirely in your browser's <b>localStorage</b>, prefixed by your chosen username. It never leaves your device. If you clear your browser data, your progress resets — there is no backup, because there is no server.</p>
         <p>The audio MP3s for French pronunciation are served from the same domain (Vercel CDN). Standard request logs from the CDN apply per Vercel's privacy policy.</p>
         <p>Speech recognition for the Speaking module runs in your browser via the Web Speech API. Your microphone audio is processed by your browser's recognition service — usually Google's on Chrome/Edge, Apple's on Safari. We never see or store it.</p>
+        <p><b>Outbound links.</b> Some links leave this site — to language tutors or tools (for example Preply) and to Buy Me a Coffee. A few are affiliate links: if you sign up through them we may earn a small commission, at no extra cost to you. Those destination sites track your visit under their own policies. This site itself still adds no tracking, analytics, or ads.</p>
       </div>
       <div class="center" style="margin-top:24px">
         <button class="btn big" onclick="App.go('home')">← Home</button>
