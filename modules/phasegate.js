@@ -243,6 +243,8 @@ window.PhaseGateModule = (function () {
           </div>
         `}
 
+        ${pass ? Support.winNudge(true) : ''}
+
         <div class="row" style="justify-content:center;margin-top:var(--sp-7);gap:var(--sp-3)">
           ${pass && nextPh
             ? `<button class="btn primary big" onclick="App.go('gate', { phase: '${nextPh.id}' })">Phase ${nextPh.id} preview<span class="arr">→</span></button>`

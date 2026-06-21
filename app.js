@@ -298,16 +298,6 @@ window.App = (function () {
         <button class="btn ghost" onclick="App.go('path')">Full path</button>
       </div>
 
-      <div class="spacer lg"></div>
-      <div class="spotlight" style="border:1px solid var(--accent)">
-        <div>
-          <p class="eyebrow" style="color:var(--accent)">☕ Keep Bonjour! free</p>
-          <h2>No ads. No paywall. No account.</h2>
-          <p>This whole course is free and stays that way. If it's helping your French, buying me a coffee keeps it online and ad-free — a small thank-you that genuinely helps.</p>
-        </div>
-        <a class="btn primary big" href="https://buymeacoffee.com/frenchclb6" target="_blank" rel="noopener">☕ Buy me a coffee<span class="arr">→</span></a>
-      </div>
-
       <h2 class="section-h">Practice areas</h2>
       <p class="section-sub">Every module is open. Path orders them. Mistakes feed back into review.</p>
       <div class="grid">
@@ -455,10 +445,10 @@ window.App = (function () {
       </div>
 
       <div class="grammar-box">
-        <h3>☕ Support this project</h3>
-        <p>Bonjour! is free and always will be — no paywall, no accounts. If it's helping you, you can help keep it online:</p>
+        <h3>💛 If Bonjour! helped you</h3>
+        <p>This site is free, and it stays free — no paywall, no accounts, no ads. It's built and paid for by one person. If it moved your French even a little closer to CLB 6, a small one-time gift keeps the audio flowing and the lights on. No pressure, ever — honestly, just using it and telling one friend already means a lot.</p>
         <div class="center" style="margin-top:12px">
-          <a class="btn primary" href="https://buymeacoffee.com/frenchclb6" target="_blank" rel="noopener">☕ Buy me a coffee</a>
+          <a class="btn primary" href="https://buymeacoffee.com/frenchclb6" target="_blank" rel="noopener">Help keep Bonjour! free<span class="arr">→</span></a>
         </div>
         <p style="color:var(--mute);font-size:13px;margin-top:12px">Some outbound links to tutors and tools (for example Preply) are affiliate links: if you sign up through them, we may earn a small commission at no extra cost to you. That's part of how this free site stays online.</p>
       </div>
@@ -479,7 +469,7 @@ window.App = (function () {
         <p>Your progress (lesson completion, SRS schedule, weak-spot mistakes, writing drafts) is stored entirely in your browser's <b>localStorage</b>, prefixed by your chosen username. It never leaves your device. If you clear your browser data, your progress resets — there is no backup, because there is no server.</p>
         <p>The audio MP3s for French pronunciation are served from the same domain (Vercel CDN). Standard request logs from the CDN apply per Vercel's privacy policy.</p>
         <p>Speech recognition for the Speaking module runs in your browser via the Web Speech API. Your microphone audio is processed by your browser's recognition service — usually Google's on Chrome/Edge, Apple's on Safari. We never see or store it.</p>
-        <p><b>Outbound links.</b> Some links leave this site — to language tutors or tools (for example Preply) and to Buy Me a Coffee. A few are affiliate links: if you sign up through them we may earn a small commission, at no extra cost to you. Those destination sites track your visit under their own policies. This site itself still adds no tracking, analytics, or ads.</p>
+        <p><b>Outbound links.</b> Some links leave this site — to language tutors or tools (for example Preply) and to a voluntary support page. A few are affiliate links: if you sign up through them we may earn a small commission, at no extra cost to you. Those destination sites track your visit under their own policies. This site itself still adds no tracking, analytics, or ads.</p>
       </div>
       <div class="center" style="margin-top:24px">
         <button class="btn big" onclick="App.go('home')">← Home</button>

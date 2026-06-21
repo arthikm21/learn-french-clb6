@@ -154,6 +154,7 @@ window.ReadModule = (function () {
             <div class="big-icon">${pct >= 70 ? '📜' : '📖'}</div>
             <h2>${pct >= 70 ? 'Read & understood' : 'Re-read & retry'}</h2>
             <p>Score: <b>${correct}/${t.questions.length}</b> (${pct}%)</p>
+            ${pct >= 70 ? Support.winNudge() : ''}
             <div class="spacer"></div>
             <div class="row" style="justify-content:center">
               <button class="btn primary big" onclick="App.go('read')">More texts</button>

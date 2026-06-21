@@ -131,6 +131,7 @@ window.ListenModule = (function () {
             <h2>Listening done</h2>
             <p>Score: <b>${correct}/${s.items.length}</b> (${pct}%)</p>
             <p style="color:var(--mute);margin-top:var(--sp-2)">${pct >= 80 ? 'Your ear is sharp. Try the natural-speed sets next.' : pct >= 50 ? 'Re-listen to the misses at slow speed, then natural.' : 'Slow it down. Build up. Repetition wins this.'}</p>
+            ${pct >= 70 ? Support.winNudge() : ''}
             <div class="spacer"></div>
             <div class="row" style="justify-content:center">
               <button class="btn primary big" onclick="App.go('listen')">More listening</button>

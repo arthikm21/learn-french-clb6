@@ -147,9 +147,9 @@ window.SpeakModule = (function () {
             <p style="color:var(--mute);margin-top:var(--sp-2)">Speaking is the only skill the site cannot grade for you. Your reps are your reps. Do them aloud.</p>
             <div class="grammar-box" style="border-left-color:var(--accent);text-align:left;max-width:560px;margin:var(--sp-6) auto 0">
               <h3>🗣️ Want your speaking actually graded?</h3>
-              <p>The site can't hear you. To fix pronunciation and get real feedback, do a session with a Canadian French tutor — the one thing self-study can't replace.</p>
+              <p>The site can't hear you — a real tutor can. Live pronunciation feedback is the one thing self-study can't replace. <b>New Preply learners get 50% off their first lesson</b>, so trying one costs next to nothing.</p>
               <div class="row" style="justify-content:center;margin-top:var(--sp-3)">
-                <a class="btn primary" href="https://preply.sjv.io/c/7425774/1987575/24422" target="_blank" rel="sponsored noopener">Find a French tutor on Preply<span class="arr">→</span></a>
+                <a class="btn primary" href="https://preply.sjv.io/c/7425774/1987575/24422" target="_blank" rel="sponsored noopener">Get 50% off a French tutor<span class="arr">→</span></a>
               </div>
               <p style="color:var(--mute);font-size:var(--fs-12);text-align:center;margin-top:var(--sp-3)">Affiliate link · we may earn a commission, at no cost to you.</p>
             </div>

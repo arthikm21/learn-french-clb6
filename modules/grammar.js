@@ -170,6 +170,7 @@ window.GrammarModule = (function () {
             <h2>${pass ? 'Quest Complete' : 'Almost There'}</h2>
             <p>Score: <b>${correct}/${u.quiz.length}</b> (${pct}%)</p>
             <p style="margin-top:var(--sp-2)">${pass ? 'Unit unlocked. The next step is highlighted on your path.' : 'Review the rules and try again — 70% to pass.'}</p>
+            ${pass ? Support.winNudge() : ''}
             <div class="spacer"></div>
             <div class="row" style="justify-content:center">
               <button class="btn primary big" onclick="App.go('grammar', { unit: '${u.id}' })">Review rules</button>

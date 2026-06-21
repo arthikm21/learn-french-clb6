@@ -99,6 +99,11 @@ function shell({ urlPath, title, description, ogType = 'article', navExtra = '',
   <meta name="description" content="${attr(description)}" />
   <link rel="canonical" href="${url}" />
 
+  <link rel="icon" href="/favicon.ico" sizes="any" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+
   <meta property="og:type" content="${ogType}" />
   <meta property="og:site_name" content="Bonjour!" />
   <meta property="og:title" content="${attr(title)}" />
@@ -134,7 +139,14 @@ ${bodyHtml}
   </main>
 
   <footer class="footer">
-    <small>Free CLB 6 / TCF Canada prep · No accounts · No tracking · <a href="/">frenchclb6.ca</a></small>
+    <nav class="footer-links" aria-label="Footer">
+      <a href="/">Home</a>
+      <a href="/clb6-french-course">The course</a>
+      <a href="/scenarios/">Scenarios</a>
+      <a href="/grammar/">Grammar</a>
+      <a href="/tcf-canada-mock-test">Mock test</a>
+    </nav>
+    <p class="footer-fine">Free CLB 6 / TCF Canada prep · No accounts · No tracking · Native Canadian French audio · <a href="/">frenchclb6.ca</a></p>
   </footer>
 </body>
 </html>

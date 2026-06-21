@@ -6,6 +6,12 @@
       "runtimeExecutable": "node",
       "runtimeArgs": ["scripts/serve.js"],
       "port": 8765
+    },
+    {
+      "name": "bonjour-static",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "8790"],
+      "port": 8790
     }
   ]
 }
