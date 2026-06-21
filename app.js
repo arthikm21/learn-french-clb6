@@ -432,7 +432,7 @@ window.App = (function () {
         <p>This site provides roughly <b>70-80%</b> of what an immigrant or professional needs to pass CLB 6 on the TEF Canada / TCF Canada. For the remaining 20-30%:</p>
         <ul style="margin-left:20px;line-height:1.9;margin-top:6px">
           <li><b>Daily input</b>: 30 minutes of Radio-Canada news or Téléjournal. Free, native-speed, current affairs vocabulary.</li>
-          <li><b>Weekly conversation</b>: an iTalki / <a href="https://preply.com/en/?pref=MzAyOTI0MjU=&id=1782003909.94983&ep=w1" target="_blank" rel="sponsored noopener" style="color:var(--bleu)">Preply tutor</a> (~$15-25/hr). One hour per week of pure speaking with a human is irreplaceable.</li>
+          <li><b>Weekly conversation</b>: an iTalki / <a href="https://preply.sjv.io/c/7425774/1987575/24422" target="_blank" rel="sponsored noopener" style="color:var(--bleu)">Preply tutor</a> (~$15-25/hr). One hour per week of pure speaking with a human is irreplaceable.</li>
           <li><b>Last month before exam</b>: buy the official TEF Canada or TCF Canada practice book. Familiarity with the exam format itself adds 1-2 CLB points on test day.</li>
           <li><b>Immersion</b>: change phone to French, watch a Quebec series (<em>District 31</em>, <em>STAT</em>) with French subtitles, listen to a French podcast on your commute.</li>
         </ul>

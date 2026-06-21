@@ -149,7 +149,7 @@ window.SpeakModule = (function () {
               <h3>🗣️ Want your speaking actually graded?</h3>
               <p>The site can't hear you. To fix pronunciation and get real feedback, do a session with a Canadian French tutor — the one thing self-study can't replace.</p>
               <div class="row" style="justify-content:center;margin-top:var(--sp-3)">
-                <a class="btn primary" href="https://preply.com/en/?pref=MzAyOTI0MjU=&id=1782003909.94983&ep=w1" target="_blank" rel="sponsored noopener">Find a French tutor on Preply<span class="arr">→</span></a>
+                <a class="btn primary" href="https://preply.sjv.io/c/7425774/1987575/24422" target="_blank" rel="sponsored noopener">Find a French tutor on Preply<span class="arr">→</span></a>
               </div>
               <p style="color:var(--mute);font-size:var(--fs-12);text-align:center;margin-top:var(--sp-3)">Affiliate link · we may earn a commission, at no cost to you.</p>
             </div>

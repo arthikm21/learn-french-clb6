@@ -460,7 +460,7 @@ window.ScenarioModule = (function () {
             ` : ''}
 
             <p style="text-align:center;color:var(--mute);font-size:var(--fs-13);margin-top:var(--sp-6)">
-              Want feedback on how you actually said it? <a href="https://preply.com/en/?pref=MzAyOTI0MjU=&id=1782003909.94983&ep=w1" target="_blank" rel="sponsored noopener" style="color:var(--accent)">Practise with a French tutor</a> <span style="opacity:.6">· affiliate</span>
+              Want feedback on how you actually said it? <a href="https://preply.sjv.io/c/7425774/1987575/24422" target="_blank" rel="sponsored noopener" style="color:var(--accent)">Practise with a French tutor</a> <span style="opacity:.6">· affiliate</span>
             </p>
 
             ${nav()}
