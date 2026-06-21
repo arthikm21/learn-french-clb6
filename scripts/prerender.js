@@ -39,6 +39,10 @@ const LANDING = [
   ['/tef-vs-tcf-canada', '0.8'],
   ['/clb-6-vs-clb-7-french', '0.8'],
   ['/learn-french-express-entry', '0.8'],
+  ['/clb-7-french', '0.8'],
+  ['/tcf-canada-speaking', '0.8'],
+  ['/tcf-canada-writing', '0.8'],
+  ['/tef-canada', '0.8'],
 ];
 
 // ── helpers ──────────────────────────────────────────────────────────────────
