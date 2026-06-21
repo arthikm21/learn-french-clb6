@@ -298,6 +298,16 @@ window.App = (function () {
         <button class="btn ghost" onclick="App.go('path')">Full path</button>
       </div>
 
+      <div class="spacer lg"></div>
+      <div class="spotlight" style="border:1px solid var(--accent)">
+        <div>
+          <p class="eyebrow" style="color:var(--accent)">☕ Keep Bonjour! free</p>
+          <h2>No ads. No paywall. No account.</h2>
+          <p>This whole course is free and stays that way. If it's helping your French, buying me a coffee keeps it online and ad-free — a small thank-you that genuinely helps.</p>
+        </div>
+        <a class="btn primary big" href="https://buymeacoffee.com/frenchclb6" target="_blank" rel="noopener">☕ Buy me a coffee<span class="arr">→</span></a>
+      </div>
+
       <h2 class="section-h">Practice areas</h2>
       <p class="section-sub">Every module is open. Path orders them. Mistakes feed back into review.</p>
       <div class="grid">
