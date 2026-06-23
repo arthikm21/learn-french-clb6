@@ -313,7 +313,7 @@ window.App = (function () {
         <div class="card" onclick="App.go('listen')"><div class="icon">🎧</div><h3>Listening Lab</h3><p>15 dictation sets at slow, normal, and natural speed.</p></div>
         <div class="card" onclick="App.go('dialogue')"><div class="icon">💬</div><h3>Dialogues</h3><p>8 multi-speaker conversations with comprehension questions.</p></div>
         <div class="card" onclick="App.go('speak')"><div class="icon">🎙️</div><h3>Speaking Mirror</h3><p>Repeat the sentence with word-by-word pronunciation diff.</p></div>
-        <div class="card" onclick="App.go('speaktasks')"><div class="icon">🎤</div><h3>Speaking Tasks</h3><p>Picture description, Q&amp;A, role-play. Open-ended speaking practice.</p></div>
+        <div class="card" onclick="App.go('speaktasks')"><div class="icon">🎤</div><h3>Speaking Practice</h3><p>Record yourself, listen back, self-rate. Picture description, Q&amp;A, role-play.</p></div>
         <div class="card" onclick="App.go('writetask3')"><div class="icon">✍️</div><h3>Writing Task 3 <span class="tag verb">TCF</span></h3><p>Compare 2 opinions and give your own view. The hardest TCF EE task.</p></div>
         <div class="card" onclick="App.go('speaktask2')"><div class="icon">❓</div><h3>Speaking Task 2 <span class="tag verb">TCF</span></h3><p>Ask the examiner questions to gather info. Unique to TCF Canada.</p></div>
         <div class="card" onclick="App.go('speaktask3')"><div class="icon">🎤</div><h3>Speaking Task 3 <span class="tag verb">TCF</span></h3><p>Argue your opinion for 3-5 minutes. Most-weighted EO task.</p></div>

@@ -1,17 +1,63 @@
-// Speaking Tasks — open-ended speaking practice.
-// Types: picture description, Q&A, role-play. Uses SpeechRecognition + grader.
+// Speaking Tasks — open-ended speaking practice for CLB 4-6.
+//
+// The site no longer pretends to auto-grade speech (the browser
+// SpeechRecognition API was unreliable for non-native French and outright
+// blocked in Brave / Firefox). The flow is now:
+//
+//   1. Record yourself locally with MediaRecorder (no upload, no Google).
+//   2. Listen back. That's the most useful thing a learner can do.
+//   3. Hear the model phrasing (neural Canadian voice via TTS).
+//   4. Honest self-rubric — 3-5 checkboxes per task type.
+//   5. Optional type-back: write down what you actually said. The existing
+//      keyword grader scores the typed text — text grading is fine, it was
+//      only the speech-to-text step that was broken.
+//   6. Hand-off CTA to a real tutor with this exact task in the message.
 window.SpeakTasksModule = (function () {
+
+  const PREPLY = 'https://preply.sjv.io/c/7425774/1987575/24422';
+
+  // Rubric checkboxes per task type. These are short, honest yes/no items the
+  // learner can judge from their playback alone — no AI needed.
+  const RUBRIC = {
+    picture: [
+      'I described where the scene is set',
+      'I said who is in the scene and what they\'re doing',
+      'I mentioned the weather or what\'s around them',
+      'I used at least one connector (et, mais, parce que, donc)',
+      'I kept talking for the full time without long pauses',
+    ],
+    qa: [
+      'I answered the question directly',
+      'I gave at least one detail or example',
+      'I used a complete sentence (subject + verb + more)',
+    ],
+    role: [
+      'I responded to what the other person actually said',
+      'I used a polite register (vous, s\'il vous plaît, merci)',
+      'I gave or asked for the info this turn needed',
+    ],
+  };
 
   function renderList(container) {
     const tasks = window.SPEAK_TASKS;
     container.innerHTML = `
-      ${Chrome.render({ back: 'home', crumbs: ['Home', 'Speaking Tasks'] })}
+      ${Chrome.render({ back: 'home', crumbs: ['Home', 'Speaking Practice'] })}
       <section class="hero">
         <div class="flag-stripes"></div>
-        <p class="eyebrow-h">Speaking Tasks</p>
-        <h1>Open-ended.<br/>Like the exam.</h1>
-        <p style="margin-top:var(--sp-4)">Describe scenes. Answer questions. Play roles. This is what CLB Speaking actually tests.</p>
+        <p class="eyebrow-h">Speaking practice</p>
+        <h1>Record. Listen.<br/>Self-rate.</h1>
+        <p style="margin-top:var(--sp-4)">Describe scenes. Answer questions. Play roles. Your recording stays on this device — nothing uploads. Built for the TCF / TEF Canada speaking format.</p>
       </section>
+      <div class="grammar-box" style="border-left-color:var(--accent)">
+        <h3>How this works now</h3>
+        <ul style="margin-left:20px;line-height:var(--lh-loose);color:var(--ink-2)">
+          <li><b>Record</b> yourself in French — the mic stays local, no upload.</li>
+          <li><b>Listen back.</b> Hearing yourself is where the gains are.</li>
+          <li><b>Compare</b> to the model phrasing in native Canadian voice.</li>
+          <li><b>Self-rate</b> with a short honest rubric — no fake AI grade.</li>
+          <li><b>Type what you said</b> (optional) for a keyword + structure grade.</li>
+        </ul>
+      </div>
       <div class="grid" id="t-grid"></div>`;
     const grid = container.querySelector('#t-grid');
     const typeIcons = { picture: '🖼️', qa: '❓', role: '🎭' };
@@ -22,170 +68,295 @@ window.SpeakTasksModule = (function () {
       card.className = 'card';
       card.innerHTML = `
         <div class="icon">${t.emoji || typeIcons[t.type] || '🎤'}</div>
-        <h3>${t.title}</h3>
-        <p><span class="tag">${t.level}</span> <span class="tag" style="background:rgba(94,92,230,.12);color:var(--accent)">${t.type}</span>${done ? ' <span class="tag" style="color:var(--good)">✓ Done</span>' : ''}</p>`;
+        <h3>${Chrome.escapeHTML(t.title)}</h3>
+        <p><span class="tag">${Chrome.escapeHTML(t.level)}</span> <span class="tag" style="background:rgba(94,92,230,.12);color:var(--accent)">${t.type}</span>${done ? ' <span class="tag" style="color:var(--good)">✓ Done</span>' : ''}</p>`;
       card.onclick = () => App.go('speaktasks', { id: k });
       grid.appendChild(card);
     }
   }
 
+  // Shared helper: attach record/stop wiring to a panel. Returns a Promise
+  // that resolves with { url, blob, durationMs } once the recording ends
+  // (either user-stopped or timer-stopped). On a permission / hardware
+  // failure it resolves with { error: '<msg>' } instead — caller decides
+  // how to render that.
+  //
+  // Required elements inside `panel`:
+  //   #rec-btn       — the big record/stop button
+  //   #rec-timer     — text node for countdown
+  //   #rec-status    — text node for status messages
+  //   #rec-result    — empty container; filled with <audio> after stop
+  function attachRecorder(panel, { maxSeconds, onComplete }) {
+    const btn = panel.querySelector('#rec-btn');
+    const timerEl = panel.querySelector('#rec-timer');
+    const status = panel.querySelector('#rec-status');
+    const resultEl = panel.querySelector('#rec-result');
+    let secLeft = maxSeconds;
+    timerEl.textContent = secLeft + 's';
+
+    if (!Record.supported()) {
+      status.textContent = 'Audio recording not supported in this browser. Try Chrome, Edge, Brave, Safari, or Firefox.';
+      btn.disabled = true;
+      return;
+    }
+
+    let rec = null;
+    let timer = null;
+    let stopping = false;
+
+    async function start() {
+      btn.disabled = true;
+      status.textContent = 'Asking for microphone…';
+      try {
+        rec = await Record.create();
+      } catch (e) {
+        status.textContent = e.message || 'Could not access microphone.';
+        btn.disabled = false;
+        return;
+      }
+      rec.start();
+      btn.disabled = false;
+      btn.classList.add('listening');
+      btn.textContent = '⏹';
+      btn.title = 'Stop recording';
+      status.innerHTML = '🎤 <b>Recording…</b> when you finish, press the square to stop.';
+      timer = setInterval(() => {
+        secLeft--;
+        timerEl.textContent = secLeft + 's';
+        if (secLeft <= 0) stop();
+      }, 1000);
+    }
+
+    async function stop() {
+      if (stopping || !rec) return;
+      stopping = true;
+      if (timer) { clearInterval(timer); timer = null; }
+      btn.disabled = true;
+      btn.classList.remove('listening');
+      status.textContent = 'Saving recording…';
+      let out;
+      try {
+        out = await rec.stop();
+      } catch (e) {
+        status.textContent = 'Recording failed: ' + (e.message || 'unknown error');
+        btn.disabled = false;
+        stopping = false;
+        return;
+      }
+      btn.textContent = '🎙️';
+      btn.title = 'Record again';
+      btn.disabled = false;
+      stopping = false;
+      const audio = document.createElement('audio');
+      audio.controls = true;
+      audio.src = out.url;
+      audio.style.cssText = 'width:100%;max-width:480px;margin-top:8px';
+      resultEl.innerHTML = '';
+      resultEl.appendChild(audio);
+      status.innerHTML = '✓ Recorded. <b>Play it back</b> — hearing yourself is the point. Want another take? Press the mic.';
+      onComplete && onComplete(out);
+    }
+
+    btn.onclick = () => {
+      if (btn.classList.contains('listening')) stop();
+      else {
+        secLeft = maxSeconds;
+        timerEl.textContent = secLeft + 's';
+        start();
+      }
+    };
+  }
+
+  // Render the rubric checkboxes + optional type-back textarea + grade button
+  // inside `panel`. Calls `onGrade({ rubricHits, typedText })` when the user
+  // presses the grade button.
+  function attachRubric(panel, { type, onGrade, typebackPlaceholder, typebackEnabled }) {
+    const items = RUBRIC[type] || [];
+    panel.innerHTML = `
+      <div class="grammar-box">
+        <h3>Self-rate (honest)</h3>
+        <p style="color:var(--mute);font-size:13px;margin-bottom:10px">After listening back, check what's true. The site can't hear you — you can.</p>
+        <div class="rubric-list" style="display:flex;flex-direction:column;gap:8px">
+          ${items.map((label, i) => `
+            <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;line-height:1.5">
+              <input type="checkbox" data-rub="${i}" style="margin-top:4px;flex-shrink:0" />
+              <span>${label}</span>
+            </label>`).join('')}
+        </div>
+      </div>
+      ${typebackEnabled ? `
+      <div class="grammar-box" style="border-left-color:var(--bleu)">
+        <h3>Type what you actually said <span class="tag" style="background:rgba(0,85,164,.12);color:var(--bleu)">Optional</span></h3>
+        <p style="color:var(--mute);font-size:13px;margin-bottom:10px">This is where the real growth happens — the gap between what you meant to say and what came out. Play your recording and write it out word for word.</p>
+        <textarea id="typeback" rows="6" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);font-family:inherit;font-size:15px;line-height:1.5" placeholder="${typebackPlaceholder || 'Tape ce que tu as dit...'}"></textarea>
+      </div>` : ''}
+      <div class="center" style="margin-top:16px">
+        <button class="btn primary big" id="grade-final">📊 Grade my session</button>
+      </div>
+    `;
+    panel.querySelector('#grade-final').onclick = () => {
+      const rubricHits = Array.from(panel.querySelectorAll('input[data-rub]'))
+        .filter(c => c.checked)
+        .map(c => parseInt(c.dataset.rub, 10));
+      const typedText = typebackEnabled ? (panel.querySelector('#typeback').value || '') : '';
+      onGrade({ rubricHits, typedText });
+    };
+  }
+
+  function preplyCTA(taskTitle) {
+    return `
+      <div class="grammar-box" style="border-left-color:var(--accent);margin-top:14px">
+        <h3>🎯 Want a native grader on this exact task?</h3>
+        <p>Recording yourself + self-rating builds the muscle. The other half is hearing a native speaker react — which words landed, where you sounded hesitant, what to fix next. <b>New Preply learners get 50% off their first lesson</b>, so trying one costs next to nothing.</p>
+        <p style="margin-top:8px;color:var(--mute);font-size:13px">Open the link and paste this in your tutor's chat: <i>"${taskTitle}"</i></p>
+        <div class="row" style="justify-content:center;margin-top:10px">
+          <a class="btn primary" href="${PREPLY}" target="_blank" rel="sponsored noopener">Get 50% off a tutor<span class="arr">→</span></a>
+        </div>
+        <p style="color:var(--mute);font-size:12px;text-align:center;margin-top:8px">Affiliate link — booking through it helps keep this site free, at no cost to you.</p>
+      </div>`;
+  }
+
   // ---------- Picture description ----------
   function renderPicture(container, t, id) {
-    let recording = false;
-    let recordedText = '';
-    let timer = null;
-    let timeLeft = t.targetTime || 60;
-
     container.innerHTML = `
       <div class="lesson">
-        <h2>${t.emoji} ${t.title} <span class="tag">${t.level}</span></h2>
+        <h2>${t.emoji || '🖼️'} ${Chrome.escapeHTML(t.title)} <span class="tag">${Chrome.escapeHTML(t.level)}</span></h2>
         <div class="grammar-box">
           <h3>🖼️ Scene to describe</h3>
-          <p><i>${t.sceneDesc}</i></p>
+          <p><i>${Chrome.escapeHTML(t.sceneDesc)}</i></p>
           <p style="margin-top:10px;color:var(--mute);font-size:14px">(This site uses verbal scene descriptions — a real CLB exam shows you the photo.)</p>
         </div>
         <div class="grammar-box" style="border-left-color:var(--warn)">
           <h3>📋 Task</h3>
-          <p>${t.prompt}</p>
+          <p>${Chrome.escapeHTML(t.prompt)}</p>
           ${Chrome.gloss(t.promptEn)}
           <p style="margin-top:8px;color:var(--mute);font-size:14px">Target: <b>${t.targetWords}+ words</b> in <b>${t.targetTime} seconds</b>.</p>
         </div>
-        <div class="center">
-          <button class="mic-btn" id="mic" title="Press and speak">🎙️</button>
-          <p style="color:var(--mute);margin-top:10px;font-size:14px" id="status">Press mic and start speaking.</p>
-          <p style="font-family:'Fredoka',sans-serif;font-size:32px;color:var(--bleu)" id="timer">${timeLeft}s</p>
-          <div class="transcript" id="trans">—</div>
+
+        <div class="grammar-box" id="rec-panel">
+          <h3>Step 1 — Record yourself</h3>
+          <p style="color:var(--mute);font-size:13px;margin-bottom:14px">Press the mic, describe the scene in French until the timer runs out. The recording stays on this device.</p>
+          <div class="center">
+            <button class="mic-btn" id="rec-btn" title="Press to record">🎙️</button>
+            <p style="font-family:'Fredoka',sans-serif;font-size:32px;color:var(--bleu);margin-top:10px" id="rec-timer">${t.targetTime}s</p>
+            <p id="rec-status" style="color:var(--mute);margin-top:4px;font-size:14px;max-width:500px;margin-left:auto;margin-right:auto">Press the mic to start. Your recording stays on this device — nothing uploads.</p>
+            <div id="rec-result" style="margin-top:14px"></div>
+          </div>
         </div>
+
+        <div class="grammar-box" id="model-panel" style="display:none;border-left-color:var(--bleu)">
+          <h3>Step 2 — Hear how a native speaker handles it</h3>
+          <p style="color:var(--mute);font-size:13px;margin-bottom:10px">After your take, listen to the model. Look for the connectors and tense moves you can borrow.</p>
+          <p style="font-style:italic">Use words like: <b>${t.keywords.slice(0, 8).join(', ')}</b></p>
+          <div class="row" style="margin-top:10px;justify-content:center">
+            <button class="btn secondary" id="hear-model">🔊 Hear a sample sentence</button>
+          </div>
+        </div>
+
+        <div id="rate-panel" style="display:none"></div>
         <div id="report"></div>
+
         <div class="spacer"></div>
         <div class="row" style="justify-content:space-between">
           <button class="btn ghost" onclick="App.go('speaktasks')">← Quit</button>
-          <button class="btn" id="grade-btn" disabled>📊 Grade my answer</button>
         </div>
       </div>`;
-    const mic = container.querySelector('#mic');
-    const status = container.querySelector('#status');
-    const trans = container.querySelector('#trans');
-    const timerEl = container.querySelector('#timer');
-    const gradeBtn = container.querySelector('#grade-btn');
 
-    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SR) {
-      status.textContent = 'Speech recognition not supported in this browser. Open this page in Chrome or Edge.';
-      mic.disabled = true;
-      return;
-    }
-    const rec = new SR();
-    rec.lang = 'fr-CA';
-    rec.interimResults = true;
-    rec.continuous = true;
-    let srFatal = false;
+    const sampleSentence = `Sur cette image, on voit ${t.keywords.slice(0, 3).join(', ')}.`;
+    container.querySelector('#hear-model').onclick = () => TTS.speak(sampleSentence, 0.95);
 
-    function startTimer() {
-      timer = setInterval(() => {
-        timeLeft--;
-        timerEl.textContent = timeLeft + 's';
-        if (timeLeft <= 0) {
-          stopRec();
-        }
-      }, 1000);
-    }
-    function stopRec() {
-      recording = false;
-      if (timer) { clearInterval(timer); timer = null; }
-      try { rec.stop(); } catch {}
-      mic.classList.remove('listening');
-      if (!srFatal) status.textContent = 'Recording stopped. Press "Grade my answer".';
-      gradeBtn.disabled = false;
-    }
-    mic.onclick = () => {
-      if (recording) { stopRec(); return; }
-      recording = true;
-      srFatal = false;
-      recordedText = '';
-      mic.classList.add('listening');
-      status.textContent = '🎤 Recording... speak in French.';
-      timeLeft = t.targetTime || 60;
-      timerEl.textContent = timeLeft + 's';
-      try { rec.start(); } catch {}
-      startTimer();
-    };
-    rec.onresult = (e) => {
-      let interim = '';
-      let finalT = '';
-      for (let i = e.resultIndex; i < e.results.length; i++) {
-        const r = e.results[i];
-        if (r.isFinal) finalT += r[0].transcript + ' ';
-        else interim += r[0].transcript;
-      }
-      if (finalT) recordedText += finalT;
-      trans.textContent = (recordedText + interim).trim() || '—';
-    };
-    rec.onerror = (e) => {
-      const msg = Speech.errorMessage(e.error);
-      if (msg) status.textContent = msg;
-      if (Speech.isFatal(e.error)) {
-        srFatal = true;
-        stopRec();
-      } else if (e.error === 'language-not-supported' && rec.lang === 'fr-CA') {
-        rec.lang = 'fr-FR';
-      }
-    };
-    rec.onend = () => { if (recording && !srFatal) { try { rec.start(); } catch {} } };
-
-    gradeBtn.onclick = () => gradePicture(container, t, id, recordedText);
+    attachRecorder(container.querySelector('#rec-panel'), {
+      maxSeconds: t.targetTime || 60,
+      onComplete: () => {
+        container.querySelector('#model-panel').style.display = '';
+        const ratePanel = container.querySelector('#rate-panel');
+        ratePanel.style.display = '';
+        attachRubric(ratePanel, {
+          type: 'picture',
+          typebackEnabled: true,
+          typebackPlaceholder: 'e.g. Sur cette image, on voit un couple dans un parc...',
+          onGrade: ({ rubricHits, typedText }) => gradePicture(container, t, id, rubricHits, typedText),
+        });
+      },
+    });
   }
 
-  function gradePicture(container, t, id, text) {
+  function gradePicture(container, t, id, rubricHits, typedText) {
+    const rubricMax = RUBRIC.picture.length;
+    const rubricScore = Math.round((rubricHits.length / rubricMax) * 100);
+
+    const text = (typedText || '').trim();
     const words = (text.match(/\b\w+\b/g) || []).length;
     const lower = text.toLowerCase();
     const keywordsHit = (t.keywords || []).filter(kw => lower.includes(kw.toLowerCase()));
     const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 0).length;
-    // Score blend
-    const wordScore = Math.min(40, Math.round((words / t.targetWords) * 40));
-    const keywordScore = Math.min(40, Math.round((keywordsHit.length / Math.min(8, t.keywords.length)) * 40));
-    const sentenceScore = Math.min(20, sentences * 3);
-    const total = Math.min(100, wordScore + keywordScore + sentenceScore);
+
+    let typedScore = null;
+    let total = rubricScore;
+    if (text.length > 20) {
+      const wordScore = Math.min(40, Math.round((words / t.targetWords) * 40));
+      const keywordScore = Math.min(40, Math.round((keywordsHit.length / Math.min(8, t.keywords.length)) * 40));
+      const sentenceScore = Math.min(20, sentences * 3);
+      typedScore = Math.min(100, wordScore + keywordScore + sentenceScore);
+      total = Math.round((rubricScore + typedScore) / 2);
+    }
+
     const clb = total >= 75 ? (t.level.includes('6') ? 'CLB 6' : 'CLB 5') : total >= 55 ? 'CLB 4' : 'CLB 3';
     if (total >= 65) App.markLessonDone(`speaktask:${id}`);
+
+    const passColor = total >= 70 ? 'var(--good)' : 'var(--warn)';
+    const passBg = total >= 70 ? 'rgba(52,199,89,.12)' : 'rgba(255,159,10,.12)';
+
     container.querySelector('#report').innerHTML = `
-      <div class="grammar-box" style="background:${total >= 70 ? 'rgba(52,199,89,.12)' : 'rgba(255,159,10,.12)'};border-left-color:${total >= 70 ? 'var(--good)' : 'var(--warn)'};margin-top:14px">
-        <h3>📊 Grade: ${total}/100 · ${clb}</h3>
-        <div class="row" style="margin-top:8px"><span class="tag">Words: ${words}/${t.targetWords}</span><span class="tag">Keywords: ${keywordsHit.length}/${Math.min(8, t.keywords.length)}</span><span class="tag">Sentences: ${sentences}</span></div>
-        <p style="margin-top:10px"><b>Keywords found:</b> ${keywordsHit.length ? keywordsHit.join(', ') : '<i>none</i>'}</p>
-        ${keywordsHit.length < 4 ? `<p style="margin-top:6px;color:var(--mute);font-size:14px"><b>Missed expected words:</b> ${t.keywords.filter(k => !keywordsHit.includes(k)).slice(0, 6).join(', ')}</p>` : ''}
-        <p style="margin-top:10px;color:var(--mute);font-size:14px">CLB Speaking rubric also evaluates pronunciation, intonation, hesitation, and grammatical accuracy. A real grader would assess those separately.</p>
-      </div>`;
+      <div class="grammar-box" style="background:${passBg};border-left-color:${passColor};margin-top:14px">
+        <h3>📊 Session score: ${total}/100 · ${clb}</h3>
+        <div class="row" style="margin-top:8px;flex-wrap:wrap">
+          <span class="tag">Self-rubric: ${rubricHits.length}/${rubricMax}</span>
+          ${typedScore != null ? `<span class="tag">Typed transcript: ${typedScore}/100</span>` : '<span class="tag" style="color:var(--mute)">No typed transcript</span>'}
+          ${typedScore != null ? `<span class="tag">Words: ${words}/${t.targetWords}</span>` : ''}
+          ${typedScore != null ? `<span class="tag">Keywords: ${keywordsHit.length}/${Math.min(8, t.keywords.length)}</span>` : ''}
+        </div>
+        ${typedScore != null && keywordsHit.length ? `<p style="margin-top:10px"><b>Keywords found:</b> ${keywordsHit.join(', ')}</p>` : ''}
+        ${typedScore != null && keywordsHit.length < 4 ? `<p style="margin-top:6px;color:var(--mute);font-size:14px"><b>Missed expected words:</b> ${t.keywords.filter(k => !keywordsHit.includes(k)).slice(0, 6).join(', ')}</p>` : ''}
+        <p style="margin-top:10px;color:var(--mute);font-size:13px">A real CLB grader also rates pronunciation, intonation, hesitation, and grammatical accuracy from your actual voice. Replay your recording above and judge those for yourself — or send it to a tutor below.</p>
+      </div>
+      ${preplyCTA(t.title)}`;
   }
 
   // ---------- Q&A ----------
   function renderQA(container, t, id) {
     let qi = 0;
-    let answers = [];
-    let recording = false;
-    let recordedText = '';
+    const answers = [];
 
     function show() {
       if (qi >= t.questions.length) return finishQA(container, t, id, answers);
       const q = t.questions[qi];
-      recordedText = '';
       container.innerHTML = `
         <div class="lesson">
-          <h2>❓ ${t.title} <span class="tag">${t.level}</span></h2>
+          <h2>❓ ${Chrome.escapeHTML(t.title)} <span class="tag">${Chrome.escapeHTML(t.level)}</span></h2>
           <div class="progress"><div style="width:${(qi / t.questions.length) * 100}%"></div></div>
           <div class="grammar-box">
             <h3>Question ${qi + 1} of ${t.questions.length}</h3>
-            <p style="font-size:18px;line-height:1.5">${q.q}</p>
+            <p style="font-size:18px;line-height:1.5">${Chrome.escapeHTML(q.q)}</p>
             ${Chrome.gloss(q.qEn)}
             <button class="btn secondary" id="hear-q" style="margin-top:10px">🔊 Hear question</button>
-            ${q.hint ? `<p style="margin-top:10px;color:var(--mute);font-size:13px"><b>Hint:</b> ${q.hint}</p>` : ''}
+            ${q.hint ? `<p style="margin-top:10px;color:var(--mute);font-size:13px"><b>Hint:</b> ${Chrome.escapeHTML(q.hint)}</p>` : ''}
             <p style="color:var(--mute);font-size:13px">Target: ${q.minWords}+ words.</p>
           </div>
-          <div class="center">
-            <button class="mic-btn" id="mic">🎙️</button>
-            <p style="color:var(--mute);margin-top:10px;font-size:14px" id="status">Press mic, then answer aloud.</p>
-            <div class="transcript" id="trans">—</div>
+
+          <div class="grammar-box" id="rec-panel">
+            <h3>Record your answer</h3>
+            <p style="color:var(--mute);font-size:13px;margin-bottom:14px">Press the mic, answer aloud in French. Stays on this device.</p>
+            <div class="center">
+              <button class="mic-btn" id="rec-btn" title="Press to record">🎙️</button>
+              <p style="font-family:'Fredoka',sans-serif;font-size:28px;color:var(--bleu);margin-top:10px" id="rec-timer">30s</p>
+              <p id="rec-status" style="color:var(--mute);margin-top:4px;font-size:14px">Press the mic to start.</p>
+              <div id="rec-result" style="margin-top:14px"></div>
+            </div>
           </div>
+
+          <div id="rate-panel" style="display:none"></div>
+
           <div class="spacer"></div>
           <div class="row" style="justify-content:space-between">
             <button class="btn ghost" onclick="App.go('speaktasks')">← Quit</button>
@@ -197,88 +368,83 @@ window.SpeakTasksModule = (function () {
         </div>`;
       container.querySelector('#hear-q').onclick = () => TTS.speak(q.q);
       TTS.speakSoon(q.q, 1.0, 200);
-      const mic = container.querySelector('#mic');
-      const status = container.querySelector('#status');
-      const trans = container.querySelector('#trans');
+
       const submitBtn = container.querySelector('#submit-q');
-      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SR) { status.textContent = 'Speech recognition not supported. Open in Chrome or Edge.'; mic.disabled = true; submitBtn.disabled = false; }
-      const rec = SR ? new SR() : null;
-      let srFatal = false;
-      if (rec) {
-        rec.lang = 'fr-CA';
-        rec.interimResults = true;
-        rec.continuous = true;
-        rec.onresult = (e) => {
-          let interim = '', finalT = '';
-          for (let i = e.resultIndex; i < e.results.length; i++) {
-            const r = e.results[i];
-            if (r.isFinal) finalT += r[0].transcript + ' ';
-            else interim += r[0].transcript;
-          }
-          if (finalT) recordedText += finalT;
-          trans.textContent = (recordedText + interim).trim() || '—';
-        };
-        rec.onerror = (e) => {
-          const msg = Speech.errorMessage(e.error);
-          if (msg) status.textContent = msg;
-          if (Speech.isFatal(e.error)) {
-            srFatal = true;
-            recording = false;
-            mic.classList.remove('listening');
-            submitBtn.disabled = false;
-          } else if (e.error === 'language-not-supported' && rec.lang === 'fr-CA') {
-            rec.lang = 'fr-FR';
-          }
-        };
-        rec.onend = () => { if (recording && !srFatal) { try { rec.start(); } catch {} } };
-      }
-      mic.onclick = () => {
-        if (recording) {
-          recording = false; mic.classList.remove('listening'); try { rec && rec.stop(); } catch {}
-          status.textContent = 'Stopped. Press "Next question".'; submitBtn.disabled = false;
-          return;
-        }
-        recording = true;
-        srFatal = false;
-        recordedText = '';
-        mic.classList.add('listening');
-        status.textContent = '🎤 Recording...';
-        try { rec && rec.start(); } catch {}
-      };
-      submitBtn.onclick = () => {
-        answers.push({ q: q.q, transcript: recordedText, minWords: q.minWords });
-        qi++; show();
-      };
+      let lastAnswer = { q: q.q, minWords: q.minWords };
+
+      attachRecorder(container.querySelector('#rec-panel'), {
+        maxSeconds: 30,
+        onComplete: () => {
+          const ratePanel = container.querySelector('#rate-panel');
+          ratePanel.style.display = '';
+          attachRubric(ratePanel, {
+            type: 'qa',
+            typebackEnabled: true,
+            typebackPlaceholder: 'Type your answer word-for-word (optional)',
+            onGrade: ({ rubricHits, typedText }) => {
+              lastAnswer = { q: q.q, minWords: q.minWords, rubricHits, typedText };
+              submitBtn.disabled = false;
+              submitBtn.scrollIntoView({ block: 'center', behavior: 'smooth' });
+            },
+          });
+          submitBtn.disabled = false; // Allow advancing without rubric
+        },
+      });
+
+      submitBtn.onclick = () => { answers.push(lastAnswer); qi++; show(); };
       container.querySelector('#skip').onclick = () => {
-        answers.push({ q: q.q, transcript: '', minWords: q.minWords, skipped: true });
+        answers.push({ q: q.q, minWords: q.minWords, skipped: true });
         qi++; show();
       };
     }
     show();
   }
+
   function finishQA(container, t, id, answers) {
-    let totalWords = 0, totalTarget = 0;
+    let rubricTotal = 0, rubricMaxTotal = 0;
+    let typedWords = 0, typedTarget = 0;
     answers.forEach(a => {
-      totalWords += (a.transcript.match(/\b\w+\b/g) || []).length;
-      totalTarget += a.minWords;
+      if (a.rubricHits) {
+        rubricTotal += a.rubricHits.length;
+        rubricMaxTotal += RUBRIC.qa.length;
+      } else if (!a.skipped) {
+        // Recorded but didn't self-rate — count as a half-credit
+        rubricTotal += 1;
+        rubricMaxTotal += RUBRIC.qa.length;
+      } else {
+        rubricMaxTotal += RUBRIC.qa.length;
+      }
+      const t2 = (a.typedText || '').trim();
+      if (t2) {
+        typedWords += (t2.match(/\b\w+\b/g) || []).length;
+        typedTarget += a.minWords;
+      }
     });
-    const score = Math.min(100, Math.round((totalWords / totalTarget) * 100));
-    if (score >= 65) App.markLessonDone(`speaktask:${id}`);
+    const rubricPct = rubricMaxTotal ? Math.round((rubricTotal / rubricMaxTotal) * 100) : 0;
+    const typedPct = typedTarget ? Math.min(100, Math.round((typedWords / typedTarget) * 100)) : null;
+    const total = typedPct != null ? Math.round((rubricPct + typedPct) / 2) : rubricPct;
+    if (total >= 65) App.markLessonDone(`speaktask:${id}`);
+
     container.innerHTML = `
       <div class="lesson">
-        <h2>📊 ${t.title} — Results</h2>
-        <div class="grammar-box" style="background:${score >= 70 ? 'rgba(52,199,89,.12)' : 'rgba(255,159,10,.12)'};border-left-color:${score >= 70 ? 'var(--good)' : 'var(--warn)'}">
-          <h3>Overall: ${score}/100</h3>
-          <p>Words spoken: <b>${totalWords}</b> / target <b>${totalTarget}</b></p>
+        <h2>📊 ${Chrome.escapeHTML(t.title)} — Results</h2>
+        <div class="grammar-box" style="background:${total >= 70 ? 'rgba(52,199,89,.12)' : 'rgba(255,159,10,.12)'};border-left-color:${total >= 70 ? 'var(--good)' : 'var(--warn)'}">
+          <h3>Overall: ${total}/100</h3>
+          <div class="row" style="margin-top:8px;flex-wrap:wrap">
+            <span class="tag">Self-rubric: ${rubricTotal}/${rubricMaxTotal}</span>
+            ${typedPct != null ? `<span class="tag">Typed transcripts: ${typedPct}/100</span>` : ''}
+            ${typedPct != null ? `<span class="tag">Words typed: ${typedWords} / target ${typedTarget}</span>` : ''}
+          </div>
         </div>
         ${answers.map((a, i) => `
           <div class="grammar-box">
-            <h3>Q${i + 1}: ${a.q}</h3>
-            <p style="color:var(--mute);font-size:13px">Words: ${(a.transcript.match(/\b\w+\b/g) || []).length} / ${a.minWords}${a.skipped ? ' (skipped)' : ''}</p>
-            <p style="font-style:italic;margin-top:6px">"${a.transcript || '<i>no answer</i>'}"</p>
+            <h3>Q${i + 1}: ${Chrome.escapeHTML(a.q)}</h3>
+            ${a.skipped ? '<p><i>Skipped.</i></p>' : ''}
+            ${a.rubricHits ? `<p style="color:var(--mute);font-size:13px">Self-rated ${a.rubricHits.length}/${RUBRIC.qa.length}</p>` : ''}
+            ${a.typedText ? `<p style="font-style:italic;margin-top:6px">"${Chrome.escapeHTML(a.typedText)}"</p>` : ''}
           </div>`).join('')}
-        <div class="center">
+        ${preplyCTA(t.title)}
+        <div class="center" style="margin-top:14px">
           <button class="btn big" onclick="App.go('speaktasks')">More tasks</button>
         </div>
       </div>`;
@@ -287,33 +453,39 @@ window.SpeakTasksModule = (function () {
   // ---------- Role-play ----------
   function renderRole(container, t, id) {
     let turnIdx = 0;
-    let answers = [];
-    let recording = false;
-    let recordedText = '';
+    const answers = [];
 
     function show() {
       if (turnIdx >= t.turns.length) return finishRole(container, t, id, answers);
       const turn = t.turns[turnIdx];
-      recordedText = '';
       container.innerHTML = `
         <div class="lesson">
-          <h2>🎭 ${t.title} <span class="tag">${t.level}</span></h2>
+          <h2>🎭 ${Chrome.escapeHTML(t.title)} <span class="tag">${Chrome.escapeHTML(t.level)}</span></h2>
           <div class="progress"><div style="width:${(turnIdx / t.turns.length) * 100}%"></div></div>
           <div class="grammar-box" style="border-left-color:var(--warn)">
             <h3>📋 Scenario</h3>
-            <p>${t.scenario}</p>
+            <p>${Chrome.escapeHTML(t.scenario)}</p>
           </div>
           <div class="grammar-box">
             <h3>👤 Other person says:</h3>
-            <p style="font-size:18px;line-height:1.5;font-family:'Fredoka',sans-serif;color:var(--bleu)">"${turn.other}"</p>
+            <p style="font-size:18px;line-height:1.5;font-family:'Fredoka',sans-serif;color:var(--bleu)">"${Chrome.escapeHTML(turn.other)}"</p>
             ${Chrome.gloss(turn.otherEn)}
             <button class="btn secondary" id="hear" style="margin-top:8px">🔊 Hear them</button>
           </div>
-          <p style="text-align:center;color:var(--mute)"><b>Your turn.</b> ${turn.hint ? '<br>' + turn.hint : ''} Target: ${turn.minWords}+ words.</p>
-          <div class="center">
-            <button class="mic-btn" id="mic">🎙️</button>
-            <div class="transcript" id="trans">—</div>
+          <p style="text-align:center;color:var(--mute)"><b>Your turn.</b> ${turn.hint ? '<br>' + Chrome.escapeHTML(turn.hint) : ''} Target: ${turn.minWords}+ words.</p>
+
+          <div class="grammar-box" id="rec-panel">
+            <h3>Record your reply</h3>
+            <div class="center">
+              <button class="mic-btn" id="rec-btn" title="Press to record">🎙️</button>
+              <p style="font-family:'Fredoka',sans-serif;font-size:28px;color:var(--bleu);margin-top:10px" id="rec-timer">25s</p>
+              <p id="rec-status" style="color:var(--mute);margin-top:4px;font-size:14px">Press the mic to start.</p>
+              <div id="rec-result" style="margin-top:14px"></div>
+            </div>
           </div>
+
+          <div id="rate-panel" style="display:none"></div>
+
           <div class="spacer"></div>
           <div class="row" style="justify-content:space-between">
             <button class="btn ghost" onclick="App.go('speaktasks')">← Quit</button>
@@ -322,80 +494,79 @@ window.SpeakTasksModule = (function () {
         </div>`;
       container.querySelector('#hear').onclick = () => TTS.speak(turn.other);
       TTS.speakSoon(turn.other, 1.0, 200);
-      const mic = container.querySelector('#mic');
-      const trans = container.querySelector('#trans');
+
       const nextBtn = container.querySelector('#next-turn');
-      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-      const status = document.createElement('p');
-      status.style.cssText = 'color:var(--mute);margin-top:8px;font-size:14px';
-      mic.parentElement.insertBefore(status, trans);
-      if (!SR) { status.textContent = 'Speech recognition not supported. Open in Chrome or Edge.'; mic.disabled = true; nextBtn.disabled = false; }
-      const rec = SR ? new SR() : null;
-      let srFatal = false;
-      if (rec) {
-        rec.lang = 'fr-CA'; rec.interimResults = true; rec.continuous = true;
-        rec.onresult = (e) => {
-          let interim = '', finalT = '';
-          for (let i = e.resultIndex; i < e.results.length; i++) {
-            const r = e.results[i];
-            if (r.isFinal) finalT += r[0].transcript + ' '; else interim += r[0].transcript;
-          }
-          if (finalT) recordedText += finalT;
-          trans.textContent = (recordedText + interim).trim() || '—';
-        };
-        rec.onerror = (e) => {
-          const msg = Speech.errorMessage(e.error);
-          if (msg) status.textContent = msg;
-          if (Speech.isFatal(e.error)) {
-            srFatal = true;
-            recording = false;
-            mic.classList.remove('listening');
-            nextBtn.disabled = false;
-          } else if (e.error === 'language-not-supported' && rec.lang === 'fr-CA') {
-            rec.lang = 'fr-FR';
-          }
-        };
-        rec.onend = () => { if (recording && !srFatal) { try { rec.start(); } catch {} } };
-      }
-      mic.onclick = () => {
-        if (recording) { recording = false; mic.classList.remove('listening'); try { rec && rec.stop(); } catch {}; nextBtn.disabled = false; return; }
-        recording = true; srFatal = false; recordedText = ''; mic.classList.add('listening');
-        try { rec && rec.start(); } catch {}
-      };
-      nextBtn.onclick = () => {
-        answers.push({ other: turn.other, transcript: recordedText, minWords: turn.minWords });
-        turnIdx++; show();
-      };
+      let lastTurn = { other: turn.other, minWords: turn.minWords };
+
+      attachRecorder(container.querySelector('#rec-panel'), {
+        maxSeconds: 25,
+        onComplete: () => {
+          const ratePanel = container.querySelector('#rate-panel');
+          ratePanel.style.display = '';
+          attachRubric(ratePanel, {
+            type: 'role',
+            typebackEnabled: true,
+            typebackPlaceholder: 'Type your reply (optional)',
+            onGrade: ({ rubricHits, typedText }) => {
+              lastTurn = { other: turn.other, minWords: turn.minWords, rubricHits, typedText };
+              nextBtn.disabled = false;
+              nextBtn.scrollIntoView({ block: 'center', behavior: 'smooth' });
+            },
+          });
+          nextBtn.disabled = false;
+        },
+      });
+
+      nextBtn.onclick = () => { answers.push(lastTurn); turnIdx++; show(); };
     }
     show();
   }
+
   function finishRole(container, t, id, answers) {
-    let totalWords = 0, totalTarget = 0;
+    let rubricTotal = 0, rubricMaxTotal = 0;
+    let typedWords = 0, typedTarget = 0;
     answers.forEach(a => {
-      totalWords += (a.transcript.match(/\b\w+\b/g) || []).length;
-      totalTarget += a.minWords;
+      if (a.rubricHits) {
+        rubricTotal += a.rubricHits.length;
+        rubricMaxTotal += RUBRIC.role.length;
+      } else {
+        rubricTotal += 1;
+        rubricMaxTotal += RUBRIC.role.length;
+      }
+      const t2 = (a.typedText || '').trim();
+      if (t2) {
+        typedWords += (t2.match(/\b\w+\b/g) || []).length;
+        typedTarget += a.minWords;
+      }
     });
-    const score = Math.min(100, Math.round((totalWords / totalTarget) * 100));
-    if (score >= 65) App.markLessonDone(`speaktask:${id}`);
+    const rubricPct = rubricMaxTotal ? Math.round((rubricTotal / rubricMaxTotal) * 100) : 0;
+    const typedPct = typedTarget ? Math.min(100, Math.round((typedWords / typedTarget) * 100)) : null;
+    const total = typedPct != null ? Math.round((rubricPct + typedPct) / 2) : rubricPct;
+    if (total >= 65) App.markLessonDone(`speaktask:${id}`);
+
     container.innerHTML = `
       <div class="lesson">
-        <h2>🎭 ${t.title} — Complete</h2>
-        <div class="grammar-box" style="background:${score >= 70 ? 'rgba(52,199,89,.12)' : 'rgba(255,159,10,.12)'};border-left-color:${score >= 70 ? 'var(--good)' : 'var(--warn)'}">
-          <h3>Score: ${score}/100</h3>
-          <p>Words spoken: <b>${totalWords}</b> / target <b>${totalTarget}</b></p>
-          <p style="margin-top:8px;color:var(--mute);font-size:14px">Role-plays are graded by completeness in this site. A real CLB rater would also score fluency, accuracy, pronunciation, and appropriate register.</p>
+        <h2>🎭 ${Chrome.escapeHTML(t.title)} — Complete</h2>
+        <div class="grammar-box" style="background:${total >= 70 ? 'rgba(52,199,89,.12)' : 'rgba(255,159,10,.12)'};border-left-color:${total >= 70 ? 'var(--good)' : 'var(--warn)'}">
+          <h3>Session score: ${total}/100</h3>
+          <div class="row" style="margin-top:8px;flex-wrap:wrap">
+            <span class="tag">Self-rubric: ${rubricTotal}/${rubricMaxTotal}</span>
+            ${typedPct != null ? `<span class="tag">Typed: ${typedPct}/100</span>` : ''}
+          </div>
+          <p style="margin-top:8px;color:var(--mute);font-size:13px">Role-plays are graded by completeness here. A real CLB rater also scores fluency, accuracy, pronunciation, and appropriate register.</p>
         </div>
         <h3 style="font-family:'Fredoka',sans-serif;color:var(--bleu);margin:18px 0 8px">Conversation transcript</h3>
-        ${answers.map((a, i) => `
+        ${answers.map((a) => `
           <div class="dialogue-line">
             <div class="dl-speaker dl-A">👤 Other</div>
-            <div class="dl-text">${a.other}</div>
+            <div class="dl-text">${Chrome.escapeHTML(a.other)}</div>
           </div>
           <div class="dialogue-line">
             <div class="dl-speaker dl-B">🎤 You</div>
-            <div class="dl-text">${a.transcript || '<i>(no answer)</i>'}</div>
+            <div class="dl-text">${a.typedText ? Chrome.escapeHTML(a.typedText) : '<i>(audio recorded — not typed)</i>'}</div>
           </div>`).join('')}
-        <div class="center"><button class="btn big" onclick="App.go('speaktasks')">More tasks</button></div>
+        ${preplyCTA(t.title)}
+        <div class="center" style="margin-top:14px"><button class="btn big" onclick="App.go('speaktasks')">More tasks</button></div>
       </div>`;
   }
 

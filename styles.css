@@ -1367,6 +1367,7 @@ textarea.input { min-height: 140px; resize: vertical; line-height: var(--lh-base
   touch-action: manipulation;
   display: grid; place-items: center;
 }
+.center > .mic-btn { margin: 0 auto; }
 .mic-btn:hover { box-shadow: var(--e3); }
 .mic-btn:active { transform: scale(.95); }
 .mic-btn.listening { animation: mic-pulse 1.4s var(--ease-in-out) infinite; background: var(--bad); }

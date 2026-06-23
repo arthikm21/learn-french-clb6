@@ -379,6 +379,10 @@ window.MockModule = (function () {
   }
 
   // ---------- Speaking section (3 TCF tasks) ----------
+  // Mock flow: record locally with MediaRecorder (no SR — that flow was
+  // unreliable in non-Chrome browsers), let the learner type back what they
+  // said, then word-count the typed transcript. Word count + rubric bonus is
+  // a fair proxy for fluency on a full mock — and it actually works.
   function renderSpeakSection(body, sec) {
     let taskIdx = 0;
     const results = [];
@@ -388,79 +392,119 @@ window.MockModule = (function () {
         return;
       }
       const wt = sec.speakTasks[taskIdx];
-      let recordedText = '';
-      let recording = false;
 
       let promptHTML = '';
       let targetWords = 60;
+      let targetSec = 60;
       if (wt.type === 'qa') {
         const t = SPEAK_TASKS[wt.taskId];
         const firstQ = t.questions && t.questions[0] ? t.questions[0].q : t.prompt;
         promptHTML = `<div class="grammar-box"><h3>${wt.label}</h3><p>Introduce yourself, then answer: <i>"${firstQ}"</i></p></div>`;
-        targetWords = 60;
+        targetWords = 60; targetSec = 90;
       } else if (wt.type === 'task2') {
         const t = SPEAK_TASK2[wt.taskId];
         promptHTML = `
           <div class="grammar-box"><h3>${wt.label}</h3><p>${t.scenario}</p></div>
           <div class="grammar-box" style="background:rgba(0,85,164,.08)"><h3>Ask about:</h3><ul style="margin-left:20px;line-height:1.7">${t.requiredInfo.map(i => `<li>${i}</li>`).join('')}</ul></div>`;
-        targetWords = 100;
+        targetWords = 100; targetSec = 180;
       } else if (wt.type === 'task3') {
         const t = SPEAK_TASK3[wt.taskId];
         promptHTML = `
           <div class="grammar-box" style="border-left-color:var(--warn)"><h3>${wt.label}</h3><p style="font-weight:600">${t.topic}</p><p style="margin-top:8px">${t.prompt}</p></div>`;
-        targetWords = 200;
+        targetWords = 200; targetSec = 240;
       }
 
       body.innerHTML = `
         <div class="lesson">
           ${promptHTML}
-          <div class="center">
-            <button class="mic-btn" id="m-mic">🎙️</button>
-            <p style="color:var(--mute);margin-top:10px" id="m-status">Press mic, then speak.</p>
-            <div class="transcript" id="m-trans">—</div>
+          <div class="grammar-box" id="rec-panel">
+            <h3>Record your answer</h3>
+            <p style="color:var(--mute);font-size:13px;margin-bottom:12px">Press the mic and speak in French. Recording stays on this device. Target: ${targetWords}+ words.</p>
+            <div class="center">
+              <button class="mic-btn" id="m-mic">🎙️</button>
+              <p style="font-family:'Fredoka',sans-serif;font-size:28px;color:var(--bleu);margin-top:10px" id="m-timer">${targetSec}s</p>
+              <p style="color:var(--mute);margin-top:4px;font-size:14px" id="m-status">Press the mic to start.</p>
+              <div id="m-result" style="margin-top:14px"></div>
+            </div>
+          </div>
+          <div class="grammar-box" id="m-rate-panel" style="display:none;border-left-color:var(--bleu)">
+            <h3>Type what you said <span class="tag" style="background:rgba(0,85,164,.12);color:var(--bleu)">For the grader</span></h3>
+            <p style="color:var(--mute);font-size:13px;margin-bottom:10px">Listen to your recording and type it out. The mock scorer counts your words against the target.</p>
+            <textarea id="m-typeback" rows="6" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);font-family:inherit;font-size:15px;line-height:1.5" placeholder="Type your spoken answer (optional but recommended)"></textarea>
           </div>
           <div class="center"><button class="btn big" id="next-task" disabled>Next task →</button></div>
         </div>`;
-      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+
       const mic = body.querySelector('#m-mic');
       const status = body.querySelector('#m-status');
-      const trans = body.querySelector('#m-trans');
+      const timerEl = body.querySelector('#m-timer');
+      const resultEl = body.querySelector('#m-result');
+      const ratePanel = body.querySelector('#m-rate-panel');
       const nextBtn = body.querySelector('#next-task');
-      if (!SR) { status.textContent = 'Speech recognition not supported. Open in Chrome or Edge.'; mic.disabled = true; nextBtn.disabled = false; }
-      const rec = SR ? new SR() : null;
-      let srFatal = false;
-      if (rec) {
-        rec.lang = 'fr-CA'; rec.interimResults = true; rec.continuous = true;
-        rec.onresult = (e) => {
-          let interim = '', finalT = '';
-          for (let i = e.resultIndex; i < e.results.length; i++) {
-            const r = e.results[i];
-            if (r.isFinal) finalT += r[0].transcript + ' '; else interim += r[0].transcript;
-          }
-          if (finalT) recordedText += finalT;
-          trans.textContent = (recordedText + interim).trim() || '—';
-        };
-        rec.onerror = (e) => {
-          const msg = Speech.errorMessage(e.error);
-          if (msg) status.textContent = msg;
-          if (Speech.isFatal(e.error)) {
-            srFatal = true;
-            recording = false;
-            mic.classList.remove('listening');
-            nextBtn.disabled = false;
-          } else if (e.error === 'language-not-supported' && rec.lang === 'fr-CA') {
-            rec.lang = 'fr-FR';
-          }
-        };
-        rec.onend = () => { if (recording && !srFatal) { try { rec.start(); } catch {} } };
+
+      if (!Record.supported()) {
+        status.textContent = 'Audio recording not supported in this browser. Try Chrome, Edge, Brave, Safari, or Firefox.';
+        mic.disabled = true;
+        ratePanel.style.display = '';
+        nextBtn.disabled = false;
       }
+
+      let rec = null;
+      let timer = null;
+      let stopping = false;
+      let secLeft = targetSec;
+
+      async function start() {
+        const oldAudio = resultEl.querySelector('audio');
+        if (oldAudio) { try { oldAudio.pause(); } catch {} }
+        mic.disabled = true;
+        status.textContent = 'Asking for microphone…';
+        try { rec = await Record.create(); }
+        catch (e) { status.textContent = e.message || 'Could not access microphone.'; mic.disabled = false; return; }
+        rec.start();
+        mic.disabled = false;
+        mic.classList.add('listening');
+        mic.textContent = '⏹';
+        status.innerHTML = '🎤 <b>Recording…</b> press the square to stop.';
+        timer = setInterval(() => {
+          secLeft--;
+          timerEl.textContent = secLeft + 's';
+          if (secLeft <= 0) stop();
+        }, 1000);
+      }
+
+      async function stop() {
+        if (stopping || !rec) return;
+        stopping = true;
+        if (timer) { clearInterval(timer); timer = null; }
+        mic.disabled = true;
+        mic.classList.remove('listening');
+        status.textContent = 'Saving recording…';
+        let out;
+        try { out = await rec.stop(); }
+        catch (e) { status.textContent = 'Recording failed.'; mic.disabled = false; stopping = false; return; }
+        mic.textContent = '🎙️';
+        mic.disabled = false;
+        stopping = false;
+        const audio = document.createElement('audio');
+        audio.controls = true;
+        audio.src = out.url;
+        audio.style.cssText = 'width:100%;max-width:480px;margin-top:8px';
+        resultEl.innerHTML = '';
+        resultEl.appendChild(audio);
+        status.innerHTML = '✓ Recorded. Play it back, then type below and press Next.';
+        ratePanel.style.display = '';
+        nextBtn.disabled = false;
+      }
+
       mic.onclick = () => {
-        if (recording) { recording = false; mic.classList.remove('listening'); try { rec && rec.stop(); } catch {}; nextBtn.disabled = false; return; }
-        recording = true; srFatal = false; recordedText = ''; mic.classList.add('listening');
-        try { rec && rec.start(); } catch {}
+        if (mic.classList.contains('listening')) stop();
+        else { secLeft = targetSec; timerEl.textContent = secLeft + 's'; start(); }
       };
+
       nextBtn.onclick = () => {
-        results.push({ taskType: wt.type, transcript: recordedText, targetWords });
+        const transcript = (body.querySelector('#m-typeback')?.value || '').trim();
+        results.push({ taskType: wt.type, transcript, targetWords });
         taskIdx++; showTask();
       };
     }
