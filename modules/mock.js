@@ -421,9 +421,9 @@ window.MockModule = (function () {
             <h3>Record your answer</h3>
             <p style="color:var(--mute);font-size:13px;margin-bottom:12px">Press the mic and speak in French. Recording stays on this device. Target: ${targetWords}+ words.</p>
             <div class="center">
-              <button class="mic-btn" id="m-mic">🎙️</button>
-              <p style="font-family:'Fredoka',sans-serif;font-size:28px;color:var(--bleu);margin-top:10px" id="m-timer">${targetSec}s</p>
-              <p style="color:var(--mute);margin-top:4px;font-size:14px" id="m-status">Press the mic to start.</p>
+              <button class="mic-btn" id="m-mic" title="Press to record" aria-label="Start recording">🎙️</button>
+              <p style="font-family:'Fredoka',sans-serif;font-size:28px;color:var(--bleu);margin-top:10px" id="m-timer" aria-live="polite">${targetSec}s</p>
+              <p style="color:var(--mute);margin-top:4px;font-size:14px" id="m-status" aria-live="polite">Press the mic to start.</p>
               <div id="m-result" style="margin-top:14px"></div>
             </div>
           </div>

@@ -56,6 +56,11 @@ window.Record = (function () {
     return 'Could not start recording: ' + (name || 'unknown error');
   }
 
+  // Every active recorder registers here so stopAll() can release them on
+  // navigation. Without this, navigating away mid-recording leaves the mic
+  // capture light on indefinitely and leaks the MediaStream + blob URLs.
+  const active = new Set();
+
   async function create() {
     if (!supported()) {
       throw new Error('Audio recording is not supported in this browser. Open this page in Chrome, Edge, Brave, Safari, or Firefox.');
@@ -71,10 +76,11 @@ window.Record = (function () {
     const chunks = [];
     let startedAt = 0;
     let lastUrl = null;
+    let disposed = false;
 
     rec.ondataavailable = (e) => { if (e.data && e.data.size > 0) chunks.push(e.data); };
 
-    return {
+    const handle = {
       mimeType: rec.mimeType || mimeType || 'audio/webm',
 
       start() {
@@ -101,12 +107,26 @@ window.Record = (function () {
       },
 
       cleanup() {
+        if (disposed) return;
+        disposed = true;
         try { if (rec.state !== 'inactive') rec.stop(); } catch {}
         try { stream.getTracks().forEach(t => t.stop()); } catch {}
         if (lastUrl) { try { URL.revokeObjectURL(lastUrl); } catch {} lastUrl = null; }
+        active.delete(handle);
       },
     };
+    active.add(handle);
+    return handle;
   }
 
-  return { supported, create, describeError };
+  // Called by the router on every navigation so mid-recording streams don't
+  // outlive the page they were created on.
+  function stopAll() {
+    for (const h of Array.from(active)) {
+      try { h.cleanup(); } catch {}
+    }
+    active.clear();
+  }
+
+  return { supported, create, describeError, stopAll };
 })();

@@ -116,6 +116,9 @@ window.App = (function () {
     // dialogues, and scheduled auto-plays — so nothing keeps playing in the
     // background after navigation. Safe to call even if nothing is playing.
     if (window.TTS && typeof TTS.stop === 'function') TTS.stop();
+    // Same idea for any active microphone recording — without this the mic
+    // capture indicator stays on after the user navigates mid-record.
+    if (window.Record && typeof Record.stopAll === 'function') Record.stopAll();
     // Gate everything behind welcome screen if no current user.
     const cur = window.Storage.getCurrentUser();
     const container = document.getElementById('app');

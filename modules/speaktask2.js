@@ -78,9 +78,9 @@ window.SpeakTask2Module = (function () {
           <h3>Step 1 — Record yourself for the full time</h3>
           <p style="color:var(--mute);font-size:13px;margin-bottom:14px">Stays on your device. Press the mic to start.</p>
           <div class="center">
-            <button class="mic-btn" id="rec-btn" title="Press to record">🎙️</button>
-            <p style="font-family:'Fredoka',sans-serif;font-size:32px;color:var(--bleu);margin-top:10px" id="rec-timer">${formatTime(t.targetTime)}</p>
-            <p id="rec-status" style="color:var(--mute);margin-top:4px;font-size:14px;max-width:500px;margin-left:auto;margin-right:auto">Press the mic to start asking your questions in French.</p>
+            <button class="mic-btn" id="rec-btn" title="Press to record" aria-label="Start recording">🎙️</button>
+            <p style="font-family:'Fredoka',sans-serif;font-size:32px;color:var(--bleu);margin-top:10px" id="rec-timer" aria-live="polite">${formatTime(t.targetTime)}</p>
+            <p id="rec-status" style="color:var(--mute);margin-top:4px;font-size:14px;max-width:500px;margin-left:auto;margin-right:auto" aria-live="polite">Press the mic to start asking your questions in French.</p>
             <div id="rec-result" style="margin-top:14px"></div>
           </div>
         </div>
@@ -100,13 +100,19 @@ window.SpeakTask2Module = (function () {
         </div>
       </div>`;
 
+    let rubricMounted = false;
     attachRecorder(container.querySelector('#rec-panel'), {
       maxSeconds: t.targetTime || 180,
       timerFormatter: formatTime,
       onComplete: () => {
         container.querySelector('#model-panel').style.display = '';
+        // Stale grade no longer matches the current take.
+        const report = container.querySelector('#st2-report');
+        if (report) report.innerHTML = '';
         const ratePanel = container.querySelector('#rate-panel');
         ratePanel.style.display = '';
+        if (rubricMounted) return; // Preserve user's existing checks + typed text.
+        rubricMounted = true;
         attachRubric(ratePanel, {
           items: RUBRIC,
           typebackPlaceholder: 'Type the questions you asked, one per line. e.g.\nBonjour, est-ce que vous avez...?\nÀ quelle heure ouvrez-vous?',
@@ -313,11 +319,12 @@ window.SpeakTask2Module = (function () {
   }
 
   function preplyCTA(taskTitle) {
+    const safeTitle = Chrome.escapeHTML(taskTitle || '');
     return `
       <div class="grammar-box" style="border-left-color:var(--accent);margin-top:14px">
         <h3>🎯 Want a native grader on this exact task?</h3>
         <p>Self-rating builds the muscle. The other half is hearing a native speaker react — which words landed, where you hesitated, what to fix. <b>New Preply learners get 50% off their first lesson.</b></p>
-        <p style="margin-top:8px;color:var(--mute);font-size:13px">Paste this in the tutor chat: <i>"${taskTitle}"</i></p>
+        <p style="margin-top:8px;color:var(--mute);font-size:13px">Paste this in the tutor chat: <i>"${safeTitle}"</i></p>
         <div class="row" style="justify-content:center;margin-top:10px">
           <a class="btn primary" href="${PREPLY}" target="_blank" rel="sponsored noopener">Get 50% off a tutor<span class="arr">→</span></a>
         </div>

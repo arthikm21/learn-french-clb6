@@ -75,11 +75,10 @@ window.SpeakTasksModule = (function () {
     }
   }
 
-  // Shared helper: attach record/stop wiring to a panel. Returns a Promise
-  // that resolves with { url, blob, durationMs } once the recording ends
-  // (either user-stopped or timer-stopped). On a permission / hardware
-  // failure it resolves with { error: '<msg>' } instead — caller decides
-  // how to render that.
+  // Shared helper: attach record/stop wiring to a panel. Fires `onComplete`
+  // with `{ url, blob, mimeType, durationMs }` each time a recording ends
+  // (user-stopped or timer-stopped). Permission / hardware failures are
+  // surfaced inline in #rec-status and onComplete does NOT fire.
   //
   // Required elements inside `panel`:
   //   #rec-btn       — the big record/stop button
@@ -204,11 +203,12 @@ window.SpeakTasksModule = (function () {
   }
 
   function preplyCTA(taskTitle) {
+    const safeTitle = Chrome.escapeHTML(taskTitle || '');
     return `
       <div class="grammar-box" style="border-left-color:var(--accent);margin-top:14px">
         <h3>🎯 Want a native grader on this exact task?</h3>
         <p>Recording yourself + self-rating builds the muscle. The other half is hearing a native speaker react — which words landed, where you sounded hesitant, what to fix next. <b>New Preply learners get 50% off their first lesson</b>, so trying one costs next to nothing.</p>
-        <p style="margin-top:8px;color:var(--mute);font-size:13px">Open the link and paste this in your tutor's chat: <i>"${taskTitle}"</i></p>
+        <p style="margin-top:8px;color:var(--mute);font-size:13px">Open the link and paste this in your tutor's chat: <i>"${safeTitle}"</i></p>
         <div class="row" style="justify-content:center;margin-top:10px">
           <a class="btn primary" href="${PREPLY}" target="_blank" rel="sponsored noopener">Get 50% off a tutor<span class="arr">→</span></a>
         </div>
@@ -218,6 +218,7 @@ window.SpeakTasksModule = (function () {
 
   // ---------- Picture description ----------
   function renderPicture(container, t, id) {
+    const keywordList = (t.keywords || []).slice(0, 8).map(Chrome.escapeHTML).join(', ');
     container.innerHTML = `
       <div class="lesson">
         <h2>${t.emoji || '🖼️'} ${Chrome.escapeHTML(t.title)} <span class="tag">${Chrome.escapeHTML(t.level)}</span></h2>
@@ -237,19 +238,19 @@ window.SpeakTasksModule = (function () {
           <h3>Step 1 — Record yourself</h3>
           <p style="color:var(--mute);font-size:13px;margin-bottom:14px">Press the mic, describe the scene in French until the timer runs out. The recording stays on this device.</p>
           <div class="center">
-            <button class="mic-btn" id="rec-btn" title="Press to record">🎙️</button>
-            <p style="font-family:'Fredoka',sans-serif;font-size:32px;color:var(--bleu);margin-top:10px" id="rec-timer">${t.targetTime}s</p>
-            <p id="rec-status" style="color:var(--mute);margin-top:4px;font-size:14px;max-width:500px;margin-left:auto;margin-right:auto">Press the mic to start. Your recording stays on this device — nothing uploads.</p>
+            <button class="mic-btn" id="rec-btn" title="Press to record" aria-label="Start recording">🎙️</button>
+            <p style="font-family:'Fredoka',sans-serif;font-size:32px;color:var(--bleu);margin-top:10px" id="rec-timer" aria-live="polite">${t.targetTime}s</p>
+            <p id="rec-status" style="color:var(--mute);margin-top:4px;font-size:14px;max-width:500px;margin-left:auto;margin-right:auto" aria-live="polite">Press the mic to start. Your recording stays on this device — nothing uploads.</p>
             <div id="rec-result" style="margin-top:14px"></div>
           </div>
         </div>
 
         <div class="grammar-box" id="model-panel" style="display:none;border-left-color:var(--bleu)">
-          <h3>Step 2 — Hear how a native speaker handles it</h3>
-          <p style="color:var(--mute);font-size:13px;margin-bottom:10px">After your take, listen to the model. Look for the connectors and tense moves you can borrow.</p>
-          <p style="font-style:italic">Use words like: <b>${t.keywords.slice(0, 8).join(', ')}</b></p>
+          <h3>Step 2 — Words you can borrow</h3>
+          <p style="color:var(--mute);font-size:13px;margin-bottom:10px">After your take, see which of these you used (and which you missed).</p>
+          <p style="font-style:italic"><b>${keywordList}</b></p>
           <div class="row" style="margin-top:10px;justify-content:center">
-            <button class="btn secondary" id="hear-model">🔊 Hear a sample sentence</button>
+            <button class="btn secondary" id="hear-prompt">🔊 Hear the task in French</button>
           </div>
         </div>
 
@@ -262,15 +263,19 @@ window.SpeakTasksModule = (function () {
         </div>
       </div>`;
 
-    const sampleSentence = `Sur cette image, on voit ${t.keywords.slice(0, 3).join(', ')}.`;
-    container.querySelector('#hear-model').onclick = () => TTS.speak(sampleSentence, 0.95);
+    container.querySelector('#hear-prompt').onclick = () => TTS.speak(t.prompt, 0.95);
 
+    let rubricMounted = false;
     attachRecorder(container.querySelector('#rec-panel'), {
       maxSeconds: t.targetTime || 60,
       onComplete: () => {
         container.querySelector('#model-panel').style.display = '';
+        // Stale grade no longer reflects the current recording.
+        container.querySelector('#report').innerHTML = '';
         const ratePanel = container.querySelector('#rate-panel');
         ratePanel.style.display = '';
+        if (rubricMounted) return; // Preserve user's existing checks + typed text.
+        rubricMounted = true;
         attachRubric(ratePanel, {
           type: 'picture',
           typebackEnabled: true,
@@ -348,9 +353,9 @@ window.SpeakTasksModule = (function () {
             <h3>Record your answer</h3>
             <p style="color:var(--mute);font-size:13px;margin-bottom:14px">Press the mic, answer aloud in French. Stays on this device.</p>
             <div class="center">
-              <button class="mic-btn" id="rec-btn" title="Press to record">🎙️</button>
-              <p style="font-family:'Fredoka',sans-serif;font-size:28px;color:var(--bleu);margin-top:10px" id="rec-timer">30s</p>
-              <p id="rec-status" style="color:var(--mute);margin-top:4px;font-size:14px">Press the mic to start.</p>
+              <button class="mic-btn" id="rec-btn" title="Press to record" aria-label="Start recording">🎙️</button>
+              <p style="font-family:'Fredoka',sans-serif;font-size:28px;color:var(--bleu);margin-top:10px" id="rec-timer" aria-live="polite">30s</p>
+              <p id="rec-status" style="color:var(--mute);margin-top:4px;font-size:14px" aria-live="polite">Press the mic to start.</p>
               <div id="rec-result" style="margin-top:14px"></div>
             </div>
           </div>
@@ -370,13 +375,22 @@ window.SpeakTasksModule = (function () {
       TTS.speakSoon(q.q, 1.0, 200);
 
       const submitBtn = container.querySelector('#submit-q');
+      const skipBtn = container.querySelector('#skip');
       let lastAnswer = { q: q.q, minWords: q.minWords };
+      let rubricMounted = false;
 
       attachRecorder(container.querySelector('#rec-panel'), {
         maxSeconds: 30,
         onComplete: () => {
+          // Once they've recorded something, Skip would discard it on a stray
+          // click — disable it so Next is the only way forward.
+          skipBtn.disabled = true;
+          skipBtn.title = 'Disabled — you have a recording. Press Next to keep it.';
           const ratePanel = container.querySelector('#rate-panel');
           ratePanel.style.display = '';
+          submitBtn.disabled = false; // Allow advancing even without rubric.
+          if (rubricMounted) return;  // Preserve user's existing checks + typed text on re-record.
+          rubricMounted = true;
           attachRubric(ratePanel, {
             type: 'qa',
             typebackEnabled: true,
@@ -387,12 +401,26 @@ window.SpeakTasksModule = (function () {
               submitBtn.scrollIntoView({ block: 'center', behavior: 'smooth' });
             },
           });
-          submitBtn.disabled = false; // Allow advancing without rubric
         },
       });
 
-      submitBtn.onclick = () => { answers.push(lastAnswer); qi++; show(); };
-      container.querySelector('#skip').onclick = () => {
+      submitBtn.onclick = () => {
+        // If the user pressed Grade, lastAnswer has rubric/typed data already.
+        // If they pressed Next without grading but DID record + check boxes,
+        // pull the latest checkbox/textarea state straight from the panel so
+        // their work isn't lost.
+        if (rubricMounted && !lastAnswer.rubricHits) {
+          const ratePanel = container.querySelector('#rate-panel');
+          const hits = Array.from(ratePanel.querySelectorAll('input[data-rub]'))
+            .filter(c => c.checked)
+            .map(c => parseInt(c.dataset.rub, 10));
+          const typed = ratePanel.querySelector('#typeback')?.value || '';
+          lastAnswer = { q: q.q, minWords: q.minWords, rubricHits: hits, typedText: typed };
+        }
+        answers.push(lastAnswer);
+        qi++; show();
+      };
+      skipBtn.onclick = () => {
         answers.push({ q: q.q, minWords: q.minWords, skipped: true });
         qi++; show();
       };
@@ -477,9 +505,9 @@ window.SpeakTasksModule = (function () {
           <div class="grammar-box" id="rec-panel">
             <h3>Record your reply</h3>
             <div class="center">
-              <button class="mic-btn" id="rec-btn" title="Press to record">🎙️</button>
-              <p style="font-family:'Fredoka',sans-serif;font-size:28px;color:var(--bleu);margin-top:10px" id="rec-timer">25s</p>
-              <p id="rec-status" style="color:var(--mute);margin-top:4px;font-size:14px">Press the mic to start.</p>
+              <button class="mic-btn" id="rec-btn" title="Press to record" aria-label="Start recording">🎙️</button>
+              <p style="font-family:'Fredoka',sans-serif;font-size:28px;color:var(--bleu);margin-top:10px" id="rec-timer" aria-live="polite">25s</p>
+              <p id="rec-status" style="color:var(--mute);margin-top:4px;font-size:14px" aria-live="polite">Press the mic to start.</p>
               <div id="rec-result" style="margin-top:14px"></div>
             </div>
           </div>
@@ -497,12 +525,16 @@ window.SpeakTasksModule = (function () {
 
       const nextBtn = container.querySelector('#next-turn');
       let lastTurn = { other: turn.other, minWords: turn.minWords };
+      let rubricMounted = false;
 
       attachRecorder(container.querySelector('#rec-panel'), {
         maxSeconds: 25,
         onComplete: () => {
           const ratePanel = container.querySelector('#rate-panel');
           ratePanel.style.display = '';
+          nextBtn.disabled = false;
+          if (rubricMounted) return;
+          rubricMounted = true;
           attachRubric(ratePanel, {
             type: 'role',
             typebackEnabled: true,
@@ -513,11 +545,22 @@ window.SpeakTasksModule = (function () {
               nextBtn.scrollIntoView({ block: 'center', behavior: 'smooth' });
             },
           });
-          nextBtn.disabled = false;
         },
       });
 
-      nextBtn.onclick = () => { answers.push(lastTurn); turnIdx++; show(); };
+      nextBtn.onclick = () => {
+        // Pull the latest rubric/typed state even if the user skipped Grade.
+        if (rubricMounted && !lastTurn.rubricHits) {
+          const ratePanel = container.querySelector('#rate-panel');
+          const hits = Array.from(ratePanel.querySelectorAll('input[data-rub]'))
+            .filter(c => c.checked)
+            .map(c => parseInt(c.dataset.rub, 10));
+          const typed = ratePanel.querySelector('#typeback')?.value || '';
+          lastTurn = { other: turn.other, minWords: turn.minWords, rubricHits: hits, typedText: typed };
+        }
+        answers.push(lastTurn);
+        turnIdx++; show();
+      };
     }
     show();
   }
