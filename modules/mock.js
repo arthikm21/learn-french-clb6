@@ -426,8 +426,9 @@ window.MockModule = (function () {
       const status = body.querySelector('#m-status');
       const trans = body.querySelector('#m-trans');
       const nextBtn = body.querySelector('#next-task');
-      if (!SR) { status.textContent = 'Speech recognition not supported.'; mic.disabled = true; nextBtn.disabled = false; }
+      if (!SR) { status.textContent = 'Speech recognition not supported. Open in Chrome or Edge.'; mic.disabled = true; nextBtn.disabled = false; }
       const rec = SR ? new SR() : null;
+      let srFatal = false;
       if (rec) {
         rec.lang = 'fr-CA'; rec.interimResults = true; rec.continuous = true;
         rec.onresult = (e) => {
@@ -439,10 +440,23 @@ window.MockModule = (function () {
           if (finalT) recordedText += finalT;
           trans.textContent = (recordedText + interim).trim() || '—';
         };
+        rec.onerror = (e) => {
+          const msg = Speech.errorMessage(e.error);
+          if (msg) status.textContent = msg;
+          if (Speech.isFatal(e.error)) {
+            srFatal = true;
+            recording = false;
+            mic.classList.remove('listening');
+            nextBtn.disabled = false;
+          } else if (e.error === 'language-not-supported' && rec.lang === 'fr-CA') {
+            rec.lang = 'fr-FR';
+          }
+        };
+        rec.onend = () => { if (recording && !srFatal) { try { rec.start(); } catch {} } };
       }
       mic.onclick = () => {
         if (recording) { recording = false; mic.classList.remove('listening'); try { rec && rec.stop(); } catch {}; nextBtn.disabled = false; return; }
-        recording = true; recordedText = ''; mic.classList.add('listening');
+        recording = true; srFatal = false; recordedText = ''; mic.classList.add('listening');
         try { rec && rec.start(); } catch {}
       };
       nextBtn.onclick = () => {

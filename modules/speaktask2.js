@@ -81,7 +81,7 @@ window.SpeakTask2Module = (function () {
 
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SR) {
-      status.textContent = 'Speech recognition not supported. Use Chrome, Edge, or Brave.';
+      status.textContent = 'Speech recognition not supported in this browser. Open this page in Chrome or Edge.';
       mic.disabled = true;
       return;
     }
@@ -89,6 +89,7 @@ window.SpeakTask2Module = (function () {
     rec.lang = 'fr-CA';
     rec.interimResults = true;
     rec.continuous = true;
+    let srFatal = false;
 
     function startTimer() {
       timer = setInterval(() => {
@@ -102,12 +103,13 @@ window.SpeakTask2Module = (function () {
       if (timer) { clearInterval(timer); timer = null; }
       try { rec.stop(); } catch {}
       mic.classList.remove('listening');
-      status.textContent = 'Recording stopped. Press "Grade my answers".';
+      if (!srFatal) status.textContent = 'Recording stopped. Press "Grade my answers".';
       gradeBtn.disabled = false;
     }
     mic.onclick = () => {
       if (recording) { stopRec(); return; }
       recording = true;
+      srFatal = false;
       recordedText = '';
       mic.classList.add('listening');
       status.textContent = '🎤 Recording... ask your questions one after another.';
@@ -127,8 +129,17 @@ window.SpeakTask2Module = (function () {
       if (finalT) recordedText += finalT;
       trans.textContent = (recordedText + interim).trim() || '—';
     };
-    rec.onerror = () => { status.textContent = 'No speech detected. Try again.'; };
-    rec.onend = () => { if (recording) { try { rec.start(); } catch {} } };
+    rec.onerror = (e) => {
+      const msg = Speech.errorMessage(e.error);
+      if (msg) status.textContent = msg;
+      if (Speech.isFatal(e.error)) {
+        srFatal = true;
+        stopRec();
+      } else if (e.error === 'language-not-supported' && rec.lang === 'fr-CA') {
+        rec.lang = 'fr-FR';
+      }
+    };
+    rec.onend = () => { if (recording && !srFatal) { try { rec.start(); } catch {} } };
 
     gradeBtn.onclick = () => grade(container, t, id, recordedText);
   }

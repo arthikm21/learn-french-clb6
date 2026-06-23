@@ -56,7 +56,7 @@ window.Support = (function () {
       <div class="support-card tip-card">
         <p class="eyebrow" style="color:var(--rouge)">💛 Nice work</p>
         <h3>Keep Bonjour! free for the next person</h3>
-        <p>No ads, no paywall, no account — built by one person who sat this exam too. If it's helping your French, a small one-time gift keeps the audio playing. Only if it's earned it.</p>
+        <p>No ads, no paywall, no account — built by one person. If it's helping your French, a small one-time gift keeps the audio playing. Only if it's earned it.</p>
         <a class="btn ghost big" href="${COFFEE}" target="_blank" rel="noopener">Help keep it free<span class="arr">→</span></a>
       </div>`;
   }
