@@ -61,6 +61,9 @@ window.SpeakModule = (function () {
 
     let i = 0;
     let revealed = false;  // Did the user choose to see the translation hint?
+    // Same-session relearning: a line you rate "Hard, again" comes back later in
+    // this session, not just tomorrow. Capped per line.
+    const requeues = new Map();
 
     function show() {
       if (i >= queue.length) return finish();
@@ -118,7 +121,8 @@ window.SpeakModule = (function () {
         b.onclick = () => {
           const q = parseInt(b.dataset.rateSelf, 10);
           SRS.review(setKey, target, q);
-          // Hard = surface as a weak spot to come back to
+          // Hard = surface as a weak spot to come back to, AND replay it later in
+          // this same session (max twice) so the rep lands now, not just tomorrow.
           if (q === 0) {
             MistakesModule.record({
               type: 'speak',
@@ -127,6 +131,11 @@ window.SpeakModule = (function () {
               correct: target,
               your: '(rated hard — needs more practice)',
             });
+            const n = requeues.get(target) || 0;
+            if (n < 2) {
+              requeues.set(target, n + 1);
+              queue.splice(Math.min(i + 3, queue.length), 0, queue[i]);
+            }
           }
           i++; show();
         };
@@ -143,7 +152,7 @@ window.SpeakModule = (function () {
           <div class="empty">
             <div class="big-icon">🗣️</div>
             <h2>Session done</h2>
-            <p>You shadowed <b>${queue.length}</b> sentence${queue.length === 1 ? '' : 's'}. The "Hard" ones come back tomorrow on a tighter schedule.</p>
+            <p>You shadowed <b>${new Set(queue.map(x => x.fr)).size}</b> sentence${new Set(queue.map(x => x.fr)).size === 1 ? '' : 's'}. The "Hard" ones came back this session — and return tomorrow on a tighter schedule.</p>
             <p style="color:var(--mute);margin-top:var(--sp-2)">Speaking is the only skill the site cannot grade for you. Your reps are your reps. Do them aloud.</p>
             <div class="grammar-box" style="border-left-color:var(--accent);text-align:left;max-width:560px;margin:var(--sp-6) auto 0">
               <h3>🗣️ Want your speaking actually graded?</h3>

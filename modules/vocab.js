@@ -33,6 +33,11 @@ window.VocabModule = (function () {
     // shuffle
     cards = cards.sort(() => Math.random() - 0.5);
     let i = 0;
+    // Same-session relearning: a card you rate Again/Hard reappears later in THIS
+    // session (Anki's "learning step"), not just a day from now — that second
+    // in-session rep is the biggest driver of retention. Capped per card so a
+    // word you keep missing doesn't loop forever.
+    const requeues = new Map();
 
     function show() {
       if (i >= cards.length) return finish();
@@ -89,8 +94,18 @@ window.VocabModule = (function () {
       TTS.speakSoon(c.fr, 1.0, 250);
       container.querySelector('#back').onclick = () => App.go('vocab');
       container.querySelectorAll('[data-q]').forEach(b => b.onclick = () => {
-        SRS.review(deckKey, c.fr, parseInt(b.dataset.q));
-        App.addXP(b.dataset.q >= '4' ? 5 : 2);
+        const q = parseInt(b.dataset.q);
+        SRS.review(deckKey, c.fr, q);
+        App.addXP(q >= 4 ? 5 : 2);
+        // Reinsert weak cards (Again / Hard) a few positions ahead so they come
+        // back before the session ends. Max 2 requeues per card.
+        if (q < 4) {
+          const n = requeues.get(c.fr) || 0;
+          if (n < 2) {
+            requeues.set(c.fr, n + 1);
+            cards.splice(Math.min(i + 3, cards.length), 0, c);
+          }
+        }
         i++; show();
       });
     }
@@ -102,7 +117,7 @@ window.VocabModule = (function () {
           <div class="empty">
             <div class="big-icon">🎉</div>
             <h2>Bravo !</h2>
-            <p>You reviewed ${cards.length} cards. Come back tomorrow — the system surfaces the cards you need.</p>
+            <p>You reviewed ${new Set(cards.map(x => x.fr)).size} cards. Come back tomorrow — the system surfaces the cards you need.</p>
             ${Support.winNudge()}
             <div class="spacer"></div>
             <div class="row" style="justify-content:center">

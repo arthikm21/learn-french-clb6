@@ -291,19 +291,23 @@ window.ScenarioModule = (function () {
     // ── Step 5: Shadow
     function renderShadow() {
       let i = 0;
+      // Working copy so "Hard, again" lines can be requeued within this session
+      // (the second in-session rep is what makes a tricky line stick).
+      const lines = sc.shadowLines.slice();
+      const requeues = new Map();
       function show() {
-        if (i >= sc.shadowLines.length) {
+        if (i >= lines.length) {
           step++; render(); return;
         }
         // Accept both "string" and { fr, en } shapes so old + new content render
-        const raw = sc.shadowLines[i];
+        const raw = lines[i];
         const line = typeof raw === 'string' ? raw : raw.fr;
         const lineEn = typeof raw === 'string' ? null : raw.en;
         container.innerHTML = `
           ${chromeRow()}
           <div class="lesson">
             <h2>5 · Repeat after me</h2>
-            <p style="color:var(--mute);text-align:center;font-size:var(--fs-13);text-transform:uppercase;letter-spacing:var(--ls-wide);font-weight:var(--fw-semi);margin-bottom:var(--sp-3)">Line ${i + 1} of ${sc.shadowLines.length}</p>
+            <p style="color:var(--mute);text-align:center;font-size:var(--fs-13);text-transform:uppercase;letter-spacing:var(--ls-wide);font-weight:var(--fw-semi);margin-bottom:var(--sp-3)">Line ${i + 1} of ${lines.length}</p>
 
             <div class="center" style="margin-top:var(--sp-5)">
               <p style="font-size:var(--fs-28);font-weight:var(--fw-bold);letter-spacing:var(--ls-snug);color:var(--ink);line-height:var(--lh-snug);max-width:680px;margin:0 auto var(--sp-3)">${escapeHTML(line)}</p>
@@ -345,6 +349,11 @@ window.ScenarioModule = (function () {
                 correct: line,
                 your: '(rated hard)',
               });
+              const n = requeues.get(line) || 0;
+              if (n < 2) {
+                requeues.set(line, n + 1);
+                lines.splice(Math.min(i + 3, lines.length), 0, raw);
+              }
             }
             i++; show();
           };

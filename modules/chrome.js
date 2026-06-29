@@ -102,6 +102,11 @@ window.Chrome = (function () {
     const onNext = opts && opts.onNext;
     const seconds = (opts && opts.seconds) || 3;
     const result = opts && opts.result; // 'correct' | 'wrong' | undefined
+    // Auto-advance on correct answers (keeps the flow snappy), but on a WRONG
+    // answer wait for an explicit click — so the learner actually reads the
+    // explanation instead of being yanked to the next question. Callers can
+    // override with opts.auto.
+    const auto = (opts && opts.auto !== undefined) ? opts.auto : (result !== 'wrong');
     if (!host || typeof onNext !== 'function') return () => {};
 
     // Reward / acknowledgement sound — fires once on render.
@@ -127,11 +132,17 @@ window.Chrome = (function () {
     let paused = false;
     let fired = false;
 
-    host.innerHTML = `
+    host.innerHTML = auto ? `
       <div class="advance-row" role="group" aria-label="Continue or wait">
         <button type="button" class="btn ghost advance-wait" data-act="wait">Wait</button>
         <button type="button" class="btn primary advance-next" data-act="next" aria-live="polite">
           Next <span class="advance-arrow">→</span> <span class="advance-cd">(${remaining})</span>
+        </button>
+      </div>
+    ` : `
+      <div class="advance-row" role="group" aria-label="Continue">
+        <button type="button" class="btn primary advance-next" data-act="next">
+          Got it — Next <span class="advance-arrow">→</span>
         </button>
       </div>
     `;
@@ -179,13 +190,13 @@ window.Chrome = (function () {
       const tag = (e.target && e.target.tagName) || '';
       if (tag === 'INPUT' || tag === 'TEXTAREA' || e.target.isContentEditable) return;
       if (e.key === 'Enter') { e.preventDefault(); fire(); }
-      else if (e.key === ' ' || e.code === 'Space') { e.preventDefault(); paused ? resume() : pause(); }
+      else if ((e.key === ' ' || e.code === 'Space') && auto) { e.preventDefault(); paused ? resume() : pause(); }
     }
 
-    waitBtn.onclick = () => { paused ? resume() : pause(); };
+    if (waitBtn) waitBtn.onclick = () => { paused ? resume() : pause(); };
     nextBtn.onclick = () => fire();
 
-    timer = setInterval(tick, 1000);
+    if (auto) timer = setInterval(tick, 1000);
     document.addEventListener('keydown', onKey);
     window.addEventListener('hashchange', destroy);
 
