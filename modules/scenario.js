@@ -184,7 +184,7 @@ window.ScenarioModule = (function () {
                 <div class="dl-speaker ${speakerStyle(line.speaker)}">${line.speaker === 'A' ? '👩' : '👨'} ${line.speaker}</div>
                 <div class="dl-text">
                   ${escapeHTML(line.text)}
-                  <button class="btn sm ghost" data-replay="${i}" style="margin-left:var(--sp-2)" data-no-tick>🔊</button>
+                  <button class="btn sm ghost" data-replay="${i}" style="margin-left:var(--sp-2)" data-no-tick aria-label="Replay this line">🔊</button>
                   ${Chrome.gloss(line.en)}
                 </div>
               </div>

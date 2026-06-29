@@ -40,7 +40,7 @@ window.PhonicsModule = (function () {
                   <div style="font-size:var(--fs-34);font-weight:var(--fw-bold);color:var(--accent);letter-spacing:var(--ls-snug)">${s.ipa}</div>
                   <div style="color:var(--mute);font-size:var(--fs-13);margin-top:4px">spelling: <b>${s.spell}</b></div>
                 </div>
-                <button class="btn secondary sm" data-play="${i}">🔊</button>
+                <button class="btn secondary sm" data-play="${i}" aria-label="Play sound">🔊</button>
               </div>
               <div style="margin-top:var(--sp-3);font-size:var(--fs-22);font-weight:var(--fw-bold);color:var(--ink);letter-spacing:var(--ls-snug)">${s.word}</div>
               <div style="color:var(--mute);font-style:italic">${s.mean}</div>

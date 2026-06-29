@@ -387,7 +387,7 @@ window.GamesModule = (function () {
           <h2>🌐 Quick Translate</h2>
           <div class="progress"><div style="width:${(i / queue.length) * 100}%"></div></div>
           <div class="row" style="justify-content:space-between"><span>${correct} / ${queue.length}</span><span>${i + 1}</span></div>
-          <div class="center"><div style="font-family:'Fredoka';font-size:40px;margin:20px 0;color:var(--bleu)">${c.fr}</div><button class="btn secondary" id="hear">🔊</button></div>
+          <div class="center"><div style="font-family:'Fredoka';font-size:40px;margin:20px 0;color:var(--bleu)">${c.fr}</div><button class="btn secondary" id="hear" aria-label="Hear the word">🔊</button></div>
           <div class="spacer"></div>
           <div class="options">${opts.map((o, k) => `<div class="option" data-i="${k}">${o}</div>`).join('')}</div>
           <div id="fb"></div>

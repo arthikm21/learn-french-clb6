@@ -306,10 +306,10 @@ window.App = (function () {
       <div class="grid">
         <div class="card" onclick="App.go('path')"><div class="icon">🗺️</div><h3>Learning Path</h3><p>Ordered path through 8 phases. Next step always highlighted.</p></div>
         <div class="card" onclick="App.go('scenario')"><div class="icon">🇨🇦</div><h3>Scenarios <span class="tag verb">Oral</span></h3><p>50 real Canadian life situations. Listen → vocab → shadow → speak it yourself.</p></div>
-        <div class="card" onclick="App.go('listenmastery')"><div class="icon">🎧</div><h3>Listen Mastery <span class="tag verb">Oral</span></h3><p>75 clips, 5 exercise types, 15 categories. Speed ramps from 0.7x to 1.2x.</p></div>
+        <div class="card" onclick="App.go('listenmastery')"><div class="icon">🎧</div><h3>Listen Mastery <span class="tag verb">Oral</span></h3><p>120 clips, 5 exercise types. Speed ramps from 0.7x to 1.2x.</p></div>
         <div class="card" onclick="App.go('connectormastery')"><div class="icon">🔗</div><h3>Connector Mastery <span class="tag verb">Oral</span></h3><p>22 connectors that move you from CLB 4-5 to CLB 6. Library + 4 drill types.</p></div>
         <div class="card" onclick="App.go('phonics')"><div class="icon">🔊</div><h3>Phonics &amp; Sounds</h3><p>7 units plus minimal-pair ear drills — u vs ou, nasals, é vs è, liaison.</p></div>
-        <div class="card" onclick="App.go('vocab')"><div class="icon">🃏</div><h3>Vocabulary</h3><p>28 themed decks, ~570 cards. SRS schedules your reviews automatically.</p></div>
+        <div class="card" onclick="App.go('vocab')"><div class="icon">🃏</div><h3>Vocabulary</h3><p>35 themed decks, ~680 cards. SRS schedules your reviews automatically.</p></div>
         <div class="card" onclick="App.go('grammar')"><div class="icon">📐</div><h3>Grammar</h3><p>29 units, A1 to B1. From articles to subjunctive and connectors.</p></div>
         <div class="card" onclick="App.go('pcvsimp')"><div class="icon">⚔️</div><h3>Passé Composé vs Imparfait</h3><p>The #1 CLB 6 grammar trap. Dedicated decider drill with mixed contexts.</p></div>
         <div class="card" onclick="App.go('deepdive')"><div class="icon">🎯</div><h3>Deep Dives <span class="tag verb">New</span></h3><p>y vs en, pronoun order, si-clauses, qui/que/dont/où. Visual decision trees for the four CLB 6 traps.</p></div>

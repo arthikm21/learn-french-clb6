@@ -36,7 +36,7 @@ window.ReadModule = (function () {
           <div class="reading-text" id="r-text" style="background:var(--surface-2);border:1px solid var(--line);padding:var(--sp-5);border-radius:var(--r-md);line-height:var(--lh-loose);font-size:var(--fs-17);white-space:pre-wrap;color:var(--ink)">${sentenceHTML}</div>
           <div class="reading-player" id="r-player">
             <button class="btn primary" id="r-play">▶ Listen to text</button>
-            <button class="btn secondary" id="r-stop" disabled>⏸</button>
+            <button class="btn secondary" id="r-stop" disabled aria-label="Stop audio">⏸</button>
             <span style="color:var(--mute);font-size:var(--fs-13);margin-left:var(--sp-2);font-variant-numeric:tabular-nums" id="r-progress">— / ${sentences.length}</span>
           </div>
           <div class="spacer"></div>
