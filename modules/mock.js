@@ -98,8 +98,21 @@ window.MockModule = (function () {
       if (timeLeft <= 0) { clearInterval(timerInterval); finishSection(); }
     }, 1000);
 
+    // If the user leaves the mock (Back, nav menu, browser back) without
+    // finishing or aborting, stop the section timer. Otherwise it keeps counting
+    // down in the background and forcibly yanks them back into the test when it
+    // hits zero.
+    const onHashAway = () => {
+      if (!location.hash.startsWith('#mock')) {
+        if (timerInterval) clearInterval(timerInterval);
+        window.removeEventListener('hashchange', onHashAway);
+      }
+    };
+    window.addEventListener('hashchange', onHashAway);
+
     function finishSection() {
       if (timerInterval) clearInterval(timerInterval);
+      window.removeEventListener('hashchange', onHashAway);
       const result = sectionData.collect ? sectionData.collect() : { score: 0 };
       result.timeSpent = Math.floor((Date.now() - sectionStart) / 1000);
       session.results[sec.id] = result;
@@ -111,6 +124,7 @@ window.MockModule = (function () {
     container.querySelector('#abort').onclick = () => {
       if (confirm('Abort the mock test? Your progress will be lost.')) {
         if (timerInterval) clearInterval(timerInterval);
+        window.removeEventListener('hashchange', onHashAway);
         session = null;
         App.go('mock');
       }

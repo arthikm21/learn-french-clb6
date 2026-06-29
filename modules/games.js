@@ -138,13 +138,14 @@ window.GamesModule = (function () {
     let queue = drills.sort(() => Math.random() - 0.5);
     let i = 0, correct = 0, time = 75, timer = null, aborted = false;
 
-    // Stop timer if user navigates away mid-race.
+    // Stop the timer when the user navigates away mid-race. The race never
+    // changes its own hash, so ANY hashchange means we've left — Quit to the
+    // games list, switching games, or the nav menu. Always tear down, otherwise
+    // a stray timer keeps ticking and clobbers the new view when it expires.
     const onHash = () => {
-      if (!location.hash.startsWith('#games')) {
-        aborted = true;
-        clearInterval(timer);
-        window.removeEventListener('hashchange', onHash);
-      }
+      aborted = true;
+      clearInterval(timer);
+      window.removeEventListener('hashchange', onHash);
     };
     window.addEventListener('hashchange', onHash);
 
@@ -503,7 +504,7 @@ window.GamesModule = (function () {
     if (pool.length === 0) { container.innerHTML = '<div class="lesson"><p>No sentences available.</p></div>'; return; }
     let queue = pool.sort(() => Math.random() - 0.5).slice(0, 10);
     let i = 0, correct = 0, time = 120, timer = null, aborted = false;
-    const onHash = () => { if (!location.hash.startsWith('#games')) { aborted = true; clearInterval(timer); window.removeEventListener('hashchange', onHash); } };
+    const onHash = () => { aborted = true; clearInterval(timer); window.removeEventListener('hashchange', onHash); };
     window.addEventListener('hashchange', onHash);
 
     function tick() {

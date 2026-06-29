@@ -12,7 +12,17 @@ window.App = (function () {
     } catch {}
   }
   function save() {
-    window.Storage.setItem('state', JSON.stringify({ lessons: state.lessons }));
+    // localStorage can throw on quota-exceeded (lots of progress) or in private
+    // mode. Never let a failed progress write throw out of markLessonDone and
+    // break the page mid-lesson — degrade gracefully instead.
+    try {
+      window.Storage.setItem('state', JSON.stringify({ lessons: state.lessons }));
+    } catch (e) {
+      console.warn('Could not save progress:', e && e.name);
+      if (window.Toast && typeof Toast.info === 'function') {
+        try { Toast.info('Storage full — progress may not save. Free up space in your browser.'); } catch {}
+      }
+    }
   }
 
   // Kept as no-op for backwards compatibility with module addXP() calls.
