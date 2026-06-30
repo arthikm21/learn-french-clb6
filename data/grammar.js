@@ -94,9 +94,9 @@ window.GRAMMAR = [
       { title: 'Other negatives', body: '<b>ne ... jamais</b> (never), <b>ne ... rien</b> (nothing), <b>ne ... personne</b> (nobody), <b>ne ... plus</b> (no more)', examples: ['Je <em>ne</em> fume <em>jamais</em>.', "Il <em>ne</em> dit <em>rien</em>.", 'Elle <em>ne</em> mange <em>plus</em> de sucre.'] },
     ],
     quiz: [
-      { q: 'Je ne ___ pas. (parler)', opts: ['parle', 'parles', 'parlons'], a: 0 },
+      { q: 'Je ne ___ pas. (parler)', opts: ['parle', 'parles', 'parlons'], a: 0, why: 'je → parle, wrapped by ne … pas.' },
       { q: 'Il ___ aime pas le thé.', opts: ['ne', 'n\'', 'pas'], a: 1, why: 'Vowel start → n\'.' },
-      { q: 'Elle ne mange ___ de viande.', opts: ['pas', 'jamais', 'plus'], a: 0 },
+      { q: 'Elle ne mange ___ de viande.', opts: ['pas', 'jamais', 'plus'], a: 0, why: 'ne … pas = the plain negative (not). jamais = never, plus = no longer.' },
       { q: 'Nous ne fumons ___.', opts: ['rien', 'jamais', 'personne'], a: 1, why: 'Never.' },
     ],
   },
@@ -113,10 +113,10 @@ window.GRAMMAR = [
       { title: 'Question words', body: 'qui (who), que/quoi (what), où (where), quand (when), pourquoi (why), comment (how), combien (how much).', examples: ['<em>Où</em> habites-tu ?', '<em>Pourquoi</em> tu pleures ?', '<em>Combien</em> ça coûte ?'] },
     ],
     quiz: [
-      { q: '"Where do you live?" Choose: ___ habites-tu ?', opts: ['Quand', 'Où', 'Pourquoi'], a: 1 },
-      { q: '"How much?" → ___ ?', opts: ['Comment', 'Combien', 'Que'], a: 1 },
-      { q: 'Polite question form: ___ tu parles français ?', opts: ['Est-ce que', 'Pourquoi', 'Combien'], a: 0 },
-      { q: '"What time is it?" Quelle heure ___-il ?', opts: ['est', 'a', 'es'], a: 0 },
+      { q: '"Where do you live?" Choose: ___ habites-tu ?', opts: ['Quand', 'Où', 'Pourquoi'], a: 1, why: 'where → où (quand = when, pourquoi = why).' },
+      { q: '"How much?" → ___ ?', opts: ['Comment', 'Combien', 'Que'], a: 1, why: 'how much/many → combien.' },
+      { q: 'Polite question form: ___ tu parles français ?', opts: ['Est-ce que', 'Pourquoi', 'Combien'], a: 0, why: 'Est-ce que turns a statement into a yes/no question.' },
+      { q: '"What time is it?" Quelle heure ___-il ?', opts: ['est', 'a', 'es'], a: 0, why: 'Quelle heure est-il ? — il est (it is).' },
     ],
   },
   {
@@ -132,9 +132,9 @@ window.GRAMMAR = [
     ],
     quiz: [
       { q: 'Une voiture ___ (red)', opts: ['rouge', 'rouges', 'rougee'], a: 0, why: 'Rouge already ends in -e, no change.' },
-      { q: 'Des chats ___ (black)', opts: ['noir', 'noire', 'noirs'], a: 2 },
-      { q: 'Une ___ fille (pretty)', opts: ['belle', 'beau', 'bel'], a: 0 },
-      { q: 'Des ___ maisons (small)', opts: ['petits', 'petites', 'petite'], a: 1 },
+      { q: 'Des chats ___ (black)', opts: ['noir', 'noire', 'noirs'], a: 2, why: 'chats = masculine plural → noirs.' },
+      { q: 'Une ___ fille (pretty)', opts: ['belle', 'beau', 'bel'], a: 0, why: 'beau → belle before a feminine noun.' },
+      { q: 'Des ___ maisons (small)', opts: ['petits', 'petites', 'petite'], a: 1, why: 'maisons = feminine plural → petites.' },
     ],
   },
   {
@@ -150,11 +150,11 @@ window.GRAMMAR = [
       { title: 'Common irregulars', body: 'être → été · avoir → eu · faire → fait · voir → vu · prendre → pris · mettre → mis', examples: ["J'<em>ai eu</em> peur.", "Il <em>a fait</em> ses devoirs.", "Nous <em>avons vu</em> un film."] },
     ],
     quiz: [
-      { q: 'J\'___ mangé une pomme.', opts: ['ai', 'suis', 'as'], a: 0 },
+      { q: 'J\'___ mangé une pomme.', opts: ['ai', 'suis', 'as'], a: 0, why: 'manger takes avoir → j\'ai mangé.' },
       { q: 'Elle ___ allée au marché.', opts: ['a', 'est', 'as'], a: 1, why: 'Aller uses être.' },
-      { q: 'Passé composé of "finir" with je: J\'___ fini.', opts: ['suis', 'ai', 'a'], a: 1 },
-      { q: 'Past participle of "faire" is...', opts: ['fait', 'faisé', 'fé'], a: 0 },
-      { q: 'Past participle of "voir"?', opts: ['voyé', 'vu', 'voit'], a: 1 },
+      { q: 'Passé composé of "finir" with je: J\'___ fini.', opts: ['suis', 'ai', 'a'], a: 1, why: 'finir takes avoir → j\'ai fini.' },
+      { q: 'Past participle of "faire" is...', opts: ['fait', 'faisé', 'fé'], a: 0, why: 'faire → fait (irregular participle).' },
+      { q: 'Past participle of "voir"?', opts: ['voyé', 'vu', 'voit'], a: 1, why: 'voir → vu (irregular participle).' },
     ],
   },
   {
@@ -168,10 +168,10 @@ window.GRAMMAR = [
       { title: 'Negation', body: 'Wrap the conjugated aller: ne + aller + pas + infinitive', examples: ['Je <em>ne vais pas</em> sortir.', 'Il <em>ne va pas</em> pleuvoir.'] },
     ],
     quiz: [
-      { q: 'Je ___ manger. (going to)', opts: ['vais', 'vas', 'va'], a: 0 },
-      { q: 'Nous ___ partir.', opts: ['allez', 'allons', 'vont'], a: 1 },
+      { q: 'Je ___ manger. (going to)', opts: ['vais', 'vas', 'va'], a: 0, why: 'je → vais (aller): je vais manger.' },
+      { q: 'Nous ___ partir.', opts: ['allez', 'allons', 'vont'], a: 1, why: 'nous → allons.' },
       { q: 'Tomorrow: Demain je vais ___.', opts: ['mangé', 'manger', 'mange'], a: 1, why: 'Infinitive after aller.' },
-      { q: 'Ils ___ arriver.', opts: ['va', 'vont', 'allons'], a: 1 },
+      { q: 'Ils ___ arriver.', opts: ['va', 'vont', 'allons'], a: 1, why: 'ils → vont.' },
     ],
   },
   {
@@ -190,10 +190,10 @@ window.GRAMMAR = [
       { title: 'Être (irregular)', body: 'Stem is ét-', examples: ['j\'<em>étais</em>, tu <em>étais</em>, il <em>était</em>, nous <em>étions</em>, vous <em>étiez</em>, ils <em>étaient</em>'] },
     ],
     quiz: [
-      { q: 'Quand j\'étais petit, je ___ au foot. (jouer)', opts: ['joue', 'jouais', 'ai joué'], a: 1 },
-      { q: 'Imparfait: nous ___ (parler)', opts: ['parlons', 'parlions', 'parlerons'], a: 1 },
+      { q: 'Quand j\'étais petit, je ___ au foot. (jouer)', opts: ['joue', 'jouais', 'ai joué'], a: 1, why: 'A past habit → imparfait: jouais (I used to play).' },
+      { q: 'Imparfait: nous ___ (parler)', opts: ['parlons', 'parlions', 'parlerons'], a: 1, why: 'Imparfait nous → -ions: parlions (parlons = present, parlerons = future).' },
       { q: 'Il ___ beau hier. (faire)', opts: ['fait', 'faisait', 'a fait'], a: 1, why: 'Description.' },
-      { q: 'Imparfait of être for "tu":', opts: ['étais', 'es', 'étiez'], a: 0 },
+      { q: 'Imparfait of être for "tu":', opts: ['étais', 'es', 'étiez'], a: 0, why: 'être imparfait, tu → étais (stem ét-).' },
     ],
   },
   {
@@ -208,10 +208,10 @@ window.GRAMMAR = [
       { title: 'Order in past tense', body: 'Pronoun goes before the helper.', examples: ['Je <em>l\'ai</em> vu.', 'Nous <em>leur avons</em> parlé.'] },
     ],
     quiz: [
-      { q: '"Je vois le film" → Je ___ vois.', opts: ['le', 'la', 'lui'], a: 0 },
-      { q: '"Tu parles à Marie" → Tu ___ parles.', opts: ['la', 'lui', 'leur'], a: 1 },
-      { q: '"Il aime les chats" → Il ___ aime.', opts: ['leur', 'les', 'lui'], a: 1 },
-      { q: '"Nous parlons à nos parents" → Nous ___ parlons.', opts: ['les', 'leur', 'lui'], a: 1 },
+      { q: '"Je vois le film" → Je ___ vois.', opts: ['le', 'la', 'lui'], a: 0, why: 'le film = masculine direct object → le.' },
+      { q: '"Tu parles à Marie" → Tu ___ parles.', opts: ['la', 'lui', 'leur'], a: 1, why: 'parler à one person → lui (indirect object).' },
+      { q: '"Il aime les chats" → Il ___ aime.', opts: ['leur', 'les', 'lui'], a: 1, why: 'les chats = direct object → les.' },
+      { q: '"Nous parlons à nos parents" → Nous ___ parlons.', opts: ['les', 'leur', 'lui'], a: 1, why: 'à several people → leur.' },
     ],
   },
   {
@@ -229,10 +229,10 @@ window.GRAMMAR = [
       { title: 'Irregular stems', body: 'être→ser-, avoir→aur-, aller→ir-, faire→fer-, pouvoir→pourr-, vouloir→voudr-, voir→verr-, venir→viendr-', examples: ['Je <em>serai</em> là.', "J'<em>aurai</em> 30 ans.", 'Nous <em>irons</em> à Paris.'] },
     ],
     quiz: [
-      { q: 'Je ___ français un jour. (parler)', opts: ['parle', 'parlerai', 'parlais'], a: 1 },
-      { q: 'Futur of être: je ___', opts: ['serai', 'aurai', 'ferai'], a: 0 },
-      { q: 'Nous ___ à Paris. (aller)', opts: ['allons', 'irons', 'allerons'], a: 1 },
-      { q: '"They will have" → Ils ___', opts: ['auront', 'avoiront', 'seront'], a: 0 },
+      { q: 'Je ___ français un jour. (parler)', opts: ['parle', 'parlerai', 'parlais'], a: 1, why: 'Futur simple, je → infinitive + -ai: parlerai.' },
+      { q: 'Futur of être: je ___', opts: ['serai', 'aurai', 'ferai'], a: 0, why: 'être → stem ser- : je serai (aurai = avoir, ferai = faire).' },
+      { q: 'Nous ___ à Paris. (aller)', opts: ['allons', 'irons', 'allerons'], a: 1, why: 'aller → irregular stem ir- : nous irons.' },
+      { q: '"They will have" → Ils ___', opts: ['auront', 'avoiront', 'seront'], a: 0, why: 'avoir → stem aur- : ils auront.' },
     ],
   },
 ];
