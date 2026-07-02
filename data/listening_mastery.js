@@ -25,6 +25,7 @@ window.LISTENING_MASTERY = [
     audioEn: "The doctor can see you tomorrow morning at ten.",
     prompt: 'When can the doctor see you?',
     opts: ['Today afternoon', 'Tomorrow morning at 10', 'Tomorrow afternoon', 'In 2 days'], a: 1,
+    why: '"Demain matin à dix heures" — demain = tomorrow, dix heures = 10 a.m.',
   },
   {
     id: 'med-2', type: 'B', category: 'Medical', level: 'A1',
@@ -33,6 +34,7 @@ window.LISTENING_MASTERY = [
     prompt: 'Fill in the blank — what part of the body hurts?',
     blank: "J'ai mal à la ___ depuis trois jours.",
     opts: ['tête', 'gorge', 'jambe', 'main'], a: 0,
+    why: '"Avoir mal à la tête" = to have a headache. Gorge = throat, jambe = leg, main = hand.',
   },
   {
     id: 'med-3', type: 'D', category: 'Medical', level: 'A2',
@@ -50,6 +52,7 @@ window.LISTENING_MASTERY = [
     audioEn: "The apartment is free starting July 1st.",
     prompt: 'When is the apartment available?',
     opts: ['Right now', 'Next week', 'July 1st', 'August 1st'], a: 2,
+    why: '"À partir du premier juillet" — à partir de = starting from, premier = the 1st.',
   },
   {
     id: 'hou-2', type: 'B', category: 'Housing', level: 'A1',
@@ -58,6 +61,7 @@ window.LISTENING_MASTERY = [
     prompt: 'How much is the rent?',
     blank: "Le loyer est de ___ dollars par mois.",
     opts: ['900', '1 000', '1 100', '1 300'], a: 2,
+    why: 'Mille cent = 1 000 + 100 = 1 100. French stacks the words: mille (1 000) + cent (100).',
   },
   {
     id: 'hou-3', type: 'E', category: 'Housing', level: 'A2',
@@ -70,6 +74,7 @@ window.LISTENING_MASTERY = [
       'They are complaining about the rent.',
       'They want to renew their lease.',
     ], a: 1,
+    why: 'Two questions in one call: "encore disponible ?" (still available?) + "combien coûte le loyer ?" (how much is the rent?).',
   },
 
   // ─────────────── TRANSIT ───────────────
@@ -79,6 +84,7 @@ window.LISTENING_MASTERY = [
     audioEn: "To go to McGill, take the green line, direction Angrignon.",
     prompt: 'Which line goes to McGill?',
     opts: ['Orange', 'Yellow', 'Green', 'Blue'], a: 2,
+    why: '"La ligne verte" — verte = green (vert/verte).',
   },
   {
     id: 'tra-2', type: 'D', category: 'Transit', level: 'A1',
@@ -108,6 +114,7 @@ window.LISTENING_MASTERY = [
     audioEn: "That comes to forty-seven dollars and fifty cents.",
     prompt: 'What is the total?',
     opts: ['$37.50', '$47.50', '$57.50', '$67.50'], a: 1,
+    why: 'Quarante-sept = 47. Listen for the tens word: quarante (40), not cinquante (50) or trente (30).',
   },
   {
     id: 'sho-2', type: 'B', category: 'Shopping', level: 'A1',
@@ -116,6 +123,7 @@ window.LISTENING_MASTERY = [
     prompt: 'What is the cashier offering?',
     blank: "Vous avez besoin d'un ___ ?",
     opts: ['reçu', 'sac', 'café', 'panier'], a: 1,
+    why: '"Besoin d\'un sac" = need a bag. Reçu = receipt, panier = basket.',
   },
   {
     id: 'sho-3', type: 'D', category: 'Shopping', level: 'A2',
@@ -133,6 +141,7 @@ window.LISTENING_MASTERY = [
     audioEn: "I work as a developer in a French-speaking company.",
     prompt: 'What is the speaker\'s job?',
     opts: ['Designer', 'Developer', 'Manager', 'Translator'], a: 1,
+    why: '"Je travaille comme développeur" — comme = as (a job title follows).',
   },
   {
     id: 'wor-2', type: 'E', category: 'Work', level: 'A2',
@@ -145,6 +154,7 @@ window.LISTENING_MASTERY = [
       'Marie is asking for help with her marketing class.',
       'Marie has worked at this company for 2 years.',
     ], a: 1,
+    why: '"Je cherche un poste" = I\'m LOOKING for a position (job-hunting); "au Canada depuis deux ans" = in Canada for 2 years, not at the company.',
   },
   {
     id: 'wor-3', type: 'D', category: 'Work', level: 'B1',
@@ -162,6 +172,7 @@ window.LISTENING_MASTERY = [
     audioEn: "To open an account, I need two pieces of ID.",
     prompt: 'How many pieces of ID does the bank need?',
     opts: ['One', 'Two', 'Three', 'Four'], a: 1,
+    why: '"Deux pièces d\'identité" — deux = two.',
   },
   {
     id: 'ban-2', type: 'B', category: 'Banking', level: 'A2',
@@ -170,6 +181,7 @@ window.LISTENING_MASTERY = [
     prompt: 'What two payment methods are being offered?',
     blank: "Voulez-vous payer par ___ ou par crédit ?",
     opts: ['comptant', 'débit', 'chèque', 'virement'], a: 1,
+    why: '"Par débit ou par crédit" — débit = debit. Comptant = cash, virement = transfer.',
   },
 
   // ─────────────── EMERGENCY ───────────────
@@ -189,6 +201,7 @@ window.LISTENING_MASTERY = [
     audioEn: "Today's special is grilled salmon with vegetables.",
     prompt: "What's the dish of the day?",
     opts: ['Grilled chicken with rice', 'Grilled salmon with vegetables', 'Beef stew', 'Vegetable soup'], a: 1,
+    why: '"Saumon grillé avec des légumes" — saumon = salmon, légumes = vegetables.',
   },
   {
     id: 'res-2', type: 'B', category: 'Restaurant', level: 'A1',
@@ -197,6 +210,7 @@ window.LISTENING_MASTERY = [
     prompt: 'Fill the blank — what type of water?',
     blank: "Vous voulez de l'eau plate ou ___ ?",
     opts: ['froide', 'pétillante', 'chaude', 'minérale'], a: 1,
+    why: '"Plate ou pétillante" = still or sparkling — the standard restaurant water question.',
   },
   {
     id: 'res-3', type: 'E', category: 'Restaurant', level: 'A2',
@@ -209,6 +223,7 @@ window.LISTENING_MASTERY = [
       'The customer is ordering a steak.',
       'The customer is complaining about the wait time.',
     ], a: 1,
+    why: '"Trop cuit" = overcooked + "est-ce que je peux en avoir un autre ?" = can I have another one?',
   },
   {
     id: 'res-4', type: 'D', category: 'Restaurant', level: 'A2',
@@ -226,6 +241,7 @@ window.LISTENING_MASTERY = [
     audioEn: "Your order will arrive in five to seven business days.",
     prompt: 'When will the order arrive?',
     opts: ['Tomorrow', '2-3 business days', '5-7 business days', '2 weeks'], a: 2,
+    why: '"Cinq à sept jours ouvrables" — jours ouvrables = business days (not calendar days).',
   },
   {
     id: 'cs-2', type: 'B', category: 'Customer Service', level: 'A2',
@@ -234,6 +250,7 @@ window.LISTENING_MASTERY = [
     prompt: 'What does the agent need?',
     blank: "J'ai besoin de votre ___ de commande, s'il vous plaît.",
     opts: ['nom', 'numéro', 'adresse', 'date'], a: 1,
+    why: '"Numéro de commande" = order number — the fixed phrase support agents use.',
   },
   {
     id: 'cs-3', type: 'D', category: 'Customer Service', level: 'B1',
@@ -251,6 +268,7 @@ window.LISTENING_MASTERY = [
     audioEn: "Take one tablet twice a day, after meals.",
     prompt: 'How often should the medication be taken?',
     opts: ['Once a day', 'Twice a day after meals', 'Every 4 hours', 'Only at night'], a: 1,
+    why: '"Deux fois par jour" = twice a day; "après les repas" = after meals.',
   },
   {
     id: 'med-5', type: 'E', category: 'Medical', level: 'A2',
@@ -263,6 +281,7 @@ window.LISTENING_MASTERY = [
       'The treatment will last 3 weeks.',
       'Avoid pharmacies — see a doctor directly.',
     ], a: 1,
+    why: '"Si la douleur persiste" = IF the pain continues — a condition, then two options: "revenez me voir OU appelez votre médecin".',
   },
 
   // ─────────────── TECHNOLOGY / PHONE ───────────────
@@ -272,6 +291,7 @@ window.LISTENING_MASTERY = [
     audioEn: "Your internet installation is scheduled Thursday between 9 am and noon.",
     prompt: 'When is the installation?',
     opts: ['Today afternoon', 'Tomorrow morning', 'Thursday 9am-12pm', 'Friday all day'], a: 2,
+    why: '"Jeudi entre neuf heures et midi" — jeudi = Thursday, midi = noon.',
   },
   {
     id: 'tech-2', type: 'B', category: 'Technology', level: 'A2',
@@ -280,6 +300,7 @@ window.LISTENING_MASTERY = [
     prompt: 'What code activates the service?',
     blank: "Pour activer votre service, composez le code ___.",
     opts: ['étoile-100', 'étoile-122', 'dièse-100', 'dièse-200'], a: 1,
+    why: 'Étoile = star (*), dièse = pound (#). Cent-vingt-deux = 100 + 22 = 122.',
   },
   {
     id: 'tech-3', type: 'D', category: 'Technology', level: 'A2',
@@ -297,6 +318,7 @@ window.LISTENING_MASTERY = [
     audioEn: "See you tomorrow at 10 in front of the café?",
     prompt: 'When and where to meet?',
     opts: ['Today at 10am at the office', 'Tomorrow at 10am in front of the café', 'Tomorrow at noon at the metro', 'Next week at the park'], a: 1,
+    why: '"Demain à dix heures devant le café" — devant = in front of.',
   },
   {
     id: 'day-2', type: 'C', category: 'Daily', level: 'A1',
@@ -321,6 +343,7 @@ window.LISTENING_MASTERY = [
       'Inviting the person tonight.',
       'Asking what time tonight.',
     ], a: 1,
+    why: '"Je ne pourrai pas venir" = I won\'t be able to come + "demain à la place" = tomorrow instead.',
   },
 
   // ─────────────── GOVERNMENT ───────────────
@@ -330,6 +353,7 @@ window.LISTENING_MASTERY = [
     audioEn: "Your application has been accepted. You will receive your card by mail within ten business days.",
     prompt: 'What is the status of the application?',
     opts: ['Refused', 'Accepted', 'Under review', 'Incomplete'], a: 1,
+    why: '"A été acceptée" = has been accepted. Refusée would be refused.',
   },
   {
     id: 'gov-2', type: 'B', category: 'Government', level: 'A2',
@@ -338,6 +362,7 @@ window.LISTENING_MASTERY = [
     prompt: 'Fill in the blank — what must you bring?',
     blank: "N'oubliez pas d'apporter deux ___ d'identité à votre rendez-vous.",
     opts: ['pièces', 'cartes', 'photos', 'copies'], a: 0,
+    why: '"Pièces d\'identité" is THE fixed phrase for ID documents in Canada.',
   },
   {
     id: 'gov-3', type: 'D', category: 'Government', level: 'A2',
@@ -358,6 +383,7 @@ window.LISTENING_MASTERY = [
       'The application was refused.',
       'The office is closing early today.',
     ], a: 1,
+    why: '"Nous avons besoin d\'une copie" = we need a copy + two options: "téléverser en ligne" (upload) or "l\'apporter" (bring it).',
   },
   {
     id: 'gov-5', type: 'C', category: 'Government', level: 'B1',
@@ -379,6 +405,7 @@ window.LISTENING_MASTERY = [
     audioEn: "School is closed tomorrow because of the snowstorm.",
     prompt: 'Why is the school closed?',
     opts: ['A holiday', 'A snowstorm', 'A strike', 'Renovations'], a: 1,
+    why: '"À cause de la tempête de neige" — à cause de = because of, tempête de neige = snowstorm.',
   },
   {
     id: 'sch-2', type: 'B', category: 'School', level: 'A2',
@@ -387,6 +414,7 @@ window.LISTENING_MASTERY = [
     prompt: 'Fill in the blank — when is the meeting?',
     blank: "La rencontre avec l'enseignante aura lieu jeudi à ___ heures.",
     opts: ['quatorze', 'quinze', 'seize', 'dix-sept'], a: 2,
+    why: 'Seize = 16 → seize heures = 4 p.m. on the 24-hour clock.',
   },
   {
     id: 'sch-3', type: 'D', category: 'School', level: 'A2',
@@ -407,6 +435,7 @@ window.LISTENING_MASTERY = [
       'The daycare is closed Friday.',
       'Parents must come to school Friday.',
     ], a: 0,
+    why: '"Il n\'y aura pas de classe" (no class) BUT "le service de garde reste ouvert" — with the condition "inscrire… avant mercredi".',
   },
 
   // ─────────────── WEATHER ───────────────
@@ -416,6 +445,7 @@ window.LISTENING_MASTERY = [
     audioEn: "It's going to snow tonight. Twenty centimetres of snow are expected.",
     prompt: 'How much snow is expected?',
     opts: ['5 cm', '10 cm', '20 cm', '30 cm'], a: 2,
+    why: 'Vingt = 20. "On attend…" = … are expected.',
   },
   {
     id: 'wea-2', type: 'B', category: 'Weather', level: 'A1',
@@ -424,6 +454,7 @@ window.LISTENING_MASTERY = [
     prompt: 'Fill in the blank — what temperature?',
     blank: "Demain, il fera moins ___ degrés.",
     opts: ['cinq', 'dix', 'quinze', 'vingt'], a: 2,
+    why: '"Moins quinze" = minus 15 — moins signals a below-zero temperature.',
   },
   {
     id: 'wea-3', type: 'D', category: 'Weather', level: 'A2',
@@ -444,6 +475,7 @@ window.LISTENING_MASTERY = [
       'The airport is closed for the day.',
       'Sunny weather is coming to Montreal.',
     ], a: 1,
+    why: '"Pluie verglaçante" = freezing rain. Schools: "restent ouvertes"; flights: "retardés" (delayed), not cancelled.',
   },
 
   // ─────────────── PHONE / VOICEMAIL ───────────────
@@ -453,6 +485,7 @@ window.LISTENING_MASTERY = [
     audioEn: "You have reached Dr. Morin's office. Our opening hours are 9 a.m. to 5 p.m., Monday to Friday.",
     prompt: 'What did you reach?',
     opts: ["A doctor's office voicemail", 'A pharmacy', 'A hospital emergency line', 'A dental clinic'], a: 0,
+    why: '"Vous avez rejoint le bureau du docteur…" = you\'ve reached the doctor\'s office (a voicemail formula).',
   },
   {
     id: 'pho-2', type: 'B', category: 'Phone', level: 'A2',
@@ -461,6 +494,7 @@ window.LISTENING_MASTERY = [
     prompt: 'Fill in the blank — to cancel:',
     blank: "Pour annuler, faites le ___.",
     opts: ['un', 'deux', 'trois', 'zéro'], a: 1,
+    why: '"Pour annuler, faites le deux" — annuler = to cancel. Prendre rendez-vous was "le un".',
   },
   {
     id: 'pho-3', type: 'D', category: 'Phone', level: 'B1',
@@ -486,6 +520,7 @@ window.LISTENING_MASTERY = [
       'The insurance refused the prescription entirely.',
       'The pharmacy is closing.',
     ], a: 1,
+    why: '"Prête à ramasser" = ready for pickup, BUT "ne couvre plus… au complet" → "douze dollars à payer".',
   },
 
   // ─────────────── MEDICAL (more) ───────────────
@@ -496,6 +531,7 @@ window.LISTENING_MASTERY = [
     prompt: 'Fill in the blank — how often?',
     blank: "Prenez un comprimé ___ fois par jour, avec de la nourriture.",
     opts: ['une', 'deux', 'trois', 'quatre'], a: 1,
+    why: '"Deux fois par jour" = twice a day. Fois = time(s).',
   },
   {
     id: 'med-7', type: 'C', category: 'Medical', level: 'B1',
@@ -538,6 +574,7 @@ window.LISTENING_MASTERY = [
     audioEn: "The caretaker will come to fix the kitchen tap on Wednesday between 9 a.m. and noon.",
     prompt: 'What will be repaired?',
     opts: ['The fridge', 'The kitchen tap', 'The heating', 'The front door'], a: 1,
+    why: '"Le robinet de la cuisine" — robinet = tap/faucet.',
   },
   {
     id: 'hou-6', type: 'E', category: 'Housing', level: 'B1',
@@ -550,6 +587,7 @@ window.LISTENING_MASTERY = [
       'The building is being evacuated.',
       'New tenants are moving in Monday.',
     ], a: 1,
+    why: '"L\'eau sera coupée" = the water will be cut + "de huit heures à quatorze heures" = 8 a.m. to 2 p.m. (14 h).',
   },
 
   // ─────────────── TRANSIT (more) ───────────────
@@ -559,6 +597,7 @@ window.LISTENING_MASTERY = [
     audioEn: "Due to construction, the orange line is closed between Berri-UQAM and Jean-Talon this weekend. Free shuttle buses are available.",
     prompt: 'What replaces the metro this weekend?',
     opts: ['Nothing', 'Free shuttle buses', 'Taxis', 'The green line'], a: 1,
+    why: '"Des navettes gratuites" — navette = shuttle, gratuit = free.',
   },
   {
     id: 'tra-5', type: 'D', category: 'Transit', level: 'B1',
@@ -575,6 +614,7 @@ window.LISTENING_MASTERY = [
     prompt: 'Fill in the blank — the price:',
     blank: "Le passage mensuel coûte ___ dollars pour la zone A.",
     opts: ['soixante-dix-sept', 'quatre-vingt-sept', 'quatre-vingt-dix-sept', 'cent sept'], a: 2,
+    why: 'Quatre-vingt-dix-sept = 4×20 + 17 = 97 — the classic French number trap. Quatre-vingt-sept = 87.',
   },
 
   // ─────────────── WORK (more) ───────────────
@@ -584,6 +624,7 @@ window.LISTENING_MASTERY = [
     audioEn: "The team meeting is moved from Monday to Wednesday, same time, same room.",
     prompt: 'What changed about the meeting?',
     opts: ['The room', 'The time', 'The day', 'It was cancelled'], a: 2,
+    why: '"Déplacée de lundi à mercredi" = moved Monday→Wednesday; "même heure, même salle" = time and room unchanged.',
   },
   {
     id: 'wor-5', type: 'B', category: 'Work', level: 'B1',
@@ -592,6 +633,7 @@ window.LISTENING_MASTERY = [
     prompt: 'Fill in the blank — what must you submit?',
     blank: "Veuillez soumettre votre ___ avant vendredi seize heures.",
     opts: ['feuille de temps', 'demande de congé', 'lettre de démission', 'adresse courriel'], a: 0,
+    why: 'Feuille de temps = timesheet. Congé = leave, démission = resignation.',
   },
   {
     id: 'wor-6', type: 'C', category: 'Work', level: 'B1',
@@ -616,6 +658,7 @@ window.LISTENING_MASTERY = [
       'The probation period is extended.',
       'A meeting with HR is requested.',
     ], a: 1,
+    why: '"Votre période d\'essai est terminée" + "nous confirmons votre poste permanent" — probation over, job confirmed.',
   },
 
   // ─────────────── BANKING (more) ───────────────
@@ -625,6 +668,7 @@ window.LISTENING_MASTERY = [
     audioEn: "Your new debit card will arrive by mail within five business days. In the meantime, you can pay with your phone.",
     prompt: 'How can you pay while waiting for the card?',
     opts: ['Cash only', 'With your phone', 'By cheque', 'You cannot pay'], a: 1,
+    why: '"En attendant" = in the meantime + "payer avec votre téléphone".',
   },
   {
     id: 'ban-4', type: 'D', category: 'Banking', level: 'B1',
@@ -641,6 +685,7 @@ window.LISTENING_MASTERY = [
     prompt: 'Fill in the blank — the condition:',
     blank: "Les frais mensuels sont annulés si vous gardez un ___ minimum de quatre mille dollars.",
     opts: ['solde', 'prêt', 'dépôt', 'budget'], a: 0,
+    why: 'Solde = account balance. Prêt = loan, dépôt = deposit.',
   },
 
   // ─────────────── SHOPPING (more) ───────────────
@@ -650,6 +695,7 @@ window.LISTENING_MASTERY = [
     audioEn: "The store closes in fifteen minutes. Please make your way to the checkouts.",
     prompt: 'What should customers do?',
     opts: ['Leave immediately', 'Go to the checkouts', 'Wait at the entrance', 'Come back tomorrow'], a: 1,
+    why: '"Dirigez-vous vers les caisses" — les caisses = the checkouts.',
   },
   {
     id: 'sho-5', type: 'E', category: 'Shopping', level: 'B1',
@@ -662,6 +708,7 @@ window.LISTENING_MASTERY = [
       'The store is closing Sunday.',
       'Membership cards are on sale.',
     ], a: 0,
+    why: '"Deux pour un" = 2-for-1; "vingt pour cent de rabais" = 20% off; valid "jusqu\'à dimanche, avec la carte de membre".',
   },
 
   // ─────────────── RESTAURANT (more) ───────────────
@@ -694,6 +741,7 @@ window.LISTENING_MASTERY = [
     prompt: 'Fill in the blank — where do you meet?',
     blank: "On se rejoint devant la ___ à quatorze heures trente.",
     opts: ['bibliothèque', 'banque', 'boulangerie', 'pharmacie'], a: 0,
+    why: 'Four b/p sound-alikes — bibliothèque = library, boulangerie = bakery.',
   },
 
   // ─────────────── EMERGENCY (more) ───────────────
@@ -703,6 +751,7 @@ window.LISTENING_MASTERY = [
     audioEn: "In case of fire, do not use the elevator. Take the emergency stairs on your right.",
     prompt: 'What should you use in case of fire?',
     opts: ['The elevator', 'The emergency stairs', 'The window', 'The parking garage'], a: 1,
+    why: '"N\'utilisez PAS l\'ascenseur" (don\'t use the elevator) → "l\'escalier de secours" = emergency stairs.',
   },
   {
     id: 'eme-3', type: 'E', category: 'Emergency', level: 'B1',
@@ -715,6 +764,7 @@ window.LISTENING_MASTERY = [
       'The water is safe to drink again.',
       'Water bills are increasing.',
     ], a: 1,
+    why: '"Avis d\'ébullition" = boil-water advisory; "jusqu\'à nouvel ordre" = until further notice.',
   },
 
   // ─────────────── TECHNOLOGY (more) ───────────────
@@ -733,6 +783,7 @@ window.LISTENING_MASTERY = [
     prompt: 'Fill in the blank — what should you restart?',
     blank: "Redémarrez votre ___ et attendez deux minutes.",
     opts: ['routeur', 'téléphone', 'ordinateur', 'téléviseur'], a: 0,
+    why: '"Redémarrez votre routeur" — redémarrer = to restart.',
   },
 
   // ═══════════════ LONG-FORM (TCF-style, 4-6 sentences) ═══════════════
@@ -747,6 +798,7 @@ window.LISTENING_MASTERY = [
       'The citizenship test is tomorrow.',
       'A document is missing from the application.',
     ], a: 1,
+    why: 'Sequence words carry the answer: "d\'abord" (first) the exam, "puis" (then) the ceremony; "délai… d\'environ douze mois".',
   },
   {
     id: 'gov-7', type: 'D', category: 'Government', level: 'B1',
@@ -767,6 +819,7 @@ window.LISTENING_MASTERY = [
       'A heat wave is coming this weekend.',
       'Snow has already ended; roads are clear.',
     ], a: 1,
+    why: '"De quinze à vingt centimètres… pendant la nuit" (overnight snow) + "demain matin, les déplacements seront difficiles".',
   },
   {
     id: 'pho-5', type: 'E', category: 'Phone', level: 'B1',
@@ -779,6 +832,7 @@ window.LISTENING_MASTERY = [
       'The clinic is moving to a new address.',
       'The insurance file is complete; nothing to do.',
     ], a: 1,
+    why: 'Three pieces: "confirmé" (confirmed), "quinze minutes en avance" (arrive early), "sinon des frais de cinquante dollars" (late-cancel fee).',
   },
   {
     id: 'pho-6', type: 'D', category: 'Phone', level: 'B1',
@@ -804,6 +858,7 @@ window.LISTENING_MASTERY = [
       'A new technician starts today',
       'The office closes early Friday',
     ], a: 3,
+    why: 'The three points were: the meeting move ("d\'abord"), vacation requests ("ensuite"), and Carlos ("enfin"). Nothing about Friday.',
   },
   {
     id: 'med-9', type: 'E', category: 'Medical', level: 'B1',
@@ -816,6 +871,7 @@ window.LISTENING_MASTERY = [
       'Appointments are mandatory at this clinic.',
       'The clinic moved to a new neighbourhood.',
     ], a: 1,
+    why: '"Sans rendez-vous" = walk-in (no appointments); "sans elle… cent vingt-cinq dollars" = $125 without the health card.',
   },
   {
     id: 'ban-6', type: 'D', category: 'Banking', level: 'B1',
@@ -841,6 +897,7 @@ window.LISTENING_MASTERY = [
       'The orange line is interrupted at Lionel-Groulx.',
       'Free rides are offered all day.',
     ], a: 1,
+    why: 'Interruption is PARTIAL ("entre Angrignon et Atwater"), "environ quarante-cinq minutes", and the advice: "utiliser la ligne orange".',
   },
   {
     id: 'sch-5', type: 'E', category: 'School', level: 'B1',
@@ -853,6 +910,7 @@ window.LISTENING_MASTERY = [
       'The class photo is taken',
       'Gym class is outside',
     ], a: 1,
+    why: '"Vendredi, l\'école termine à midi" + "le service de garde reste ouvert… pour les enfants inscrits". Photo = Monday, gym = Wednesday.',
   },
   {
     id: 'cs-4', type: 'E', category: 'Customer Service', level: 'B1',
@@ -865,6 +923,7 @@ window.LISTENING_MASTERY = [
       'The complaint was rejected.',
       'Internet service is being cancelled.',
     ], a: 1,
+    why: 'Cause: "un câble endommagé"; fix: "réparation… lundi prochain"; compensation: "un crédit de quarante dollars"; "aucune action n\'est requise".',
   },
   {
     id: 'day-6', type: 'E', category: 'Daily', level: 'B1',
@@ -877,6 +936,7 @@ window.LISTENING_MASTERY = [
       'Sophie cancels everything for Saturday.',
       'Karim is bringing the dessert.',
     ], a: 1,
+    why: '"Annulé parce qu\'on annonce de la pluie" (cancelled, rain) → "chez Karim à treize heures"; Sophie brings dessert, Amina is asked for "une salade".',
   },
 
   // ═══════════════ STANDARD CLIPS (Batch 3) ═══════════════
@@ -887,6 +947,7 @@ window.LISTENING_MASTERY = [
     prompt: 'Fill in the blank — closing time:',
     blank: "Le bureau des passeports est ouvert de huit heures trente à ___ heures.",
     opts: ['quatorze', 'quinze', 'seize', 'dix-sept'], a: 2,
+    why: 'Seize heures = 16 h = 4 p.m. Quinze would be 3 p.m.',
   },
   {
     id: 'gov-9', type: 'A', category: 'Government', level: 'A2',
@@ -894,6 +955,7 @@ window.LISTENING_MASTERY = [
     audioEn: "To renew your health insurance card, you can do it online if your photo is less than four years old.",
     prompt: 'When can you renew online?',
     opts: ['Always', 'If the photo is less than 4 years old', 'Only in person', 'If you are under 40'], a: 1,
+    why: '"Si votre photo a moins de quatre ans" — avoir moins de = to be less/under (age of a thing).',
   },
   {
     id: 'sch-6', type: 'B', category: 'School', level: 'A2',
@@ -902,6 +964,7 @@ window.LISTENING_MASTERY = [
     prompt: 'Fill in the blank — how often?',
     blank: "Les cours ont lieu ___ soirs par semaine.",
     opts: ['deux', 'trois', 'quatre', 'cinq'], a: 1,
+    why: '"Trois soirs par semaine" = three evenings a week.',
   },
   {
     id: 'sch-7', type: 'D', category: 'School', level: 'B1',
@@ -917,6 +980,7 @@ window.LISTENING_MASTERY = [
     audioEn: "The heat warning is in effect until Thursday. Drink plenty of water and avoid the sun between noon and 4 p.m.",
     prompt: 'How long is the heat warning in effect?',
     opts: ['Until tonight', 'Until Tuesday', 'Until Thursday', 'All summer'], a: 2,
+    why: '"En vigueur jusqu\'à jeudi" — en vigueur = in effect, jusqu\'à = until.',
   },
   {
     id: 'pho-7', type: 'A', category: 'Phone', level: 'A1',
@@ -924,6 +988,7 @@ window.LISTENING_MASTERY = [
     audioEn: "The office is currently closed. Leave a message after the beep with your name and number.",
     prompt: 'What should you do?',
     opts: ['Call back at 9', 'Leave a message with name and number', 'Press zero', 'Send an email'], a: 1,
+    why: '"Laissez un message après le bip" = leave a message after the beep — the standard voicemail formula.',
   },
   {
     id: 'pho-8', type: 'C', category: 'Phone', level: 'A2',
@@ -943,6 +1008,7 @@ window.LISTENING_MASTERY = [
     audioEn: "Your appointment with the physiotherapist is February 12th at 9:15 a.m.",
     prompt: 'Who is the appointment with?',
     opts: ['A dentist', 'A physiotherapist', 'A pharmacist', 'An optometrist'], a: 1,
+    why: '"La physiothérapeute" = the physiotherapist. Le douze février à neuf heures quinze = Feb 12, 9:15.',
   },
   {
     id: 'med-11', type: 'B', category: 'Medical', level: 'B1',
@@ -951,6 +1017,7 @@ window.LISTENING_MASTERY = [
     prompt: 'Fill in the blank — the warning:',
     blank: "Ce médicament peut causer de la ___.",
     opts: ['somnolence', 'fièvre', 'toux', 'douleur'], a: 0,
+    why: 'Somnolence = drowsiness — that\'s why the clip says "évitez de conduire" (avoid driving). Fièvre = fever, toux = cough.',
   },
   {
     id: 'med-12', type: 'C', category: 'Medical', level: 'A2',
@@ -970,6 +1037,7 @@ window.LISTENING_MASTERY = [
     audioEn: "Snow removal in the parking lot will happen tonight. Please move your car before 11 p.m.",
     prompt: 'What must residents do?',
     opts: ['Shovel their balcony', 'Move their car before 11 p.m.', 'Park in the street after midnight', 'Stay home tonight'], a: 1,
+    why: '"Déplacez votre voiture avant vingt-trois heures" — 23 h = 11 p.m.',
   },
   {
     id: 'hou-8', type: 'B', category: 'Housing', level: 'B1',
@@ -978,6 +1046,7 @@ window.LISTENING_MASTERY = [
     prompt: 'Fill in the blank — the increase:',
     blank: "L'augmentation de loyer proposée est de ___ pour cent.",
     opts: ['deux', 'trois', 'cinq', 'dix'], a: 1,
+    why: '"Trois pour cent" = three percent — pour cent = percent.',
   },
   {
     id: 'hou-9', type: 'D', category: 'Housing', level: 'B1',
@@ -994,6 +1063,7 @@ window.LISTENING_MASTERY = [
     prompt: 'Fill in the blank:',
     blank: "Le prochain autobus passe dans ___ minutes.",
     opts: ['cinq', 'sept', 'dix', 'douze'], a: 1,
+    why: 'Sept = 7 (sounds like "set"). Cinq = 5, dix = 10, douze = 12.',
   },
   {
     id: 'tra-9', type: 'D', category: 'Transit', level: 'A2',
@@ -1001,6 +1071,7 @@ window.LISTENING_MASTERY = [
     audioEn: "Sir, your transit fare is no longer valid. It expired yesterday. You have to buy a new one at the terminal.",
     prompt: 'What is the inspector telling the passenger?',
     opts: ['He is on the wrong bus', 'His fare expired and he must buy a new one', 'The terminal is broken', 'He gets a free ride today'], a: 1,
+    why: '"N\'est plus valide" = no longer valid; "a expiré hier" = expired yesterday; "vous devez en acheter un nouveau".',
   },
   {
     id: 'wor-9', type: 'A', category: 'Work', level: 'A2',
@@ -1008,6 +1079,7 @@ window.LISTENING_MASTERY = [
     audioEn: "Pay is deposited every other Thursday, directly into your bank account.",
     prompt: 'When is payday?',
     opts: ['Every Friday', 'Every other Thursday', 'Monthly', 'Every Monday'], a: 1,
+    why: '"Tous les deux jeudis" = every two Thursdays = every other Thursday.',
   },
   {
     id: 'wor-10', type: 'B', category: 'Work', level: 'B1',
@@ -1016,6 +1088,7 @@ window.LISTENING_MASTERY = [
     prompt: 'Fill in the blank — where?',
     blank: "La réunion aura lieu dans la grande ___ de conférence.",
     opts: ['salle', 'table', 'porte', 'tour'], a: 0,
+    why: 'Salle de conférence = conference room. Salle = room (salle de bain, salle d\'attente…).',
   },
   {
     id: 'wor-11', type: 'D', category: 'Work', level: 'B1',
@@ -1031,6 +1104,7 @@ window.LISTENING_MASTERY = [
     audioEn: "Your three-hundred-dollar transfer has been sent. The recipient will receive it within thirty minutes.",
     prompt: 'How much was transferred?',
     opts: ['$30', '$130', '$300', '$330'], a: 2,
+    why: 'Trois cents = 300 (cent = 100). Trente (30) sounds different — listen for "cents".',
   },
   {
     id: 'ban-8', type: 'B', category: 'Banking', level: 'B1',
@@ -1039,6 +1113,7 @@ window.LISTENING_MASTERY = [
     prompt: 'Fill in the blank — the new rate:',
     blank: "Le taux passe de huit à ___ pour cent.",
     opts: ['neuf', 'dix', 'sept', 'douze'], a: 0,
+    why: '"De huit À neuf pour cent" — the second number is the NEW rate: neuf (9).',
   },
   {
     id: 'sho-6', type: 'A', category: 'Shopping', level: 'A1',
@@ -1046,6 +1121,7 @@ window.LISTENING_MASTERY = [
     audioEn: "The self-checkouts are on your right, near the exit.",
     prompt: 'Where are the self-checkouts?',
     opts: ['On the left, near the entrance', 'On the right, near the exit', 'Upstairs', 'At the back of the store'], a: 1,
+    why: '"À votre droite, près de la sortie" — droite = right, sortie = exit (entrée = entrance).',
   },
   {
     id: 'sho-7', type: 'D', category: 'Shopping', level: 'A2',
@@ -1053,6 +1129,7 @@ window.LISTENING_MASTERY = [
     audioEn: "Sorry, we don't have any left in store, but I can order it for you. You'll have it Wednesday.",
     prompt: 'What is the employee offering?',
     opts: ['A refund', 'To order the item for Wednesday', 'A discount on another item', 'To check another store'], a: 1,
+    why: '"Je peux vous le commander" = I can order it for you; "vous l\'aurez mercredi" = you\'ll have it Wednesday.',
   },
   {
     id: 'sho-8', type: 'B', category: 'Shopping', level: 'A2',
@@ -1061,6 +1138,7 @@ window.LISTENING_MASTERY = [
     prompt: 'Fill in the blank:',
     blank: "Vous économisez ___ dollars sur cet achat.",
     opts: ['deux', 'dix', 'douze', 'vingt'], a: 2,
+    why: 'Douze = 12 — the "z" sound separates it from deux (2) and dix (10).',
   },
   {
     id: 'res-6', type: 'A', category: 'Restaurant', level: 'A2',
@@ -1068,6 +1146,7 @@ window.LISTENING_MASTERY = [
     audioEn: "Today's special is onion soup with a chicken sandwich, for fourteen dollars.",
     prompt: 'What is today\'s special?',
     opts: ['Onion soup + chicken sandwich', 'Tomato soup + salad', 'Poutine + drink', 'Pasta + dessert'], a: 0,
+    why: '"Soupe à l\'oignon avec un sandwich au poulet" — poulet = chicken; "pour quatorze dollars" = for $14.',
   },
   {
     id: 'res-7', type: 'D', category: 'Restaurant', level: 'B1',
@@ -1083,6 +1162,7 @@ window.LISTENING_MASTERY = [
     audioEn: "Your wait time is about ten minutes. You can also request an automatic callback without losing your place.",
     prompt: 'What option avoids waiting on the line?',
     opts: ['Calling back tomorrow', 'An automatic callback', 'Pressing zero', 'Sending a letter'], a: 1,
+    why: '"Un rappel automatique sans perdre votre place" — rappel = callback.',
   },
   {
     id: 'cs-6', type: 'B', category: 'Customer Service', level: 'B1',
@@ -1091,6 +1171,7 @@ window.LISTENING_MASTERY = [
     prompt: 'Fill in the blank — the file number:',
     blank: "Votre numéro de dossier est le R-___.",
     opts: ['2479', '2497', '4279', '7942'], a: 0,
+    why: 'Digits read one by one: deux (2), quatre (4), sept (7), neuf (9) → 2479.',
   },
   {
     id: 'tech-6', type: 'A', category: 'Technology', level: 'A2',
@@ -1098,6 +1179,7 @@ window.LISTENING_MASTERY = [
     audioEn: "An update is available for your app. It fixes several security issues.",
     prompt: 'What does the update do?',
     opts: ['Adds new games', 'Fixes security issues', 'Changes the design', 'Deletes old files'], a: 1,
+    why: '"Corrige plusieurs problèmes de sécurité" — corriger = to fix.',
   },
   {
     id: 'tech-7', type: 'D', category: 'Technology', level: 'B1',
@@ -1105,6 +1187,7 @@ window.LISTENING_MASTERY = [
     audioEn: "Before replacing your device, let's try one last thing: back up your data, then do a full reset.",
     prompt: 'What does the technician propose?',
     opts: ['An immediate replacement', 'A backup then a full reset as a last attempt', 'Buying a new device', 'Ignoring the problem'], a: 1,
+    why: '"Essayons une dernière chose" = let\'s try ONE LAST thing: "sauvegardez" (back up), then "réinitialisation complète" (full reset).',
   },
   {
     id: 'day-7', type: 'B', category: 'Daily', level: 'A1',
@@ -1113,6 +1196,7 @@ window.LISTENING_MASTERY = [
     prompt: 'Fill in the blank — when is it free?',
     blank: "La piscine est gratuite le ___ matin.",
     opts: ['samedi', 'dimanche', 'lundi', 'vendredi'], a: 1,
+    why: 'Dimanche = Sunday. Samedi = Saturday — the classic mix-up.',
   },
   {
     id: 'day-8', type: 'D', category: 'Daily', level: 'A2',
@@ -1120,6 +1204,7 @@ window.LISTENING_MASTERY = [
     audioEn: "Honestly, I recommend this hairdresser. It's a bit expensive, but the result is really worth it.",
     prompt: 'What is the speaker\'s opinion?',
     opts: ['Too expensive, avoid it', 'Expensive but worth it — recommended', 'Cheap but bad', 'No opinion'], a: 1,
+    why: '"Un peu cher, MAIS… vaut vraiment la peine" — mais flips the verdict positive. Valoir la peine = to be worth it.',
   },
   {
     id: 'eme-4', type: 'A', category: 'Emergency', level: 'A2',
@@ -1127,6 +1212,7 @@ window.LISTENING_MASTERY = [
     audioEn: "Stay calm and give me your address. The paramedics are already on the way.",
     prompt: 'What does the operator need?',
     opts: ['Your name only', 'Your address', 'Your insurance number', 'Your doctor\'s name'], a: 1,
+    why: '"Donnez-moi votre adresse" — the 911 operator needs WHERE to send help.',
   },
   {
     id: 'eme-5', type: 'B', category: 'Emergency', level: 'B1',
@@ -1135,6 +1221,7 @@ window.LISTENING_MASTERY = [
     prompt: 'Fill in the blank — non-urgent services:',
     blank: "Pour les services non urgents, composez le ___.",
     opts: ['211', '311', '411', '511'], a: 1,
+    why: '"Trois, un, un" = 3-1-1 for non-urgent city services; "neuf, un, un" (9-1-1) is emergencies only.',
   },
 ];
 
