@@ -26,6 +26,7 @@ window.PhonicsModule = (function () {
 
   function renderUnit(container, id) {
     const u = PHONICS.find(x => x.id === id);
+    if (!u) { App.go('phonics'); return; }
     container.innerHTML = `
       ${Chrome.render({ back: 'phonics', crumbs: ['Phonics', u.title] })}
       <div class="lesson">

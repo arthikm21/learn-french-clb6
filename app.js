@@ -556,22 +556,38 @@ window.App = (function () {
     const link = document.getElementById('credit-link');
     const modal = document.getElementById('credit-modal');
     if (!link || !modal) return;
+    let lastFocus = null;
     function open() {
+      lastFocus = document.activeElement;
       modal.classList.add('open');
       modal.setAttribute('aria-hidden', 'false');
       document.body.classList.add('modal-open');
+      // Move focus into the dialog so keyboard/SR users aren't stranded behind it.
+      const closeBtn = modal.querySelector('#credit-modal-close');
+      if (closeBtn) closeBtn.focus();
     }
     function close() {
       modal.classList.remove('open');
       modal.setAttribute('aria-hidden', 'true');
       document.body.classList.remove('modal-open');
+      if (lastFocus && typeof lastFocus.focus === 'function') lastFocus.focus();
     }
     link.addEventListener('click', (e) => { e.preventDefault(); open(); });
     modal.addEventListener('click', (e) => {
       if (e.target.closest('[data-close]')) close();
     });
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && modal.classList.contains('open')) close();
+      if (!modal.classList.contains('open')) return;
+      if (e.key === 'Escape') { close(); return; }
+      // Trap Tab inside the dialog while it's open.
+      if (e.key === 'Tab') {
+        const focusables = modal.querySelectorAll('button, a[href]');
+        if (!focusables.length) return;
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
     });
   }
 

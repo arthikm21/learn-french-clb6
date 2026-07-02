@@ -1143,7 +1143,9 @@ body.no-gloss .gloss-lg { display: none; }
 .q-prompt b { color: var(--accent); font-weight: var(--fw-bold); }
 .options {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  /* 140px min keeps two columns alive on small phones instead of collapsing
+     to a tall single column of answer choices. */
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: var(--sp-2);
 }
 .option {

@@ -38,6 +38,7 @@ window.GrammarModule = (function () {
 
   function renderUnit(container, id) {
     const u = GRAMMAR.find(x => x.id === id);
+    if (!u) { App.go('grammar'); return; }
     let phase = 'intro'; // intro -> quiz
     let qi = 0, correct = 0;
 

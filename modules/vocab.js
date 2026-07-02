@@ -28,6 +28,7 @@ window.VocabModule = (function () {
 
   function renderStudy(container, deckKey) {
     const deck = VOCAB[deckKey];
+    if (!deck) { App.go('vocab'); return; }
     let cards = SRS.dueCards(deckKey, deck.cards);
     if (cards.length === 0) cards = deck.cards.slice();
     // shuffle

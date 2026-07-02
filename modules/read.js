@@ -23,6 +23,7 @@ window.ReadModule = (function () {
 
   function renderText(container, key) {
     const t = READINGS[key];
+    if (!t) { App.go('read'); return; }
     let phase = 'read', qi = 0, correct = 0;
 
     function showText() {
