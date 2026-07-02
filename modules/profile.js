@@ -54,6 +54,34 @@ window.Storage = (function () {
     });
   }
 
+  // ---- Backup / restore ----
+  // Everything lives in localStorage; one browser cleanup wipes months of
+  // study. Export bundles every key of the CURRENT user (stored suffix-only,
+  // so a backup restores into any username — moving device or browser works).
+  function exportData() {
+    const u = getCurrentUser();
+    if (!u) return null;
+    const prefix = `fr_u_${u}_`;
+    const data = {};
+    Object.keys(localStorage).forEach(k => {
+      if (k.startsWith(prefix)) data[k.slice(prefix.length)] = localStorage.getItem(k);
+    });
+    return { app: 'bonjour-frenchclb6', version: 1, user: u, exportedAt: new Date().toISOString(), data };
+  }
+  // Validates and writes a backup into the CURRENT user's namespace.
+  // Returns the number of keys restored, or -1 if the payload is not a backup.
+  function importData(obj) {
+    if (!obj || obj.app !== 'bonjour-frenchclb6' || !obj.data || typeof obj.data !== 'object') return -1;
+    const u = getCurrentUser();
+    if (!u) return -1;
+    let n = 0;
+    for (const [suffix, val] of Object.entries(obj.data)) {
+      if (typeof val !== 'string') continue;
+      try { localStorage.setItem(`fr_u_${u}_${suffix}`, val); n++; } catch { break; }
+    }
+    return n;
+  }
+
   // One-time migration from old un-namespaced keys → "Guest" user.
   function migrateLegacy() {
     if (localStorage.getItem('fr_migrated_v2') === '1') return;
@@ -90,6 +118,7 @@ window.Storage = (function () {
     listUsers, addUser, removeUser,
     getItem, setItem, removeItem,
     resetCurrentUserProgress,
+    exportData, importData,
     migrateLegacy,
   };
 })();
@@ -290,6 +319,17 @@ window.ProfileModule = (function () {
         ${users.filter(u => u !== cur).length === 0 ? '<p style="color:var(--mute);font-size:var(--fs-14);margin-top:var(--sp-3)">No other users on this browser.</p>' : ''}
       </div>
 
+      <div class="grammar-box" style="border-left-color:var(--good)">
+        <h3>💾 Backup &amp; restore</h3>
+        <p style="color:var(--ink-2)">Your progress lives only in this browser — clearing browser data erases it. Download a backup file to keep it safe, or restore one here (works across devices and usernames).</p>
+        <div class="spacer"></div>
+        <div class="row" style="gap:var(--sp-2);flex-wrap:wrap">
+          <button class="btn secondary" id="backup-dl">⬇️ Download backup</button>
+          <button class="btn ghost" id="backup-restore">Restore from file…</button>
+          <input type="file" id="backup-file" accept=".json,application/json" style="display:none" aria-hidden="true" />
+        </div>
+      </div>
+
       <div class="grammar-box" style="border-left-color:var(--warn)">
         <h3>⚠️ Reset my progress</h3>
         <p style="color:var(--ink-2)">Wipes all lessons, SRS, weak spots, and writing drafts. Username stays. Cannot be undone.</p>
@@ -370,6 +410,51 @@ window.ProfileModule = (function () {
       Storage.setCurrentUser('');
       App.reloadForUser();
     };
+    // ---- Backup & restore ----
+    container.querySelector('#backup-dl').onclick = () => {
+      const payload = Storage.exportData();
+      if (!payload) { Toast.info('Nothing to back up yet.'); return; }
+      const count = Object.keys(payload.data).length;
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `bonjour-backup-${cur}-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+      Toast.good(`Backup downloaded (${count} item${count === 1 ? '' : 's'}). Keep it somewhere safe.`);
+    };
+    const fileInput = container.querySelector('#backup-file');
+    container.querySelector('#backup-restore').onclick = () => fileInput.click();
+    fileInput.onchange = () => {
+      const f = fileInput.files && fileInput.files[0];
+      if (!f) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        let obj = null;
+        try { obj = JSON.parse(reader.result); } catch {}
+        if (!obj || obj.app !== 'bonjour-frenchclb6') {
+          Toast.info('That file is not a Bonjour! backup.');
+          fileInput.value = '';
+          return;
+        }
+        const n = Object.keys(obj.data || {}).length;
+        const when = obj.exportedAt ? new Date(obj.exportedAt).toLocaleDateString() : 'unknown date';
+        if (!confirm(`Restore backup of "${obj.user || 'unknown'}" (${n} items, saved ${when}) into profile "${cur}"?\n\nThis OVERWRITES the current progress of "${cur}".`)) {
+          fileInput.value = '';
+          return;
+        }
+        const restored = Storage.importData(obj);
+        fileInput.value = '';
+        if (restored < 0) { Toast.info('Could not read that backup.'); return; }
+        Toast.good(`Restored ${restored} item${restored === 1 ? '' : 's'}. Welcome back!`);
+        App.reloadForUser();
+      };
+      reader.readAsText(f);
+    };
+
     container.querySelector('#reset').onclick = () => {
       if (confirm(`Reset ALL progress for "${cur}"?\n\nThis cannot be undone.`)) {
         Storage.resetCurrentUserProgress();
