@@ -88,22 +88,22 @@ window.Support = (function () {
     speaking: {
       icon: '🎙️',
       name: 'TCF Speaking — Complete Answer Pack',
-      what: '10 full Task-3 opinion monologues at the CLB 6 target, 6 ask-the-examiner scenarios (10 questions each), 10 interview answers, and the connector bank — with English glosses.',
-      pages: '16-page PDF',
+      what: '10 full Task-3 opinion monologues, 6 ask-the-examiner scenarios (60 questions), 10 interview answers — every French sentence with its English underneath — plus the connector bank and a 10-day practice plan.',
+      pages: '25-page bilingual PDF',
       url: 'https://frenchclb6.gumroad.com/l/tcf-speaking-pack',
     },
     writing: {
       icon: '✍️',
       name: 'TCF Writing — Templates & Model Answers',
-      what: 'Fill-in templates for all 3 tasks, 15 model answers (invitations, stories, compare-two-opinions essays) with grader notes, and the 8-point error checklist.',
-      pages: '10-page PDF',
+      what: 'Fill-in templates for all 3 tasks and 15 model answers (invitations, stories, compare-two-opinions essays) — each with its complete English translation and grader notes — plus the 8-point error checklist and a 7-day plan.',
+      pages: '14-page bilingual PDF',
       url: 'https://frenchclb6.gumroad.com/l/tcf-writing-pack',
     },
     sheets: {
       icon: '📄',
       name: 'CLB 6 Cheat Sheet Pack',
-      what: '10 printable one-page references: the 22 connectors, PC vs imparfait, opinion phrases, 12 verbs × 4 tenses, false friends, numbers, and the exam-day plan.',
-      pages: '13-page PDF',
+      what: '10 printable one-page references — the 22 connectors, PC vs imparfait, opinion phrases, 12 verbs × 4 tenses, false friends, numbers, exam-day plan — every example sentence translated.',
+      pages: '15-page bilingual PDF',
       url: 'https://frenchclb6.gumroad.com/l/clb6-cheat-sheets',
     },
   };
