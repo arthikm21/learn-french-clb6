@@ -192,6 +192,7 @@ window.SpeakTask2Module = (function () {
             ${t.requiredInfo.map(info => `<li>${infoMatched.includes(info) ? '✅' : '⬜'} ${Chrome.escapeHTML(info)}</li>`).join('')}
           </ul>
         </div>` : ''}
+      ${Support.kitCard('speaking')}
       ${preplyCTA(t.title)}`;
   }
 

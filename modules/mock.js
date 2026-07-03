@@ -672,6 +672,7 @@ window.MockModule = (function () {
         <p style="margin-top:8px"><b>Below CLB 6 anywhere?</b> Drill that skill's modules. Re-attempt in 2 weeks.</p>
         <p><b>CLB 6+ across all 4?</b> You are likely exam-ready. Buy the official TCF Canada sample paper and rehearse under timed conditions one more time before booking.</p>
       </div>
+      ${Support.kitStrip()}
       ${Support.preplyCard(1)}
       <div class="center" style="margin-top:24px">
         <button class="btn big" id="restart">↻ Take mock test again</button>

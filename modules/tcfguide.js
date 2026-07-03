@@ -32,6 +32,7 @@ window.TCFGuideModule = (function () {
         <p style="margin-top:8px">CO and CE are 39 multiple-choice each, scored on the <b>0-699 scale</b>. EE and EO are graded by certified raters on a <b>0-20 scale</b>.</p>
         <p style="margin-top:8px"><b>For CLB 6 (Express Entry minimum for French points)</b>: you need CO ≥ 398, CE ≥ 406, EE ≥ 7/20, EO ≥ 7/20.</p>
       </div>
+      ${Support.kitStrip()}
       <div class="center" style="margin-top:24px">
         <button class="btn ghost" onclick="App.go('home')">← Home</button>
       </div>`;
@@ -209,6 +210,7 @@ window.TCFGuideModule = (function () {
         </ol>
       </div>
 
+      ${Support.kitCard('sheets')}
       <div class="grammar-box">
         <h3>📬 Results</h3>
         <p>TCF Canada results arrive in <b>4-6 weeks</b> by email. You receive a PDF with TCF scores per skill, valid for <b>2 years</b> for IRCC purposes.</p>

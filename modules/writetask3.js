@@ -182,7 +182,8 @@ window.WriteTask3Module = (function () {
       <div class="grammar-box" style="background:var(--surface-2)">
         <h3>💡 TCF Task 3 strategy</h3>
         <p>If you scored below 7/20: re-read both opinions, write a single sentence summary of each, then choose your side and list 2 reasons before composing your paragraph. Read aloud to catch flow errors.</p>
-      </div>`;
+      </div>
+      ${Support.kitCard('writing')}`;
   }
 
   function rubricKeywordMatch(lower, opinionText) {

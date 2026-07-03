@@ -204,6 +204,7 @@ window.SpeakTask3Module = (function () {
             <span class="tag">Counter-args: ${counterHits}</span>
           </div>
         </div>` : ''}
+      ${Support.kitCard('speaking')}
       ${preplyCTA(t.title)}`;
   }
 

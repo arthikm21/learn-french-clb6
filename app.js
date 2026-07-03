@@ -484,7 +484,7 @@ window.App = (function () {
         <div class="center" style="margin-top:12px">
           <a class="btn primary" href="https://buymeacoffee.com/frenchclb6" target="_blank" rel="noopener">Help keep Bonjour! free<span class="arr">→</span></a>
         </div>
-        <p style="color:var(--mute);font-size:13px;margin-top:12px">Some outbound links to tutors and tools (for example Preply) are affiliate links: if you sign up through them, we may earn a small commission at no extra cost to you. That's part of how this free site stays online.</p>
+        <p style="color:var(--mute);font-size:13px;margin-top:12px">Some outbound links to tutors and tools (for example Preply) are affiliate links: if you sign up through them, we may earn a small commission at no extra cost to you. There's also the optional <b>Bonjour! Exam Kit</b> — $0.99 printable PDF packs (speaking model answers, writing templates, cheat sheets) sold via Gumroad from the TCF guide and task pages. That's part of how this free site stays online.</p>
       </div>
       <div class="center" style="margin-top:24px">
         <button class="btn big" onclick="App.go('home')">← Home</button>
@@ -503,7 +503,7 @@ window.App = (function () {
         <p>Your progress (lesson completion, SRS schedule, weak-spot mistakes, writing drafts) is stored entirely in your browser's <b>localStorage</b>, prefixed by your chosen username. It never leaves your device. If you clear your browser data, your progress resets — there is no server-side copy. You can download a backup file from your Profile page and restore it on any device.</p>
         <p>The audio MP3s for French pronunciation are served from the same domain (Cloudflare Pages CDN). Standard request logs from the CDN apply per Cloudflare's privacy policy.</p>
         <p>Speaking practice recordings are made locally with your browser's MediaRecorder — the audio stays on your device for you to play back and self-rate. Nothing is uploaded, sent to a speech-recognition service, or stored after you leave the page.</p>
-        <p><b>Outbound links.</b> Some links leave this site — to language tutors or tools (for example Preply) and to a voluntary support page. A few are affiliate links: if you sign up through them we may earn a small commission, at no extra cost to you. Those destination sites track your visit under their own policies. This site itself still adds no tracking, analytics, or ads.</p>
+        <p><b>Outbound links.</b> Some links leave this site — to language tutors or tools (for example Preply), to Gumroad (where the optional $0.99 exam-kit PDFs are sold), and to a voluntary support page. A few are affiliate links: if you sign up through them we may earn a small commission, at no extra cost to you. Those destination sites track your visit and process payments under their own policies. This site itself still adds no tracking, analytics, or ads.</p>
       </div>
       <div class="center" style="margin-top:24px">
         <button class="btn big" onclick="App.go('home')">← Home</button>

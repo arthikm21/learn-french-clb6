@@ -81,5 +81,74 @@ window.Support = (function () {
     return (slot % 3 === 0) ? tipCard() : preplyCard(slot);
   }
 
-  return { PREPLY, COFFEE, preplyCard, tipCard, preplyInline, winNudge };
+  // ---- Exam Kit: first-party $0.99 PDFs sold on Gumroad ----
+  // The webapp stays 100% free; the kit is the printable, offline companion.
+  // Slugs must match the Gumroad product permalinks.
+  const KIT = {
+    speaking: {
+      icon: '🎙️',
+      name: 'TCF Speaking — Complete Answer Pack',
+      what: '10 full Task-3 opinion monologues at the CLB 6 target, 6 ask-the-examiner scenarios (10 questions each), 10 interview answers, and the connector bank — with English glosses.',
+      pages: '16-page PDF',
+      url: 'https://frenchclb6.gumroad.com/l/tcf-speaking-pack',
+    },
+    writing: {
+      icon: '✍️',
+      name: 'TCF Writing — Templates & Model Answers',
+      what: 'Fill-in templates for all 3 tasks, 15 model answers (invitations, stories, compare-two-opinions essays) with grader notes, and the 8-point error checklist.',
+      pages: '10-page PDF',
+      url: 'https://frenchclb6.gumroad.com/l/tcf-writing-pack',
+    },
+    sheets: {
+      icon: '📄',
+      name: 'CLB 6 Cheat Sheet Pack',
+      what: '10 printable one-page references: the 22 connectors, PC vs imparfait, opinion phrases, 12 verbs × 4 tenses, false friends, numbers, and the exam-day plan.',
+      pages: '13-page PDF',
+      url: 'https://frenchclb6.gumroad.com/l/clb6-cheat-sheets',
+    },
+  };
+
+  // One product, one card — for the completion screen that matches it.
+  function kitCard(which) {
+    const p = KIT[which];
+    if (!p) return '';
+    return `
+      <div class="kit-card">
+        <div class="kit-card-head">
+          <span class="kit-card-icon">${p.icon}</span>
+          <div>
+            <p class="eyebrow" style="color:var(--bleu);margin:0 0 2px">Bonjour! Exam Kit · ${p.pages}</p>
+            <h3>${p.name}</h3>
+          </div>
+          <span class="kit-price">$0.99</span>
+        </div>
+        <p>${p.what}</p>
+        <a class="btn primary big" href="${p.url}" target="_blank" rel="noopener">Get the PDF — less than a coffee<span class="arr">→</span></a>
+        <p class="support-fine">Instant download · yours forever · the site itself stays 100% free — the kit is what funds it.</p>
+      </div>`;
+  }
+
+  // All three products in one compact strip — for high-intent prep pages
+  // (TCF guide, mock report).
+  function kitStrip() {
+    return `
+      <div class="kit-strip">
+        <div class="kit-strip-head">
+          <p class="eyebrow" style="color:var(--bleu)">📦 The Bonjour! Exam Kit — printable PDFs, $0.99 each</p>
+          <p>Every lesson here is free, forever. The kit is the paper companion: model answers and cheat sheets to print, annotate, and reread in the exam waiting room.</p>
+        </div>
+        ${Object.entries(KIT).map(([k, p]) => `
+          <a class="kit-item" href="${p.url}" target="_blank" rel="noopener">
+            <span class="kit-card-icon">${p.icon}</span>
+            <span class="kit-item-body">
+              <b>${p.name}</b>
+              <small>${p.pages}</small>
+            </span>
+            <span class="kit-price">$0.99</span>
+          </a>`).join('')}
+        <p class="support-fine">Instant downloads via Gumroad · buying one keeps the audio servers running for everyone.</p>
+      </div>`;
+  }
+
+  return { PREPLY, COFFEE, preplyCard, tipCard, preplyInline, winNudge, kitCard, kitStrip };
 })();
