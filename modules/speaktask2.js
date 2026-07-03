@@ -126,7 +126,7 @@ window.SpeakTask2Module = (function () {
     const text = (typedText || '').trim();
     const lower = text.toLowerCase();
     const sentences = text.split(/[.?!]+/).filter(s => s.trim().length > 0);
-    const words = (text.match(/\b\w+\b/g) || []).length;
+    const words = (text.match(/[\p{L}\p{N}]+/gu) || []).length;
 
     const qPatterns = {
       'est-ce que': /\best[- ]ce qu[e']/i.test(text),

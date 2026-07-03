@@ -228,6 +228,14 @@ window.App = (function () {
   // -------- Home --------
   function renderHome(container) {
     const next = LESSON_PATH.find(n => !state.lessons[doneKey(n)]);
+    // Daily review pressure: SRS cards due (vocab/shadow lines already seen)
+    // + weak spots due. Retention comes from clearing these, so they get a
+    // spotlight the moment any exist.
+    const srsDue = (window.SRS && SRS.dueSummary) ? SRS.dueSummary() : { total: 0, byDeck: {} };
+    const weakDue = (window.MistakesModule && MistakesModule.getDue) ? MistakesModule.getDue().length : 0;
+    const topDueDeck = Object.entries(srsDue.byDeck)
+      .filter(([k]) => window.VOCAB && VOCAB[k])
+      .sort((a, b) => b[1] - a[1])[0];
     const done = Object.keys(state.lessons).length;
     const total = LESSON_PATH.length;
     const pct = Math.round((done / total) * 100);
@@ -282,6 +290,19 @@ window.App = (function () {
         <button class="btn big" onclick="App.${next ? 'continueNext' : 'go(\'mock\')'}()">${next ? 'Continue' : 'Start mock'}<span class="arr">→</span></button>
       </div>
 
+      ${(srsDue.total + weakDue) > 0 ? `
+      <div class="spotlight" style="border:1px solid var(--bleu)">
+        <div>
+          <p class="eyebrow" style="color:var(--bleu)">🔁 Review due today</p>
+          <h2>${srsDue.total > 0 ? `${srsDue.total} card${srsDue.total === 1 ? '' : 's'} ready for review` : `${weakDue} weak spot${weakDue === 1 ? '' : 's'} due`}</h2>
+          <p>Spaced repetition only works if you clear reviews when they come due — 5 minutes now protects everything you've already learned.${srsDue.total > 0 && weakDue > 0 ? ` Plus ${weakDue} weak spot${weakDue === 1 ? '' : 's'} to retry.` : ''}</p>
+        </div>
+        <div class="row" style="gap:var(--sp-2);flex-wrap:wrap">
+          ${srsDue.total > 0 ? `<button class="btn primary big" onclick="App.go('vocab'${topDueDeck ? `, { deck: '${topDueDeck[0]}' }` : ''})">Review now<span class="arr">→</span></button>` : ''}
+          ${weakDue > 0 ? `<button class="btn ${srsDue.total > 0 ? 'ghost' : 'primary'} big" onclick="App.go('mistakes')">Weak spots${srsDue.total > 0 ? '' : '<span class="arr">→</span>'}</button>` : ''}
+        </div>
+      </div>` : ''}
+
       <div class="spotlight" onclick="App.go('scenario')" style="cursor:pointer;border:1px solid var(--accent)">
         <div>
           <p class="eyebrow" style="color:var(--accent)">🇨🇦 Real-life scenarios</p>
@@ -325,7 +346,7 @@ window.App = (function () {
         <div class="card" onclick="App.go('deepdive')"><div class="icon">🎯</div><h3>Deep Dives <span class="tag verb">New</span></h3><p>y vs en, pronoun order, si-clauses, qui/que/dont/où. Visual decision trees for the four CLB 6 traps.</p></div>
         <div class="card" onclick="App.go('listen')"><div class="icon">🎧</div><h3>Listening Lab</h3><p>15 dictation sets at slow, normal, and natural speed.</p></div>
         <div class="card" onclick="App.go('dialogue')"><div class="icon">💬</div><h3>Dialogues</h3><p>8 multi-speaker conversations with comprehension questions.</p></div>
-        <div class="card" onclick="App.go('speak')"><div class="icon">🎙️</div><h3>Speaking Mirror</h3><p>Repeat the sentence with word-by-word pronunciation diff.</p></div>
+        <div class="card" onclick="App.go('speak')"><div class="icon">🎙️</div><h3>Speaking Shadow</h3><p>Hear native audio, repeat it aloud, self-rate. Hard lines come back via SRS.</p></div>
         <div class="card" onclick="App.go('speaktasks')"><div class="icon">🎤</div><h3>Speaking Practice</h3><p>Record yourself, listen back, self-rate. Picture description, Q&amp;A, role-play.</p></div>
         <div class="card" onclick="App.go('writetask3')"><div class="icon">✍️</div><h3>Writing Task 3 <span class="tag verb">TCF</span></h3><p>Compare 2 opinions and give your own view. The hardest TCF EE task.</p></div>
         <div class="card" onclick="App.go('speaktask2')"><div class="icon">❓</div><h3>Speaking Task 2 <span class="tag verb">TCF</span></h3><p>Ask the examiner questions to gather info. Unique to TCF Canada.</p></div>
@@ -347,7 +368,7 @@ window.App = (function () {
         </div>
         <div class="card" style="cursor:default">
           <h3>Speaking</h3>
-          <p>Speaking Mirror with word-level pronunciation diff. Plus open-ended TCF tasks.</p>
+          <p>Shadowing drills with native audio and self-rating. Plus open-ended TCF tasks recorded on-device.</p>
         </div>
         <div class="card" style="cursor:default">
           <h3>Reading</h3>
@@ -479,9 +500,9 @@ window.App = (function () {
       <div class="grammar-box">
         <h3>No accounts. No tracking. No analytics.</h3>
         <p>This site does not require an account, email, or password. The "username" you pick is stored in your browser only — it never reaches any server.</p>
-        <p>Your progress (lesson completion, SRS schedule, weak-spot mistakes, writing drafts) is stored entirely in your browser's <b>localStorage</b>, prefixed by your chosen username. It never leaves your device. If you clear your browser data, your progress resets — there is no backup, because there is no server.</p>
-        <p>The audio MP3s for French pronunciation are served from the same domain (Vercel CDN). Standard request logs from the CDN apply per Vercel's privacy policy.</p>
-        <p>Speech recognition for the Speaking module runs in your browser via the Web Speech API. Your microphone audio is processed by your browser's recognition service — usually Google's on Chrome/Edge, Apple's on Safari. We never see or store it.</p>
+        <p>Your progress (lesson completion, SRS schedule, weak-spot mistakes, writing drafts) is stored entirely in your browser's <b>localStorage</b>, prefixed by your chosen username. It never leaves your device. If you clear your browser data, your progress resets — there is no server-side copy. You can download a backup file from your Profile page and restore it on any device.</p>
+        <p>The audio MP3s for French pronunciation are served from the same domain (Cloudflare Pages CDN). Standard request logs from the CDN apply per Cloudflare's privacy policy.</p>
+        <p>Speaking practice recordings are made locally with your browser's MediaRecorder — the audio stays on your device for you to play back and self-rate. Nothing is uploaded, sent to a speech-recognition service, or stored after you leave the page.</p>
         <p><b>Outbound links.</b> Some links leave this site — to language tutors or tools (for example Preply) and to a voluntary support page. A few are affiliate links: if you sign up through them we may earn a small commission, at no extra cost to you. Those destination sites track your visit under their own policies. This site itself still adds no tracking, analytics, or ads.</p>
       </div>
       <div class="center" style="margin-top:24px">

@@ -56,7 +56,7 @@ window.WriteModule = (function () {
     const ta = container.querySelector('#essay');
     const wc = container.querySelector('#wc');
     const updateWC = () => {
-      const n = (ta.value.match(/\b\w+\b/g) || []).length;
+      const n = (ta.value.match(/[\p{L}\p{N}]+/gu) || []).length;
       wc.textContent = `${n} word${n === 1 ? '' : 's'}`;
       window.Storage.setItem(draftKey, ta.value);
     };
@@ -70,7 +70,7 @@ window.WriteModule = (function () {
   }
 
   function grade(container, task, key, txt) {
-    const wordCount = (txt.match(/\b\w+\b/g) || []).length;
+    const wordCount = (txt.match(/[\p{L}\p{N}]+/gu) || []).length;
     const sentences = txt.split(/[.!?]+/).filter(s => s.trim().length > 0);
     const minWords = task.minWords || 30;
 

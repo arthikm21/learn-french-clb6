@@ -30,17 +30,14 @@ window.MockModule = (function () {
       <div class="grammar-box">
         <h3>📋 What to expect</h3>
         <ol style="margin-left:20px;line-height:1.9">
-          <li><b>🎧 Listening</b> — 25 min. 3 dialogues, multi-choice questions.</li>
-          <li><b>📖 Reading</b> — 25 min. 3 texts (CLB 4 to CLB 6), comprehension questions.</li>
-          <li><b>✍️ Writing</b> — 25 min. Formal email task, ~100 words.</li>
-          <li><b>🎙️ Speaking</b> — 15 min. Picture description + role-play.</li>
+          ${MOCK_TEST.sections.map(s => `<li><b>${s.icon} ${s.title}</b> — ${Math.round(s.duration / 60)} min. ${s.desc}</li>`).join('')}
         </ol>
-        <p style="margin-top:10px"><b>Total: ~90 minutes.</b> Don't pause mid-section — simulate exam conditions. You can quit any time but progress within a section is lost.</p>
+        <p style="margin-top:10px"><b>Total: ${formatTotal()}.</b> Don't pause mid-section — simulate exam conditions. You can quit any time but progress within a section is lost.</p>
       </div>
       <div class="grammar-box" style="border-left-color:var(--warn)">
         <h3>⚠️ Before you start</h3>
         <ul style="margin-left:20px;line-height:var(--lh-loose);color:var(--ink-2)">
-          <li>Find a quiet 90-minute window.</li>
+          <li>Find a quiet ${formatTotal()} window.</li>
           <li>Have water + paper for notes.</li>
           <li>Use headphones for listening if possible.</li>
           <li>Allow microphone access when prompted (Speaking).</li>
@@ -51,7 +48,7 @@ window.MockModule = (function () {
         <button class="btn ghost big" onclick="App.go('home')">Maybe later</button>
       </div>`;
     container.querySelector('#start-mock').onclick = () => {
-      if (!confirm('Begin the CLB 6 Mock Test? Allow ~90 minutes.')) return;
+      if (!confirm(`Begin the CLB 6 Mock Test? Allow ${formatTotal().replace('~', '~ ')}.`)) return;
       startSession();
       App.go('mock');
     };
@@ -135,6 +132,14 @@ window.MockModule = (function () {
     const m = Math.floor(s / 60);
     const r = s % 60;
     return `${m}:${String(r).padStart(2, '0')}`;
+  }
+
+  // Total exam time from the section data, e.g. "~2h55" — keeps the intro
+  // honest if section durations change.
+  function formatTotal() {
+    const mins = MOCK_TEST.sections.reduce((s, sec) => s + Math.round(sec.duration / 60), 0);
+    const h = Math.floor(mins / 60), m = mins % 60;
+    return h ? `~${h}h${m ? String(m).padStart(2, '0') : ''}` : `~${m} min`;
   }
 
   // ---------- Listening section (TCF mode: single-play, no transcript) ----------
@@ -320,12 +325,12 @@ window.MockModule = (function () {
         const ta = body.querySelector('#mock-essay');
         const wc = body.querySelector('#mock-wc');
         ta.addEventListener('input', () => {
-          const n = (ta.value.match(/\b\w+\b/g) || []).length;
+          const n = (ta.value.match(/[\p{L}\p{N}]+/gu) || []).length;
           wc.textContent = `${n} words`;
         });
         body.querySelector('#next-wtask').onclick = () => {
           const txt = ta.value;
-          const wordCount = (txt.match(/\b\w+\b/g) || []).length;
+          const wordCount = (txt.match(/[\p{L}\p{N}]+/gu) || []).length;
           const errs = (window.GrammarCheck ? GrammarCheck.check(txt) : []);
           const rubric = (w.checks || []).filter(c => {
             const m = txt.match(c.pattern);
@@ -356,12 +361,12 @@ window.MockModule = (function () {
         const ta = body.querySelector('#mock-essay-t3');
         const wc = body.querySelector('#mock-wc-t3');
         ta.addEventListener('input', () => {
-          const n = (ta.value.match(/\b\w+\b/g) || []).length;
+          const n = (ta.value.match(/[\p{L}\p{N}]+/gu) || []).length;
           wc.textContent = `${n} words`;
         });
         body.querySelector('#next-wtask').onclick = () => {
           const txt = ta.value;
-          const wordCount = (txt.match(/\b\w+\b/g) || []).length;
+          const wordCount = (txt.match(/[\p{L}\p{N}]+/gu) || []).length;
           const errs = (window.GrammarCheck ? GrammarCheck.check(txt) : []);
           // Task 3 rubric checks
           const lower = txt.toLowerCase();
@@ -527,7 +532,7 @@ window.MockModule = (function () {
       collect: () => {
         let totalWords = 0, totalTarget = 0;
         for (const r of results) {
-          totalWords += (r.transcript.match(/\b\w+\b/g) || []).length;
+          totalWords += (r.transcript.match(/[\p{L}\p{N}]+/gu) || []).length;
           totalTarget += r.targetWords;
         }
         const pct = totalTarget ? Math.min(100, Math.round(totalWords / totalTarget * 100)) : 0;
@@ -614,7 +619,9 @@ window.MockModule = (function () {
     const completed = scored.filter(s => !s.missing);
     const minClb = completed.length === 4
       ? completed.reduce((min, s) => {
-          const n = parseInt(s.clb, 10);
+          // '<4' must drag the overall band down, not be skipped — otherwise a
+          // failing skill could still report an overall CLB 6 pass.
+          const n = s.clb === '<4' ? 3 : parseInt(s.clb, 10);
           if (isNaN(n)) return min;
           return Math.min(min, n);
         }, 10)

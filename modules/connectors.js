@@ -102,7 +102,7 @@ window.ConnectorsModule = (function () {
         }
         const lower = userResponse.toLowerCase();
         const usedConnector = lower.includes(d.target.toLowerCase());
-        const wordCount = (userResponse.match(/\b\w+\b/g) || []).length;
+        const wordCount = (userResponse.match(/[\p{L}\p{N}]+/gu) || []).length;
         const longEnough = wordCount >= 6;
         const pass = usedConnector && longEnough;
         if (pass) {

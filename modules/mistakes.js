@@ -13,8 +13,9 @@ window.MistakesModule = (function () {
     item.level = 0;       // spaced-rep level (graduates at 4)
     item.due = Date.now();
     item.correctStreak = 0;
-    const sevenDays = 7 * 24 * 60 * 60 * 1000;
-    const idx = m.findIndex(x => x.sig === item.sig && (Date.now() - x.when) < sevenDays);
+    // Match on sig alone — matching only within a time window let the same
+    // mistake exist twice (promote() then only ever updated the first copy).
+    const idx = m.findIndex(x => x.sig === item.sig);
     if (idx >= 0) {
       // Reset level when same mistake recurs
       item.level = 0;

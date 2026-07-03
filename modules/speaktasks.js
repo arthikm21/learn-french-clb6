@@ -291,7 +291,7 @@ window.SpeakTasksModule = (function () {
     const rubricScore = Math.round((rubricHits.length / rubricMax) * 100);
 
     const text = (typedText || '').trim();
-    const words = (text.match(/\b\w+\b/g) || []).length;
+    const words = (text.match(/[\p{L}\p{N}]+/gu) || []).length;
     const lower = text.toLowerCase();
     const keywordsHit = (t.keywords || []).filter(kw => lower.includes(kw.toLowerCase()));
     const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 0).length;
@@ -444,7 +444,7 @@ window.SpeakTasksModule = (function () {
       }
       const t2 = (a.typedText || '').trim();
       if (t2) {
-        typedWords += (t2.match(/\b\w+\b/g) || []).length;
+        typedWords += (t2.match(/[\p{L}\p{N}]+/gu) || []).length;
         typedTarget += a.minWords;
       }
     });
@@ -578,7 +578,7 @@ window.SpeakTasksModule = (function () {
       }
       const t2 = (a.typedText || '').trim();
       if (t2) {
-        typedWords += (t2.match(/\b\w+\b/g) || []).length;
+        typedWords += (t2.match(/[\p{L}\p{N}]+/gu) || []).length;
         typedTarget += a.minWords;
       }
     });

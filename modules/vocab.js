@@ -11,14 +11,16 @@ window.VocabModule = (function () {
       </section>
       <div class="grid" id="deck-grid"></div>`;
     const grid = container.querySelector('#deck-grid');
+    const dueByDeck = (SRS.dueSummary ? SRS.dueSummary().byDeck : {});
     for (const key of Object.keys(VOCAB)) {
       const d = VOCAB[key];
       const p = SRS.progress(key, d.cards);
+      const due = dueByDeck[key] || 0;
       const card = document.createElement('div');
       card.className = 'card';
       card.innerHTML = `
         <div class="icon">${d.icon}</div>
-        <h3>${d.name}</h3>
+        <h3>${d.name} ${due > 0 ? `<span class="tag" style="background:rgba(0,85,164,.12);color:var(--bleu)">${due} due</span>` : ''}</h3>
         <p>${d.cards.length} cards · ${p.learned}/${p.total} learned</p>
         <div class="meter"><div style="width:${p.pct}%"></div></div>`;
       card.onclick = () => App.go('vocab', { deck: key });

@@ -95,7 +95,7 @@ window.PhaseGateModule = (function () {
         </section>
         <div class="grammar-box">
           <h3>What this is</h3>
-          <p>This is the full TCF Canada Mock Test. 4 skills, ~90 minutes, real exam structure. You get a CLB band per skill.</p>
+          <p>This is the full TCF Canada Mock Test. 4 skills, ~3 hours at real TCF section timings, real exam structure. You get a CLB band per skill.</p>
           <p style="margin-top:var(--sp-2)"><b>Pass criterion:</b> CLB 6 or higher across all 4 skills.</p>
         </div>
         <div class="row" style="justify-content:center;margin-top:var(--sp-7);gap:var(--sp-3)">

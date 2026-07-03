@@ -17,6 +17,11 @@
 /*.js
   Cache-Control: public, max-age=300, stale-while-revalidate=86400
 
+# Service worker: must revalidate on every check so a new release's worker
+# (and its fresh shell cache) activates without waiting out a TTL.
+/sw.js
+  Cache-Control: no-cache
+
 /*.css
   Cache-Control: public, max-age=300, stale-while-revalidate=86400
 
@@ -38,3 +43,6 @@
 /*
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: DENY
+  Permissions-Policy: camera=(), geolocation=(), payment=(), usb=(), microphone=(self)
+  Content-Security-Policy: frame-ancestors 'none'; base-uri 'self'; object-src 'none'; form-action 'self'

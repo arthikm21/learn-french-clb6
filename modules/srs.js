@@ -1,24 +1,32 @@
 // Simple SM-2 spaced repetition. Persists per-card state in localStorage.
 window.SRS = (function () {
   let cache = null;
+  let cacheUser = null; // whose data the cache holds — profiles switch without a page reload
   let saveTimer = null;
   function load() {
-    if (cache) return cache;
+    // Profile switched since we cached? Drop the old user's data instead of
+    // serving it (or worse, saving it) under the new user's namespace.
+    const u = window.Storage.getCurrentUser();
+    if (cache && u === cacheUser) return cache;
+    if (saveTimer) { clearTimeout(saveTimer); saveTimer = null; }
+    cacheUser = u;
     try { cache = JSON.parse(window.Storage.getItem('srs')) || {}; } catch { cache = {}; }
     return cache;
   }
   function save(s) {
     cache = s;
+    cacheUser = window.Storage.getCurrentUser();
     if (saveTimer) clearTimeout(saveTimer);
     saveTimer = setTimeout(() => {
-      window.Storage.setItem('srs', JSON.stringify(s));
       saveTimer = null;
+      if (window.Storage.getCurrentUser() !== cacheUser) return; // profile switched mid-debounce
+      window.Storage.setItem('srs', JSON.stringify(s));
     }, 200);
   }
   // Flush pending write on tab close / hide (mobile back-swipe).
   if (typeof window !== 'undefined') {
     const flush = () => {
-      if (saveTimer && cache) {
+      if (saveTimer && cache && window.Storage.getCurrentUser() === cacheUser) {
         clearTimeout(saveTimer);
         window.Storage.setItem('srs', JSON.stringify(cache));
         saveTimer = null;
@@ -76,5 +84,22 @@ window.SRS = (function () {
     return { learned, total: cards.length, pct: Math.round((learned / cards.length) * 100) };
   }
 
-  return { review, getCard, dueCards, progress };
+  // Reviews due right now across every deck — only cards the learner has
+  // actually seen (unseen cards are "new", not "due"). Powers the home-page
+  // daily-review nudge.
+  function dueSummary() {
+    const s = load();
+    const now = Date.now();
+    const byDeck = {};
+    let total = 0;
+    for (const [id, rec] of Object.entries(s)) {
+      if (!rec || !(rec.due <= now)) continue;
+      const deck = id.slice(0, id.indexOf(':'));
+      byDeck[deck] = (byDeck[deck] || 0) + 1;
+      total++;
+    }
+    return { total, byDeck };
+  }
+
+  return { review, getCard, dueCards, progress, dueSummary };
 })();

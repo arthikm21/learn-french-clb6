@@ -84,7 +84,7 @@ window.WriteTask3Module = (function () {
     const ta = container.querySelector('#wt3-essay');
     const wc = container.querySelector('#wt3-wc');
     const updateWC = () => {
-      const n = (ta.value.match(/\b\w+\b/g) || []).length;
+      const n = (ta.value.match(/[\p{L}\p{N}]+/gu) || []).length;
       wc.textContent = `${n} word${n === 1 ? '' : 's'}`;
       window.Storage.setItem(draftKey, ta.value);
     };
@@ -97,7 +97,7 @@ window.WriteTask3Module = (function () {
   }
 
   function grade(container, t, id, txt) {
-    const words = (txt.match(/\b\w+\b/g) || []).length;
+    const words = (txt.match(/[\p{L}\p{N}]+/gu) || []).length;
     const sentences = txt.split(/[.!?]+/).filter(s => s.trim().length > 0).length;
     const lower = txt.toLowerCase();
 

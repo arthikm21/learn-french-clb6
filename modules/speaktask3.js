@@ -140,7 +140,7 @@ window.SpeakTask3Module = (function () {
   function grade(container, t, id, rubricHits, typedText) {
     const text = (typedText || '').trim();
     const lower = text.toLowerCase();
-    const words = (text.match(/\b\w+\b/g) || []).length;
+    const words = (text.match(/[\p{L}\p{N}]+/gu) || []).length;
 
     const hitCount = (arr) => arr.filter(kw => lower.includes(kw)).length;
     const positionHits = hitCount(t.keywords.position);

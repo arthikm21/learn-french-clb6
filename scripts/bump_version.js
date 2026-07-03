@@ -15,3 +15,11 @@ html = html.replace(
 );
 fs.writeFileSync(file, html);
 console.log(`Stamped ${count} URLs with ?v=${stamp}`);
+
+// Keep the service worker in lockstep: its VERSION names the shell cache, so
+// bumping it here makes every deploy drop the previous release's cached shell.
+const swFile = path.join(__dirname, '..', 'sw.js');
+let sw = fs.readFileSync(swFile, 'utf8');
+sw = sw.replace(/const VERSION = '[^']*';/, `const VERSION = '${stamp}';`);
+fs.writeFileSync(swFile, sw);
+console.log(`Stamped sw.js VERSION = ${stamp}`);

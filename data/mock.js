@@ -1,7 +1,7 @@
 // TCF Canada Mock Test — full exam simulation with single-play listening.
 window.MOCK_TEST = {
   title: 'TCF Canada Mock Test',
-  subtitle: 'Approx. 2h45 · 4 skills · TCF score (0-699) + CLB band at the end',
+  subtitle: 'Approx. 2h55 · 4 skills · TCF score (0-699) + CLB band at the end',
   sections: [
     {
       id: 'listen',

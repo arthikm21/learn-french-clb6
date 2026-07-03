@@ -17,6 +17,14 @@ window.ProgressModule = (function () {
     }[c]));
   }
 
+  // Local-time day key (YYYY-MM-DD). NOT toISOString(), which is UTC — that
+  // would file an evening study session in Canada under the next day, breaking
+  // streaks and the heatmap.
+  function dayKey(d) {
+    const p = n => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+  }
+
   // ---------- Skill rings ----------
   // Only L/S/R/W get rings — Foundation items (phonics, grammar, vocab, games)
   // unlock the four CLB skills but are not graded directly.
@@ -59,7 +67,7 @@ window.ProgressModule = (function () {
     const buckets = new Map();
     for (const ts of log) {
       const d = new Date(ts);
-      const key = d.toISOString().slice(0, 10);
+      const key = dayKey(d);
       buckets.set(key, (buckets.get(key) || 0) + 1);
     }
     const today = new Date();
@@ -70,7 +78,7 @@ window.ProgressModule = (function () {
     for (let i = days - 1; i >= 0; i--) {
       const d = new Date(today);
       d.setDate(d.getDate() - i);
-      const key = d.toISOString().slice(0, 10);
+      const key = dayKey(d);
       const n = buckets.get(key) || 0;
       const level = n === 0 ? 0 : n < 2 ? 1 : n < 4 ? 2 : n < 6 ? 3 : 4;
       const colors = [
@@ -102,22 +110,22 @@ window.ProgressModule = (function () {
   function streakInfo() {
     const log = loadLog();
     if (log.length === 0) return { current: 0, longest: 0, daysActive: 0 };
-    const days = new Set(log.map(ts => new Date(ts).toISOString().slice(0, 10)));
+    const days = new Set(log.map(ts => dayKey(new Date(ts))));
 
     const today = new Date(); today.setHours(0,0,0,0);
     let cur = 0;
     let d = new Date(today);
     while (true) {
-      const key = d.toISOString().slice(0, 10);
+      const key = dayKey(d);
       if (days.has(key)) { cur++; d.setDate(d.getDate() - 1); }
       else break;
     }
     // Allow yesterday-only streak if today not yet logged
     if (cur === 0) {
       const y = new Date(today); y.setDate(y.getDate() - 1);
-      if (days.has(y.toISOString().slice(0, 10))) {
+      if (days.has(dayKey(y))) {
         let dd = new Date(y); let n = 0;
-        while (days.has(dd.toISOString().slice(0, 10))) { n++; dd.setDate(dd.getDate() - 1); }
+        while (days.has(dayKey(dd))) { n++; dd.setDate(dd.getDate() - 1); }
         cur = n;
       }
     }
@@ -128,7 +136,7 @@ window.ProgressModule = (function () {
     for (const k of sorted) {
       if (prev) {
         const p = new Date(prev); p.setDate(p.getDate() + 1);
-        if (p.toISOString().slice(0, 10) === k) run++; else run = 1;
+        if (dayKey(p) === k) run++; else run = 1;
       } else run = 1;
       if (run > longest) longest = run;
       prev = k;
@@ -171,7 +179,7 @@ window.ProgressModule = (function () {
     const log = loadLog();
     const totalDone = Object.keys((App.state || {}).lessons || {}).filter(k => !k.startsWith('gate:')).length;
     if (totalDone === 0) return 'Start your first lesson to see your projected ETA.';
-    const days = new Set(log.map(ts => new Date(ts).toISOString().slice(0, 10))).size || 1;
+    const days = new Set(log.map(ts => dayKey(new Date(ts)))).size || 1;
     const perDay = totalDone / days;
     const remaining = LESSON_PATH.length - totalDone;
     if (perDay <= 0 || remaining <= 0) {
