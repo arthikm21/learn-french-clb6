@@ -157,7 +157,7 @@ body.dark {
   --rouge:   #FF6961;
   --accent:  #7D7AFF;
 
-  --bg:        #000000;
+  --bg:        #07070B; /* deep neutral, not pure black — glass needs a floor */
   --surface:   #1C1C1E;
   --surface-2: #2C2C2E;
   --surface-3: #3A3A3C;
@@ -2549,10 +2549,11 @@ body.dark .reading-text .r-sent.active { background: rgba(255, 159, 10, .5); }
   --r-2xl: 30px;
 }
 body.dark {
-  --glass-bg:        rgba(48, 48, 60, .44);
-  --glass-bg-hover:  rgba(64, 64, 78, .56);
-  --glass-chrome:    rgba(36, 36, 46, .48);
-  --glass-chrome-strong: rgba(44, 44, 56, .66);
+  /* Neutral charcoal glass — no blue cast; hue comes from the ambience */
+  --glass-bg:        rgba(40, 40, 48, .52);
+  --glass-bg-hover:  rgba(56, 56, 66, .62);
+  --glass-chrome:    rgba(26, 26, 32, .50);
+  --glass-chrome-strong: rgba(36, 36, 44, .68);
   --glass-line:      rgba(255, 255, 255, .10);
   --glass-edge:      inset 0 1px 0 rgba(255, 255, 255, .13);
   --glass-edge-soft: inset 0 1px 0 rgba(255, 255, 255, .09);
@@ -2577,11 +2578,12 @@ body::before {
     radial-gradient(44vw 44vw at 70% 56%, rgba(124, 58, 237, .10), transparent 66%);
 }
 body.dark::before {
+  /* One hue family (indigo→blue), cinematic and quiet; rouge only whispers. */
   background:
-    radial-gradient(64vw 64vw at 12% 0%,  rgba(125, 122, 255, .38), transparent 64%),
-    radial-gradient(70vw 70vw at 92% 18%, rgba(90, 160, 224, .26),  transparent 66%),
-    radial-gradient(64vw 64vw at 50% 104%, rgba(255, 105, 97, .22),  transparent 62%),
-    radial-gradient(46vw 46vw at 70% 58%, rgba(124, 58, 237, .20), transparent 66%);
+    radial-gradient(64vw 64vw at 12% 0%,  rgba(99, 102, 241, .26), transparent 64%),
+    radial-gradient(70vw 70vw at 92% 18%, rgba(10, 132, 255, .14),  transparent 66%),
+    radial-gradient(64vw 64vw at 50% 104%, rgba(255, 96, 86, .08),  transparent 62%),
+    radial-gradient(46vw 46vw at 70% 58%, rgba(122, 118, 255, .12), transparent 66%);
 }
 /* Slow liquid drift — full tier only, transform-only (composited) */
 body[data-anim="full"]::before {
@@ -2966,10 +2968,11 @@ body::after {
     radial-gradient(24vw 24vw at 94% 90%, rgba(124, 58, 237, .11), transparent 60%);
 }
 body.dark::after {
+  /* No amber in the dark — cool accents only, kept faint */
   background:
-    radial-gradient(32vw 32vw at 80% 6%,  rgba(255, 159, 10, .12), transparent 62%),
-    radial-gradient(28vw 28vw at 6% 78%,  rgba(10, 132, 255, .15), transparent 60%),
-    radial-gradient(24vw 24vw at 94% 90%, rgba(160, 110, 255, .16), transparent 60%);
+    radial-gradient(32vw 32vw at 80% 6%,  rgba(100, 210, 255, .07), transparent 62%),
+    radial-gradient(28vw 28vw at 6% 78%,  rgba(10, 132, 255, .10), transparent 60%),
+    radial-gradient(24vw 24vw at 94% 90%, rgba(140, 130, 255, .11), transparent 60%);
 }
 body[data-anim="full"]::after {
   animation: ambient-drift-2 34s var(--ease-in-out) infinite alternate;
@@ -2989,7 +2992,8 @@ body[data-anim="full"]::after {
     color: transparent;
   }
   body.dark .hero h1 {
-    background: linear-gradient(94deg, #FFFFFF 0%, #A9C4FF 42%, #B3B0FF 68%, #FFB4AE 100%);
+    /* Single hue family — white falling into indigo, no third color */
+    background: linear-gradient(94deg, #FFFFFF 0%, #DCE2FF 48%, #A9AFFF 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -3125,58 +3129,64 @@ body[data-anim="full"] .btn:active { transform: scale(.96); }
    app.js renderActive, full anim tier only).
    ========================================================================= */
 
-/* ── Accent-driven components (replaces the hardcoded indigo of V1/V2) ─── */
-:root { --ring: 0 0 0 4px color-mix(in srgb, var(--accent) 28%, transparent); }
-body.dark { --ring: 0 0 0 4px color-mix(in srgb, var(--accent) 38%, transparent); }
+/* ── Accent-driven components (replaces the hardcoded indigo of V1/V2) ───
+   Two accent tokens, two jobs:
+     --accent      text, icons, glows — bright in dark mode for legibility
+     --accent-fill filled surfaces (buttons, pills) — deep jewel tones in
+                   dark mode so white labels keep contrast; equals --accent
+                   in light mode. */
+:root { --accent-fill: var(--accent); --ring: 0 0 0 4px color-mix(in srgb, var(--accent) 28%, transparent); }
+body.dark { --accent-fill: #5A58D6; --ring: 0 0 0 4px color-mix(in srgb, var(--accent) 38%, transparent); }
 
 .btn.primary, body.dark .btn.primary {
   background: linear-gradient(180deg,
-    color-mix(in srgb, var(--accent) 82%, #fff),
-    var(--accent) 50%,
-    color-mix(in srgb, var(--accent) 82%, #000));
+    color-mix(in srgb, var(--accent-fill) 82%, #fff),
+    var(--accent-fill) 50%,
+    color-mix(in srgb, var(--accent-fill) 82%, #000));
   color: #fff;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35),
               inset 0 0 0 1px rgba(255, 255, 255, .06),
-              0 2px 10px color-mix(in srgb, var(--accent) 40%, transparent);
+              0 2px 10px color-mix(in srgb, var(--accent-fill) 40%, transparent);
 }
 .btn.primary:hover, body.dark .btn.primary:hover {
   background: linear-gradient(180deg,
-    color-mix(in srgb, var(--accent) 70%, #fff),
-    color-mix(in srgb, var(--accent) 92%, #fff) 50%,
-    color-mix(in srgb, var(--accent) 88%, #000));
+    color-mix(in srgb, var(--accent-fill) 70%, #fff),
+    color-mix(in srgb, var(--accent-fill) 92%, #fff) 50%,
+    color-mix(in srgb, var(--accent-fill) 88%, #000));
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35),
-              0 4px 16px color-mix(in srgb, var(--accent) 50%, transparent);
+              0 4px 16px color-mix(in srgb, var(--accent-fill) 50%, transparent);
 }
 .btn.primary:active, body.dark .btn.primary:active {
-  box-shadow: inset 0 2px 8px color-mix(in srgb, var(--accent) 45%, #000);
+  box-shadow: inset 0 2px 8px color-mix(in srgb, var(--accent-fill) 45%, #000);
 }
 
 .nav a.active, body.dark .nav a.active {
   background: linear-gradient(180deg,
-    color-mix(in srgb, var(--accent) 80%, #fff),
-    var(--accent) 55%,
-    color-mix(in srgb, var(--accent) 84%, #000));
+    color-mix(in srgb, var(--accent-fill) 80%, #fff),
+    var(--accent-fill) 55%,
+    color-mix(in srgb, var(--accent-fill) 84%, #000));
   color: #fff;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, .32),
-              0 2px 10px color-mix(in srgb, var(--accent) 40%, transparent);
+              0 2px 10px color-mix(in srgb, var(--accent-fill) 40%, transparent);
 }
 
 .mic-btn {
   background: linear-gradient(180deg,
-    color-mix(in srgb, var(--accent) 82%, #fff),
-    var(--accent) 50%,
-    color-mix(in srgb, var(--accent) 82%, #000));
+    color-mix(in srgb, var(--accent-fill) 82%, #fff),
+    var(--accent-fill) 50%,
+    color-mix(in srgb, var(--accent-fill) 82%, #000));
   box-shadow: inset 0 2px 0 rgba(255, 255, 255, .35),
               inset 0 0 0 1px rgba(255, 255, 255, .08),
-              0 8px 24px color-mix(in srgb, var(--accent) 45%, transparent);
+              0 8px 24px color-mix(in srgb, var(--accent-fill) 45%, transparent);
 }
 
 .path-node.unlocked .num {
   background: linear-gradient(180deg,
-    color-mix(in srgb, var(--accent) 80%, #fff),
-    var(--accent) 60%);
+    color-mix(in srgb, var(--accent-fill) 80%, #fff),
+    var(--accent-fill) 60%);
+  color: #fff;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35),
-              0 2px 8px color-mix(in srgb, var(--accent) 40%, transparent);
+              0 2px 8px color-mix(in srgb, var(--accent-fill) 40%, transparent);
 }
 .option:hover {
   box-shadow: var(--glass-edge-soft), 0 4px 16px color-mix(in srgb, var(--accent) 16%, transparent);
@@ -3194,7 +3204,7 @@ body[data-route="dialogue"], body[data-route="phonics"] {
 }
 body.dark[data-route="listen"], body.dark[data-route="listenmastery"],
 body.dark[data-route="dialogue"], body.dark[data-route="phonics"] {
-  --accent: #64B5FF;
+  --accent: #6FB6FF; --accent-fill: #0E6FD8;
 }
 /* Speaking = purple */
 body[data-route="speak"], body[data-route="speaktasks"],
@@ -3203,24 +3213,24 @@ body[data-route="scenario"], body[data-route="connectormastery"] {
 }
 body.dark[data-route="speak"], body.dark[data-route="speaktasks"],
 body.dark[data-route="scenario"], body.dark[data-route="connectormastery"] {
-  --accent: #BF5AF2;
+  --accent: #CD7DF5; --accent-fill: #8636BC;
 }
 /* Reading = green */
 body[data-route="read"] { --accent: #1E8E3E; --accent-2: #17702F; }
-body.dark[data-route="read"] { --accent: #30D158; }
+body.dark[data-route="read"] { --accent: #43C46B; --accent-fill: #128A40; }
 /* Writing = amber */
 body[data-route="write"], body[data-route="writetask3"] {
   --accent: #B25000; --accent-2: #8F4000;
 }
 body.dark[data-route="write"], body.dark[data-route="writetask3"] {
-  --accent: #FF9F0A;
+  --accent: #F5A623; --accent-fill: #A85800;
 }
 /* Vocab = teal */
 body[data-route="vocab"] { --accent: #00757C; --accent-2: #005A60; }
-body.dark[data-route="vocab"] { --accent: #45C4CF; }
+body.dark[data-route="vocab"] { --accent: #4DCFD9; --accent-fill: #0A7580; }
 /* Games = pink */
 body[data-route="games"] { --accent: #C7366F; --accent-2: #A02857; }
-body.dark[data-route="games"] { --accent: #FF6482; }
+body.dark[data-route="games"] { --accent: #FF7DA0; --accent-fill: #C2255C; }
 /* Exam pressure = rouge */
 body[data-route="mock"], body[data-route="gate"],
 body[data-route="diagnostic"], body[data-route="mistakes"] {
@@ -3228,18 +3238,8 @@ body[data-route="diagnostic"], body[data-route="mistakes"] {
 }
 body.dark[data-route="mock"], body.dark[data-route="gate"],
 body.dark[data-route="diagnostic"], body.dark[data-route="mistakes"] {
-  --accent: #FF6961;
+  --accent: #FF7A72; --accent-fill: #D02F35;
 }
-/* Dark mode: accents are bright pastels — white text fails contrast on them,
-   so accent-filled controls flip to near-black text (Apple dark-HIG pattern). */
-body.dark .btn.primary, body.dark .btn.primary:hover,
-body.dark .nav a.active,
-body.dark .mic-btn,
-body.dark .path-node.unlocked .num,
-body.dark .path-node.done .num {
-  color: #08080C;
-}
-
 /* Accent shifts glide instead of snapping */
 body { transition: background var(--t-base) var(--ease-in-out), color var(--t-base) var(--ease-in-out); }
 .btn.primary, .nav a.active, .mic-btn, .path-node.unlocked .num {
