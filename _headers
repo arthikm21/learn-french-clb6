@@ -18,8 +18,10 @@
   Cache-Control: public, max-age=300, stale-while-revalidate=86400
 
 # Service worker: must revalidate on every check so a new release's worker
-# (and its fresh shell cache) activates without waiting out a TTL.
+# (and its fresh shell cache) activates without waiting out a TTL. The `!`
+# detaches the /*.js rule's value so only no-cache is sent.
 /sw.js
+  ! Cache-Control
   Cache-Control: no-cache
 
 /*.css
