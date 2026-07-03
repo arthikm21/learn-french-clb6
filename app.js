@@ -139,9 +139,24 @@ window.App = (function () {
     }
     showNav();
     const { route, params } = parseHash();
+    // Per-route styling hook: styles.css re-tints --accent by section
+    // (listen=blue, read=green, write=amber, mock=rouge, …).
+    document.body.dataset.route = route;
     container.scrollTop = 0;
     window.scrollTo(0, 0);
     const fn = routes[route] || routes.home;
+    const paint = () => paintRoute(fn, route, params, container);
+    // Native page transition (crossfade + slide, defined in styles.css) when
+    // the browser supports it and animations are at full tier. The DOM update
+    // itself is identical either way.
+    if (document.startViewTransition && document.body.dataset.anim === 'full') {
+      document.startViewTransition(paint);
+    } else {
+      paint();
+    }
+  }
+
+  function paintRoute(fn, route, params, container) {
     // Guard against module errors: a thrown render would otherwise leave the
     // PREVIOUS page's HTML on screen (silent regression). Surface the error
     // visibly + log it so users can recover and we can fix it.
