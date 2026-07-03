@@ -360,6 +360,7 @@ window.ConnectorMasteryModule = (function () {
             <h2>Drill done</h2>
             <p>Score: <b>${correct}/${queue.length}</b> (${pct}%)</p>
             <p style="color:var(--mute);margin-top:var(--sp-2)">${pct >= 80 ? 'Connectors are locking in. Use them in your next speaking task.' : pct >= 60 ? 'Solid progress. Re-run the drill — the random sample varies.' : 'Browse the library, read the "when to use" notes, then drill again.'}</p>
+            ${pct >= 60 ? Support.kitCard('sheets') : ''}
             <div class="spacer"></div>
             <div class="row" style="justify-content:center">
               <button class="btn primary big" onclick="App.go('connectormastery', { drill: '${mode}' })">Run it again</button>

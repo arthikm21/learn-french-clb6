@@ -191,7 +191,8 @@ window.WriteModule = (function () {
           <li>Check past tense — is the auxiliary (avoir/être) right?</li>
           <li>Check accents — é vs è vs ê, à vs a.</li>
         </ul>
-      </div>`;
+      </div>
+      ${overall >= 50 ? Support.kitCard('writing') : ''}`;
   }
 
   function escapeHTML(s) {

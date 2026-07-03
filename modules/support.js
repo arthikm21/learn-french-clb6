@@ -90,6 +90,8 @@ window.Support = (function () {
       name: 'TCF Speaking — Complete Answer Pack',
       what: '10 full Task-3 opinion monologues, 6 ask-the-examiner scenarios (60 questions), 10 interview answers — every French sentence with its English underneath — plus the connector bank and a 10-day practice plan.',
       pages: '25-page bilingual PDF',
+      price: 'CA$1.99',
+      cover: 'kit/tcf-speaking-pack.jpg',
       url: 'https://frenchclb6.gumroad.com/l/tcf-speaking-pack',
     },
     writing: {
@@ -97,6 +99,8 @@ window.Support = (function () {
       name: 'TCF Writing — Templates & Model Answers',
       what: 'Fill-in templates for all 3 tasks and 15 model answers (invitations, stories, compare-two-opinions essays) — each with its complete English translation and grader notes — plus the 8-point error checklist and a 7-day plan.',
       pages: '14-page bilingual PDF',
+      price: 'CA$1.99',
+      cover: 'kit/tcf-writing-pack.jpg',
       url: 'https://frenchclb6.gumroad.com/l/tcf-writing-pack',
     },
     sheets: {
@@ -104,6 +108,8 @@ window.Support = (function () {
       name: 'CLB 6 Cheat Sheet Pack',
       what: '10 printable one-page references — the 22 connectors, PC vs imparfait, opinion phrases, 12 verbs × 4 tenses, false friends, numbers, exam-day plan — every example sentence translated.',
       pages: '15-page bilingual PDF',
+      price: 'CA$1.99',
+      cover: 'kit/clb6-cheat-sheets.jpg',
       url: 'https://frenchclb6.gumroad.com/l/clb6-cheat-sheets',
     },
   };
@@ -115,12 +121,13 @@ window.Support = (function () {
     return `
       <div class="kit-card">
         <div class="kit-card-head">
-          <span class="kit-card-icon">${p.icon}</span>
+          <img class="kit-cover" src="${p.cover}" alt="" loading="lazy" width="46" height="60"
+               onerror="this.outerHTML='<span class=&quot;kit-card-icon&quot;>${p.icon}</span>'"/>
           <div>
             <p class="eyebrow" style="color:var(--bleu);margin:0 0 2px">Bonjour! Exam Kit · ${p.pages}</p>
             <h3>${p.name}</h3>
           </div>
-          <span class="kit-price">$0.99</span>
+          <span class="kit-price">${p.price}</span>
         </div>
         <p>${p.what}</p>
         <a class="btn primary big" href="${p.url}" target="_blank" rel="noopener">Get the PDF — less than a coffee<span class="arr">→</span></a>
@@ -134,17 +141,18 @@ window.Support = (function () {
     return `
       <div class="kit-strip">
         <div class="kit-strip-head">
-          <p class="eyebrow" style="color:var(--bleu)">📦 The Bonjour! Exam Kit — printable PDFs, $0.99 each</p>
-          <p>Every lesson here is free, forever. The kit is the paper companion: model answers and cheat sheets to print, annotate, and reread in the exam waiting room.</p>
+          <p class="eyebrow" style="color:var(--bleu)">📦 The Bonjour! Exam Kit — bilingual printable PDFs</p>
+          <p>Every lesson here is free, forever. The kit is the paper companion: model answers and cheat sheets — every French sentence translated — to print, annotate, and reread in the exam waiting room.</p>
         </div>
         ${Object.entries(KIT).map(([k, p]) => `
           <a class="kit-item" href="${p.url}" target="_blank" rel="noopener">
-            <span class="kit-card-icon">${p.icon}</span>
+            <img class="kit-cover" src="${p.cover}" alt="" loading="lazy" width="42" height="54"
+                 onerror="this.outerHTML='<span class=&quot;kit-card-icon&quot;>${p.icon}</span>'"/>
             <span class="kit-item-body">
               <b>${p.name}</b>
               <small>${p.pages}</small>
             </span>
-            <span class="kit-price">$0.99</span>
+            <span class="kit-price">${p.price}</span>
           </a>`).join('')}
         <p class="support-fine">Instant downloads via Gumroad · buying one keeps the audio servers running for everyone.</p>
       </div>`;

@@ -33,6 +33,10 @@
 /og-image.jpg
   Cache-Control: public, max-age=86400
 
+# Exam-kit cover thumbnails — change only when a pack is redesigned
+/kit/*
+  Cache-Control: public, max-age=604800
+
 /favicon.svg
   Cache-Control: public, max-age=604800
 /favicon.ico
