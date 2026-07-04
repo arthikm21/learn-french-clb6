@@ -924,7 +924,14 @@ body.dark .card .meter > div { background: var(--gray-700); }
   background: var(--surface);
   border-left: 3px solid var(--good);
 }
-.path-node.locked { opacity: .55; cursor: not-allowed; }
+/* Locked = dimmed surface, readable text (whole-element opacity broke WCAG) */
+.path-node.locked {
+  cursor: not-allowed;
+  background: color-mix(in srgb, var(--surface) 50%, transparent);
+  border-color: color-mix(in srgb, var(--line) 60%, transparent);
+}
+.path-node.locked .info h4 { color: var(--ink-2); }
+.path-node.locked .info p { color: var(--mute); }
 .path-node.locked:hover { transform: none; box-shadow: var(--e1); }
 .path-node .num {
   width: 36px; height: 36px;
@@ -1694,7 +1701,14 @@ body.dark .ring circle.fg { stroke: var(--gray-700); }
 body.dark .phase-chip .meter > div { background: var(--gray-700); }
 .phase-chip.done { border-color: var(--good); }
 .phase-chip.done .meter > div { background: var(--good); }
-.phase-chip.locked { opacity: .55; cursor: not-allowed; }
+/* Locked = dimmed surface, readable text (whole-element opacity broke WCAG) */
+.phase-chip.locked {
+  cursor: not-allowed;
+  background: color-mix(in srgb, var(--surface) 50%, transparent);
+  border-color: color-mix(in srgb, var(--line) 60%, transparent);
+  box-shadow: none;
+}
+.phase-chip.locked h4 { color: var(--ink-2); }
 .phase-chip.locked:hover { transform: none; box-shadow: none; }
 
 /* =========================================================================
@@ -2530,6 +2544,9 @@ body.dark .reading-text .r-sent.active { background: rgba(255, 159, 10, .5); }
   /* Surface glass (no blur) */
   --glass-bg:        rgba(255, 255, 255, .62);
   --glass-bg-hover:  rgba(255, 255, 255, .78);
+  /* Raised glass — nested surfaces (flashcard face on lesson, etc.) sit one
+     step lighter than their parent so layers separate */
+  --glass-raised:    rgba(255, 255, 255, .85);
   /* Chrome glass (blurred) */
   --glass-chrome:    rgba(255, 255, 255, .55);
   --glass-chrome-strong: rgba(255, 255, 255, .72);
@@ -2549,14 +2566,17 @@ body.dark .reading-text .r-sent.active { background: rgba(255, 159, 10, .5); }
   --r-2xl: 30px;
 }
 body.dark {
-  /* Neutral charcoal glass — no blue cast; hue comes from the ambience */
-  --glass-bg:        rgba(40, 40, 48, .52);
-  --glass-bg-hover:  rgba(56, 56, 66, .62);
+  /* Neutral charcoal glass — no blue cast; hue comes from the ambience.
+     Three-step ladder so layers separate: chrome (stage, darkest) →
+     bg (cards) → raised (nested elements). */
+  --glass-bg:        rgba(52, 54, 64, .55);
+  --glass-bg-hover:  rgba(68, 70, 82, .65);
   --glass-chrome:    rgba(26, 26, 32, .50);
   --glass-chrome-strong: rgba(36, 36, 44, .68);
+  --glass-raised:    rgba(66, 68, 82, .62);
   --glass-line:      rgba(255, 255, 255, .10);
-  --glass-edge:      inset 0 1px 0 rgba(255, 255, 255, .13);
-  --glass-edge-soft: inset 0 1px 0 rgba(255, 255, 255, .09);
+  --glass-edge:      inset 0 1px 0 rgba(255, 255, 255, .15);
+  --glass-edge-soft: inset 0 1px 0 rgba(255, 255, 255, .10);
   --glass-shadow-1:  0 1px 2px rgba(0, 0, 0, .35), 0 8px 24px rgba(0, 0, 0, .45);
   --glass-shadow-2:  0 2px 6px rgba(0, 0, 0, .40), 0 16px 40px rgba(0, 0, 0, .50);
   --glass-shadow-3:  0 6px 16px rgba(0, 0, 0, .45), 0 28px 70px rgba(0, 0, 0, .60);
@@ -2578,12 +2598,15 @@ body::before {
     radial-gradient(44vw 44vw at 70% 56%, rgba(124, 58, 237, .10), transparent 66%);
 }
 body.dark::before {
-  /* One hue family (indigo→blue), cinematic and quiet; rouge only whispers. */
+  /* One hue family (indigo→blue), cinematic and quiet; rouge only whispers.
+     Alphas high enough to reach mid-viewport — glass reads as flat black
+     without light behind it. */
   background:
-    radial-gradient(64vw 64vw at 12% 0%,  rgba(99, 102, 241, .26), transparent 64%),
-    radial-gradient(70vw 70vw at 92% 18%, rgba(10, 132, 255, .14),  transparent 66%),
-    radial-gradient(64vw 64vw at 50% 104%, rgba(255, 96, 86, .08),  transparent 62%),
-    radial-gradient(46vw 46vw at 70% 58%, rgba(122, 118, 255, .12), transparent 66%);
+    radial-gradient(64vw 64vw at 12% 0%,  rgba(99, 102, 241, .36), transparent 64%),
+    radial-gradient(70vw 70vw at 92% 18%, rgba(10, 132, 255, .20),  transparent 66%),
+    radial-gradient(64vw 64vw at 50% 104%, rgba(255, 96, 86, .11),  transparent 62%),
+    radial-gradient(46vw 46vw at 70% 58%, rgba(122, 118, 255, .17), transparent 66%),
+    radial-gradient(70vw 56vw at 38% 46%, rgba(99, 102, 241, .09), transparent 68%);
 }
 /* Slow liquid drift — full tier only, transform-only (composited) */
 body[data-anim="full"]::before {
@@ -2677,9 +2700,10 @@ body.dark .toast { background: rgba(44, 44, 52, .78); color: #fff; }
   background: var(--glass-bg-hover);
   box-shadow: var(--glass-edge), var(--glass-shadow-1);
 }
-.path-node.locked:hover, .phase-chip.locked:hover {
-  box-shadow: var(--glass-edge-soft), var(--glass-shadow-1);
-}
+.path-node.locked:hover,
+.phase-chip.locked:hover { background: color-mix(in srgb, var(--surface) 50%, transparent); }
+.path-node.locked:hover { box-shadow: var(--glass-edge-soft), var(--glass-shadow-1); }
+.phase-chip.locked:hover { box-shadow: none; }
 /* Keep tinted variants tinted — re-tint over glass instead of flat surface */
 .support-card.preply-card { background: color-mix(in srgb, var(--bleu) 8%, transparent); }
 .support-card.tip-card    { background: color-mix(in srgb, var(--rouge) 6%, transparent); }
@@ -2970,9 +2994,9 @@ body::after {
 body.dark::after {
   /* No amber in the dark — cool accents only, kept faint */
   background:
-    radial-gradient(32vw 32vw at 80% 6%,  rgba(100, 210, 255, .07), transparent 62%),
-    radial-gradient(28vw 28vw at 6% 78%,  rgba(10, 132, 255, .10), transparent 60%),
-    radial-gradient(24vw 24vw at 94% 90%, rgba(140, 130, 255, .11), transparent 60%);
+    radial-gradient(32vw 32vw at 80% 6%,  rgba(100, 210, 255, .10), transparent 62%),
+    radial-gradient(28vw 28vw at 6% 78%,  rgba(10, 132, 255, .14), transparent 60%),
+    radial-gradient(24vw 24vw at 94% 90%, rgba(140, 130, 255, .15), transparent 60%);
 }
 body[data-anim="full"]::after {
   animation: ambient-drift-2 34s var(--ease-in-out) infinite alternate;
@@ -2984,16 +3008,29 @@ body[data-anim="full"]::after {
 
 /* ── Hero: gradient headline + interior color wash ─────────────────────── */
 @supports (-webkit-background-clip: text) or (background-clip: text) {
+  /* Route-reactive: ink falling into the section accent — one hue ramp, so
+     it reads intentional wherever the lines wrap (the old 3-color tricolor
+     landed arbitrary hues mid-word and never showed its final stop). */
   .hero h1 {
-    background: linear-gradient(94deg, var(--gray-900) 0%, #0055A4 38%, #5E5CE6 64%, #C7251C 100%);
+    /* fit-content: the gradient must span the glyphs, not the full-width
+       h1 box — otherwise the accent stop lands past the text and the
+       headline renders plain ink */
+    width: fit-content;
+    background: linear-gradient(96deg,
+      var(--gray-900) 0%,
+      var(--gray-900) 30%,
+      color-mix(in srgb, var(--accent) 88%, var(--gray-900)) 92%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
     color: transparent;
   }
   body.dark .hero h1 {
-    /* Single hue family — white falling into indigo, no third color */
-    background: linear-gradient(94deg, #FFFFFF 0%, #DCE2FF 48%, #A9AFFF 100%);
+    /* White falling into a pale tint of the route accent */
+    background: linear-gradient(96deg,
+      #FFFFFF 0%,
+      #FFFFFF 36%,
+      color-mix(in srgb, var(--accent) 62%, #FFFFFF) 92%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -3135,7 +3172,10 @@ body[data-anim="full"] .btn:active { transform: scale(.96); }
      --accent-fill filled surfaces (buttons, pills) — deep jewel tones in
                    dark mode so white labels keep contrast; equals --accent
                    in light mode. */
-:root { --accent-fill: var(--accent); --ring: 0 0 0 4px color-mix(in srgb, var(--accent) 28%, transparent); }
+/* Declared on body (not :root): the route palettes override --accent on
+   body[data-route], and var() substitution resolves per-element — on :root
+   these would freeze to the default indigo and never re-tint. */
+body { --accent-fill: var(--accent); --ring: 0 0 0 4px color-mix(in srgb, var(--accent) 28%, transparent); }
 body.dark { --accent-fill: #5A58D6; --ring: 0 0 0 4px color-mix(in srgb, var(--accent) 38%, transparent); }
 
 .btn.primary, body.dark .btn.primary {
@@ -3283,7 +3323,7 @@ body[data-anim="full"] .path-node.unlocked::after {
 @keyframes glow-breathe { 50% { opacity: .9; } }
 
 /* ── Finishing details ──────────────────────────────────────────────────── */
-:root { accent-color: var(--accent); }
+body { accent-color: var(--accent); }
 h1, h2, .section-h, .q-prompt { text-wrap: balance; }
 .section-h::before {
   content: '';
@@ -3295,3 +3335,263 @@ h1, h2, .section-h, .q-prompt { text-wrap: balance; }
   margin-right: 10px;
   vertical-align: -2px;
 }
+
+/* =========================================================================
+   NAV IA — grouped dropdowns on desktop, flat drawer on mobile
+   =========================================================================
+   21 flat items overflowed the desktop topbar behind an invisible scroll.
+   Desktop now shows 5 top-level items; Practice and Exam open glass menus.
+   On mobile the wrappers collapse via display:contents so the drawer keeps
+   its flat grouped list untouched. Toggling lives in app.js
+   (setupNavSections); active state on the parent button follows the route.
+   ========================================================================= */
+@media (min-width: 1101px) {
+  .nav { overflow: visible; }
+  .nav-sect { position: relative; flex-shrink: 0; display: flex; }
+  .nav-sect-btn {
+    /* Mirrors .nav a metrics so buttons and links sit on one line */
+    padding: 7px 10px;
+    border: none;
+    background: transparent;
+    border-radius: var(--r-md);
+    color: var(--ink-2);
+    font-family: inherit;
+    font-weight: var(--fw-med);
+    font-size: var(--fs-13);
+    letter-spacing: var(--ls-base);
+    white-space: nowrap;
+    min-height: 34px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    -webkit-appearance: none;
+    appearance: none;
+    transition: background var(--t-fast) var(--ease-in-out), color var(--t-fast);
+  }
+  .nav-sect-btn::after {
+    content: '';
+    width: 6px;
+    height: 6px;
+    margin-top: -3px;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    opacity: .55;
+    transform: rotate(45deg);
+    transition: transform var(--t-fast) var(--ease-in-out), margin-top var(--t-fast);
+  }
+  .nav-sect.open .nav-sect-btn::after { transform: rotate(225deg); margin-top: 3px; }
+  .nav-sect-btn:hover, .nav-sect.open .nav-sect-btn { background: var(--glass-bg-hover); color: var(--ink); }
+  .nav-sect-btn.active {
+    background: linear-gradient(180deg,
+      color-mix(in srgb, var(--accent-fill) 80%, #fff),
+      var(--accent-fill) 55%,
+      color-mix(in srgb, var(--accent-fill) 84%, #000));
+    color: #fff;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .32),
+                0 2px 10px color-mix(in srgb, var(--accent-fill) 40%, transparent);
+  }
+  .nav-sect-btn.active::after { opacity: .8; }
+
+  .nav-menu {
+    position: absolute;
+    top: calc(100% + 10px);
+    left: 0;
+    z-index: 60;
+    display: none;
+    gap: var(--sp-5);
+    padding: var(--sp-3) var(--sp-4) var(--sp-4);
+    background: var(--glass-chrome-strong);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-line);
+    border-radius: var(--r-xl);
+    box-shadow: var(--glass-edge), var(--glass-shadow-3);
+  }
+  .nav-sect.open .nav-menu { display: flex; }
+  body[data-anim="full"] .nav-sect.open .nav-menu { animation: nav-menu-pop 180ms var(--ease-out); }
+  .nav-menu-col {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 176px;
+  }
+  .nav .nav-menu .nav-group {
+    display: block;
+    font-size: var(--fs-11);
+    font-weight: var(--fw-semi);
+    letter-spacing: var(--ls-wide);
+    text-transform: uppercase;
+    color: var(--mute);
+    margin: var(--sp-3) 0 var(--sp-1);
+    padding: 0 10px;
+  }
+  .nav-menu-col .nav-group:first-child { margin-top: 0; }
+}
+@keyframes nav-menu-pop {
+  from { opacity: 0; transform: translateY(-6px); }
+}
+@media (max-width: 1100px) {
+  /* Drawer keeps its flat grouped list — wrappers vanish structurally */
+  .nav-sect, .nav-menu, .nav-menu-col { display: contents; }
+  .nav-sect-btn { display: none; }
+  /* :first-of-type resets per column wrapper — give every drawer group a
+     separator so none silently loses it */
+  .nav .nav-menu-col .nav-group { border-top: 1px solid var(--line); padding-top: var(--sp-2); }
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .nav-menu { background: var(--surface); }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .nav-menu { background: var(--surface); backdrop-filter: none; -webkit-backdrop-filter: none; }
+}
+
+/* =========================================================================
+   P1 — DARK ELEVATION + MATERIAL LIGHT, HERO BALANCE
+   =========================================================================
+   Dark mode read as a black void: lesson shell and flashcard face shared
+   one background, ambience never reached mid-viewport, icon tile tints
+   vanished on charcoal. This layer adds the missing light.
+   ========================================================================= */
+
+/* Nested stage elements sit one step above their parent (raised tier) */
+body.dark .flashcard .face,
+body.dark .flashcard .face.back {
+  background: var(--glass-raised);
+  box-shadow: var(--glass-edge), var(--glass-shadow-2);
+}
+
+/* Interior top-glow: cards catch the ambient light — material, not paint.
+   background-image longhand stacks over the glass background-color without
+   overriding it (locked chips keep their dimmed color, so exclude them). */
+body.dark .card,
+body.dark .path-node:not(.locked),
+body.dark .phase-chip:not(.locked),
+body.dark .grammar-box,
+body.dark .spotlight {
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, .05), rgba(255, 255, 255, 0) 42%);
+}
+
+/* Icon tiles: light-mode alphas (.16–.20) disappear on charcoal — restate
+   the 6-hue cycle bright enough to survive dark */
+body.dark .grid .card:nth-child(6n+1) .icon { background: linear-gradient(135deg, rgba(125, 122, 255, .34), rgba(125, 122, 255, .12)); }
+body.dark .grid .card:nth-child(6n+2) .icon { background: linear-gradient(135deg, rgba(10, 132, 255, .32),  rgba(10, 132, 255, .11)); }
+body.dark .grid .card:nth-child(6n+3) .icon { background: linear-gradient(135deg, rgba(255, 105, 97, .30),  rgba(255, 105, 97, .10)); }
+body.dark .grid .card:nth-child(6n+4) .icon { background: linear-gradient(135deg, rgba(255, 179, 64, .30),  rgba(255, 179, 64, .10)); }
+body.dark .grid .card:nth-child(6n+5) .icon { background: linear-gradient(135deg, rgba(48, 209, 88, .30),   rgba(48, 209, 88, .10)); }
+body.dark .grid .card:nth-child(6n+6) .icon { background: linear-gradient(135deg, rgba(191, 90, 242, .30),  rgba(191, 90, 242, .10)); }
+
+/* Ring track was invisible on glass in both modes */
+.ring circle.bg { stroke: color-mix(in srgb, var(--ink) 12%, transparent); }
+.ring circle.fg, body.dark .ring circle.fg { stroke: var(--accent); }
+
+/* Hero: trim vertical padding — the dead air did not read as calm */
+.hero { padding: var(--sp-8) var(--sp-9); }
+@media (max-width: 900px) {
+  .hero { padding: var(--sp-7) var(--sp-6); }
+}
+
+/* =========================================================================
+   P2 — ICON SYSTEM, GROUPED PRACTICE GRID, METER + NAV-PILL UNIFY
+   =========================================================================
+   Emoji tiles → one stroke-icon set tinted per section; the flat card wall
+   is now labeled sub-groups, each carrying a category color via data-cat.
+   ========================================================================= */
+
+/* Category palette — icon tile fill + stroke ink, light then dark */
+/* Category tokens set on the group/grid element; the per-category rules must
+   match its specificity (class + attr), so each restates .card-group-h/.grid
+   — a bare [data-cat="x"] (0,1,0) would lose to the default's .grid[data-cat]
+   (0,2,0) and everything would fall back to indigo. */
+.card-group-h[data-cat],
+.grid[data-cat] {
+  --cat: #5E5CE6;                 /* found (default) */
+  --cat-tile: rgba(94, 92, 230, .14);
+}
+.card-group-h[data-cat="oral"],  .grid[data-cat="oral"]  { --cat: #8944AB; --cat-tile: rgba(137, 68, 171, .14); }
+.card-group-h[data-cat="found"], .grid[data-cat="found"] { --cat: #5E5CE6; --cat-tile: rgba(94, 92, 230, .14); }
+.card-group-h[data-cat="input"], .grid[data-cat="input"] { --cat: #0071E3; --cat-tile: rgba(0, 113, 227, .14); }
+.card-group-h[data-cat="exam"],  .grid[data-cat="exam"]  { --cat: #C7251C; --cat-tile: rgba(199, 37, 28, .13); }
+body.dark .card-group-h[data-cat="oral"],  body.dark .grid[data-cat="oral"]  { --cat: #CD7DF5; --cat-tile: rgba(205, 125, 245, .18); }
+body.dark .card-group-h[data-cat="found"], body.dark .grid[data-cat="found"] { --cat: #9A97FF; --cat-tile: rgba(154, 151, 255, .18); }
+body.dark .card-group-h[data-cat="input"], body.dark .grid[data-cat="input"] { --cat: #6FB6FF; --cat-tile: rgba(111, 182, 255, .18); }
+body.dark .card-group-h[data-cat="exam"],  body.dark .grid[data-cat="exam"]  { --cat: #FF8A82; --cat-tile: rgba(255, 138, 130, .18); }
+
+/* Section label with a category-colored tick */
+.card-group-h {
+  font-size: var(--fs-15);
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--ls-wide);
+  text-transform: uppercase;
+  color: var(--ink-2);
+  margin: var(--sp-6) 0 var(--sp-4);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.card-group-h::before {
+  content: '';
+  width: 6px;
+  height: 16px;
+  border-radius: 99px;
+  background: var(--cat);
+  flex-shrink: 0;
+}
+.card-group-h:first-of-type { margin-top: var(--sp-4); }
+
+/* Icon tiles: category-tinted well + stroke glyph. These win over the
+   6-hue nth-child cycle because [data-cat] grids opt into category color. */
+.grid[data-cat] .card .icon,
+.grid[data-cat] .card:nth-child(6n+1) .icon,
+.grid[data-cat] .card:nth-child(6n+2) .icon,
+.grid[data-cat] .card:nth-child(6n+3) .icon,
+.grid[data-cat] .card:nth-child(6n+4) .icon,
+.grid[data-cat] .card:nth-child(6n+5) .icon,
+.grid[data-cat] .card:nth-child(6n+6) .icon {
+  background: var(--cat-tile);
+  color: var(--cat);
+}
+.card .icon svg {
+  width: 26px;
+  height: 26px;
+  display: block;
+}
+@media (max-width: 640px) {
+  .card .icon svg { width: 22px; height: 22px; }
+}
+body[data-anim="full"] .grid[data-cat] .card:hover .icon { transform: scale(1.08) rotate(-3deg); }
+
+/* --- Progress meters: single accent fill (tricolor ended in red = looked
+   like an error state near completion). Rouge stays only on exam routes. --- */
+.card .meter > div, .lesson .progress > div, .phase-chip .meter > div,
+body.dark .card .meter > div, body.dark .lesson .progress > div,
+body.dark .phase-chip .meter > div {
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--accent) 70%, #fff 0%),
+    var(--accent));
+}
+body[data-route="mock"] .card .meter > div,
+body[data-route="mock"] .lesson .progress > div,
+body[data-route="gate"] .lesson .progress > div,
+body[data-route="diagnostic"] .lesson .progress > div {
+  background: linear-gradient(90deg, var(--accent), var(--rouge));
+}
+/* Completed phases stay green — done is a state, not the accent (the old
+   tricolor rule had silently overridden this too). */
+.phase-chip.done .meter > div,
+body.dark .phase-chip.done .meter > div {
+  background: var(--good);
+}
+
+/* --- Nav pills: one weight for all shortcuts (three competing treatments
+   in a single row read as clutter). Subtle glass capsule, accent text. --- */
+.nav .nav-pill-accent,
+.nav .nav-pill-listen,
+.nav .nav-pill-mock {
+  background: var(--glass-bg);
+  color: var(--ink-2);
+  box-shadow: var(--glass-edge-soft);
+}
+.nav .nav-pill-accent:hover,
+.nav .nav-pill-listen:hover,
+.nav .nav-pill-mock:hover { background: var(--glass-bg-hover); color: var(--ink); }

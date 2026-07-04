@@ -4,6 +4,35 @@ window.App = (function () {
     lessons: {}, // { 'vocab:greetings': true, ... }
   };
 
+  // -------- Icon system --------
+  // One coherent 24×24 stroke set (Lucide/Feather geometry, MIT), inherits
+  // currentColor so each card tints its icon to the section accent. Replaces
+  // the OS-rendered emoji that read inconsistent and off-brand.
+  const ICONS = {
+    map: '<polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/>',
+    users: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+    headphones: '<path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/>',
+    link: '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
+    volume: '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>',
+    layers: '<polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>',
+    ruler: '<path d="M16 3 21 8 8 21 3 16 16 3z"/><path d="M9 8l2 2"/><path d="M13 4l2 2"/><path d="M6 11l2 2"/>',
+    compare: '<circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 0 1 2 2v7"/><path d="M11 18H8a2 2 0 0 1-2-2V9"/>',
+    target: '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
+    waveform: '<polyline points="2 12 5 12 8 4 12 20 15 8 18 14 22 12"/>',
+    message: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+    mic: '<path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/>',
+    pen: '<path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/>',
+    help: '<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>',
+    book: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>',
+    bookOpen: '<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>',
+    gamepad: '<line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><line x1="15" y1="13" x2="15.01" y2="13"/><line x1="18" y1="11" x2="18.01" y2="11"/><rect x="2" y="6" width="20" height="12" rx="4"/>',
+    user: '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+  };
+  function svgIcon(key) {
+    const inner = ICONS[key] || ICONS.target;
+    return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${inner}</svg>`;
+  }
+
   function load() {
     state.lessons = {};
     try {
@@ -179,6 +208,10 @@ window.App = (function () {
     document.querySelectorAll('.nav a').forEach(a => {
       a.classList.toggle('active', a.dataset.route === route);
     });
+    document.querySelectorAll('.nav-sect').forEach(s => {
+      const btn = s.querySelector('.nav-sect-btn');
+      if (btn) btn.classList.toggle('active', !!s.querySelector(`a[data-route="${route}"]`));
+    });
     // Accessibility: move focus to the new page's heading and announce the
     // route, so keyboard and screen-reader users aren't stranded on stale focus.
     focusHeading(container);
@@ -241,6 +274,54 @@ window.App = (function () {
   }
 
   // -------- Home --------
+  // Grouped, icon-tinted practice grid. Each group carries a category color
+  // (data-cat) that CSS maps to the icon tile + stroke, so the wall of cards
+  // reads as sections instead of one undifferentiated block.
+  function renderPracticeAreas() {
+    const groups = [
+      { cat: 'oral', label: 'Oral focus', cards: [
+        ['scenario', 'users', 'Scenarios', 'Oral', '50 real Canadian life situations. Listen → vocab → shadow → speak it yourself.'],
+        ['listenmastery', 'headphones', 'Listen Mastery', 'Oral', '120 clips, 5 exercise types. Speed ramps from 0.7x to 1.2x.'],
+        ['connectormastery', 'link', 'Connector Mastery', 'Oral', '22 connectors that move you from CLB 4-5 to CLB 6. Library + 4 drill types.'],
+        ['speak', 'mic', 'Speaking Shadow', '', 'Hear native audio, repeat it aloud, self-rate. Hard lines come back via SRS.'],
+        ['speaktasks', 'mic', 'Speaking Practice', '', 'Record yourself, listen back, self-rate. Picture description, Q&A, role-play.'],
+      ]},
+      { cat: 'found', label: 'Foundations', cards: [
+        ['path', 'map', 'Learning Path', '', 'Ordered path through 8 phases. Next step always highlighted.'],
+        ['phonics', 'volume', 'Phonics & Sounds', '', '7 units plus minimal-pair ear drills — u vs ou, nasals, é vs è, liaison.'],
+        ['vocab', 'layers', 'Vocabulary', '', '35 themed decks, ~680 cards. SRS schedules your reviews automatically.'],
+        ['grammar', 'ruler', 'Grammar', '', '29 units, A1 to B1. From articles to subjunctive and connectors.'],
+        ['pcvsimp', 'compare', 'Passé Composé vs Imparfait', '', 'The #1 CLB 6 grammar trap. Dedicated decider drill with mixed contexts.'],
+        ['deepdive', 'target', 'Deep Dives', 'New', 'y vs en, pronoun order, si-clauses, qui/que/dont/où. Visual decision trees for the four CLB 6 traps.'],
+      ]},
+      { cat: 'input', label: 'Listening, reading & writing', cards: [
+        ['listen', 'waveform', 'Listening Lab', '', '15 dictation sets at slow, normal, and natural speed.'],
+        ['dialogue', 'message', 'Dialogues', '', '8 multi-speaker conversations with comprehension questions.'],
+        ['read', 'bookOpen', 'Reading', '', '30 graded texts from CLB 3 to 6 — emails, ads, news, brochures, fiction.'],
+        ['write', 'pen', 'Writing Workshop', '', '8 prompts. Real grammar checker detects gender, tense, elision errors.'],
+      ]},
+      { cat: 'exam', label: 'TCF tasks & review', cards: [
+        ['writetask3', 'pen', 'Writing Task 3', 'TCF', 'Compare 2 opinions and give your own view. The hardest TCF EE task.'],
+        ['speaktask2', 'help', 'Speaking Task 2', 'TCF', 'Ask the examiner questions to gather info. Unique to TCF Canada.'],
+        ['speaktask3', 'mic', 'Speaking Task 3', 'TCF', 'Argue your opinion for 3-5 minutes. Most-weighted EO task.'],
+        ['tcfguide', 'book', 'TCF Prep Guide', 'TCF', 'Strategy, score conversion, test-day checklist, mock history.'],
+        ['games', 'gamepad', 'Games', '', 'Gender Sort, Conjugation Race, Sentence Builder, Memory, Quick Translate, and more.'],
+        ['mistakes', 'target', 'Weak Spots', '', 'Every wrong answer logged. Review until mastered, then dismissed.'],
+        ['profile', 'user', 'Profile', '', 'Switch user, reset, dark mode, font size. All saved on this browser.'],
+      ]},
+    ];
+    return groups.map(g => `
+      <h3 class="card-group-h" data-cat="${g.cat}">${g.label}</h3>
+      <div class="grid" data-cat="${g.cat}">
+        ${g.cards.map(([route, icon, title, tag, desc]) => `
+          <div class="card" onclick="App.go('${route}')">
+            <div class="icon">${svgIcon(icon)}</div>
+            <h3>${title}${tag ? ` <span class="tag verb">${tag}</span>` : ''}</h3>
+            <p>${desc}</p>
+          </div>`).join('')}
+      </div>`).join('');
+  }
+
   function renderHome(container) {
     const next = LESSON_PATH.find(n => !state.lessons[doneKey(n)]);
     // Daily review pressure: SRS cards due (vocab/shadow lines already seen)
@@ -257,8 +338,8 @@ window.App = (function () {
     const user = escapeHTML(window.Storage.getCurrentUser());
 
     // Progress ring SVG
-    const ringSize = 88;
-    const ringStroke = 8;
+    const ringSize = 132;
+    const ringStroke = 10;
     const ringR = (ringSize - ringStroke) / 2;
     const ringC = 2 * Math.PI * ringR;
     const ringOffset = ringC * (1 - pct / 100);
@@ -266,7 +347,7 @@ window.App = (function () {
     container.innerHTML = `
       <section class="hero">
         <div class="flag-stripes"></div>
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:var(--sp-6);flex-wrap:wrap">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:var(--sp-6);flex-wrap:wrap">
           <div style="flex:1;min-width:260px">
             <p style="text-transform:uppercase;letter-spacing:var(--ls-wide);font-size:var(--fs-12);font-weight:var(--fw-semi);color:var(--mute);margin-bottom:var(--sp-3)">Bonjour, ${user}</p>
             <h1>Score CLB 6.<br/>Built for it.</h1>
@@ -349,30 +430,7 @@ window.App = (function () {
 
       <h2 class="section-h">Practice areas</h2>
       <p class="section-sub">Every module is open. Path orders them. Mistakes feed back into review.</p>
-      <div class="grid">
-        <div class="card" onclick="App.go('path')"><div class="icon">🗺️</div><h3>Learning Path</h3><p>Ordered path through 8 phases. Next step always highlighted.</p></div>
-        <div class="card" onclick="App.go('scenario')"><div class="icon">🇨🇦</div><h3>Scenarios <span class="tag verb">Oral</span></h3><p>50 real Canadian life situations. Listen → vocab → shadow → speak it yourself.</p></div>
-        <div class="card" onclick="App.go('listenmastery')"><div class="icon">🎧</div><h3>Listen Mastery <span class="tag verb">Oral</span></h3><p>120 clips, 5 exercise types. Speed ramps from 0.7x to 1.2x.</p></div>
-        <div class="card" onclick="App.go('connectormastery')"><div class="icon">🔗</div><h3>Connector Mastery <span class="tag verb">Oral</span></h3><p>22 connectors that move you from CLB 4-5 to CLB 6. Library + 4 drill types.</p></div>
-        <div class="card" onclick="App.go('phonics')"><div class="icon">🔊</div><h3>Phonics &amp; Sounds</h3><p>7 units plus minimal-pair ear drills — u vs ou, nasals, é vs è, liaison.</p></div>
-        <div class="card" onclick="App.go('vocab')"><div class="icon">🃏</div><h3>Vocabulary</h3><p>35 themed decks, ~680 cards. SRS schedules your reviews automatically.</p></div>
-        <div class="card" onclick="App.go('grammar')"><div class="icon">📐</div><h3>Grammar</h3><p>29 units, A1 to B1. From articles to subjunctive and connectors.</p></div>
-        <div class="card" onclick="App.go('pcvsimp')"><div class="icon">⚔️</div><h3>Passé Composé vs Imparfait</h3><p>The #1 CLB 6 grammar trap. Dedicated decider drill with mixed contexts.</p></div>
-        <div class="card" onclick="App.go('deepdive')"><div class="icon">🎯</div><h3>Deep Dives <span class="tag verb">New</span></h3><p>y vs en, pronoun order, si-clauses, qui/que/dont/où. Visual decision trees for the four CLB 6 traps.</p></div>
-        <div class="card" onclick="App.go('listen')"><div class="icon">🎧</div><h3>Listening Lab</h3><p>15 dictation sets at slow, normal, and natural speed.</p></div>
-        <div class="card" onclick="App.go('dialogue')"><div class="icon">💬</div><h3>Dialogues</h3><p>8 multi-speaker conversations with comprehension questions.</p></div>
-        <div class="card" onclick="App.go('speak')"><div class="icon">🎙️</div><h3>Speaking Shadow</h3><p>Hear native audio, repeat it aloud, self-rate. Hard lines come back via SRS.</p></div>
-        <div class="card" onclick="App.go('speaktasks')"><div class="icon">🎤</div><h3>Speaking Practice</h3><p>Record yourself, listen back, self-rate. Picture description, Q&amp;A, role-play.</p></div>
-        <div class="card" onclick="App.go('writetask3')"><div class="icon">✍️</div><h3>Writing Task 3 <span class="tag verb">TCF</span></h3><p>Compare 2 opinions and give your own view. The hardest TCF EE task.</p></div>
-        <div class="card" onclick="App.go('speaktask2')"><div class="icon">❓</div><h3>Speaking Task 2 <span class="tag verb">TCF</span></h3><p>Ask the examiner questions to gather info. Unique to TCF Canada.</p></div>
-        <div class="card" onclick="App.go('speaktask3')"><div class="icon">🎤</div><h3>Speaking Task 3 <span class="tag verb">TCF</span></h3><p>Argue your opinion for 3-5 minutes. Most-weighted EO task.</p></div>
-        <div class="card" onclick="App.go('tcfguide')"><div class="icon">📚</div><h3>TCF Prep Guide <span class="tag verb">TCF</span></h3><p>Strategy, score conversion, test-day checklist, mock history.</p></div>
-        <div class="card" onclick="App.go('read')"><div class="icon">📖</div><h3>Reading</h3><p>30 graded texts from CLB 3 to 6 — emails, ads, news, brochures, fiction.</p></div>
-        <div class="card" onclick="App.go('write')"><div class="icon">✍️</div><h3>Writing Workshop</h3><p>8 prompts. Real grammar checker detects gender, tense, elision errors.</p></div>
-        <div class="card" onclick="App.go('games')"><div class="icon">🎮</div><h3>Games</h3><p>Gender Sort, Conjugation Race, Sentence Builder, Memory, Quick Translate, and more.</p></div>
-        <div class="card" onclick="App.go('mistakes')"><div class="icon">🎯</div><h3>Weak Spots</h3><p>Every wrong answer logged. Review until mastered, then dismissed.</p></div>
-        <div class="card" onclick="App.go('profile')"><div class="icon">👤</div><h3>Profile</h3><p>Switch user, reset, dark mode, font size. All saved on this browser.</p></div>
-      </div>
+      ${renderPracticeAreas()}
 
       <h2 class="section-h">How CLB 6 is achieved here</h2>
       <p class="section-sub">Four skills, each trained by a dedicated module. 30-45 minutes daily, ~3-4 months.</p>
@@ -587,6 +645,36 @@ window.App = (function () {
     });
   }
 
+  // -------- Desktop nav dropdowns (Practice / Exam) --------
+  function setupNavSections() {
+    const sects = document.querySelectorAll('.nav-sect');
+    if (!sects.length) return;
+    function closeAll(except) {
+      sects.forEach(s => {
+        if (s === except) return;
+        s.classList.remove('open');
+        const b = s.querySelector('.nav-sect-btn');
+        if (b) b.setAttribute('aria-expanded', 'false');
+      });
+    }
+    sects.forEach(s => {
+      const btn = s.querySelector('.nav-sect-btn');
+      if (!btn) return;
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const open = !s.classList.contains('open');
+        closeAll(s);
+        s.classList.toggle('open', open);
+        btn.setAttribute('aria-expanded', String(open));
+      });
+    });
+    document.addEventListener('click', () => closeAll());
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeAll();
+    });
+    window.addEventListener('hashchange', () => closeAll());
+  }
+
   // -------- Author credit modal --------
   function setupCreditModal() {
     const link = document.getElementById('credit-link');
@@ -646,6 +734,7 @@ window.App = (function () {
     loadTheme();
     load();
     setupMobileNav();
+    setupNavSections();
     setupCreditModal();
     refreshTopbar();
     document.querySelectorAll('[data-route]').forEach(el => {
