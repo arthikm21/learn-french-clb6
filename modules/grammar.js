@@ -1,5 +1,12 @@
 // Grammar lesson + integrated quiz.
 window.GrammarModule = (function () {
+  // Stroke icon per CEFR band — replaces the per-unit emoji (OS-dependent,
+  // clashed with the SVG icon system everywhere else).
+  const LEVEL_ICONS = { 'A1': 'book', 'A1-A2': 'book', 'A2': 'ruler', 'A2-B1': 'ruler', 'B1': 'layers', 'B1-B2': 'target' };
+  function unitIcon(u) {
+    return App.svgIcon(LEVEL_ICONS[u.level] || 'ruler');
+  }
+
   function renderList(container) {
     container.innerHTML = `
       ${Chrome.render({ back: 'home', crumbs: ['Home', 'Grammar'] })}
@@ -20,14 +27,14 @@ window.GrammarModule = (function () {
       </div>
 
       <h2 class="section-h">All units</h2>
-      <div class="grid" id="g-grid"></div>`;
+      <div class="grid" id="g-grid" data-cat="found"></div>`;
     const grid = container.querySelector('#g-grid');
     for (const u of GRAMMAR) {
       const done = App.state.lessons[`grammar:${u.id}`] || false;
       const card = document.createElement('div');
       card.className = 'card';
       card.innerHTML = `
-        <div class="icon">${u.icon}</div>
+        <div class="icon">${unitIcon(u)}</div>
         <h3>${u.title}</h3>
         <p><span class="tag">${u.level}</span> ${done ? '<span class="tag" style="background:rgba(52,199,89,.12);color:var(--good)">✓ Done</span>' : ''}</p>
         <p style="margin-top:8px">${u.rules.length} rules · ${u.quiz.length} questions</p>`;
@@ -97,7 +104,7 @@ window.GrammarModule = (function () {
       container.innerHTML = `
         ${Chrome.render({ back: 'grammar', crumbs: ['Grammar', u.title] })}
         <div class="lesson">
-          <h2>${u.icon} ${u.title} <span class="tag">${u.level}</span></h2>
+          <h2>${u.title} <span class="tag">${u.level}</span></h2>
           <p style="font-size:var(--fs-17);line-height:var(--lh-loose);margin:var(--sp-3) 0 var(--sp-5);color:var(--ink-2)">${u.intro}</p>
           ${before}
           ${ruleHeader}
@@ -120,7 +127,7 @@ window.GrammarModule = (function () {
           progress: { current: qi, total: u.quiz.length }
         })}
         <div class="lesson">
-          <h2>${u.icon} Practice — ${u.title}</h2>
+          <h2>Practice — ${u.title}</h2>
           <div class="q-prompt">${q.q}</div>
           <div class="options" id="opts">
             ${q.opts.map((o, i) => `<div class="option" data-i="${i}">${o}</div>`).join('')}

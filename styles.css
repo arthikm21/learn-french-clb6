@@ -138,7 +138,10 @@
   --header-h: 60px;
 }
 
-/* ---------- TOKENS (DARK) ---------- */
+/* ---------- TOKENS (DARK) ----------
+   Cinematic near-black with a real elevation ladder: bg (stage) → surface
+   (card) → surface-2 (nested) → surface-3 (control). Each step is visibly
+   lighter; separation comes from the ladder + hairlines, not shadows. */
 body.dark {
   --gray-0:   #000000;
   --gray-50:  #0A0A0B;
@@ -157,15 +160,15 @@ body.dark {
   --rouge:   #FF6961;
   --accent:  #7D7AFF;
 
-  --bg:        #07070B; /* deep neutral, not pure black — glass needs a floor */
-  --surface:   #1C1C1E;
-  --surface-2: #2C2C2E;
-  --surface-3: #3A3A3C;
-  --ink:       #F2F2F7;
-  --ink-2:     #C7C7CC;
-  --mute:      #8E8E93;
-  --line:      #2C2C2E;
-  --line-2:    #3A3A3C;
+  --bg:        #08080A; /* deep neutral, not pure black — OLED smear + glass floor */
+  --surface:   #17171B;
+  --surface-2: #212127;
+  --surface-3: #2B2B33;
+  --ink:       #F5F5F7;
+  --ink-2:     #C9C9D1;
+  --mute:      #95959F;
+  --line:      rgba(255, 255, 255, .09);
+  --line-2:    rgba(255, 255, 255, .14);
   --blanc:     var(--surface);
   --cream:     var(--surface-2);
   --card:      var(--surface);
@@ -1093,8 +1096,8 @@ body.dark .lesson .progress > div { background: var(--gray-700); }
   line-height: 1;
 }
 .btn:hover { background: var(--gray-700); }
-body.dark .btn { background: var(--gray-800); color: var(--gray-50); }
-body.dark .btn:hover { background: var(--gray-700); }
+body.dark .btn { background: var(--surface-3); color: var(--ink); }
+body.dark .btn:hover { background: #34343E; }
 .btn:active { transform: scale(.97); }
 .btn:disabled { opacity: .4; cursor: not-allowed; transform: none; }
 
@@ -2547,9 +2550,10 @@ body.dark .reading-text .r-sent.active { background: rgba(255, 159, 10, .5); }
   /* Raised glass — nested surfaces (flashcard face on lesson, etc.) sit one
      step lighter than their parent so layers separate */
   --glass-raised:    rgba(255, 255, 255, .85);
-  /* Chrome glass (blurred) */
-  --glass-chrome:    rgba(255, 255, 255, .55);
-  --glass-chrome-strong: rgba(255, 255, 255, .72);
+  /* Chrome glass (blurred) — strong tier near-opaque so floating panels
+     (dropdowns, modals) stay readable even where blur fails or lags */
+  --glass-chrome:    rgba(255, 255, 255, .58);
+  --glass-chrome-strong: rgba(255, 255, 255, .90);
   /* Hairline + specular edge */
   --glass-line:      rgba(20, 22, 31, .10);
   --glass-edge:      inset 0 1px 0 rgba(255, 255, 255, .70);
@@ -2566,17 +2570,16 @@ body.dark .reading-text .r-sent.active { background: rgba(255, 159, 10, .5); }
   --r-2xl: 30px;
 }
 body.dark {
-  /* Neutral charcoal glass — no blue cast; hue comes from the ambience.
-     Three-step ladder so layers separate: chrome (stage, darkest) →
-     bg (cards) → raised (nested elements). */
-  --glass-bg:        rgba(52, 54, 64, .55);
-  --glass-bg-hover:  rgba(68, 70, 82, .65);
-  --glass-chrome:    rgba(26, 26, 32, .50);
-  --glass-chrome-strong: rgba(36, 36, 44, .68);
-  --glass-raised:    rgba(66, 68, 82, .62);
+  /* Neutral near-black glass — high opacity so text never fights the
+     backdrop. Ladder: chrome (stage, darkest) → bg (cards) → raised. */
+  --glass-bg:        rgba(30, 30, 37, .78);
+  --glass-bg-hover:  rgba(42, 42, 51, .85);
+  --glass-chrome:    rgba(16, 16, 20, .66);
+  --glass-chrome-strong: rgba(23, 23, 29, .88);
+  --glass-raised:    rgba(46, 46, 56, .85);
   --glass-line:      rgba(255, 255, 255, .10);
-  --glass-edge:      inset 0 1px 0 rgba(255, 255, 255, .15);
-  --glass-edge-soft: inset 0 1px 0 rgba(255, 255, 255, .10);
+  --glass-edge:      inset 0 1px 0 rgba(255, 255, 255, .13);
+  --glass-edge-soft: inset 0 1px 0 rgba(255, 255, 255, .08);
   --glass-shadow-1:  0 1px 2px rgba(0, 0, 0, .35), 0 8px 24px rgba(0, 0, 0, .45);
   --glass-shadow-2:  0 2px 6px rgba(0, 0, 0, .40), 0 16px 40px rgba(0, 0, 0, .50);
   --glass-shadow-3:  0 6px 16px rgba(0, 0, 0, .45), 0 28px 70px rgba(0, 0, 0, .60);
@@ -2598,15 +2601,12 @@ body::before {
     radial-gradient(44vw 44vw at 70% 56%, rgba(124, 58, 237, .10), transparent 66%);
 }
 body.dark::before {
-  /* One hue family (indigo→blue), cinematic and quiet; rouge only whispers.
-     Alphas high enough to reach mid-viewport — glass reads as flat black
-     without light behind it. */
+  /* Two quiet indigo washes — a key light top-left, a floor glow at the
+     bottom. Surfaces carry the depth now (elevation ladder), so the
+     ambience only has to keep the stage from reading as a void. */
   background:
-    radial-gradient(64vw 64vw at 12% 0%,  rgba(99, 102, 241, .36), transparent 64%),
-    radial-gradient(70vw 70vw at 92% 18%, rgba(10, 132, 255, .20),  transparent 66%),
-    radial-gradient(64vw 64vw at 50% 104%, rgba(255, 96, 86, .11),  transparent 62%),
-    radial-gradient(46vw 46vw at 70% 58%, rgba(122, 118, 255, .17), transparent 66%),
-    radial-gradient(70vw 56vw at 38% 46%, rgba(99, 102, 241, .09), transparent 68%);
+    radial-gradient(72vw 60vw at 18% -6%,  rgba(99, 102, 241, .16), transparent 62%),
+    radial-gradient(80vw 50vw at 55% 108%, rgba(76, 82, 190, .10),  transparent 64%);
 }
 /* Slow liquid drift — full tier only, transform-only (composited) */
 body[data-anim="full"]::before {
@@ -2773,144 +2773,87 @@ body.dark .option.wrong   { background: rgba(255, 59, 48, .22); }
 .nav a { border-radius: var(--r-pill); }
 .nav a:hover { background: var(--glass-bg-hover); }
 .nav a.active {
-  background: linear-gradient(180deg, #6D6BF0, #5E5CE6 55%, #4E4CD8);
+  background: var(--accent-fill, var(--accent));
   color: #fff;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .32), 0 2px 10px rgba(94, 92, 230, .35);
+  box-shadow: 0 2px 10px rgba(94, 92, 230, .30);
 }
 body.dark .nav a.active {
-  background: linear-gradient(180deg, #8B88FF, #7D7AFF 55%, #6663F2);
+  background: var(--accent-fill, var(--accent));
   color: #fff;
 }
 
-/* ---------- BUTTONS — clicky glass ---------- */
+/* ---------- BUTTONS — solid, confident, quiet ----------
+   One idea: flat fills, real contrast, motion only on press. No gradients,
+   no sheen, no glass caps. Primary carries the route accent; everything
+   else is tonal so a screen keeps exactly one loud element. */
 .btn {
   position: relative;
-  overflow: hidden;
   transition: background var(--t-fast), color var(--t-fast),
               transform 90ms var(--ease-out), box-shadow var(--t-fast),
-              opacity var(--t-fast), filter var(--t-fast);
+              opacity var(--t-fast);
 }
-/* The click: fast crush + shadow collapse. Release springs via btn-spring. */
-.btn:active {
-  transform: scale(.96);
-  filter: brightness(.97);
-}
-.btn:disabled { filter: none; }
+.btn:active { transform: scale(.97); }
+.btn:focus-visible { outline: none; box-shadow: var(--ring); }
 
-/* Default (ink) button — polished dark glass */
-.btn {
-  background: linear-gradient(180deg, #33333a, #1D1D1F 60%);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .18), 0 1px 3px rgba(15, 17, 21, .25);
-}
-.btn:hover { background: linear-gradient(180deg, #4a4a52, #2c2c30 60%); }
-.btn:active { box-shadow: inset 0 2px 6px rgba(0, 0, 0, .35); }
-body.dark .btn {
-  background: linear-gradient(180deg, #fdfdfe, #e8e8ee 60%);
-  color: var(--gray-50);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .9), 0 1px 3px rgba(0, 0, 0, .5);
-}
-body.dark .btn:hover { background: linear-gradient(180deg, #fff, #d9d9e2 60%); }
+/* Default (ink) — solid, both modes. Dark mode gets an elevated tonal fill,
+   not an inverted white slab. */
+.btn { background: var(--gray-800); color: var(--gray-50); box-shadow: none; }
+.btn:hover { background: var(--gray-700); }
+body.dark .btn { background: var(--surface-3); color: var(--ink); box-shadow: inset 0 0 0 1px var(--line); }
+body.dark .btn:hover { background: #34343E; }
 
-/* Primary — lit-from-above indigo glass */
-.btn.primary {
-  background: linear-gradient(180deg, #7573F2, #5E5CE6 50%, #4B49D6);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .38),
-              inset 0 0 0 1px rgba(255, 255, 255, .06),
-              0 2px 8px rgba(94, 92, 230, .35);
+/* Primary — the one loud element. Solid accent fill + soft ground glow. */
+.btn.primary, body.dark .btn.primary {
+  background: var(--accent-fill, var(--accent));
+  color: #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .12),
+              0 4px 14px color-mix(in srgb, var(--accent-fill, var(--accent)) 32%, transparent);
 }
-.btn.primary:hover {
-  background: linear-gradient(180deg, #807EF5, #6A68EC 50%, #5654DE);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .38),
-              0 4px 14px rgba(94, 92, 230, .45);
+.btn.primary:hover, body.dark .btn.primary:hover {
+  background: color-mix(in srgb, var(--accent-fill, var(--accent)) 88%, #fff);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .12),
+              0 6px 20px color-mix(in srgb, var(--accent-fill, var(--accent)) 42%, transparent);
 }
-.btn.primary:active { box-shadow: inset 0 2px 8px rgba(30, 28, 120, .45); }
+.btn.primary:active, body.dark .btn.primary:active {
+  background: color-mix(in srgb, var(--accent-fill, var(--accent)) 90%, #000);
+}
 
-/* Secondary + ghost — clear glass capsules */
-.btn.secondary {
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-line);
-  box-shadow: var(--glass-edge-soft);
-  color: var(--ink);
-}
-.btn.secondary:hover { background: var(--glass-bg-hover); }
-.btn.secondary:active { box-shadow: inset 0 2px 6px rgba(15, 17, 21, .12); }
-.btn.ghost {
-  background: color-mix(in srgb, var(--glass-bg) 40%, transparent);
-  border: 1px solid var(--glass-line);
+/* Secondary — tonal surface; ghost — outline only */
+.btn.secondary, body.dark .btn.secondary {
+  background: var(--surface-2);
+  border: 1px solid var(--line);
   box-shadow: none;
-}
-.btn.ghost:hover { background: var(--glass-bg); border-color: var(--ink-2); }
-
-/* Success / danger — lit glass, same language */
-.btn.success {
-  background: linear-gradient(180deg, #45d367, #34C759 55%, #28a949);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35), 0 2px 8px rgba(52, 199, 89, .35);
-}
-.btn.success:hover { background: linear-gradient(180deg, #4fdc71, #3bd163 55%, #2eb551); }
-.btn.danger {
-  background: linear-gradient(180deg, #ff5b51, #FF3B30 55%, #e02c22);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .32), 0 2px 8px rgba(255, 59, 48, .35);
-}
-.btn.danger:hover { background: linear-gradient(180deg, #ff6c63, #ff4c42 55%, #ea342a); }
-
-/* body.dark .btn outranks the variant classes (0,2,1 vs 0,2,0) — restate the
-   variants at dark scope so primary/success/danger keep their color there. */
-body.dark .btn.primary {
-  background: linear-gradient(180deg, #8B88FF, #7D7AFF 50%, #6663F2);
-  color: #fff;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .30), 0 2px 10px rgba(125, 122, 255, .35);
-}
-body.dark .btn.primary:hover { background: linear-gradient(180deg, #9895FF, #8B88FF 50%, #7471F8); }
-body.dark .btn.secondary {
-  background: var(--glass-bg);
   color: var(--ink);
-  box-shadow: var(--glass-edge-soft);
 }
-body.dark .btn.secondary:hover { background: var(--glass-bg-hover); }
-body.dark .btn.ghost { background: color-mix(in srgb, var(--glass-bg) 40%, transparent); color: var(--ink); box-shadow: none; }
-body.dark .btn.ghost:hover { background: var(--glass-bg); }
-body.dark .btn.success {
-  background: linear-gradient(180deg, #45d367, #34C759 55%, #28a949);
-  color: #fff;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .30), 0 2px 8px rgba(52, 199, 89, .35);
+.btn.secondary:hover, body.dark .btn.secondary:hover { background: var(--surface-3); }
+.btn.ghost, body.dark .btn.ghost {
+  background: transparent;
+  border: 1px solid var(--line-2);
+  box-shadow: none;
+  color: var(--ink);
 }
-body.dark .btn.danger {
-  background: linear-gradient(180deg, #ff5b51, #FF3B30 55%, #e02c22);
-  color: #fff;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .28), 0 2px 8px rgba(255, 59, 48, .35);
-}
+.btn.ghost:hover, body.dark .btn.ghost:hover { background: var(--surface-2); border-color: var(--ink-2); }
 
-/* Sheen sweep across primary/ink buttons on hover — full tier only */
-body[data-anim="full"] .btn::after {
-  content: '';
-  position: absolute;
-  top: 0; bottom: 0;
-  left: -70%;
-  width: 50%;
-  background: linear-gradient(105deg, transparent, rgba(255, 255, 255, .28), transparent);
-  transform: skewX(-18deg);
-  pointer-events: none;
-  opacity: 0;
+/* Success / danger — solid semantic fills */
+.btn.success, body.dark .btn.success {
+  background: var(--good);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(52, 199, 89, .28);
 }
-body[data-anim="full"] .btn:hover::after {
-  opacity: 1;
-  animation: btn-sheen 700ms var(--ease-out);
+.btn.success:hover, body.dark .btn.success:hover { background: color-mix(in srgb, var(--good) 88%, #fff); }
+.btn.danger, body.dark .btn.danger {
+  background: var(--bad);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(255, 59, 48, .28);
 }
-body[data-anim="full"] .btn.secondary::after,
-body[data-anim="full"] .btn.ghost::after { display: none; }
-@keyframes btn-sheen {
-  from { left: -70%; }
-  to   { left: 130%; }
-}
+.btn.danger:hover, body.dark .btn.danger:hover { background: color-mix(in srgb, var(--bad) 88%, #fff); }
 
-/* Mic button — glowing glass orb */
+/* Mic button — solid accent orb, glow stays (it is the affordance) */
 .mic-btn {
-  background: linear-gradient(180deg, #7573F2, #5E5CE6 50%, #4B49D6);
-  box-shadow: inset 0 2px 0 rgba(255, 255, 255, .35),
-              inset 0 0 0 1px rgba(255, 255, 255, .08),
-              0 8px 24px rgba(94, 92, 230, .40);
+  background: var(--accent-fill, var(--accent));
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--accent-fill, var(--accent)) 40%, transparent);
 }
-.mic-btn:hover { box-shadow: inset 0 2px 0 rgba(255, 255, 255, .35), 0 12px 32px rgba(94, 92, 230, .5); }
+.mic-btn:hover { box-shadow: 0 12px 32px color-mix(in srgb, var(--accent-fill, var(--accent)) 50%, transparent); }
 
 /* ---------- MOBILE — drawer becomes heavy glass; topbar blurs via ::before
      (backdrop-filter directly on .topbar would make it the containing block
@@ -2992,11 +2935,9 @@ body::after {
     radial-gradient(24vw 24vw at 94% 90%, rgba(124, 58, 237, .11), transparent 60%);
 }
 body.dark::after {
-  /* No amber in the dark — cool accents only, kept faint */
+  /* One faint cool counterpoint — anything louder turns the stage to mud */
   background:
-    radial-gradient(32vw 32vw at 80% 6%,  rgba(100, 210, 255, .10), transparent 62%),
-    radial-gradient(28vw 28vw at 6% 78%,  rgba(10, 132, 255, .14), transparent 60%),
-    radial-gradient(24vw 24vw at 94% 90%, rgba(140, 130, 255, .15), transparent 60%);
+    radial-gradient(30vw 30vw at 86% 10%, rgba(100, 210, 255, .05), transparent 62%);
 }
 body[data-anim="full"]::after {
   animation: ambient-drift-2 34s var(--ease-in-out) infinite alternate;
@@ -3120,12 +3061,12 @@ body[data-anim="full"] .path-list > *:nth-child(n+12) { animation-delay: 410ms; 
   box-shadow: var(--glass-edge), var(--glass-shadow-2), 0 12px 36px rgba(94, 92, 230, .10);
 }
 .path-node.unlocked .num {
-  background: linear-gradient(180deg, #7573F2, #5E5CE6 60%);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35), 0 2px 8px rgba(94, 92, 230, .35);
+  background: var(--accent-fill, var(--accent));
+  box-shadow: 0 2px 8px rgba(94, 92, 230, .30);
 }
 .path-node.done .num {
-  background: linear-gradient(180deg, #45d367, #34C759 60%);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35), 0 2px 8px rgba(52, 199, 89, .30);
+  background: var(--good);
+  box-shadow: 0 2px 8px rgba(52, 199, 89, .25);
 }
 body[data-anim="full"] .btn:hover { transform: translateY(-1px); }
 body[data-anim="full"] .btn:active { transform: scale(.96); }
@@ -3178,55 +3119,23 @@ body[data-anim="full"] .btn:active { transform: scale(.96); }
 body { --accent-fill: var(--accent); --ring: 0 0 0 4px color-mix(in srgb, var(--accent) 28%, transparent); }
 body.dark { --accent-fill: #5A58D6; --ring: 0 0 0 4px color-mix(in srgb, var(--accent) 38%, transparent); }
 
-.btn.primary, body.dark .btn.primary {
-  background: linear-gradient(180deg,
-    color-mix(in srgb, var(--accent-fill) 82%, #fff),
-    var(--accent-fill) 50%,
-    color-mix(in srgb, var(--accent-fill) 82%, #000));
-  color: #fff;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35),
-              inset 0 0 0 1px rgba(255, 255, 255, .06),
-              0 2px 10px color-mix(in srgb, var(--accent-fill) 40%, transparent);
-}
-.btn.primary:hover, body.dark .btn.primary:hover {
-  background: linear-gradient(180deg,
-    color-mix(in srgb, var(--accent-fill) 70%, #fff),
-    color-mix(in srgb, var(--accent-fill) 92%, #fff) 50%,
-    color-mix(in srgb, var(--accent-fill) 88%, #000));
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35),
-              0 4px 16px color-mix(in srgb, var(--accent-fill) 50%, transparent);
-}
-.btn.primary:active, body.dark .btn.primary:active {
-  box-shadow: inset 0 2px 8px color-mix(in srgb, var(--accent-fill) 45%, #000);
-}
-
+/* Route-reactive accent, solid fills (the button system above already
+   consumes --accent-fill; these keep nav + path + mic on the same accent). */
 .nav a.active, body.dark .nav a.active {
-  background: linear-gradient(180deg,
-    color-mix(in srgb, var(--accent-fill) 80%, #fff),
-    var(--accent-fill) 55%,
-    color-mix(in srgb, var(--accent-fill) 84%, #000));
+  background: var(--accent-fill);
   color: #fff;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .32),
-              0 2px 10px color-mix(in srgb, var(--accent-fill) 40%, transparent);
+  box-shadow: 0 2px 10px color-mix(in srgb, var(--accent-fill) 35%, transparent);
 }
 
 .mic-btn {
-  background: linear-gradient(180deg,
-    color-mix(in srgb, var(--accent-fill) 82%, #fff),
-    var(--accent-fill) 50%,
-    color-mix(in srgb, var(--accent-fill) 82%, #000));
-  box-shadow: inset 0 2px 0 rgba(255, 255, 255, .35),
-              inset 0 0 0 1px rgba(255, 255, 255, .08),
-              0 8px 24px color-mix(in srgb, var(--accent-fill) 45%, transparent);
+  background: var(--accent-fill);
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--accent-fill) 42%, transparent);
 }
 
 .path-node.unlocked .num {
-  background: linear-gradient(180deg,
-    color-mix(in srgb, var(--accent-fill) 80%, #fff),
-    var(--accent-fill) 60%);
+  background: var(--accent-fill);
   color: #fff;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35),
-              0 2px 8px color-mix(in srgb, var(--accent-fill) 40%, transparent);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--accent-fill) 35%, transparent);
 }
 .option:hover {
   box-shadow: var(--glass-edge-soft), 0 4px 16px color-mix(in srgb, var(--accent) 16%, transparent);
@@ -3383,13 +3292,9 @@ h1, h2, .section-h, .q-prompt { text-wrap: balance; }
   .nav-sect.open .nav-sect-btn::after { transform: rotate(225deg); margin-top: 3px; }
   .nav-sect-btn:hover, .nav-sect.open .nav-sect-btn { background: var(--glass-bg-hover); color: var(--ink); }
   .nav-sect-btn.active {
-    background: linear-gradient(180deg,
-      color-mix(in srgb, var(--accent-fill) 80%, #fff),
-      var(--accent-fill) 55%,
-      color-mix(in srgb, var(--accent-fill) 84%, #000));
+    background: var(--accent-fill);
     color: #fff;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .32),
-                0 2px 10px color-mix(in srgb, var(--accent-fill) 40%, transparent);
+    box-shadow: 0 2px 10px color-mix(in srgb, var(--accent-fill) 35%, transparent);
   }
   .nav-sect-btn.active::after { opacity: .8; }
 
@@ -3595,3 +3500,112 @@ body.dark .phase-chip.done .meter > div {
 .nav .nav-pill-accent:hover,
 .nav .nav-pill-listen:hover,
 .nav .nav-pill-mock:hover { background: var(--glass-bg-hover); color: var(--ink); }
+
+/* =========================================================================
+   V4 — SOLID CONFIDENCE PASS (dark ladder + button dignity)
+   =========================================================================
+   Dark mode rebuilt as a cinematic elevation ladder (see body.dark tokens);
+   buttons rebuilt as solid fills (see BUTTONS). This block carries the
+   stragglers those token changes alone can't reach. */
+
+/* Locked items: dimmed but never invisible on the near-black stage */
+body.dark .path-node.locked,
+body.dark .phase-chip.locked {
+  background: #121216;
+  border-color: rgba(255, 255, 255, .06);
+}
+body.dark .path-node.locked .info h4,
+body.dark .phase-chip.locked h4 { color: #8E8E98; }
+
+/* Options: solid ladder step in dark — glass alpha made them melt into
+   the lesson shell */
+body.dark .option, body.dark .token {
+  background: var(--surface-2);
+  border-color: var(--line);
+}
+body.dark .option:hover { background: var(--surface-3); }
+
+/* Quiz feedback + graded options keep semantic color at AA on the ladder */
+body.dark .option.correct { background: rgba(52, 199, 89, .16); border-color: var(--good); }
+body.dark .option.wrong   { background: rgba(255, 59, 48, .16); border-color: var(--bad); }
+
+/* ---------- TODAY CARD — the ordered daily plan on Home ---------- */
+.spotlight.today-card { display: block; }
+.today-steps {
+  margin-top: var(--sp-4);
+  display: flex;
+  flex-direction: column;
+}
+.today-step {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  padding: var(--sp-4) 0;
+  border-top: 1px solid var(--line);
+}
+.today-step:first-child { border-top: none; }
+.today-num {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--surface-3);
+  color: var(--ink-2);
+  display: grid;
+  place-items: center;
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-13);
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+.today-step:first-of-type .today-num {
+  background: var(--accent-fill, var(--accent));
+  color: #fff;
+}
+.today-step-info { flex: 1; min-width: 0; }
+.today-step-info h4 { font-size: var(--fs-15); font-weight: var(--fw-semi); color: var(--ink); }
+.today-step-info p { font-size: var(--fs-13); color: var(--mute); margin-top: 2px; }
+.today-step .btn { flex-shrink: 0; min-width: 110px; }
+@media (max-width: 640px) {
+  .today-step { flex-wrap: wrap; }
+  .today-step .btn { margin-left: calc(28px + var(--sp-4)); min-width: 0; }
+}
+
+/* Finish screen: "Next on your path" deep-link strip */
+.next-up {
+  margin-top: var(--sp-5);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 18px;
+  min-height: 44px;
+  border-radius: var(--r-pill);
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  color: var(--ink);
+  font-family: inherit;
+  cursor: pointer;
+  transition: background var(--t-fast), border-color var(--t-fast);
+  -webkit-appearance: none;
+  appearance: none;
+}
+.next-up:hover { background: var(--surface-3); border-color: var(--line-2); }
+.next-up:focus-visible { outline: none; box-shadow: var(--ring); }
+.next-up-k {
+  font-size: var(--fs-11);
+  text-transform: uppercase;
+  letter-spacing: var(--ls-wide);
+  color: var(--mute);
+  font-weight: var(--fw-semi);
+}
+.next-up-t { font-weight: var(--fw-semi); font-size: var(--fs-14); }
+
+/* Phase strip: stroke glyph replaces the data emoji */
+.phase-chip h4 { display: flex; align-items: center; gap: 8px; }
+.phase-glyph {
+  display: inline-flex;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+.phase-glyph svg { width: 16px; height: 16px; }
+.phase-chip.locked .phase-glyph { color: var(--mute); }
+.phase-chip.done .phase-glyph { color: var(--good); }

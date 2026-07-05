@@ -124,6 +124,25 @@ window.Chrome = (function () {
       try { setTimeout(() => Celebrate.confetti({ intensity: pct !== null && pct >= 90 ? 'large' : 'small' }), 200); } catch {}
     }
 
+    // "Next on your path" strip — every completion deep-links straight to the
+    // next path item so the learner never detours through the Path page to
+    // re-find their place. Callers with no meaningful next (e.g. profile
+    // flows) can pass noNext: true.
+    let nextHTML = '';
+    if (!opts.noNext) {
+      try {
+        const nx = (window.App && typeof App.nextPathItem === 'function') ? App.nextPathItem() : null;
+        if (nx) {
+          nextHTML = `
+            <button class="next-up" onclick="App.continueNext()">
+              <span class="next-up-k">Next on your path</span>
+              <span class="next-up-t">${escapeHTML(nx.title)}</span>
+              <span class="arr">→</span>
+            </button>`;
+        }
+      } catch {}
+    }
+
     return `
       ${render({ back: opts.back, crumbs: opts.crumbs })}
       <div class="lesson center">
@@ -136,6 +155,7 @@ window.Chrome = (function () {
           ${opts.extra || ''}
           <div class="spacer"></div>
           <div class="row" style="justify-content:center;flex-wrap:wrap">${actionsHTML}</div>
+          ${nextHTML}
         </div>
       </div>`;
   }

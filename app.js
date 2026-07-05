@@ -27,7 +27,13 @@ window.App = (function () {
     bookOpen: '<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>',
     gamepad: '<line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><line x1="15" y1="13" x2="15.01" y2="13"/><line x1="18" y1="11" x2="18.01" y2="11"/><rect x="2" y="6" width="20" height="12" rx="4"/>',
     user: '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+    history: '<path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><path d="M12 7v5l4 2"/>',
+    briefcase: '<rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>',
+    trendingUp: '<polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>',
   };
+  // Phase strip glyphs — same stroke set as the practice grid, replacing the
+  // per-phase emoji from data (emoji render OS-dependent and off-brand).
+  const PHASE_ICONS = { 1: 'volume', 2: 'ruler', 3: 'message', 4: 'history', 5: 'briefcase', 6: 'layers', 7: 'trendingUp', 8: 'target' };
   function svgIcon(key) {
     const inner = ICONS[key] || ICONS.target;
     return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${inner}</svg>`;
@@ -322,6 +328,61 @@ window.App = (function () {
       </div>`).join('');
   }
 
+  // The daily plan: one card, ordered steps, ~15 minutes. Replaces the old
+  // separate "Continue" + "Review due" spotlights — a stack of pitches read
+  // as a menu; a numbered plan tells the learner exactly what today is.
+  // Order mirrors the pedagogy: clear reviews first (retention), then new
+  // material, then one speaking rep (oral is half the outcome).
+  function renderTodayCard(next, srsDue, weakDue, topDueDeck) {
+    const reviewCount = srsDue.total + weakDue;
+    const steps = [];
+    if (reviewCount > 0) {
+      steps.push({
+        title: `Clear ${reviewCount} review${reviewCount === 1 ? '' : 's'}`,
+        sub: 'Due today — 5 minutes now protects everything already learned.',
+        btn: 'Review',
+        onclick: srsDue.total > 0
+          ? `App.go('vocab'${topDueDeck ? `, { deck: '${topDueDeck[0]}' }` : ''})`
+          : `App.go('mistakes')`,
+      });
+    }
+    steps.push(next ? {
+      title: `Continue: ${escapeHTML(next.title)}`,
+      sub: escapeHTML(next.desc),
+      btn: 'Continue',
+      onclick: 'App.continueNext()',
+    } : {
+      title: 'Take the mock test',
+      sub: 'Every milestone done. Simulate the real exam end-to-end.',
+      btn: 'Start mock',
+      onclick: `App.go('mock')`,
+    });
+    steps.push({
+      title: 'One speaking rep',
+      sub: 'Shadow a few lines aloud — oral skills are half your score.',
+      btn: 'Speak',
+      onclick: `App.go('speak')`,
+    });
+    return `
+      <div class="spotlight today-card">
+        <div style="flex:1;min-width:0">
+          <p class="eyebrow">Today · ~15 min</p>
+          <h2>Your plan</h2>
+          <div class="today-steps">
+            ${steps.map((s, i) => `
+              <div class="today-step">
+                <span class="today-num">${i + 1}</span>
+                <div class="today-step-info">
+                  <h4>${s.title}</h4>
+                  <p>${s.sub}</p>
+                </div>
+                <button class="btn ${i === 0 ? 'primary' : 'secondary'}" onclick="${s.onclick}">${s.btn}<span class="arr">→</span></button>
+              </div>`).join('')}
+          </div>
+        </div>
+      </div>`;
+  }
+
   function renderHome(container) {
     const next = LESSON_PATH.find(n => !state.lessons[doneKey(n)]);
     // Daily review pressure: SRS cards due (vocab/shadow lines already seen)
@@ -377,31 +438,11 @@ window.App = (function () {
         <button class="btn primary big" onclick="event.stopPropagation();App.go('diagnostic')">Take it<span class="arr">→</span></button>
       </div>` : ''}
 
-      <div class="spotlight">
-        <div>
-          <p class="eyebrow">${next ? 'Continue where you left off' : 'You\'re ready'}</p>
-          <h2>${next ? escapeHTML(next.title) : '🎯 Take the mock test'}</h2>
-          <p>${next ? escapeHTML(next.desc) : 'You completed every milestone on the path. Time to simulate the real exam.'}</p>
-        </div>
-        <button class="btn big" onclick="App.${next ? 'continueNext' : 'go(\'mock\')'}()">${next ? 'Continue' : 'Start mock'}<span class="arr">→</span></button>
-      </div>
-
-      ${(srsDue.total + weakDue) > 0 ? `
-      <div class="spotlight" style="border:1px solid var(--bleu)">
-        <div>
-          <p class="eyebrow" style="color:var(--bleu)">🔁 Review due today</p>
-          <h2>${srsDue.total > 0 ? `${srsDue.total} card${srsDue.total === 1 ? '' : 's'} ready for review` : `${weakDue} weak spot${weakDue === 1 ? '' : 's'} due`}</h2>
-          <p>Spaced repetition only works if you clear reviews when they come due — 5 minutes now protects everything you've already learned.${srsDue.total > 0 && weakDue > 0 ? ` Plus ${weakDue} weak spot${weakDue === 1 ? '' : 's'} to retry.` : ''}</p>
-        </div>
-        <div class="row" style="gap:var(--sp-2);flex-wrap:wrap">
-          ${srsDue.total > 0 ? `<button class="btn primary big" onclick="App.go('vocab'${topDueDeck ? `, { deck: '${topDueDeck[0]}' }` : ''})">Review now<span class="arr">→</span></button>` : ''}
-          ${weakDue > 0 ? `<button class="btn ${srsDue.total > 0 ? 'ghost' : 'primary'} big" onclick="App.go('mistakes')">Weak spots${srsDue.total > 0 ? '' : '<span class="arr">→</span>'}</button>` : ''}
-        </div>
-      </div>` : ''}
+      ${renderTodayCard(next, srsDue, weakDue, topDueDeck)}
 
       <div class="spotlight" onclick="App.go('scenario')" style="cursor:pointer;border:1px solid var(--accent)">
         <div>
-          <p class="eyebrow" style="color:var(--accent)">🇨🇦 Real-life scenarios</p>
+          <p class="eyebrow" style="color:var(--accent)">Real-life scenarios</p>
           <h2>Calling a landlord. Opening a bank account.</h2>
           <p>One Canadian life situation at a time. Listen → understand → repeat → speak it yourself. No textbooks. Just the conversations you'll actually have.</p>
         </div>
@@ -474,11 +515,11 @@ window.App = (function () {
         const cls = ['phase-chip'];
         if (passed) cls.push('done');
         if (!unlocked) cls.push('locked');
-        const label = passed ? '✓ Passed' : !unlocked ? '🔒 Locked' : isCurrent ? '▶ Current' : 'Open';
+        const label = passed ? '✓ Passed' : !unlocked ? 'Locked' : isCurrent ? '▶ Current' : 'Open';
         return `
           <div class="${cls.join(' ')}" data-ph="${ph.id}">
             <p class="eyebrow">Phase ${ph.id} · ${escapeHTML(ph.clb)}</p>
-            <h4>${ph.icon} ${escapeHTML(ph.name)}</h4>
+            <h4><span class="phase-glyph">${svgIcon(PHASE_ICONS[ph.id] || 'target')}</span>${escapeHTML(ph.name)}</h4>
             <p class="meta">${escapeHTML(ph.subtitle)}</p>
             <div class="meter"><div style="width:${prog.pct}%"></div></div>
             <p class="meta" style="font-variant-numeric:tabular-nums;display:flex;justify-content:space-between"><span>${label}</span><span>${prog.done}/${prog.total}</span></p>
@@ -583,8 +624,14 @@ window.App = (function () {
       </div>`;
   }
 
+  // Next undone path item — used by Home's Today card and by
+  // Chrome.finishScreen's "Next on your path" strip.
+  function nextPathItem() {
+    return LESSON_PATH.find(n => !state.lessons[doneKey(n)]) || null;
+  }
+
   function continueNext() {
-    const next = LESSON_PATH.find(n => !state.lessons[doneKey(n)]);
+    const next = nextPathItem();
     if (!next) return;
     const params = {};
     if (next.deck) params.deck = next.deck;
@@ -750,5 +797,5 @@ window.App = (function () {
 
   document.addEventListener('DOMContentLoaded', init);
 
-  return { state, go, addXP, markLessonDone, continueNext, reloadForUser, toggleTheme };
+  return { state, go, addXP, markLessonDone, continueNext, nextPathItem, svgIcon, reloadForUser, toggleTheme };
 })();
