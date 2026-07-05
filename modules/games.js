@@ -104,17 +104,15 @@ window.GamesModule = (function () {
     }
     function finish() {
       if (correct / round.length >= 0.7) App.markLessonDone('games:gender');
-      container.innerHTML = `
-        <div class="lesson center">
-          <div class="empty">
-            <div class="big-icon">⚖️</div>
-            <h2>Round Complete</h2>
-            <p>Correct: <b>${correct}/${round.length}</b></p>
-            <div class="spacer"></div>
-            <button class="btn big" onclick="App.go('games', { game: 'gender' })">Play Again</button>
-            <button class="btn ghost big" onclick="App.go('games')">Other Games</button>
-          </div>
-        </div>`;
+      container.innerHTML = Chrome.finishScreen({
+        icon: '⚖️',
+        title: 'Round complete',
+        score: { correct, total: round.length },
+        actions: [
+          { label: 'Play Again', onclick: "App.go('games', { game: 'gender' })", primary: true },
+          { label: 'Other Games', onclick: "App.go('games')" },
+        ],
+      });
     }
     show();
   }
@@ -179,7 +177,10 @@ window.GamesModule = (function () {
         </div>`;
       const inp = container.querySelector('#ans');
       inp.focus();
+      let answered = false; // re-pressed Enter stacked timeouts → skipped questions
       const submit = () => {
+        if (answered) return;
+        answered = true;
         const v = inp.value.trim().toLowerCase();
         if (v === d.a.toLowerCase()) {
           correct++;
@@ -205,17 +206,16 @@ window.GamesModule = (function () {
       window.removeEventListener('hashchange', onHash);
       if (aborted) return; // user navigated away — don't overwrite their current view
       if (correct >= 10) App.markLessonDone('games:conjrace');
-      container.innerHTML = `
-        <div class="lesson center">
-          <div class="empty">
-            <div class="big-icon">🏆</div>
-            <h2>Race Done!</h2>
-            <p>Correct: <b>${correct}</b> in ${75 - time}s</p>
-            <div class="spacer"></div>
-            <button class="btn big" onclick="App.go('games', { game: 'conjrace' })">Race Again</button>
-            <button class="btn ghost big" onclick="App.go('games')">Other Games</button>
-          </div>
-        </div>`;
+      container.innerHTML = Chrome.finishScreen({
+        icon: '🏆',
+        title: 'Race finished',
+        scoreLine: `Correct: <b>${correct}</b> in ${75 - time}s`,
+        celebrate: correct >= 10,
+        actions: [
+          { label: 'Race Again', onclick: "App.go('games', { game: 'conjrace' })", primary: true },
+          { label: 'Other Games', onclick: "App.go('games')" },
+        ],
+      });
     }
     show();
     timer = setInterval(tick, 1000);
@@ -284,7 +284,14 @@ window.GamesModule = (function () {
     }
     function finish() {
       if (correct >= sentences.length * 0.7) App.markLessonDone('games:sentence');
-      container.innerHTML = `<div class="lesson center"><div class="empty"><div class="big-icon">🧩</div><h2>Done!</h2><p>Score: <b>${correct}/${sentences.length}</b></p><div class="spacer"></div><button class="btn big" onclick="App.go('games')">More Games</button></div></div>`;
+      container.innerHTML = Chrome.finishScreen({
+        icon: '🧩',
+        title: 'Sentences built',
+        score: { correct, total: sentences.length },
+        actions: [
+          { label: 'More Games', onclick: "App.go('games')", primary: true },
+        ],
+      });
     }
     show();
   }
@@ -355,17 +362,15 @@ window.GamesModule = (function () {
       }
     }
     function finish() {
-      container.innerHTML = `
-        <div class="lesson center">
-          <div class="empty">
-            <div class="big-icon">🧠</div>
-            <h2>All Matched!</h2>
-            <p>Done in <b>${attempts}</b> attempts.</p>
-            <div class="spacer"></div>
-            <button class="btn big" onclick="App.go('games', { game: 'memory' })">Play Again</button>
-            <button class="btn ghost big" onclick="App.go('games')">Other Games</button>
-          </div>
-        </div>`;
+      container.innerHTML = Chrome.finishScreen({
+        icon: '🧠',
+        title: 'All matched!',
+        scoreLine: `Done in <b>${attempts}</b> attempts.`,
+        actions: [
+          { label: 'Play Again', onclick: "App.go('games', { game: 'memory' })", primary: true },
+          { label: 'Other Games', onclick: "App.go('games')" },
+        ],
+      });
     }
     render();
   }
@@ -422,7 +427,15 @@ window.GamesModule = (function () {
     }
     function finish() {
       if (correct >= queue.length * 0.7) App.markLessonDone('games:translate');
-      container.innerHTML = `<div class="lesson center"><div class="empty"><div class="big-icon">🌐</div><h2>Round Done</h2><p>${correct}/${queue.length} correct</p><div class="spacer"></div><button class="btn big" onclick="App.go('games', { game: 'translate' })">Play Again</button><button class="btn ghost big" onclick="App.go('games')">Other Games</button></div></div>`;
+      container.innerHTML = Chrome.finishScreen({
+        icon: '🌐',
+        title: 'Round finished',
+        score: { correct, total: queue.length },
+        actions: [
+          { label: 'Play Again', onclick: "App.go('games', { game: 'translate' })", primary: true },
+          { label: 'Other Games', onclick: "App.go('games')" },
+        ],
+      });
     }
     show();
   }
@@ -485,7 +498,15 @@ window.GamesModule = (function () {
     }
     function finish() {
       if (correct >= queue.length * 0.7) App.markLessonDone('games:verb');
-      container.innerHTML = `<div class="lesson center"><div class="empty"><div class="big-icon">⚡</div><h2>Done</h2><p>${correct}/${queue.length}</p><div class="spacer"></div><button class="btn big" onclick="App.go('games', { game: 'verb' })">Again</button><button class="btn ghost big" onclick="App.go('games')">Other</button></div></div>`;
+      container.innerHTML = Chrome.finishScreen({
+        icon: '⚡',
+        title: 'Verbs drilled',
+        score: { correct, total: queue.length },
+        actions: [
+          { label: 'Again', onclick: "App.go('games', { game: 'verb' })", primary: true },
+          { label: 'Other Games', onclick: "App.go('games')" },
+        ],
+      });
     }
     show();
   }
@@ -540,7 +561,10 @@ window.GamesModule = (function () {
       TTS.speakSoon(target, 0.9, 200);
       const inp = container.querySelector('#ans');
       inp.focus();
+      let answered = false; // re-pressed Enter stacked timeouts → skipped questions
       const submit = () => {
+        if (answered) return;
+        answered = true;
         const ans = inp.value.trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9 ]/g,'').replace(/\s+/g,' ').trim();
         const targ = target.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9 ]/g,'').replace(/\s+/g,' ').trim();
         if (ans === targ) {
@@ -607,7 +631,10 @@ window.GamesModule = (function () {
       const inp = container.querySelector('#ans');
       inp.focus();
       container.querySelector('#hint').onclick = () => { Toast.info(d.hint, 5000); };
+      let answered = false; // idempotent — Enter re-press must not re-run the answer flow
       const submit = () => {
+        if (answered) return;
+        answered = true;
         const norm = s => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9 ]/g,'').replace(/\s+/g,' ').trim();
         const right = norm(inp.value) === norm(d.correct);
         const glossLine = Chrome.gloss(d.en);
@@ -626,11 +653,26 @@ window.GamesModule = (function () {
         });
       };
       container.querySelector('#submit').onclick = submit;
-      inp.onkeydown = (e) => { if (e.key === 'Enter') submit(); };
+      // Enter submits; a second deliberate Enter advances via the countdown row.
+      inp.onkeydown = (e) => {
+        if (e.key !== 'Enter' || e.repeat) return;
+        if (!answered) { submit(); return; }
+        const nb = container.querySelector('.advance-next');
+        if (nb) nb.click();
+      };
     }
     function finish() {
       if (correct >= queue.length * 0.6) App.markLessonDone('games:errorspot');
-      container.innerHTML = `<div class="lesson center"><div class="empty"><div class="big-icon">🔍</div><h2>Done</h2><p>${correct}/${queue.length} fixed correctly.</p><div class="spacer"></div><button class="btn big" onclick="App.go('games', { game: 'errorspot' })">Play Again</button><button class="btn ghost big" onclick="App.go('games')">Other Games</button></div></div>`;
+      container.innerHTML = Chrome.finishScreen({
+        icon: '🔍',
+        title: 'Errors spotted',
+        score: { correct, total: queue.length },
+        sub: `${correct}/${queue.length} fixed correctly.`,
+        actions: [
+          { label: 'Play Again', onclick: "App.go('games', { game: 'errorspot' })", primary: true },
+          { label: 'Other Games', onclick: "App.go('games')" },
+        ],
+      });
     }
     show();
   }
@@ -713,7 +755,15 @@ window.GamesModule = (function () {
     }
     function finish() {
       if (correct >= queue.length * 0.7) App.markLessonDone('games:anagram');
-      container.innerHTML = `<div class="lesson center"><div class="empty"><div class="big-icon">🔤</div><h2>Done</h2><p>${correct}/${queue.length} correct.</p><div class="spacer"></div><button class="btn big" onclick="App.go('games', { game: 'anagram' })">Play Again</button><button class="btn ghost big" onclick="App.go('games')">Other Games</button></div></div>`;
+      container.innerHTML = Chrome.finishScreen({
+        icon: '🔤',
+        title: 'Anagrams solved',
+        score: { correct, total: queue.length },
+        actions: [
+          { label: 'Play Again', onclick: "App.go('games', { game: 'anagram' })", primary: true },
+          { label: 'Other Games', onclick: "App.go('games')" },
+        ],
+      });
     }
     show();
   }

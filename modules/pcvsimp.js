@@ -85,18 +85,16 @@ window.PCvsImpModule = (function () {
     function finish() {
       const pct = Math.round((correct / drills.length) * 100);
       if (pct >= 70) App.markLessonDone('grammar:g30-pc-vs-imp');
-      container.innerHTML = `
-        <div class="lesson center">
-          <div class="empty">
-            <div class="big-icon">${pct >= 80 ? '🏆' : pct >= 70 ? '🎯' : '💪'}</div>
-            <h2>${pct >= 80 ? 'Mastered!' : pct >= 70 ? 'Passed!' : 'Re-study and try again'}</h2>
-            <p>Score: <b>${correct}/${drills.length}</b> (${pct}%)</p>
-            ${pct >= 80 ? '<p style="color:var(--mute)">This is the hardest CLB 6 grammar distinction. Well done.</p>' : pct >= 70 ? '<p style="color:var(--mute)">Solid. Review the framework boxes and run again to reach mastery.</p>' : '<p style="color:var(--mute)">Re-read the framework boxes carefully — focus on the "scene vs event" mental test.</p>'}
-            <div class="spacer"></div>
-            <button class="btn big" onclick="App.go('pcvsimp')">Restart</button>
-            <button class="btn ghost big" onclick="App.go('grammar')">Back to Grammar</button>
-          </div>
-        </div>`;
+      container.innerHTML = Chrome.finishScreen({
+        icon: pct >= 80 ? '🏆' : pct >= 70 ? '🎯' : '💪',
+        title: pct >= 80 ? 'Mastered!' : pct >= 70 ? 'Passed!' : 'Re-study and try again',
+        score: { correct, total: drills.length },
+        sub: pct >= 80 ? 'This is the hardest CLB 6 grammar distinction. Well done.' : pct >= 70 ? 'Solid. Review the framework boxes and run again to reach mastery.' : 'Re-read the framework boxes carefully — focus on the "scene vs event" mental test.',
+        actions: [
+          { label: 'Restart', onclick: "App.go('pcvsimp')", primary: true },
+          { label: 'Back to Grammar', onclick: "App.go('grammar')" },
+        ],
+      });
     }
 
     showStudy();

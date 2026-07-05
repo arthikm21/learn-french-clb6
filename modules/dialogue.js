@@ -183,21 +183,17 @@ window.DialogueModule = (function () {
     function finish() {
       const pct = Math.round((correct / d.questions.length) * 100);
       if (pct >= 70) App.markLessonDone(`dialogue:${id}`);
-      container.innerHTML = `
-        ${Chrome.render({ back: 'dialogue', crumbs: ['Dialogues', d.title, 'Result'] })}
-        <div class="lesson center">
-          <div class="empty">
-            <div class="big-icon">${pct >= 70 ? '🎯' : '👂'}</div>
-            <h2>${pct >= 70 ? 'Excellent' : 'Re-listen & retry'}</h2>
-            <p>Score: <b>${correct}/${d.questions.length}</b> (${pct}%)</p>
-            <p style="color:var(--mute);margin-top:var(--sp-2)">${pct >= 80 ? 'You understood the dialogue clearly.' : pct >= 50 ? 'Replay and re-attempt missed questions.' : 'Listen with the transcript open, then re-try.'}</p>
-            <div class="spacer"></div>
-            <div class="row" style="justify-content:center">
-              <button class="btn primary big" onclick="App.go('dialogue')">More dialogues</button>
-              <button class="btn ghost big" onclick="App.go('path')">Path</button>
-            </div>
-          </div>
-        </div>`;
+      container.innerHTML = Chrome.finishScreen({
+        back: 'dialogue', crumbs: ['Dialogues', d.title, 'Result'],
+        icon: pct >= 70 ? '🎯' : '👂',
+        title: pct >= 70 ? 'Excellent' : 'Re-listen & retry',
+        score: { correct, total: d.questions.length },
+        sub: pct >= 80 ? 'You understood the dialogue clearly.' : pct >= 50 ? 'Replay and re-attempt missed questions.' : 'Listen with the transcript open, then re-try.',
+        actions: [
+          { label: 'More dialogues', onclick: "App.go('dialogue')", primary: true },
+          { label: 'Path', onclick: "App.go('path')" },
+        ],
+      });
     }
 
     showListen();

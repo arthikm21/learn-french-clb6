@@ -114,21 +114,17 @@ window.VocabModule = (function () {
     }
     function finish() {
       App.markLessonDone(`vocab:${deckKey}`);
-      container.innerHTML = `
-        ${Chrome.render({ back: 'vocab', crumbs: ['Vocab', deck.name, 'Complete'] })}
-        <div class="lesson center">
-          <div class="empty">
-            <div class="big-icon">🎉</div>
-            <h2>Bravo !</h2>
-            <p>You reviewed ${new Set(cards.map(x => x.fr)).size} cards. Come back tomorrow — the system surfaces the cards you need.</p>
-            ${Support.winNudge()}
-            <div class="spacer"></div>
-            <div class="row" style="justify-content:center">
-              <button class="btn primary big" onclick="App.go('vocab')">More vocab<span class="arr">→</span></button>
-              <button class="btn ghost big" onclick="App.go('path')">Back to Path</button>
-            </div>
-          </div>
-        </div>`;
+      container.innerHTML = Chrome.finishScreen({
+        back: 'vocab', crumbs: ['Vocab', deck.name, 'Complete'],
+        icon: '🎉',
+        title: 'Bravo !',
+        scoreLine: `You reviewed <b>${new Set(cards.map(x => x.fr)).size}</b> cards. Come back tomorrow — the system surfaces the cards you need.`,
+        extra: Support.winNudge(),
+        actions: [
+          { label: 'More vocab', onclick: "App.go('vocab')", primary: true, arrow: true },
+          { label: 'Back to Path', onclick: "App.go('path')" },
+        ],
+      });
     }
     show();
   }

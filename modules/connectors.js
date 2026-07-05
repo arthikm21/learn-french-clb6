@@ -91,7 +91,9 @@ window.ConnectorsModule = (function () {
         try { rec && rec.start(); } catch {}
       };
 
+      let answered = false; // Enter re-press stacked timeouts → skipped questions
       function check(timedOut) {
+        if (answered) return;
         clearInterval(timer);
         const userResponse = (typed.value.trim() || recordedText.trim());
         if (!userResponse && !timedOut) {
@@ -100,6 +102,7 @@ window.ConnectorsModule = (function () {
           timer = setInterval(() => { timeLeft--; if (timerEl) timerEl.textContent = timeLeft + 's'; if (timeLeft <= 0) { clearInterval(timer); check(true); } }, 1000);
           return;
         }
+        answered = true;
         const lower = userResponse.toLowerCase();
         const usedConnector = lower.includes(d.target.toLowerCase());
         const wordCount = (userResponse.match(/[\p{L}\p{N}]+/gu) || []).length;
@@ -131,18 +134,16 @@ window.ConnectorsModule = (function () {
       if (aborted) return;
       const pct = Math.round((correct / queue.length) * 100);
       if (pct >= 70) App.markLessonDone('connectors:drill');
-      container.innerHTML = `
-        <div class="lesson center">
-          <div class="empty">
-            <div class="big-icon">🔗</div>
-            <h2>${pct >= 80 ? 'Excellent!' : pct >= 60 ? 'Good work!' : 'Keep practicing'}</h2>
-            <p>Score: <b>${correct}/${queue.length}</b> (${pct}%)</p>
-            <p style="color:var(--mute);margin-top:8px">${pct >= 80 ? 'You handle TCF-level discourse connectors with confidence.' : pct >= 60 ? 'Solid. Re-run the drill — random sample varies each time.' : 'Review the connector list in the Grammar Connectors unit, then drill again.'}</p>
-            <div class="spacer"></div>
-            <button class="btn big" onclick="App.go('connectors')">↻ Drill again</button>
-            <button class="btn ghost big" onclick="App.go('home')">← Home</button>
-          </div>
-        </div>`;
+      container.innerHTML = Chrome.finishScreen({
+        icon: '🔗',
+        title: pct >= 80 ? 'Excellent!' : pct >= 60 ? 'Good work!' : 'Keep practicing',
+        score: { correct, total: queue.length },
+        sub: pct >= 80 ? 'You handle TCF-level discourse connectors with confidence.' : pct >= 60 ? 'Solid. Re-run the drill — random sample varies each time.' : 'Review the connector list in the Grammar Connectors unit, then drill again.',
+        actions: [
+          { label: '↻ Drill again', onclick: "App.go('connectors')", primary: true },
+          { label: 'Home', onclick: "App.go('home')" },
+        ],
+      });
     }
 
     show();

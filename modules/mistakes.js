@@ -163,17 +163,15 @@ window.MistakesModule = (function () {
     const queue = [...items].sort(() => Math.random() - 0.5);
     function show() {
       if (i >= queue.length) {
-        container.innerHTML = `
-          <div class="lesson center">
-            <div class="empty">
-              <div class="big-icon">🏁</div>
-              <h2>Review done</h2>
-              <p>Got <b>${correctCount}/${queue.length}</b> right.</p>
-              <p style="color:var(--mute);margin-top:8px">Correct items moved to the next review level (longer interval). Wrong items reset to level 0 (due immediately).</p>
-              <div class="spacer"></div>
-              <button class="btn big" onclick="App.go('mistakes')">Back to Weak Spots</button>
-            </div>
-          </div>`;
+        container.innerHTML = Chrome.finishScreen({
+          icon: '🏁',
+          title: 'Weak spots reviewed',
+          score: { correct: correctCount, total: queue.length },
+          sub: 'Correct items moved to the next review level (longer interval). Wrong items reset to level 0 (due immediately).',
+          actions: [
+            { label: 'Back to Weak Spots', onclick: "App.go('mistakes')", primary: true },
+          ],
+        });
         return;
       }
       const mk = queue[i];
@@ -194,11 +192,14 @@ window.MistakesModule = (function () {
       const inp = container.querySelector('#ans');
       inp.focus();
       const norm = s => String(s).trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[.,!?;:"]/g,'').replace(/\s+/g,' ').trim();
+      let answered = false; // Enter re-press must not re-promote/demote or re-mount the countdown
       const check = () => {
+        if (answered) return;
         const v = norm(inp.value);
         const c = norm(mk.correct).replace(/\([^)]*\)/g, '').trim();
         const c2 = norm(mk.correct); // alternate exact
         if (!v) return;
+        answered = true;
         const right = v === c || v === c2 || (c && v.includes(c));
         if (right) {
           correctCount++;
@@ -216,7 +217,13 @@ window.MistakesModule = (function () {
         });
       };
       container.querySelector('#submit').onclick = check;
-      inp.onkeydown = e => { if (e.key === 'Enter') check(); };
+      // Enter submits; a second deliberate Enter advances via the countdown row.
+      inp.onkeydown = e => {
+        if (e.key !== 'Enter' || e.repeat) return;
+        if (!answered) { check(); return; }
+        const nb = container.querySelector('.advance-next');
+        if (nb) nb.click();
+      };
     }
     show();
   }

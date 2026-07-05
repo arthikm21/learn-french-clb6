@@ -128,7 +128,18 @@ window.ScenarioModule = (function () {
       if (next) next.onclick = () => {
         if (step === STEPS.length - 1) {
           App.markLessonDone(`scenario:${sc.id}`);
-          App.go('scenario');
+          // Show an explicit completion moment — silently bouncing back to the
+          // list left users unsure the scenario was actually finished.
+          container.innerHTML = Chrome.finishScreen({
+            back: 'scenario', crumbs: ['Scenarios', sc.title, 'Complete'],
+            icon: sc.icon || '🎬',
+            title: 'Scenario complete',
+            scoreLine: `You worked through all ${STEPS.length} steps of <b>${escapeHTML(sc.title)}</b>.`,
+            actions: [
+              { label: 'More scenarios', onclick: "App.go('scenario')", primary: true },
+              { label: 'Back to Path', onclick: "App.go('path')" },
+            ],
+          });
           return;
         }
         step++; render();

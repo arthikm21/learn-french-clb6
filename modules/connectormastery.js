@@ -352,22 +352,18 @@ window.ConnectorMasteryModule = (function () {
 
     function finish() {
       const pct = Math.round((correct / queue.length) * 100);
-      container.innerHTML = `
-        ${Chrome.render({ back: 'connectormastery', crumbs: ['Connector Mastery', 'Result'] })}
-        <div class="lesson center">
-          <div class="empty">
-            <div class="big-icon">${pct >= 80 ? '🔗' : pct >= 60 ? '👍' : '🔁'}</div>
-            <h2>Drill done</h2>
-            <p>Score: <b>${correct}/${queue.length}</b> (${pct}%)</p>
-            <p style="color:var(--mute);margin-top:var(--sp-2)">${pct >= 80 ? 'Connectors are locking in. Use them in your next speaking task.' : pct >= 60 ? 'Solid progress. Re-run the drill — the random sample varies.' : 'Browse the library, read the "when to use" notes, then drill again.'}</p>
-            ${pct >= 60 ? Support.kitCard('sheets') : ''}
-            <div class="spacer"></div>
-            <div class="row" style="justify-content:center">
-              <button class="btn primary big" onclick="App.go('connectormastery', { drill: '${mode}' })">Run it again</button>
-              <button class="btn ghost big" onclick="App.go('connectormastery')">Back to library</button>
-            </div>
-          </div>
-        </div>`;
+      container.innerHTML = Chrome.finishScreen({
+        back: 'connectormastery', crumbs: ['Connector Mastery', 'Result'],
+        icon: pct >= 80 ? '🔗' : pct >= 60 ? '👍' : '🔁',
+        title: pct >= 80 ? 'Connectors locking in' : pct >= 60 ? 'Solid progress' : 'Keep drilling',
+        score: { correct, total: queue.length },
+        sub: pct >= 80 ? 'Use them in your next speaking task.' : pct >= 60 ? 'Re-run the drill — the random sample varies.' : 'Browse the library, read the "when to use" notes, then drill again.',
+        extra: pct >= 60 ? Support.kitCard('sheets') : '',
+        actions: [
+          { label: 'Run it again', onclick: `App.go('connectormastery', { drill: '${mode}' })`, primary: true },
+          { label: 'Back to library', onclick: "App.go('connectormastery')" },
+        ],
+      });
     }
 
     show();

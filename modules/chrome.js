@@ -80,6 +80,66 @@ window.Chrome = (function () {
     `;
   }
 
+  // Unified end-of-session screen — ONE consistent completion signal across
+  // every module. Always shows the "✓ Session complete" kicker, then a flavor
+  // title, score, coaching line, and clear next actions. Plays the completion
+  // sound and (for strong runs) fires confetti.
+  //
+  // Usage:
+  //   container.innerHTML = Chrome.finishScreen({
+  //     back: 'listen', crumbs: ['Listen', title, 'Result'],
+  //     icon: '🎯', title: 'Sharp ear',
+  //     score: { correct, total },        // renders "Score: c/t (pct%)"
+  //     sub: 'Coaching line…',            // muted paragraph
+  //     extra: Support.winNudge(),        // raw HTML block (optional)
+  //     actions: [
+  //       { label: 'Run it again', onclick: "App.go('listen')", primary: true },
+  //       { label: 'Back to Path', onclick: "App.go('path')" },
+  //     ],
+  //   });
+  function finishScreen(opts) {
+    opts = opts || {};
+    const icon = opts.icon || '🎉';
+    const title = opts.title || 'Well done';
+    const score = opts.score;
+    let scoreHTML = '';
+    let pct = null;
+    if (score && typeof score.correct === 'number' && typeof score.total === 'number' && score.total > 0) {
+      pct = Math.round((score.correct / score.total) * 100);
+      scoreHTML = `<p>Score: <b>${score.correct}/${score.total}</b> (${pct}%)</p>`;
+    } else if (opts.scoreLine) {
+      scoreHTML = `<p>${opts.scoreLine}</p>`;
+    }
+    const subHTML = opts.sub ? `<p style="color:var(--mute);margin-top:var(--sp-2)">${opts.sub}</p>` : '';
+    const actions = Array.isArray(opts.actions) ? opts.actions : [];
+    const actionsHTML = actions.map(a =>
+      `<button class="btn ${a.primary ? 'primary' : 'ghost'} big" onclick="${a.onclick || ''}">${escapeHTML(a.label || '')}${a.arrow ? '<span class="arr">→</span>' : ''}</button>`
+    ).join('');
+
+    // Completion feedback — sound always, confetti on strong runs (or when the
+    // caller says so). Rendering the finish screen IS the completion moment.
+    const celebrate = (opts.celebrate !== undefined) ? opts.celebrate : (pct === null || pct >= 70);
+    try { if (window.Sounds) Sounds.play('complete'); } catch {}
+    if (celebrate && window.Celebrate) {
+      try { setTimeout(() => Celebrate.confetti({ intensity: pct !== null && pct >= 90 ? 'large' : 'small' }), 200); } catch {}
+    }
+
+    return `
+      ${render({ back: opts.back, crumbs: opts.crumbs })}
+      <div class="lesson center">
+        <div class="empty">
+          <div class="big-icon">${icon}</div>
+          <p style="text-transform:uppercase;letter-spacing:var(--ls-wide);font-size:var(--fs-12);font-weight:var(--fw-semi);color:var(--good);margin-bottom:var(--sp-2)">✓ Session complete</p>
+          <h2>${title}</h2>
+          ${scoreHTML}
+          ${subHTML}
+          ${opts.extra || ''}
+          <div class="spacer"></div>
+          <div class="row" style="justify-content:center;flex-wrap:wrap">${actionsHTML}</div>
+        </div>
+      </div>`;
+  }
+
   // Render a small English gloss under French content. The CSS class is
   // controlled by the Settings toggle (body.no-gloss hides all .gloss).
   // Pass `en` (the English string) and an optional `cls` ('gloss' or 'gloss-lg').
@@ -108,6 +168,15 @@ window.Chrome = (function () {
     // override with opts.auto.
     const auto = (opts && opts.auto !== undefined) ? opts.auto : (result !== 'wrong');
     if (!host || typeof onNext !== 'function') return () => {};
+
+    // SINGLETON — only one advance instance may be live at a time. Modules can
+    // accidentally mount twice (e.g. re-submitting while a countdown is up):
+    // the stale instance's interval would then fire onNext a second time and
+    // silently SKIP a question. Destroy any previous instance first.
+    if (advance._destroy) { try { advance._destroy(); } catch {} }
+    // Time origin shared with KeyboardEvent.timeStamp — used below to tell the
+    // committing keystroke (in-flight during mount) from a fresh, deliberate one.
+    const mountedPerf = (window.performance && performance.now) ? performance.now() : 0;
 
     // Reward / acknowledgement sound — fires once on render.
     if (result && window.Sounds && typeof Sounds.play === 'function') {
@@ -173,6 +242,7 @@ window.Chrome = (function () {
       clearInterval(timer);
       document.removeEventListener('keydown', onKey);
       window.removeEventListener('hashchange', destroy);
+      if (advance._destroy === destroy) advance._destroy = null;
       onNext();
     }
     function pause() { paused = true; paint(); }
@@ -183,13 +253,26 @@ window.Chrome = (function () {
       clearInterval(timer);
       document.removeEventListener('keydown', onKey);
       window.removeEventListener('hashchange', destroy);
+      if (advance._destroy === destroy) advance._destroy = null;
     }
 
     function onKey(e) {
       // Don't hijack typing — only act when focus isn't in a form field
       const tag = (e.target && e.target.tagName) || '';
       if (tag === 'INPUT' || tag === 'TEXTAREA' || e.target.isContentEditable) return;
-      if (e.key === 'Enter') { e.preventDefault(); fire(); }
+      // A held key auto-repeats keydown every ~35ms — one press must mean ONE
+      // action, so ignore repeats entirely.
+      if (e.repeat) return;
+      if (e.key === 'Enter') {
+        // Swallow ONLY the keystroke that committed the answer — it may still be
+        // bubbling to us (a module that forgot stopPropagation) or was in-flight
+        // when this row mounted. That event was created BEFORE mount, so its
+        // timeStamp predates mountedPerf. A deliberately re-pressed Enter always
+        // post-dates the mount and passes straight through, so fast keyboard
+        // users are never forced to press twice.
+        if (e.timeStamp && mountedPerf && e.timeStamp < mountedPerf) { e.preventDefault(); return; }
+        e.preventDefault(); fire();
+      }
       else if ((e.key === ' ' || e.code === 'Space') && auto) { e.preventDefault(); paused ? resume() : pause(); }
     }
 
@@ -200,8 +283,9 @@ window.Chrome = (function () {
     document.addEventListener('keydown', onKey);
     window.addEventListener('hashchange', destroy);
 
+    advance._destroy = destroy;
     return destroy;
   }
 
-  return { render, escapeHTML, gloss, advance };
+  return { render, escapeHTML, gloss, advance, finishScreen };
 })();

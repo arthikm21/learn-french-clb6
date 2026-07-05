@@ -14,10 +14,23 @@ window.Keyboard = (function () {
     return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || el.isContentEditable;
   }
 
+  // ─────────────────── Central answered-lock for options ───────────────────
+  // Modules mark options `.disabled` after an answer but leave their onclick
+  // handlers attached. A second click would re-run the whole answer flow —
+  // double XP, a second Chrome.advance mount, and ultimately a skipped
+  // question. Swallow such clicks in the CAPTURE phase, before any module
+  // handler can see them. One guard here covers every module.
+  document.addEventListener('click', (e) => {
+    const hit = e.target && e.target.closest ? e.target.closest('.option.disabled') : null;
+    if (hit) { e.preventDefault(); e.stopPropagation(); }
+  }, true);
+
   // ───────────────────────── Global shortcuts ─────────────────────────
   document.addEventListener('keydown', (e) => {
     if (isTyping(e)) return;
     if (e.metaKey || e.ctrlKey || e.altKey) return;
+    // Held-key auto-repeat must never machine-gun submits/answers.
+    if (e.repeat) return;
 
     // Space → play audio. EXCEPT while a post-answer countdown is showing —
     // there the advance row owns Space (pause/resume), so we bail to avoid the
@@ -44,6 +57,11 @@ window.Keyboard = (function () {
     // Enter → submit / next / start. Arrow-focused options handle their own
     // Enter (see the radiogroup handler), so this only fires for page actions.
     if (e.key === 'Enter') {
+      // While a post-answer countdown row is showing, IT owns Enter (see
+      // Chrome.advance). Same rule as Space above — without this guard one
+      // Enter press could click a lingering #submit/#check button AND advance,
+      // re-submitting or skipping a question.
+      if (document.querySelector('.advance-row')) return;
       const submit = document.getElementById('submit') || document.getElementById('check')
         || document.getElementById('next') || document.getElementById('start')
         || document.getElementById('start-quiz') || document.getElementById('start-gate');

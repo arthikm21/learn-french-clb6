@@ -148,21 +148,17 @@ window.ReadModule = (function () {
     function finish() {
       const pct = Math.round((correct / t.questions.length) * 100);
       if (pct >= 70) App.markLessonDone(`read:${key}`);
-      container.innerHTML = `
-        ${Chrome.render({ back: 'read', crumbs: ['Read', t.title, 'Result'] })}
-        <div class="lesson center">
-          <div class="empty">
-            <div class="big-icon">${pct >= 70 ? '📜' : '📖'}</div>
-            <h2>${pct >= 70 ? 'Read & understood' : 'Re-read & retry'}</h2>
-            <p>Score: <b>${correct}/${t.questions.length}</b> (${pct}%)</p>
-            ${pct >= 70 ? Support.winNudge() : ''}
-            <div class="spacer"></div>
-            <div class="row" style="justify-content:center">
-              <button class="btn primary big" onclick="App.go('read')">More texts</button>
-              <button class="btn ghost big" onclick="App.go('path')">Back to Path</button>
-            </div>
-          </div>
-        </div>`;
+      container.innerHTML = Chrome.finishScreen({
+        back: 'read', crumbs: ['Read', t.title, 'Result'],
+        icon: pct >= 70 ? '📜' : '📖',
+        title: pct >= 70 ? 'Read & understood' : 'Re-read & retry',
+        score: { correct, total: t.questions.length },
+        extra: pct >= 70 ? Support.winNudge() : '',
+        actions: [
+          { label: 'More texts', onclick: "App.go('read')", primary: true },
+          { label: 'Back to Path', onclick: "App.go('path')" },
+        ],
+      });
     }
 
     showText();

@@ -61,7 +61,7 @@ window.ListenMasteryModule = (function () {
         <div>
           <p class="eyebrow">Mixed practice</p>
           <h2>All categories, shuffled</h2>
-          <p>${all.length} clips across 5 exercise types. The closest thing to the real exam.</p>
+          <p>12 random clips from a pool of ${all.length} — fresh mix every run. The closest thing to the real exam.</p>
         </div>
         <button class="btn primary big">Start mixed<span class="arr">→</span></button>
       </div>
@@ -89,8 +89,12 @@ window.ListenMasteryModule = (function () {
   // ─────────────── SESSION ───────────────
   function renderSession(container, cat) {
     const all = window.LISTENING_MASTERY || [];
+    // Mixed mode caps at 12 clips — a 120-clip run is a session nobody can
+    // finish, which means nobody ever SEES the completion screen. 12 random
+    // clips ≈ real exam length; re-run for a fresh mix.
+    const MIXED_CAP = 12;
     let queue = cat === '__all__'
-      ? all.slice().sort(() => Math.random() - 0.5)
+      ? all.slice().sort(() => Math.random() - 0.5).slice(0, MIXED_CAP)
       : all.filter(ex => ex.category === cat);
     if (queue.length === 0) { App.go('listenmastery'); return; }
 
@@ -290,21 +294,17 @@ window.ListenMasteryModule = (function () {
 
     function finish() {
       const pct = Math.round((correct / queue.length) * 100);
-      container.innerHTML = `
-        ${Chrome.render({ back: 'listenmastery', crumbs: ['Listening Mastery', cat === '__all__' ? 'Mixed' : cat, 'Result'] })}
-        <div class="lesson center">
-          <div class="empty">
-            <div class="big-icon">${pct >= 80 ? '🎯' : pct >= 60 ? '👂' : '🔁'}</div>
-            <h2>Session done</h2>
-            <p>Score: <b>${correct}/${queue.length}</b> (${pct}%)</p>
-            <p style="color:var(--mute);margin-top:var(--sp-2)">${pct >= 80 ? 'Sharp ear. Move up a speed.' : pct >= 60 ? 'Solid. Replay the missed clips at slow speed.' : 'Slow it down. Listen with intent. Repetition wins.'}</p>
-            <div class="spacer"></div>
-            <div class="row" style="justify-content:center">
-              <button class="btn primary big" onclick="App.go('listenmastery', { cat: '${cat}' })">Run it again</button>
-              <button class="btn ghost big" onclick="App.go('listenmastery')">Other categories</button>
-            </div>
-          </div>
-        </div>`;
+      container.innerHTML = Chrome.finishScreen({
+        back: 'listenmastery', crumbs: ['Listening Mastery', cat === '__all__' ? 'Mixed' : cat, 'Result'],
+        icon: pct >= 80 ? '🎯' : pct >= 60 ? '👂' : '🔁',
+        title: pct >= 80 ? 'Sharp ear' : pct >= 60 ? 'Solid session' : 'Keep at it',
+        score: { correct, total: queue.length },
+        sub: pct >= 80 ? 'Move up a speed.' : pct >= 60 ? 'Replay the missed clips at slow speed.' : 'Slow it down. Listen with intent. Repetition wins.',
+        actions: [
+          { label: cat === '__all__' ? 'New mix' : 'Run it again', onclick: `App.go('listenmastery', { cat: '${cat}' })`, primary: true },
+          { label: 'Other categories', onclick: "App.go('listenmastery')" },
+        ],
+      });
     }
 
     show();

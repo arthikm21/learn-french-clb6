@@ -83,9 +83,14 @@ window.ListenModule = (function () {
       });
       TTS.speakSoon(it.audio, 0.85, 300);
       setTimeout(() => inp.focus(), 300);
+      let answered = false;
       const check = () => {
+        // Idempotent — a second Enter used to re-run this, mounting a second
+        // countdown whose stale timer then skipped a question.
+        if (answered) return;
         const ans = inp.value.trim();
         if (!ans) return;
+        answered = true;
         const ok = it.accept.some(a => similar(ans, a) >= 0.85);
         if (ok) {
           correct++;
@@ -110,6 +115,8 @@ window.ListenModule = (function () {
       };
       container.querySelector('#submit').onclick = check;
       container.querySelector('#skip').onclick = () => {
+        if (answered) return;
+        answered = true;
         fb.innerHTML = `<div class="feedback bad">Answer: <b>${escapeHTML(it.audio)}</b></div><div class="adv-host"></div>`;
         Chrome.advance({
           host: container.querySelector('.adv-host'),
@@ -118,27 +125,30 @@ window.ListenModule = (function () {
           result: 'wrong',
         });
       };
-      inp.onkeydown = (e) => { if (e.key === 'Enter') check(); };
+      // Keyboard-first flow: Enter submits; a SECOND deliberate Enter (no
+      // held-key repeats) advances via the countdown row's Next.
+      inp.onkeydown = (e) => {
+        if (e.key !== 'Enter' || e.repeat) return;
+        if (!answered) { check(); return; }
+        const nb = container.querySelector('.advance-next');
+        if (nb) nb.click();
+      };
     }
     function finish() {
       App.markLessonDone(`listen:${setKey}`);
       const pct = Math.round((correct / s.items.length) * 100);
-      container.innerHTML = `
-        ${Chrome.render({ back: 'listen', crumbs: ['Listen', s.title, 'Result'] })}
-        <div class="lesson center">
-          <div class="empty">
-            <div class="big-icon">${pct >= 70 ? '🎯' : '👂'}</div>
-            <h2>Listening done</h2>
-            <p>Score: <b>${correct}/${s.items.length}</b> (${pct}%)</p>
-            <p style="color:var(--mute);margin-top:var(--sp-2)">${pct >= 80 ? 'Your ear is sharp. Try the natural-speed sets next.' : pct >= 50 ? 'Re-listen to the misses at slow speed, then natural.' : 'Slow it down. Build up. Repetition wins this.'}</p>
-            ${pct >= 70 ? Support.winNudge() : ''}
-            <div class="spacer"></div>
-            <div class="row" style="justify-content:center">
-              <button class="btn primary big" onclick="App.go('listen')">More listening</button>
-              <button class="btn ghost big" onclick="App.go('path')">Back to Path</button>
-            </div>
-          </div>
-        </div>`;
+      container.innerHTML = Chrome.finishScreen({
+        back: 'listen', crumbs: ['Listen', s.title, 'Result'],
+        icon: pct >= 70 ? '🎯' : '👂',
+        title: pct >= 70 ? 'Sharp listening' : 'Keep training the ear',
+        score: { correct, total: s.items.length },
+        sub: pct >= 80 ? 'Your ear is sharp. Try the natural-speed sets next.' : pct >= 50 ? 'Re-listen to the misses at slow speed, then natural.' : 'Slow it down. Build up. Repetition wins this.',
+        extra: pct >= 70 ? Support.winNudge() : '',
+        actions: [
+          { label: 'More listening', onclick: "App.go('listen')", primary: true },
+          { label: 'Back to Path', onclick: "App.go('path')" },
+        ],
+      });
     }
     show();
   }

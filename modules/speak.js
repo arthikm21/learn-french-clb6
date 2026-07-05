@@ -146,12 +146,14 @@ window.SpeakModule = (function () {
 
     function finish() {
       App.markLessonDone(`speak:${setKey}`);
+      try { if (window.Sounds) Sounds.play('complete'); } catch {}
       container.innerHTML = `
         ${Chrome.render({ back: 'speak', crumbs: ['Speak', s.title, 'Complete'] })}
         <div class="lesson center">
           <div class="empty">
             <div class="big-icon">🗣️</div>
-            <h2>Session done</h2>
+            <p style="text-transform:uppercase;letter-spacing:var(--ls-wide);font-size:var(--fs-12);font-weight:var(--fw-semi);color:var(--good);margin-bottom:var(--sp-2)">✓ Session complete</p>
+            <h2>Shadowing session finished</h2>
             <p>You shadowed <b>${new Set(queue.map(x => x.fr)).size}</b> sentence${new Set(queue.map(x => x.fr)).size === 1 ? '' : 's'}. The "Hard" ones came back this session — and return tomorrow on a tighter schedule.</p>
             <p style="color:var(--mute);margin-top:var(--sp-2)">Speaking is the only skill the site cannot grade for you. Your reps are your reps. Do them aloud.</p>
             <div class="grammar-box" style="border-left-color:var(--accent);text-align:left;max-width:560px;margin:var(--sp-6) auto 0">

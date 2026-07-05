@@ -163,22 +163,19 @@ window.GrammarModule = (function () {
       const pct = Math.round((correct / u.quiz.length) * 100);
       const pass = pct >= 70;
       if (pass) App.markLessonDone(`grammar:${u.id}`);
-      container.innerHTML = `
-        ${Chrome.render({ back: 'grammar', crumbs: ['Grammar', u.title, 'Result'] })}
-        <div class="lesson center">
-          <div class="empty">
-            <div class="big-icon">${pass ? '🏅' : '💪'}</div>
-            <h2>${pass ? 'Quest Complete' : 'Almost There'}</h2>
-            <p>Score: <b>${correct}/${u.quiz.length}</b> (${pct}%)</p>
-            <p style="margin-top:var(--sp-2)">${pass ? 'Unit unlocked. The next step is highlighted on your path.' : 'Review the rules and try again — 70% to pass.'}</p>
-            ${pass ? Support.winNudge() : ''}
-            <div class="spacer"></div>
-            <div class="row" style="justify-content:center">
-              <button class="btn primary big" onclick="App.go('grammar', { unit: '${u.id}' })">Review rules</button>
-              <button class="btn ghost big" onclick="App.go('path')">Back to Path</button>
-            </div>
-          </div>
-        </div>`;
+      container.innerHTML = Chrome.finishScreen({
+        back: 'grammar', crumbs: ['Grammar', u.title, 'Result'],
+        icon: pass ? '🏅' : '💪',
+        title: pass ? 'Quest complete' : 'Almost there',
+        score: { correct, total: u.quiz.length },
+        sub: pass ? 'Unit unlocked. The next step is highlighted on your path.' : 'Review the rules and try again — 70% to pass.',
+        extra: pass ? Support.winNudge() : '',
+        celebrate: pass,
+        actions: [
+          { label: 'Review rules', onclick: `App.go('grammar', { unit: '${u.id}' })`, primary: true },
+          { label: 'Back to Path', onclick: "App.go('path')" },
+        ],
+      });
     }
 
     renderIntro();

@@ -140,20 +140,17 @@ window.PhonicsModule = (function () {
     function finish() {
       const pct = Math.round((correct / queue.length) * 100);
       if (pct >= 75) App.markLessonDone(`phonics:${unitId}-minpairs`);
-      container.innerHTML = `
-        ${Chrome.render({ back: 'phonics', crumbs: ['Phonics', 'Ear drill', 'Result'] })}
-        <div class="lesson center">
-          <div class="empty">
-            <div class="big-icon">${pct >= 75 ? '👂' : '🔁'}</div>
-            <h2>${pct >= 75 ? 'Sharp ear' : 'More practice needed'}</h2>
-            <p>${correct}/${queue.length} correct (${pct}%)</p>
-            <div class="spacer"></div>
-            <div class="row" style="justify-content:center">
-              <button class="btn primary big" onclick="App.go('phonics', { unit: '${unitId}' })">Back to unit</button>
-              <button class="btn ghost big" onclick="App.go('phonics')">All phonics</button>
-            </div>
-          </div>
-        </div>`;
+      container.innerHTML = Chrome.finishScreen({
+        back: 'phonics', crumbs: ['Phonics', 'Ear drill', 'Result'],
+        icon: pct >= 75 ? '👂' : '🔁',
+        title: pct >= 75 ? 'Sharp ear' : 'More practice needed',
+        score: { correct, total: queue.length },
+        celebrate: pct >= 75,
+        actions: [
+          { label: 'Back to unit', onclick: `App.go('phonics', { unit: '${unitId}' })`, primary: true },
+          { label: 'All phonics', onclick: "App.go('phonics')" },
+        ],
+      });
     }
     show();
   }
