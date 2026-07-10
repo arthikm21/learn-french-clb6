@@ -45,7 +45,7 @@ window.PathModule = (function () {
       // Auto-collapse fully-completed phases that are NOT current.
       const collapsed = passed && !isCurrent;
 
-      const statusGlyph = passed ? '✓' : !unlocked ? '🔒' : isCurrent ? '▶' : ph.id;
+      const statusGlyph = passed ? App.svgIcon('check') : !unlocked ? App.svgIcon('lock') : isCurrent ? App.svgIcon('play') : ph.id;
       const statusColor = passed ? 'var(--good)' : !unlocked ? 'var(--mute)' : isCurrent ? 'var(--accent)' : 'var(--ink-2)';
       const statusBg    = passed ? 'rgba(52,199,89,.12)' : !unlocked ? 'var(--surface-2)' : isCurrent ? 'rgba(94,92,230,.12)' : 'var(--surface-2)';
 
@@ -77,10 +77,10 @@ window.PathModule = (function () {
       sec.innerHTML = `
         <summary style="cursor:pointer;list-style:none;padding:var(--sp-4) var(--sp-5);background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);display:flex;justify-content:space-between;align-items:center;box-shadow:var(--e1);user-select:none;gap:var(--sp-3)">
           <span style="display:flex;align-items:center;gap:var(--sp-3);min-width:0">
-            <span style="flex-shrink:0;width:36px;height:36px;border-radius:var(--r-pill);background:${statusBg};color:${statusColor};display:grid;place-items:center;font-weight:var(--fw-bold);font-size:var(--fs-14);font-variant-numeric:tabular-nums">${statusGlyph}</span>
+            <span class="ph-status" style="flex-shrink:0;width:36px;height:36px;border-radius:var(--r-pill);background:${statusBg};color:${statusColor};display:grid;place-items:center;font-weight:var(--fw-bold);font-size:var(--fs-14);font-variant-numeric:tabular-nums">${statusGlyph}</span>
             <span style="min-width:0">
               <p style="text-transform:uppercase;letter-spacing:var(--ls-wide);font-size:var(--fs-11);font-weight:var(--fw-semi);color:var(--mute);margin-bottom:2px">Phase ${ph.id} · ${escapeHTML(ph.clb)}</p>
-              <span style="font-weight:var(--fw-semi);font-size:var(--fs-17);color:var(--ink);letter-spacing:var(--ls-snug)">${ph.icon} ${escapeHTML(ph.name)}</span>
+              <span style="font-weight:var(--fw-semi);font-size:var(--fs-17);color:var(--ink);letter-spacing:var(--ls-snug);display:inline-flex;align-items:center;gap:7px"><span class="phase-glyph">${App.phaseIcon(ph.id)}</span>${escapeHTML(ph.name)}</span>
               ${ph.subtitle ? `<p style="font-size:var(--fs-13);color:var(--ink-2);margin-top:2px">${escapeHTML(ph.subtitle)}</p>` : ''}
             </span>
           </span>
@@ -145,7 +145,7 @@ window.PathModule = (function () {
         <div class="row" style="justify-content:space-between;align-items:flex-start;gap:var(--sp-3)">
           <div style="flex:1;min-width:0">
             <p style="text-transform:uppercase;letter-spacing:var(--ls-wide);font-size:var(--fs-11);font-weight:var(--fw-semi);color:var(--mute);margin-bottom:6px">Phase ${ph.id} · Gate</p>
-            <h3>${ph.final ? '🎯' : '🛡️'} ${escapeHTML(ph.gateTitle)}</h3>
+            <h3><span class="gate-glyph">${App.svgIcon(ph.final ? 'target' : 'shield')}</span>${escapeHTML(ph.gateTitle)}</h3>
             <p style="margin-top:4px;color:var(--ink-2);font-size:var(--fs-14)">${escapeHTML(ph.gateDesc)}</p>
           </div>
           ${gateLabel}

@@ -30,6 +30,14 @@ window.App = (function () {
     history: '<path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><path d="M12 7v5l4 2"/>',
     briefcase: '<rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>',
     trendingUp: '<polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>',
+    shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
+    lock: '<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+    play: '<polygon points="6 3 20 12 6 21 6 3"/>',
+    check: '<polyline points="20 6 9 17 4 12"/>',
+    wrench: '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>',
+    gradcap: '<path d="M22 10 12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1.66 2.69 3 6 3s6-1.34 6-3v-5"/>',
+    alert: '<path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>',
+    heart: '<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>',
   };
   // Phase strip glyphs — same stroke set as the practice grid, replacing the
   // per-phase emoji from data (emoji render OS-dependent and off-brand).
@@ -37,6 +45,10 @@ window.App = (function () {
   function svgIcon(key) {
     const inner = ICONS[key] || ICONS.target;
     return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${inner}</svg>`;
+  }
+  // Phase glyph markup for other modules (path.js) — same stroke set.
+  function phaseIcon(id) {
+    return svgIcon(PHASE_ICONS[id] || 'target');
   }
 
   function load() {
@@ -97,7 +109,14 @@ window.App = (function () {
   function refreshTopbar() {
     const u = window.Storage.getCurrentUser();
     const chip = document.getElementById('user-chip');
-    if (chip) chip.textContent = '👤 ' + (u || 'anonymous');
+    if (chip) {
+      let name = chip.querySelector('#user-name');
+      if (!name) {
+        chip.innerHTML = `${svgIcon('user')}<span id="user-name"></span>`;
+        name = chip.querySelector('#user-name');
+      }
+      name.textContent = u || 'anonymous';
+    }
     const doneEl = document.getElementById('progress-done');
     const totalEl = document.getElementById('progress-total');
     if (doneEl) doneEl.textContent = Object.keys(state.lessons).length;
@@ -201,7 +220,7 @@ window.App = (function () {
       console.error(`[route ${route}] render failed:`, err);
       container.innerHTML = `
         <div class="lesson" style="margin-top:var(--sp-7)">
-          <h2>⚠️ Page failed to load</h2>
+          <h2 class="h3-icon" style="--h3i:var(--warn)">${svgIcon('alert')}Page failed to load</h2>
           <p style="color:var(--ink-2);margin-top:var(--sp-3)">Something went wrong rendering this page. The error has been logged.</p>
           <p style="color:var(--mute);font-size:var(--fs-13);margin-top:var(--sp-2)"><code>${(err && err.message ? err.message : 'Unknown error').replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]))}</code></p>
           <div class="spacer"></div>
@@ -398,12 +417,14 @@ window.App = (function () {
     const pct = Math.round((done / total) * 100);
     const user = escapeHTML(window.Storage.getCurrentUser());
 
-    // Progress ring SVG
+    // Progress ring SVG. The drawn arc never drops below a sliver — a true
+    // 0-1% otherwise renders as an empty circle and reads as "broken".
     const ringSize = 132;
     const ringStroke = 10;
     const ringR = (ringSize - ringStroke) / 2;
     const ringC = 2 * Math.PI * ringR;
-    const ringOffset = ringC * (1 - pct / 100);
+    const arcPct = Math.max(pct, done > 0 ? 2.5 : 1.25);
+    const ringOffset = ringC * (1 - arcPct / 100);
 
     container.innerHTML = `
       <section class="hero">
@@ -421,7 +442,7 @@ window.App = (function () {
                 stroke-dasharray="${ringC.toFixed(2)}" stroke-dashoffset="${ringOffset.toFixed(2)}"/>
             </svg>
             <div class="ring-label">
-              <span class="pct">${pct}<small style="font-size:.5em;font-weight:var(--fw-semi);color:var(--mute)">%</small></span>
+              <span class="pct"><span data-pct>${pct}</span><small style="font-size:.5em;font-weight:var(--fw-semi);color:var(--mute)">%</small></span>
               <span class="meta">${done}/${total}</span>
             </div>
           </div>
@@ -515,7 +536,7 @@ window.App = (function () {
         const cls = ['phase-chip'];
         if (passed) cls.push('done');
         if (!unlocked) cls.push('locked');
-        const label = passed ? '✓ Passed' : !unlocked ? 'Locked' : isCurrent ? '▶ Current' : 'Open';
+        const label = passed ? '✓ Passed' : !unlocked ? 'Locked' : isCurrent ? '<b style="color:var(--accent)">Current</b>' : 'Open';
         return `
           <div class="${cls.join(' ')}" data-ph="${ph.id}">
             <p class="eyebrow">Phase ${ph.id} · ${escapeHTML(ph.clb)}</p>
@@ -537,6 +558,27 @@ window.App = (function () {
         };
       });
     }
+    // Ring entrance: arc sweeps in from empty, label counts up. Full tier
+    // only — other tiers render the final state immediately.
+    if (document.body.dataset.anim === 'full') {
+      const fg = container.querySelector('.ring circle.fg');
+      if (fg) {
+        fg.style.strokeDashoffset = ringC.toFixed(2);
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+          fg.style.strokeDashoffset = ringOffset.toFixed(2);
+        }));
+      }
+      const pctEl = container.querySelector('[data-pct]');
+      if (pctEl && pct > 0) {
+        const t0 = performance.now(), dur = 900;
+        const tick = (t) => {
+          const k = Math.min(1, (t - t0) / dur);
+          pctEl.textContent = Math.round(pct * (1 - Math.pow(1 - k, 3)));
+          if (k < 1 && pctEl.isConnected) requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+      }
+    }
   }
 
   function renderAbout(container) {
@@ -546,7 +588,7 @@ window.App = (function () {
         <p>An interactive French learning site engineered for one outcome: passing <b>CLB 6</b> in all four modules.</p>
       </div>
       <div class="grammar-box">
-        <h3>🎯 What is CLB 6?</h3>
+        <h3 class="h3-icon">${svgIcon('target')}What is CLB 6?</h3>
         <p>The Canadian Language Benchmark (CLB) is the national standard for adult second-language proficiency in Canada. CLB 6 is "Intermediate Initial" — equivalent to roughly B1 on the European CEFR scale. It is the threshold most commonly required for federal job competitions, professional licensing, and Express Entry immigration points.</p>
         <p>CLB 6 means you can:</p>
         <ul style="margin-left:20px;line-height:1.8;margin-top:6px">
@@ -557,7 +599,7 @@ window.App = (function () {
         </ul>
       </div>
       <div class="grammar-box">
-        <h3>📐 The method</h3>
+        <h3 class="h3-icon">${svgIcon('ruler')}The method</h3>
         <p><b>Pattern first, rule second.</b> Each grammar unit shows examples with the pattern highlighted, THEN states the explicit rule. This matches how children acquire language while keeping the rigor adults need to self-correct.</p>
         <p><b>Spaced repetition (SM-2).</b> Vocabulary you struggle with is shown more often; mastered words drop into long intervals. No wasted time on what you already know.</p>
         <p><b>Audio-first vocabulary.</b> Every French word and phrase plays in a neural Canadian French voice (fr-CA-SylvieNeural). Hear it before you read it.</p>
@@ -565,18 +607,18 @@ window.App = (function () {
         <p><b>Calibrated to CLB 6 ceiling.</b> No subjunctive imparfait, no passé simple, no literary tenses. Everything in this site is what an immigrant in Quebec or a professional in a francophone workplace actually uses.</p>
       </div>
       <div class="grammar-box">
-        <h3>🛤️ The path</h3>
+        <h3 class="h3-icon">${svgIcon('map')}The path</h3>
         <p>The Path is ordered so that each step builds on the previous. Start at lesson 1, work through. If you already know early material, skim it — but the quizzes still need to pass to unlock further units.</p>
         <p>Daily 30-45 min on the Path → CLB 6 in 3-4 months. Faster if you also consume French media (Radio-Canada, France 24, Quebec series like <em>District 31</em>).</p>
       </div>
       <div class="grammar-box">
-        <h3>🔧 Tech</h3>
+        <h3 class="h3-icon">${svgIcon('wrench')}Tech</h3>
         <p>Static site. No accounts. No tracking. All your progress lives in your browser's localStorage, keyed by the username you pick. Multiple users on the same browser supported. Clear browser data → progress resets.</p>
         <p>Source code on GitHub. Pull requests welcome.</p>
       </div>
 
-      <div class="grammar-box" style="background:#fef3c7;border-left-color:var(--warn)">
-        <h3>🎓 Realistic expectations</h3>
+      <div class="grammar-box" style="background:color-mix(in srgb, var(--warn) 10%, var(--surface));border-left-color:var(--warn)">
+        <h3 class="h3-icon" style="--h3i:var(--warn)">${svgIcon('gradcap')}Realistic expectations</h3>
         <p>This site provides roughly <b>70-80%</b> of what an immigrant or professional needs to pass CLB 6 on the TEF Canada / TCF Canada. For the remaining 20-30%:</p>
         <ul style="margin-left:20px;line-height:1.9;margin-top:6px">
           <li><b>Daily input</b>: 30 minutes of Radio-Canada news or Téléjournal. Free, native-speed, current affairs vocabulary.</li>
@@ -588,12 +630,12 @@ window.App = (function () {
       </div>
 
       <div class="grammar-box">
-        <h3>💬 Found a typo or have a suggestion?</h3>
+        <h3 class="h3-icon">${svgIcon('message')}Found a typo or have a suggestion?</h3>
         <p>Open an issue on GitHub: <a href="https://github.com/arthikm21/learn-french-clb6/issues" target="_blank" rel="noopener" style="color:var(--bleu)">github.com/arthikm21/learn-french-clb6/issues</a></p>
       </div>
 
       <div class="grammar-box">
-        <h3>💛 If Bonjour! helped you</h3>
+        <h3 class="h3-icon" style="--h3i:var(--warn)">${svgIcon('heart')}If Bonjour! helped you</h3>
         <p>This site is free, and it stays free — no paywall, no accounts, no ads. It's built and paid for by one person. If it moved your French even a little closer to CLB 6, a small one-time gift keeps the audio flowing and the lights on. No pressure, ever — honestly, just using it and telling one friend already means a lot.</p>
         <div class="center" style="margin-top:12px">
           <a class="btn primary" href="https://buymeacoffee.com/frenchclb6" target="_blank" rel="noopener">Help keep Bonjour! free<span class="arr">→</span></a>
@@ -608,7 +650,7 @@ window.App = (function () {
   function renderPrivacy(container) {
     container.innerHTML = `
       <div class="hero"><div class="flag-stripes"></div>
-        <h1>🔒 Privacy</h1>
+        <h1>Privacy</h1>
         <p>What we collect: nothing.</p>
       </div>
       <div class="grammar-box">
@@ -762,6 +804,38 @@ window.App = (function () {
     });
   }
 
+  // -------- Liquid glass: pointer-tracked specular sheen --------
+  // One delegated rAF-throttled listener feeds --mx/--my to whichever glass
+  // card the cursor is over; styles.css paints the highlight (full anim tier,
+  // fine pointers only — the media query there gates visibility, so this
+  // stays cheap: one closest() + two setProperty per frame at most.
+  function setupLiquidPointer() {
+    if (!window.matchMedia || !matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+    let raf = 0, last = null;
+    document.addEventListener('pointermove', (e) => {
+      last = e;
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        const el = last.target && last.target.closest ? last.target.closest('.card, .spotlight') : null;
+        if (!el) return;
+        const r = el.getBoundingClientRect();
+        el.style.setProperty('--mx', (last.clientX - r.left).toFixed(1) + 'px');
+        el.style.setProperty('--my', (last.clientY - r.top).toFixed(1) + 'px');
+      });
+    }, { passive: true });
+  }
+
+  // -------- Topbar condenses on scroll --------
+  function setupTopbarScroll() {
+    const tb = document.querySelector('.topbar');
+    if (!tb) return;
+    let raf = 0;
+    const update = () => { raf = 0; tb.classList.toggle('scrolled', window.scrollY > 6); };
+    window.addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(update); }, { passive: true });
+    update();
+  }
+
   // -------- Theme --------
   function loadTheme() {
     const t = localStorage.getItem('fr_theme_v1');
@@ -783,6 +857,8 @@ window.App = (function () {
     setupMobileNav();
     setupNavSections();
     setupCreditModal();
+    setupLiquidPointer();
+    setupTopbarScroll();
     refreshTopbar();
     document.querySelectorAll('[data-route]').forEach(el => {
       el.onclick = () => go(el.dataset.route);
@@ -797,5 +873,5 @@ window.App = (function () {
 
   document.addEventListener('DOMContentLoaded', init);
 
-  return { state, go, addXP, markLessonDone, continueNext, nextPathItem, svgIcon, reloadForUser, toggleTheme };
+  return { state, go, addXP, markLessonDone, continueNext, nextPathItem, svgIcon, phaseIcon, reloadForUser, toggleTheme };
 })();

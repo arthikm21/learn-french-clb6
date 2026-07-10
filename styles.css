@@ -3609,3 +3609,168 @@ body.dark .option.wrong   { background: rgba(255, 59, 48, .16); border-color: va
 .phase-glyph svg { width: 16px; height: 16px; }
 .phase-chip.locked .phase-glyph { color: var(--mute); }
 .phase-chip.done .phase-glyph { color: var(--good); }
+
+/* =========================================================================
+   LIQUID GLASS V5 — RIM LIGHT, POINTER SHEEN, LIVING CHROME
+   =========================================================================
+   The material finally catches light: gradient rim hairlines replace flat
+   1px borders on the glass stages, a pointer-tracked specular highlight
+   rides the interactive surfaces, and the topbar condenses once content
+   slides beneath it. Paint-only (background / opacity / box-shadow) — zero
+   new blur layers, zero layout-affecting animation.
+   ========================================================================= */
+
+/* ── Rim light — the glass edge reads as an edge, not a border ─────────── */
+/* Masked 1px ring painted over the existing border pixel. Guarded: where
+   mask-composite is unsupported the pseudo would flood-fill the surface,
+   so the whole treatment only exists inside @supports. */
+.spotlight, .lesson { position: relative; }
+@supports ((-webkit-mask-composite: xor) or (mask-composite: exclude)) {
+  .hero:not(.accent)::before, .spotlight::before, .lesson::before,
+  .card::before, .flashcard .face::before, .credit-modal-card::before,
+  .nav-menu::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg,
+      rgba(255, 255, 255, .95) 0%,
+      rgba(255, 255, 255, .34) 22%,
+      rgba(20, 22, 31, .10) 54%,
+      rgba(20, 22, 31, .09) 78%,
+      rgba(255, 255, 255, .55) 100%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
+    z-index: 3;
+  }
+  body.dark .hero:not(.accent)::before, body.dark .spotlight::before,
+  body.dark .lesson::before, body.dark .card::before,
+  body.dark .flashcard .face::before, body.dark .credit-modal-card::before,
+  body.dark .nav-menu::before {
+    background: linear-gradient(135deg,
+      rgba(255, 255, 255, .30) 0%,
+      rgba(255, 255, 255, .11) 24%,
+      rgba(255, 255, 255, .05) 54%,
+      rgba(255, 255, 255, .04) 80%,
+      rgba(255, 255, 255, .15) 100%);
+  }
+}
+
+/* ── Pointer sheen — specular highlight follows the cursor under the glass.
+     app.js feeds --mx/--my via one delegated rAF listener; hover-capable
+     fine pointers + full anim tier only. Opacity is the only animated
+     property; position updates are plain background paints. ─────────────── */
+@media (hover: hover) and (pointer: fine) {
+  body[data-anim="full"] .card::after,
+  body[data-anim="full"] .spotlight::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0;
+    z-index: 2;
+    background: radial-gradient(260px circle at var(--mx, 50%) var(--my, 50%),
+      rgba(255, 255, 255, .40), transparent 62%);
+    transition: opacity 260ms var(--ease-out);
+  }
+  body[data-anim="full"] .spotlight::after {
+    background: radial-gradient(440px circle at var(--mx, 50%) var(--my, 50%),
+      rgba(255, 255, 255, .26), transparent 60%);
+  }
+  body.dark[data-anim="full"] .card::after {
+    background: radial-gradient(260px circle at var(--mx, 50%) var(--my, 50%),
+      rgba(255, 255, 255, .10), transparent 62%);
+  }
+  body.dark[data-anim="full"] .spotlight::after {
+    background: radial-gradient(440px circle at var(--mx, 50%) var(--my, 50%),
+      rgba(255, 255, 255, .07), transparent 60%);
+  }
+  body[data-anim="full"] .card:hover::after,
+  body[data-anim="full"] .spotlight:hover::after { opacity: 1; }
+}
+
+/* ── Topbar condenses on scroll — flat at rest, floating once content
+     passes beneath (app.js toggles .scrolled) ───────────────────────────── */
+.topbar {
+  transition: background var(--t-base) var(--ease-in-out),
+              box-shadow var(--t-base) var(--ease-in-out),
+              border-color var(--t-base) var(--ease-in-out);
+}
+.topbar.scrolled {
+  background: color-mix(in srgb, var(--bg) 46%, transparent);
+  border-bottom-color: transparent;
+  box-shadow: 0 1px 0 var(--glass-line), 0 8px 32px rgba(15, 17, 21, .10);
+}
+body.dark .topbar.scrolled {
+  box-shadow: 0 1px 0 var(--glass-line), 0 10px 36px rgba(0, 0, 0, .55);
+}
+
+/* ── Hero: a quiet specular streak across the glass ────────────────────── */
+.hero::after {
+  background:
+    linear-gradient(115deg, transparent 40%, rgba(255, 255, 255, .18) 50%, transparent 60%),
+    radial-gradient(48% 70% at 88% 0%,  rgba(94, 92, 230, .10), transparent 70%),
+    radial-gradient(40% 60% at 0% 100%, rgba(239, 65, 53, .07), transparent 70%);
+}
+body.dark .hero::after {
+  background:
+    linear-gradient(115deg, transparent 42%, rgba(255, 255, 255, .05) 50%, transparent 58%),
+    radial-gradient(48% 70% at 88% 0%,  rgba(125, 122, 255, .16), transparent 70%),
+    radial-gradient(40% 60% at 0% 100%, rgba(255, 105, 97, .10), transparent 70%);
+}
+
+/* ── Light-mode ambience: enough color that the frost has something to
+     refract (dark keeps its quiet stage) ─────────────────────────────────── */
+body:not(.dark)::before {
+  background:
+    radial-gradient(60vw 60vw at 12% 0%,   rgba(94, 92, 230, .27), transparent 64%),
+    radial-gradient(66vw 66vw at 92% 16%,  rgba(0, 85, 164, .20),  transparent 66%),
+    radial-gradient(60vw 60vw at 50% 104%, rgba(239, 65, 53, .16), transparent 62%),
+    radial-gradient(44vw 44vw at 70% 56%,  rgba(124, 58, 237, .13), transparent 66%);
+}
+
+/* ── Progress ring: the arc is alive — visible track, luminous tip ─────── */
+.ring circle.bg { stroke: color-mix(in srgb, var(--ink) 15%, transparent); }
+.ring circle.fg {
+  transition: stroke-dashoffset 900ms var(--ease-out);
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--accent) 45%, transparent));
+}
+
+/* ── Press feedback — surfaces respond under the finger (HIG scale) ────── */
+.card:active { transform: translateY(0) scale(.985); }
+.spotlight { transition: box-shadow var(--t-base), transform 90ms var(--ease-out); }
+.spotlight[onclick]:active { transform: scale(.99); }
+.option:not(.disabled):active { transform: scale(.99); }
+.phase-chip:not(.locked):active, .path-node:not(.locked):active { transform: scale(.985); }
+
+/* ── Icon-bearing headings + glyph wells (About, gates, phase status) ──── */
+.h3-icon { display: flex; align-items: center; gap: 8px; }
+.h3-icon svg { width: 18px; height: 18px; color: var(--h3i, var(--accent)); flex-shrink: 0; }
+.gate-glyph { display: inline-flex; vertical-align: -2px; color: var(--accent); margin-right: 2px; }
+.gate-glyph svg { width: 17px; height: 17px; }
+.ph-status svg { width: 15px; height: 15px; display: block; }
+.stat svg { width: 13px; height: 13px; flex-shrink: 0; opacity: .8; }
+.nav a svg { width: 14px; height: 14px; vertical-align: -2px; margin-right: 5px; }
+
+/* ── Mobile: shorter blur radii — same look, lighter compositor bill ───── */
+@media (max-width: 640px) {
+  :root {
+    --glass-blur:    blur(14px) saturate(170%);
+    --glass-blur-lg: blur(22px) saturate(180%);
+  }
+}
+
+/* ── Floating dark menus go near-opaque — big underlying type (lesson h1)
+     bled through .88 glass and ghosted the labels ────────────────────────── */
+body.dark .nav-menu { background: rgba(21, 21, 27, .97); }
+
+/* ── Guards ────────────────────────────────────────────────────────────── */
+@media (prefers-reduced-transparency: reduce) {
+  .card::after, .spotlight::after { display: none; }
+  .topbar.scrolled { background: var(--bg); }
+}
