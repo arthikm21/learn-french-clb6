@@ -237,7 +237,7 @@ window.DeepDiveModule = (function () {
       <div class="spacer lg"></div>
       <div class="grammar-box">
         <h3>Why these four?</h3>
-        <p>These topics aren't separately graded on the TCF, but mistakes here are <b>the most reliable signal</b> that a writer/speaker is below CLB 6. Native graders catch them in seconds. Master these and you cross the threshold.</p>
+        <p>These topics are not scored as isolated grammar questions in speaking and writing, but recurring errors can reduce clarity and accuracy. Practise them in complete responses, then verify your output with rubric-based human feedback.</p>
       </div>
     `;
     container.querySelectorAll('[data-topic]').forEach(el => {

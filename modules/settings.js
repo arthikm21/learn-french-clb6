@@ -81,7 +81,9 @@ window.Settings = (function () {
 
   return {
     // Click sound (master enable)
-    isClickSoundOn()  { return readBool(KEY_CLICK_SOUND, true); },
+    // Premium default: meaningful learning feedback stays on, but routine UI
+    // taps are silent unless the learner explicitly opts in.
+    isClickSoundOn()  { return readBool(KEY_CLICK_SOUND, false); },
     setClickSound(on) { writeBool(KEY_CLICK_SOUND, !!on); },
 
     // Tap-to-pronounce on French words
@@ -109,11 +111,11 @@ window.Settings = (function () {
     setClickStyle(s)  { writeStr(KEY_CLICK_STYLE, s); },
 
     // Master volume 0..1
-    getMasterVolume() { return readNum(KEY_MASTER_VOLUME, 0.7); },
+    getMasterVolume() { return readNum(KEY_MASTER_VOLUME, 0.5); },
     setMasterVolume(v) {
       writeNum(KEY_MASTER_VOLUME, v);
       if (window.Sounds && typeof Sounds.setMasterVolume === 'function') {
-        Sounds.setMasterVolume(readNum(KEY_MASTER_VOLUME, 0.7));
+        Sounds.setMasterVolume(readNum(KEY_MASTER_VOLUME, 0.5));
       }
     },
 

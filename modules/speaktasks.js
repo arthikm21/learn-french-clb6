@@ -53,7 +53,7 @@ window.SpeakTasksModule = (function () {
         <ul style="margin-left:20px;line-height:var(--lh-loose);color:var(--ink-2)">
           <li><b>Record</b> yourself in French — the mic stays local, no upload.</li>
           <li><b>Listen back.</b> Hearing yourself is where the gains are.</li>
-          <li><b>Compare</b> to the model phrasing in native Canadian voice.</li>
+          <li><b>Compare</b> to the model phrasing in a Canadian French neural voice.</li>
           <li><b>Self-rate</b> with a short honest rubric — no fake AI grade.</li>
           <li><b>Type what you said</b> (optional) for a keyword + structure grade.</li>
         </ul>
@@ -307,7 +307,7 @@ window.SpeakTasksModule = (function () {
     }
 
     const clb = total >= 75 ? (t.level.includes('6') ? 'CLB 6' : 'CLB 5') : total >= 55 ? 'CLB 4' : 'CLB 3';
-    if (total >= 65) App.markLessonDone(`speaktask:${id}`);
+    App.recordAttempt(`speaktask:${id}`, total, 65, 'automated-speaking-self-check');
 
     const passColor = total >= 70 ? 'var(--good)' : 'var(--warn)';
     const passBg = total >= 70 ? 'rgba(52,199,89,.12)' : 'rgba(255,159,10,.12)';
@@ -451,7 +451,7 @@ window.SpeakTasksModule = (function () {
     const rubricPct = rubricMaxTotal ? Math.round((rubricTotal / rubricMaxTotal) * 100) : 0;
     const typedPct = typedTarget ? Math.min(100, Math.round((typedWords / typedTarget) * 100)) : null;
     const total = typedPct != null ? Math.round((rubricPct + typedPct) / 2) : rubricPct;
-    if (total >= 65) App.markLessonDone(`speaktask:${id}`);
+    App.recordAttempt(`speaktask:${id}`, total, 65, 'automated-speaking-self-check');
 
     container.innerHTML = `
       <div class="lesson">
@@ -585,7 +585,7 @@ window.SpeakTasksModule = (function () {
     const rubricPct = rubricMaxTotal ? Math.round((rubricTotal / rubricMaxTotal) * 100) : 0;
     const typedPct = typedTarget ? Math.min(100, Math.round((typedWords / typedTarget) * 100)) : null;
     const total = typedPct != null ? Math.round((rubricPct + typedPct) / 2) : rubricPct;
-    if (total >= 65) App.markLessonDone(`speaktask:${id}`);
+    App.recordAttempt(`speaktask:${id}`, total, 65, 'automated-speaking-self-check');
 
     container.innerHTML = `
       <div class="lesson">

@@ -76,13 +76,14 @@ window.App = (function () {
   function addXP(_n) { /* XP removed per user request */ }
 
   function markLessonDone(key) {
+    // Ungraded/self-checked sessions still produce evidence, but are labelled
+    // “practiced” rather than assigned an invented proficiency score.
+    if (window.Mastery && !Mastery.get(key)) {
+      try { Mastery.recordPractice(key); } catch {}
+    }
     if (!state.lessons[key]) {
       state.lessons[key] = true;
       save();
-      // Log activity for the progress page heatmap + streak.
-      if (window.ProgressModule && typeof ProgressModule.logActivity === 'function') {
-        ProgressModule.logActivity();
-      }
       // Reward sound — gate passes get the bigger fanfare, regular lessons
       // the standard complete chime.
       if (window.Sounds && typeof Sounds.play === 'function') {
@@ -106,6 +107,16 @@ window.App = (function () {
     }
   }
 
+  function recordAttempt(key, score, threshold = 70, kind = 'assessed') {
+    if (!window.Mastery) {
+      if (score >= threshold) markLessonDone(key);
+      return { last: score, best: score, threshold, status: score >= threshold ? 'mastered' : 'building' };
+    }
+    const record = Mastery.recordAttempt(key, { score, threshold, kind });
+    if (record.status === 'mastered') markLessonDone(key);
+    return record;
+  }
+
   function refreshTopbar() {
     const u = window.Storage.getCurrentUser();
     const chip = document.getElementById('user-chip');
@@ -119,7 +130,7 @@ window.App = (function () {
     }
     const doneEl = document.getElementById('progress-done');
     const totalEl = document.getElementById('progress-total');
-    if (doneEl) doneEl.textContent = Object.keys(state.lessons).length;
+    if (doneEl) doneEl.textContent = pathDoneCount();
     if (totalEl) totalEl.textContent = LESSON_PATH.length;
   }
 
@@ -158,18 +169,11 @@ window.App = (function () {
   };
 
   function parseHash() {
-    const h = location.hash.slice(1) || 'home';
-    const [r, q] = h.split('?');
-    const params = {};
-    if (q) q.split('&').forEach(kv => { const [k, v] = kv.split('='); params[k] = decodeURIComponent(v || ''); });
-    return { route: r, params };
+    return Router.parse(location.hash);
   }
 
   function go(route, params) {
-    let hash = '#' + route;
-    if (params && Object.keys(params).length) {
-      hash += '?' + Object.entries(params).map(([k, v]) => `${k}=${encodeURIComponent(v)}`).join('&');
-    }
+    const hash = Router.build(route, params);
     // If hash didn't change, force re-render (hashchange event won't fire).
     if (location.hash === hash) renderActive();
     else location.hash = hash;
@@ -204,7 +208,11 @@ window.App = (function () {
     // the browser supports it and animations are at full tier. The DOM update
     // itself is identical either way.
     if (document.startViewTransition && document.body.dataset.anim === 'full') {
-      document.startViewTransition(paint);
+      const transition = document.startViewTransition(paint);
+      // Rapid navigation legitimately skips an in-flight transition. Its
+      // `finished` promise rejects with AbortError; consume that expected
+      // rejection so normal navigation never pollutes the console.
+      if (transition && transition.finished) transition.finished.catch(() => {});
     } else {
       paint();
     }
@@ -231,7 +239,10 @@ window.App = (function () {
         </div>`;
     }
     document.querySelectorAll('.nav a').forEach(a => {
-      a.classList.toggle('active', a.dataset.route === route);
+      const active = a.dataset.route === route;
+      a.classList.toggle('active', active);
+      if (active) a.setAttribute('aria-current', 'page');
+      else a.removeAttribute('aria-current');
     });
     document.querySelectorAll('.nav-sect').forEach(s => {
       const btn = s.querySelector('.nav-sect-btn');
@@ -308,7 +319,7 @@ window.App = (function () {
         ['scenario', 'users', 'Scenarios', 'Oral', '50 real Canadian life situations. Listen → vocab → shadow → speak it yourself.'],
         ['listenmastery', 'headphones', 'Listen Mastery', 'Oral', '120 clips, 5 exercise types. Speed ramps from 0.7x to 1.2x.'],
         ['connectormastery', 'link', 'Connector Mastery', 'Oral', '22 connectors that move you from CLB 4-5 to CLB 6. Library + 4 drill types.'],
-        ['speak', 'mic', 'Speaking Shadow', '', 'Hear native audio, repeat it aloud, self-rate. Hard lines come back via SRS.'],
+        ['speak', 'mic', 'Speaking Shadow', '', 'Hear Canadian French neural audio, repeat it aloud, self-rate. Hard lines come back via SRS.'],
         ['speaktasks', 'mic', 'Speaking Practice', '', 'Record yourself, listen back, self-rate. Picture description, Q&A, role-play.'],
       ]},
       { cat: 'found', label: 'Foundations', cards: [
@@ -352,7 +363,7 @@ window.App = (function () {
   // as a menu; a numbered plan tells the learner exactly what today is.
   // Order mirrors the pedagogy: clear reviews first (retention), then new
   // material, then one speaking rep (oral is half the outcome).
-  function renderTodayCard(next, srsDue, weakDue, topDueDeck) {
+  function renderTodayCard(next, nextGate, srsDue, weakDue, topDueDeck) {
     const reviewCount = srsDue.total + weakDue;
     const steps = [];
     if (reviewCount > 0) {
@@ -370,10 +381,15 @@ window.App = (function () {
       sub: escapeHTML(next.desc),
       btn: 'Continue',
       onclick: 'App.continueNext()',
+    } : nextGate ? {
+      title: `Confirm Phase ${nextGate.id}: ${escapeHTML(nextGate.gateTitle)}`,
+      sub: 'Your phase checkpoint is ready. Pass it to unlock the next stage.',
+      btn: 'Take check',
+      onclick: `App.go('gate', { phase: '${nextGate.id}' })`,
     } : {
-      title: 'Take the mock test',
-      sub: 'Every milestone done. Simulate the real exam end-to-end.',
-      btn: 'Start mock',
+      title: 'Run the four-skill simulation',
+      sub: 'Every path milestone is done. Rehearse the four skills together and identify final practice priorities.',
+      btn: 'Start simulation',
       onclick: `App.go('mock')`,
     });
     steps.push({
@@ -403,7 +419,8 @@ window.App = (function () {
   }
 
   function renderHome(container) {
-    const next = LESSON_PATH.find(n => !state.lessons[doneKey(n)]);
+    const next = nextPathItem();
+    const nextGate = PHASES.find(ph => Path.phaseUnlocked(ph.id) && !Path.gatePassed(ph.id) && Path.gateEligible(ph.id));
     // Daily review pressure: SRS cards due (vocab/shadow lines already seen)
     // + weak spots due. Retention comes from clearing these, so they get a
     // spotlight the moment any exist.
@@ -412,7 +429,7 @@ window.App = (function () {
     const topDueDeck = Object.entries(srsDue.byDeck)
       .filter(([k]) => window.VOCAB && VOCAB[k])
       .sort((a, b) => b[1] - a[1])[0];
-    const done = Object.keys(state.lessons).length;
+    const done = pathDoneCount();
     const total = LESSON_PATH.length;
     const pct = Math.round((done / total) * 100);
     const user = escapeHTML(window.Storage.getCurrentUser());
@@ -432,8 +449,8 @@ window.App = (function () {
         <div style="display:flex;justify-content:space-between;align-items:center;gap:var(--sp-6);flex-wrap:wrap">
           <div style="flex:1;min-width:260px">
             <p style="text-transform:uppercase;letter-spacing:var(--ls-wide);font-size:var(--fs-12);font-weight:var(--fw-semi);color:var(--mute);margin-bottom:var(--sp-3)">Bonjour, ${user}</p>
-            <h1>Score CLB 6.<br/>Built for it.</h1>
-            <p style="margin-top:var(--sp-4)">A free, focused TCF Canada prep path. Phonics, vocab, grammar, listening, speaking, reading, writing. Calibrated to one outcome.</p>
+            <h1>Build toward NCLC 6.<br/>See the evidence.</h1>
+            <p style="margin-top:var(--sp-4)">A focused TCF Canada learning path across listening, speaking, reading, and writing—with a clear next step and visible capability milestones.</p>
           </div>
           <div class="ring" style="width:${ringSize}px;height:${ringSize}px;flex-shrink:0">
             <svg width="${ringSize}" height="${ringSize}">
@@ -453,13 +470,13 @@ window.App = (function () {
       <div class="spotlight" onclick="App.go('diagnostic')" style="cursor:pointer">
         <div>
           <p class="eyebrow">Recommended</p>
-          <h2>Start with a 5-minute placement test</h2>
-          <p>20 quick questions detect your level. Anything you already know gets auto-marked done so you skip ahead — no busywork.</p>
+          <h2>Start with a 5-minute knowledge sample</h2>
+          <p>20 quick questions reveal likely focus areas before you begin. It does not invent a language level or mark full lessons complete.</p>
         </div>
-        <button class="btn primary big" onclick="event.stopPropagation();App.go('diagnostic')">Take it<span class="arr">→</span></button>
+        <span class="btn primary big" aria-hidden="true">Take it<span class="arr">→</span></span>
       </div>` : ''}
 
-      ${renderTodayCard(next, srsDue, weakDue, topDueDeck)}
+      ${renderTodayCard(next, nextGate, srsDue, weakDue, topDueDeck)}
 
       <div class="spotlight" onclick="App.go('scenario')" style="cursor:pointer;border:1px solid var(--accent)">
         <div>
@@ -467,20 +484,20 @@ window.App = (function () {
           <h2>Calling a landlord. Opening a bank account.</h2>
           <p>One Canadian life situation at a time. Listen → understand → repeat → speak it yourself. No textbooks. Just the conversations you'll actually have.</p>
         </div>
-        <button class="btn primary big" onclick="event.stopPropagation();App.go('scenario')">Open scenarios<span class="arr">→</span></button>
+        <span class="btn primary big" aria-hidden="true">Open scenarios<span class="arr">→</span></span>
       </div>
 
       <div class="spotlight" onclick="App.go('mock')" style="cursor:pointer">
         <div>
-          <p class="eyebrow" style="color:var(--rouge)">CLB 6 Mock Test</p>
-          <h2>Take the real-format exam</h2>
-          <p>~90 minutes · 4 skills · CLB band estimate at the end. Simulates the TEF Canada exam structure end-to-end.</p>
+          <p class="eyebrow" style="color:var(--rouge)">TCF Canada Practice Simulation</p>
+          <h2>Practise all four skills together</h2>
+          <p>~2h47 · 39 listening and 39 reading questions · all three writing and speaking task types · practice priorities at the end.</p>
         </div>
-        <button class="btn big" onclick="event.stopPropagation();App.go('mock')" style="background:var(--rouge);color:white">Start mock<span class="arr">→</span></button>
+        <span class="btn big" aria-hidden="true" style="background:var(--rouge);color:white">Start simulation<span class="arr">→</span></span>
       </div>
 
       <h2 class="section-h">Your phases</h2>
-      <p class="section-sub">Eight phases. Seven gates. Each one ends in a mini-mock that unlocks the next.</p>
+      <p class="section-sub">Eight phases. Seven course checks unlock the path; the final phase combines timed four-skill practice and evidence review.</p>
       <div class="phase-strip" id="phase-strip"></div>
 
       <div class="spacer"></div>
@@ -495,7 +512,7 @@ window.App = (function () {
       ${renderPracticeAreas()}
 
       <h2 class="section-h">How CLB 6 is achieved here</h2>
-      <p class="section-sub">Four skills, each trained by a dedicated module. 30-45 minutes daily, ~3-4 months.</p>
+      <p class="section-sub">Four abilities, each trained deliberately. Preparation time depends on starting ability, practice quality, authentic input, feedback, and the weakest skill.</p>
       <div class="grid">
         <div class="card" style="cursor:default">
           <h3>Listening</h3>
@@ -503,7 +520,7 @@ window.App = (function () {
         </div>
         <div class="card" style="cursor:default">
           <h3>Speaking</h3>
-          <p>Shadowing drills with native audio and self-rating. Plus open-ended TCF tasks recorded on-device.</p>
+          <p>Shadowing drills with Canadian French neural audio and self-rating. Plus open-ended TCF tasks recorded on-device.</p>
         </div>
         <div class="card" style="cursor:default">
           <h3>Reading</h3>
@@ -511,17 +528,17 @@ window.App = (function () {
         </div>
         <div class="card" style="cursor:default">
           <h3>Writing</h3>
-          <p>Writing Workshop with heuristic grader and CLB band estimate.</p>
+          <p>Writing Workshop with models, word-count discipline, common-slip checks, and task rubrics.</p>
         </div>
       </div>
 
       <div class="spacer lg"></div>
       <p style="text-align:center;color:var(--mute);font-size:var(--fs-13)">
-        <a onclick="App.go('about')" style="color:var(--ink-2);cursor:pointer">About</a>
+        <a href="#about" style="color:var(--ink-2)">About</a>
         &nbsp;·&nbsp;
-        <a onclick="App.go('privacy')" style="color:var(--ink-2);cursor:pointer">Privacy</a>
+        <a href="#privacy" style="color:var(--ink-2)">Privacy</a>
         &nbsp;·&nbsp;
-        <a onclick="App.go('profile')" style="color:var(--ink-2);cursor:pointer">Profile</a>
+        <a href="#profile" style="color:var(--ink-2)">Profile</a>
       </p>
     `;
     // Hydrate phase strip
@@ -556,6 +573,8 @@ window.App = (function () {
           }
           App.go('gate', { phase: String(id) });
         };
+        el.setAttribute('aria-disabled', String(!Path.phaseUnlocked(parseInt(el.dataset.ph, 10))));
+        if (window.Keyboard) Keyboard.enhanceClickableSurface(el);
       });
     }
     // Ring entrance: arc sweeps in from empty, label counts up. Full tier
@@ -589,7 +608,7 @@ window.App = (function () {
       </div>
       <div class="grammar-box">
         <h3 class="h3-icon">${svgIcon('target')}What is CLB 6?</h3>
-        <p>The Canadian Language Benchmark (CLB) is the national standard for adult second-language proficiency in Canada. CLB 6 is "Intermediate Initial" — equivalent to roughly B1 on the European CEFR scale. It is the threshold most commonly required for federal job competitions, professional licensing, and Express Entry immigration points.</p>
+        <p>The Canadian Language Benchmarks describe adult English proficiency in Canada; the corresponding French framework is the Niveaux de compétence linguistique canadiens (NCLC). This course uses “CLB 6” in its familiar product name while training toward an NCLC 6 French target. Immigration, employment, and licensing requirements vary, so learners should verify the standard required for their specific goal.</p>
         <p>CLB 6 means you can:</p>
         <ul style="margin-left:20px;line-height:1.8;margin-top:6px">
           <li><b>Listen</b> — understand moderately complex routine instructions and short discussions on familiar topics.</li>
@@ -609,7 +628,7 @@ window.App = (function () {
       <div class="grammar-box">
         <h3 class="h3-icon">${svgIcon('map')}The path</h3>
         <p>The Path is ordered so that each step builds on the previous. Start at lesson 1, work through. If you already know early material, skim it — but the quizzes still need to pass to unlock further units.</p>
-        <p>Daily 30-45 min on the Path → CLB 6 in 3-4 months. Faster if you also consume French media (Radio-Canada, France 24, Quebec series like <em>District 31</em>).</p>
+        <p>There is no universal preparation calendar. Beginners often need many months; learners already near the target may need a shorter focused period. Authentic French media, regular conversation, and corrective feedback remain essential.</p>
       </div>
       <div class="grammar-box">
         <h3 class="h3-icon">${svgIcon('wrench')}Tech</h3>
@@ -619,11 +638,11 @@ window.App = (function () {
 
       <div class="grammar-box" style="background:color-mix(in srgb, var(--warn) 10%, var(--surface));border-left-color:var(--warn)">
         <h3 class="h3-icon" style="--h3i:var(--warn)">${svgIcon('gradcap')}Realistic expectations</h3>
-        <p>This site provides roughly <b>70-80%</b> of what an immigrant or professional needs to pass CLB 6 on the TEF Canada / TCF Canada. For the remaining 20-30%:</p>
+        <p>This site provides the structured course, deliberate practice, and exam-task familiarity. It does not replace authentic listening input or feedback from another French speaker:</p>
         <ul style="margin-left:20px;line-height:1.9;margin-top:6px">
           <li><b>Daily input</b>: 30 minutes of Radio-Canada news or Téléjournal. Free, native-speed, current affairs vocabulary.</li>
           <li><b>Weekly conversation</b>: an iTalki / <a href="https://preply.sjv.io/c/7425774/1987575/24422" target="_blank" rel="sponsored noopener" style="color:var(--bleu)">Preply tutor</a> (~$15-25/hr). One hour per week of pure speaking with a human is irreplaceable.</li>
-          <li><b>Last month before exam</b>: buy the official TEF Canada or TCF Canada practice book. Familiarity with the exam format itself adds 1-2 CLB points on test day.</li>
+          <li><b>Last month before the exam</b>: use current official sample material and timed practice to remove format surprises. Do not treat format familiarity as a guaranteed score increase.</li>
           <li><b>Immersion</b>: change phone to French, watch a Quebec series (<em>District 31</em>, <em>STAT</em>) with French subtitles, listen to a French podcast on your commute.</li>
         </ul>
         <p style="margin-top:10px">This site replaces the textbook. It does NOT replace human conversation. Use both.</p>
@@ -669,7 +688,7 @@ window.App = (function () {
   // Next undone path item — used by Home's Today card and by
   // Chrome.finishScreen's "Next on your path" strip.
   function nextPathItem() {
-    return LESSON_PATH.find(n => !state.lessons[doneKey(n)]) || null;
+    return LESSON_PATH.find(n => !state.lessons[doneKey(n)] && (!window.Path || Path.phaseUnlocked(n.phase))) || null;
   }
 
   function continueNext() {
@@ -696,6 +715,13 @@ window.App = (function () {
       read: `read:${n.text}`,
       write: `write:${n.prompt}`,
     })[n.route];
+  }
+
+  // Optional practice (scenarios, mastery drills, writing models, gates) also
+  // records completion in state.lessons. Course progress must count only the
+  // 92 ordered path items or a motivated learner can exceed 100%.
+  function pathDoneCount() {
+    return LESSON_PATH.filter(n => !!state.lessons[doneKey(n)]).length;
   }
 
   function escapeHTML(s) {
@@ -861,7 +887,11 @@ window.App = (function () {
     setupTopbarScroll();
     refreshTopbar();
     document.querySelectorAll('[data-route]').forEach(el => {
-      el.onclick = () => go(el.dataset.route);
+      if (el.tagName === 'A') el.setAttribute('href', Router.build(el.dataset.route));
+      el.onclick = (event) => {
+        if (event) event.preventDefault();
+        go(el.dataset.route);
+      };
     });
     document.addEventListener('click', (e) => {
       const chip = e.target.closest('#user-chip');
@@ -873,5 +903,5 @@ window.App = (function () {
 
   document.addEventListener('DOMContentLoaded', init);
 
-  return { state, go, addXP, markLessonDone, continueNext, nextPathItem, svgIcon, phaseIcon, reloadForUser, toggleTheme };
+  return { state, go, addXP, markLessonDone, recordAttempt, continueNext, nextPathItem, pathDoneCount, svgIcon, phaseIcon, reloadForUser, toggleTheme };
 })();

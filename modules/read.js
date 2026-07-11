@@ -127,11 +127,11 @@ window.ReadModule = (function () {
             el.classList.add('correct');
             correct++;
             App.addXP(8);
-            container.querySelector('#fb').innerHTML = `<div class="feedback good">✓ Correct!</div>`;
+            container.querySelector('#fb').innerHTML = `<div class="feedback good">✓ Correct!${q.why ? ` <small>${q.why}</small>` : ''}</div><div class="adv-host"></div>`;
           } else {
             el.classList.add('wrong');
             container.querySelectorAll('.option')[q.a].classList.add('correct');
-            container.querySelector('#fb').innerHTML = `<div class="feedback bad">✗ Right answer: <b>${q.opts[q.a]}</b></div>`;
+            container.querySelector('#fb').innerHTML = `<div class="feedback bad">✗ Right answer: <b>${q.opts[q.a]}</b>${q.why ? `. <small>${q.why}</small>` : ''}</div><div class="adv-host"></div>`;
             MistakesModule.record({
               type: 'reading',
               sig: `read:${key}:${qi}`,
@@ -140,14 +140,19 @@ window.ReadModule = (function () {
               your: q.opts[i],
             });
           }
-          setTimeout(() => { qi++; qi >= t.questions.length ? finish() : showQ(); }, 1300);
+          Chrome.advance({
+            host: container.querySelector('.adv-host'),
+            onNext: () => { qi++; qi >= t.questions.length ? finish() : showQ(); },
+            seconds: i === q.a ? 3 : 5,
+            result: i === q.a ? 'correct' : 'wrong',
+          });
         };
       });
     }
 
     function finish() {
       const pct = Math.round((correct / t.questions.length) * 100);
-      if (pct >= 70) App.markLessonDone(`read:${key}`);
+      App.recordAttempt(`read:${key}`, pct, 70, 'reading-quiz');
       container.innerHTML = Chrome.finishScreen({
         back: 'read', crumbs: ['Read', t.title, 'Result'],
         icon: pct >= 70 ? '📜' : '📖',

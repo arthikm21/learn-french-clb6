@@ -26,7 +26,7 @@ window.ListenModule = (function () {
         <div class="flag-stripes"></div>
         <p class="eyebrow-h">Listening Lab</p>
         <h1>Hear it.<br/>Then type it.</h1>
-        <p style="margin-top:var(--sp-4)">Native Canadian French. Start slow. Build to natural pace.</p>
+        <p style="margin-top:var(--sp-4)">Canadian French neural audio. Start slow. Build to natural pace.</p>
       </section>
       <div class="grid" id="l-grid"></div>`;
     const grid = container.querySelector('#l-grid');
@@ -61,8 +61,8 @@ window.ListenModule = (function () {
           <div class="center">
             <div class="row" style="justify-content:center;gap:8px;margin-bottom:8px;flex-wrap:wrap">
               <button class="btn secondary" data-rate="0.6">🐢 Slow</button>
-              <button class="btn big" data-rate="0.85">🔊 Normal</button>
-              <button class="btn secondary" data-rate="1.0">🐇 Natural</button>
+              <button class="btn secondary" data-rate="0.85">Careful</button>
+              <button class="btn primary big" data-rate="1.0">🔊 Natural</button>
             </div>
             <p style="color:var(--mute);font-size:13px">Press a speed to replay the audio.</p>
           </div>
@@ -81,7 +81,7 @@ window.ListenModule = (function () {
       container.querySelectorAll('[data-rate]').forEach(b => {
         b.onclick = () => TTS.speak(it.audio, parseFloat(b.dataset.rate));
       });
-      TTS.speakSoon(it.audio, 0.85, 300);
+      TTS.speakSoon(it.audio, 1.0, 300);
       setTimeout(() => inp.focus(), 300);
       let answered = false;
       const check = () => {
@@ -118,6 +118,13 @@ window.ListenModule = (function () {
         if (answered) return;
         answered = true;
         fb.innerHTML = `<div class="feedback bad">Answer: <b>${escapeHTML(it.audio)}</b></div><div class="adv-host"></div>`;
+        MistakesModule.record({
+          type: 'listen',
+          sig: `listen:${setKey}:${i}`,
+          prompt: 'Listen and type: <em>(audio)</em>',
+          correct: it.audio,
+          your: '(answer revealed)',
+        });
         Chrome.advance({
           host: container.querySelector('.adv-host'),
           onNext: () => { i++; show(); },
@@ -135,8 +142,8 @@ window.ListenModule = (function () {
       };
     }
     function finish() {
-      App.markLessonDone(`listen:${setKey}`);
       const pct = Math.round((correct / s.items.length) * 100);
+      App.recordAttempt(`listen:${setKey}`, pct, 70, 'listening-dictation');
       container.innerHTML = Chrome.finishScreen({
         back: 'listen', crumbs: ['Listen', s.title, 'Result'],
         icon: pct >= 70 ? '🎯' : '👂',

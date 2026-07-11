@@ -15,7 +15,7 @@
 //
 // VERSION is stamped by scripts/bump_version.js on every release; activating
 // a new version deletes the previous shell cache (audio cache persists).
-const VERSION = '202607102150';
+const VERSION = '202607111922';
 const SHELL_CACHE = 'shell-' + VERSION;
 const AUDIO_CACHE = 'audio-v1';
 
@@ -38,7 +38,11 @@ async function cacheFirst(req, cacheName) {
   const hit = await cache.match(req);
   if (hit) return hit;
   const res = await fetch(req);
-  if (res && res.ok) cache.put(req, res.clone());
+  // Cache API rejects partial (206) media responses. Await successful writes so
+  // the worker cannot be terminated before the asset reaches the cache.
+  if (res && res.ok && res.status === 200) {
+    try { await cache.put(req, res.clone()); } catch {}
+  }
   return res;
 }
 
@@ -46,8 +50,8 @@ async function staleWhileRevalidate(req, cacheName) {
   const cache = await caches.open(cacheName);
   const hit = await cache.match(req);
   const refresh = fetch(req).then(res => {
-    if (res && res.ok) cache.put(req, res.clone());
-    return res;
+    if (!res || !res.ok || res.status !== 200) return res;
+    return cache.put(req, res.clone()).catch(() => {}).then(() => res);
   }).catch(() => hit);
   return hit || refresh;
 }
@@ -56,7 +60,12 @@ async function pageNetworkFirst(req) {
   const cache = await caches.open(SHELL_CACHE);
   try {
     const res = await fetch(req);
-    if (res && res.ok) cache.put('/', res.clone());
+    // Cache the page under its own URL. The old implementation stored every
+    // successful navigation under '/', so visiting an SEO lesson could replace
+    // the offline app shell with that standalone page.
+    if (res && res.ok && res.status === 200) {
+      try { await cache.put(req, res.clone()); } catch {}
+    }
     return res;
   } catch {
     return (await cache.match(req)) || (await cache.match('/')) ||
@@ -79,7 +88,7 @@ self.addEventListener('fetch', (e) => {
     return;
   }
   if (url.pathname.startsWith('/fonts/')) {
-    e.respondWith(cacheFirst(req, AUDIO_CACHE));
+    e.respondWith(cacheFirst(req, SHELL_CACHE));
     return;
   }
   // Versioned release assets: URL changes on every deploy, safe to pin.

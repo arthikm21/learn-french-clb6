@@ -64,7 +64,7 @@ window.WriteTask3Module = (function () {
           <p>${t.promptInstructions}</p>
           ${Chrome.gloss(t.promptInstructionsEn)}
         </div>
-        <textarea class="input" id="wt3-essay" placeholder="Écrivez ici en français (~150 mots)..." style="font-size:16px;min-height:280px">${saved}</textarea>
+        <textarea class="input" id="wt3-essay" placeholder="Écrivez ici en français (~150 mots)..." style="font-size:16px;min-height:280px">${Chrome.escapeHTML(saved)}</textarea>
         <div class="row" style="margin-top:8px;justify-content:space-between;color:var(--mute);font-size:13px">
           <span id="wt3-wc">0 words</span>
           <span>💾 Auto-saved as you type</span>
@@ -140,7 +140,7 @@ window.WriteTask3Module = (function () {
     else if (tcfScore >= 6) clb = '5';
     else if (tcfScore >= 4) clb = '4';
 
-    if (score >= 65 && words >= 120) App.markLessonDone(`wt3:${id}`);
+    App.recordAttempt(`wt3:${id}`, words >= 120 ? score : 0, 65, 'automated-writing-self-check');
 
     // Record errors as weak spots
     for (const err of grammarErrors.slice(0, 3)) {

@@ -133,7 +133,7 @@ window.ConnectorsModule = (function () {
       window.removeEventListener('hashchange', onHash);
       if (aborted) return;
       const pct = Math.round((correct / queue.length) * 100);
-      if (pct >= 70) App.markLessonDone('connectors:drill');
+      App.recordAttempt('connectors:drill', pct, 70, 'connector-drill');
       container.innerHTML = Chrome.finishScreen({
         icon: '🔗',
         title: pct >= 80 ? 'Excellent!' : pct >= 60 ? 'Good work!' : 'Keep practicing',

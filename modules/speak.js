@@ -1,7 +1,7 @@
 // Repeat-After-Me / shadowing module.
 //
 // User listens → reads aloud → self-rates. No microphone, no speech recognition.
-// This is the deliberate-practice loop that polyglots use: hear native audio, mimic
+// This is the deliberate-practice loop: hear Canadian French neural audio, mimic
 // it immediately, judge the gap yourself. The site provides the audio; the learner
 // provides the effort.
 //
@@ -19,7 +19,7 @@ window.SpeakModule = (function () {
         <div class="flag-stripes"></div>
         <p class="eyebrow-h">Speaking · Repeat after me</p>
         <h1>Hear it.<br/>Say it out loud.</h1>
-        <p style="margin-top:var(--sp-4)">Native Canadian French plays. You repeat it aloud — at your own pace, in your own voice. Rate how it felt. The hard ones come back.</p>
+        <p style="margin-top:var(--sp-4)">Canadian French neural audio plays. You repeat it aloud—at your own pace, in your own voice. Rate how it felt. The hard ones come back.</p>
       </section>
 
       <div class="grammar-box">
@@ -61,6 +61,9 @@ window.SpeakModule = (function () {
 
     let i = 0;
     let revealed = false;  // Did the user choose to see the translation hint?
+    const ratedTargets = new Set();
+    let skipped = 0;
+    let hardRatings = 0;
     // Same-session relearning: a line you rate "Hard, again" comes back later in
     // this session, not just tomorrow. Capped per line.
     const requeues = new Map();
@@ -93,15 +96,18 @@ window.SpeakModule = (function () {
               <button class="btn ghost" data-rate="1.0" data-again="1">🔁 Again</button>
             </div>
             <p style="color:var(--mute);font-size:var(--fs-13);margin-top:var(--sp-3)">Now repeat it aloud yourself. Your mouth must move.</p>
+            <label style="display:inline-flex;align-items:center;gap:10px;margin-top:var(--sp-4);font-weight:var(--fw-semi);cursor:pointer">
+              <input type="checkbox" id="said-aloud" /> I said the full line aloud
+            </label>
           </div>
 
           <div class="spacer lg"></div>
 
           <p class="center" style="color:var(--mute);font-size:var(--fs-13);text-transform:uppercase;letter-spacing:var(--ls-wide);font-weight:var(--fw-semi);margin-bottom:var(--sp-3)">How did it feel?</p>
           <div class="row" style="justify-content:center;gap:var(--sp-2);flex-wrap:wrap">
-            <button class="btn danger" data-rate-self="0">Hard, again</button>
-            <button class="btn" data-rate-self="3">Got it</button>
-            <button class="btn success" data-rate-self="5">Easy</button>
+            <button class="btn danger" data-rate-self="0" disabled>Hard, again</button>
+            <button class="btn" data-rate-self="3" disabled>Got it</button>
+            <button class="btn success" data-rate-self="5" disabled>Easy</button>
           </div>
 
           <div class="spacer"></div>
@@ -117,13 +123,19 @@ window.SpeakModule = (function () {
         b.onclick = () => TTS.speak(target, parseFloat(b.dataset.rate));
       });
 
+      container.querySelector('#said-aloud').onchange = event => {
+        container.querySelectorAll('[data-rate-self]').forEach(button => { button.disabled = !event.target.checked; });
+      };
+
       container.querySelectorAll('[data-rate-self]').forEach(b => {
         b.onclick = () => {
           const q = parseInt(b.dataset.rateSelf, 10);
+          ratedTargets.add(target);
           SRS.review(setKey, target, q);
           // Hard = surface as a weak spot to come back to, AND replay it later in
           // this same session (max twice) so the rep lands now, not just tomorrow.
           if (q === 0) {
+            hardRatings++;
             MistakesModule.record({
               type: 'speak',
               sig: `speak:${setKey}:${i}`,
@@ -141,20 +153,24 @@ window.SpeakModule = (function () {
         };
       });
 
-      container.querySelector('#skip').onclick = () => { i++; show(); };
+      container.querySelector('#skip').onclick = () => { skipped++; i++; show(); };
     }
 
     function finish() {
-      App.markLessonDone(`speak:${setKey}`);
-      try { if (window.Sounds) Sounds.play('complete'); } catch {}
+      const coverage = Math.round(ratedTargets.size / items.length * 100);
+      const complete = coverage >= 80;
+      if (complete) App.markLessonDone(`speak:${setKey}`);
+      else if (window.Mastery) Mastery.recordPractice(`speak:${setKey}`, { kind: 'partial-shadowing' });
+      try { if (window.Sounds) Sounds.play(complete ? 'complete' : 'warn'); } catch {}
       container.innerHTML = `
         ${Chrome.render({ back: 'speak', crumbs: ['Speak', s.title, 'Complete'] })}
         <div class="lesson center">
           <div class="empty">
             <div class="big-icon">🗣️</div>
-            <p style="text-transform:uppercase;letter-spacing:var(--ls-wide);font-size:var(--fs-12);font-weight:var(--fw-semi);color:var(--good);margin-bottom:var(--sp-2)">✓ Session complete</p>
-            <h2>Shadowing session finished</h2>
-            <p>You shadowed <b>${new Set(queue.map(x => x.fr)).size}</b> sentence${new Set(queue.map(x => x.fr)).size === 1 ? '' : 's'}. The "Hard" ones came back this session — and return tomorrow on a tighter schedule.</p>
+            <p style="text-transform:uppercase;letter-spacing:var(--ls-wide);font-size:var(--fs-12);font-weight:var(--fw-semi);color:${complete ? 'var(--good)' : 'var(--warn)'};margin-bottom:var(--sp-2)">${complete ? '✓ Practice target met' : 'Practice recorded'}</p>
+            <h2>${complete ? 'Shadowing session finished' : 'Finish the spoken reps'}</h2>
+            <p>You confirmed <b>${ratedTargets.size}/${items.length}</b> original lines aloud (${coverage}%). ${hardRatings} hard rating${hardRatings === 1 ? '' : 's'} · ${skipped} skip${skipped === 1 ? '' : 's'}.</p>
+            <p style="color:var(--mute);margin-top:var(--sp-2)">${complete ? 'Hard lines return sooner through spaced review.' : 'Confirm at least 80% aloud for this path milestone. Skipped lines do not count.'}</p>
             <p style="color:var(--mute);margin-top:var(--sp-2)">Speaking is the only skill the site cannot grade for you. Your reps are your reps. Do them aloud.</p>
             <div class="grammar-box" style="border-left-color:var(--accent);text-align:left;max-width:560px;margin:var(--sp-6) auto 0">
               <h3>🗣️ Want your speaking actually graded?</h3>

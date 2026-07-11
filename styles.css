@@ -3769,6 +3769,60 @@ body:not(.dark)::before {
      bled through .88 glass and ghosted the labels ────────────────────────── */
 body.dark .nav-menu { background: rgba(21, 21, 27, .97); }
 
+/* ── Interaction quality and keyboard access ───────────────────────────── */
+.skip-link {
+  position: fixed;
+  top: calc(var(--safe-top) + 8px);
+  left: 12px;
+  z-index: 1000;
+  padding: 10px 16px;
+  border-radius: var(--r-pill);
+  background: var(--ink);
+  color: var(--surface);
+  font-weight: var(--fw-semi);
+  transform: translateY(-180%);
+  transition: transform var(--t-fast) var(--ease-out);
+}
+.skip-link:focus { transform: translateY(0); }
+
+/* Never erase focus globally. Pointer focus stays quiet, while keyboard focus
+   remains high-contrast on links, fields, custom cards, and native controls. */
+:focus:not(:focus-visible) { outline: none; }
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+.input:focus-visible, .btn:focus-visible, .option:focus-visible,
+.card[role="button"]:focus-visible, .spotlight[role="button"]:focus-visible,
+.brand:focus-visible, .stat:focus-visible, .nav a:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+  box-shadow: var(--ring);
+}
+
+.brand {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  min-height: 44px;
+}
+#user-chip { cursor: pointer; }
+.hamburger, .chrome-back, .nav .nav-close, .nav a, .stat { min-height: 44px; }
+
+/* Informational cards should feel stable; only genuine actions lift/press. */
+.card:not([onclick]):not([data-route]):not([role="button"]) { cursor: default; }
+body[data-anim="full"] .card:not([onclick]):not([data-route]):not([role="button"]):hover {
+  transform: none;
+  box-shadow: var(--e1);
+  border-color: var(--line);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+  }
+}
+
 /* ── Guards ────────────────────────────────────────────────────────────── */
 @media (prefers-reduced-transparency: reduce) {
   .card::after, .spotlight::after { display: none; }

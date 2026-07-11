@@ -103,7 +103,7 @@ window.GamesModule = (function () {
       });
     }
     function finish() {
-      if (correct / round.length >= 0.7) App.markLessonDone('games:gender');
+      App.recordAttempt('games:gender', Math.round(correct / round.length * 100), 70, 'game');
       container.innerHTML = Chrome.finishScreen({
         icon: '⚖️',
         title: 'Round complete',
@@ -205,7 +205,7 @@ window.GamesModule = (function () {
       clearInterval(timer);
       window.removeEventListener('hashchange', onHash);
       if (aborted) return; // user navigated away — don't overwrite their current view
-      if (correct >= 10) App.markLessonDone('games:conjrace');
+      App.recordAttempt('games:conjrace', Math.min(100, correct * 10), 100, 'timed-game');
       container.innerHTML = Chrome.finishScreen({
         icon: '🏆',
         title: 'Race finished',
@@ -283,7 +283,7 @@ window.GamesModule = (function () {
       };
     }
     function finish() {
-      if (correct >= sentences.length * 0.7) App.markLessonDone('games:sentence');
+      App.recordAttempt('games:sentence', Math.round(correct / sentences.length * 100), 70, 'game');
       container.innerHTML = Chrome.finishScreen({
         icon: '🧩',
         title: 'Sentences built',
@@ -426,7 +426,7 @@ window.GamesModule = (function () {
       });
     }
     function finish() {
-      if (correct >= queue.length * 0.7) App.markLessonDone('games:translate');
+      App.recordAttempt('games:translate', Math.round(correct / queue.length * 100), 70, 'game');
       container.innerHTML = Chrome.finishScreen({
         icon: '🌐',
         title: 'Round finished',
@@ -497,7 +497,7 @@ window.GamesModule = (function () {
       });
     }
     function finish() {
-      if (correct >= queue.length * 0.7) App.markLessonDone('games:verb');
+      App.recordAttempt('games:verb', Math.round(correct / queue.length * 100), 70, 'game');
       container.innerHTML = Chrome.finishScreen({
         icon: '⚡',
         title: 'Verbs drilled',
@@ -582,7 +582,7 @@ window.GamesModule = (function () {
       clearInterval(timer);
       window.removeEventListener('hashchange', onHash);
       if (aborted) return;
-      if (correct >= 7) App.markLessonDone('games:dictation');
+      App.recordAttempt('games:dictation', Math.round(correct / queue.length * 100), 70, 'timed-game');
       container.innerHTML = `<div class="lesson center"><div class="empty"><div class="big-icon">📝</div><h2>Dictation Done</h2><p>Correct: <b>${correct}/${queue.length}</b> in ${120 - time}s</p><div class="spacer"></div><button class="btn big" onclick="App.go('games', { game: 'dictation' })">Race Again</button><button class="btn ghost big" onclick="App.go('games')">Other Games</button></div></div>`;
     }
     show();
@@ -662,7 +662,7 @@ window.GamesModule = (function () {
       };
     }
     function finish() {
-      if (correct >= queue.length * 0.6) App.markLessonDone('games:errorspot');
+      App.recordAttempt('games:errorspot', Math.round(correct / queue.length * 100), 60, 'game');
       container.innerHTML = Chrome.finishScreen({
         icon: '🔍',
         title: 'Errors spotted',
@@ -754,7 +754,7 @@ window.GamesModule = (function () {
       };
     }
     function finish() {
-      if (correct >= queue.length * 0.7) App.markLessonDone('games:anagram');
+      App.recordAttempt('games:anagram', Math.round(correct / queue.length * 100), 70, 'game');
       container.innerHTML = Chrome.finishScreen({
         icon: '🔤',
         title: 'Anagrams solved',

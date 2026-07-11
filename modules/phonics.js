@@ -7,7 +7,7 @@ window.PhonicsModule = (function () {
         <div class="flag-stripes"></div>
         <p class="eyebrow-h">Phonics & Sounds</p>
         <h1>Sounds first.<br/>Words later.</h1>
-        <p style="margin-top:var(--sp-4)">Pronunciation is the foundation. Master these 7 lessons and speaking jumps a full CLB band.</p>
+        <p style="margin-top:var(--sp-4)">Pronunciation is the foundation. These seven lessons train contrasts that make later listening and speaking practice clearer.</p>
       </section>
       <div class="grid" id="p-grid"></div>`;
     const grid = container.querySelector('#p-grid');
@@ -139,7 +139,7 @@ window.PhonicsModule = (function () {
     }
     function finish() {
       const pct = Math.round((correct / queue.length) * 100);
-      if (pct >= 75) App.markLessonDone(`phonics:${unitId}-minpairs`);
+      App.recordAttempt(`phonics:${unitId}-minpairs`, pct, 75, 'minimal-pair-listening');
       container.innerHTML = Chrome.finishScreen({
         back: 'phonics', crumbs: ['Phonics', 'Ear drill', 'Result'],
         icon: pct >= 75 ? '👂' : '🔁',

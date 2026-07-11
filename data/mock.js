@@ -1,17 +1,20 @@
-// TCF Canada Mock Test — full exam simulation with single-play listening.
+// Full-duration TCF Canada practice simulation with official section counts and
+// timings. Content and raw results remain practice, not an official score proxy.
 window.MOCK_TEST = {
-  title: 'TCF Canada Mock Test',
-  subtitle: 'Approx. 2h55 · 4 skills · TCF score (0-699) + CLB band at the end',
+  title: 'Full-Duration TCF Canada Practice Simulation',
+  subtitle: 'Approx. 2h47 · 4 skills · 39 listening + 39 reading questions',
   sections: [
     {
       id: 'listen',
       title: 'Compréhension orale (CO)',
       icon: '🎧',
-      duration: 2100, // 35 min — matches real TCF CO
-      desc: 'You will hear 6 audio segments, each played ONCE. No replay, no transcript. 4-option multiple choice. Real TCF conditions.',
-      // Mix: 1 dialogue (multi-speaker) + 5 TCF segments at progressive difficulty
+      duration: 2100, // 35 min — official TCF Canada listening duration
+      desc: '39 progressive listening questions: every recording plays once, with no transcript or replay.',
+      // 5 dialogue questions + 8×4 full segment questions + 2 from the final
+      // segment = 39 total.
       dialogueIds: ['d1'],
-      tcfSegmentIds: ['ltcf_03', 'ltcf_08', 'ltcf_13', 'ltcf_18', 'ltcf_25'],
+      tcfSegmentIds: ['ltcf_03', 'ltcf_06', 'ltcf_09', 'ltcf_12', 'ltcf_15', 'ltcf_18', 'ltcf_21', 'ltcf_25', 'ltcf_29'],
+      questionLimitById: { ltcf_29: 2 },
       tcfMode: true,
       replayLimit: 1,
     },
@@ -19,10 +22,11 @@ window.MOCK_TEST = {
       id: 'read',
       title: 'Compréhension écrite (CE)',
       icon: '📖',
-      duration: 3600, // 60 min — matches real TCF CE
-      desc: 'You will read 6 texts of varying difficulty (4-option MC). Manage your time.',
-      // Pull 6 from TCF-tagged texts at progressive difficulty
-      textIds: ['rtcf_03', 'rtcf_07', 'rtcf_13', 'rtcf_17', 'rtcf_23', 'rtcf_28'],
+      duration: 3600, // 60 min — official TCF Canada reading duration
+      desc: '39 progressive reading questions across ten texts with four-option answers.',
+      // 9×4 full text questions + 3 from the final text = 39 total.
+      textIds: ['rtcf_02', 'rtcf_05', 'rtcf_08', 'rtcf_11', 'rtcf_14', 'rtcf_17', 'rtcf_20', 'rtcf_23', 'rtcf_26', 'rtcf_29'],
+      questionLimitById: { rtcf_29: 3 },
     },
     {
       id: 'write',
@@ -40,7 +44,7 @@ window.MOCK_TEST = {
       id: 'speak',
       title: 'Expression orale (EO) · 3 tasks',
       icon: '🎙️',
-      duration: 1200, // 20 min — matches real TCF EO
+      duration: 720, // 12 min — official TCF Canada speaking-section duration
       desc: 'Three speaking tasks: (1) self-intro + describe a routine, (2) ask the examiner questions about a scenario, (3) argue your opinion on a topic.',
       speakTasks: [
         { type: 'qa', taskId: 'qa1', label: 'Task 1: Self-intro + daily routine' },

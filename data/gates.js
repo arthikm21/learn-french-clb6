@@ -1,4 +1,4 @@
-// Phase gates — mini-mock at the end of each phase.
+// Phase gates — course knowledge checks at the end of each phase.
 // Pass at 80%+ to unlock the next phase.
 // Wrong answers auto-record to Weak Spots.
 //

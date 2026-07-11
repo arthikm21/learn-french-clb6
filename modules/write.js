@@ -124,7 +124,7 @@ window.WriteModule = (function () {
       <div class="grammar-box" style="border-left-color:var(--accent)">
         <h3>The method — 3 steps, no robot grades</h3>
         <ul style="margin-left:20px;line-height:var(--lh-loose);color:var(--ink-2)">
-          <li><b>1 · Study a model.</b> Every sample is dissected: structure, key phrases, why it scores CLB 5.</li>
+          <li><b>1 · Study a model.</b> Every sample is dissected: structure, key phrases, and how it addresses the task.</li>
           <li><b>2 · Write yours.</b> Same prompt, live word-count target — length discipline is half the exam.</li>
           <li><b>3 · Compare & self-check.</b> Your text beside the model, with the examiner's checklist. Honest beats automatic.</li>
         </ul>
@@ -318,18 +318,24 @@ window.WriteModule = (function () {
               <button class="btn secondary" id="scan">🔎 Slip scan</button>
               <button class="btn ghost" id="peek">📖 Peek at model</button>
             </div>
-            <button class="btn primary big" id="compare">Compare with model<span class="arr">→</span></button>
+            <button class="btn primary big" id="compare" disabled>Compare with model<span class="arr">→</span></button>
           </div>
         </div>`;
       bindCommon();
       const ta = container.querySelector('#essay');
       const meter = container.querySelector('#meter');
-      const paint = () => { meter.innerHTML = meterHTML(words(ta.value), g.words[0], g.words[1]); window.Storage.setItem(draftKey, ta.value); };
+      const compareBtn = container.querySelector('#compare');
+      const paint = () => {
+        const n = words(ta.value);
+        meter.innerHTML = meterHTML(n, g.words[0], g.words[1]);
+        compareBtn.disabled = n < g.words[0];
+        window.Storage.setItem(draftKey, ta.value);
+      };
       ta.addEventListener('input', paint);
       paint();
       container.querySelector('#scan').onclick = () => { container.querySelector('#slips').innerHTML = slipsHTML(ta.value); };
       container.querySelector('#peek').onclick = () => { view = 'study'; render(); };
-      container.querySelector('#compare').onclick = () => { view = 'compare'; render(); };
+      compareBtn.onclick = () => { if (!compareBtn.disabled) { view = 'compare'; render(); } };
     }
 
     // ── compare: yours vs model + self-check → mark complete
@@ -372,7 +378,7 @@ window.WriteModule = (function () {
       container.querySelector('#back-write').onclick = () => { view = 'write'; render(); };
       const boxes = [...container.querySelectorAll('[data-chk]')];
       const doneBtn = container.querySelector('#done');
-      const gate = () => { doneBtn.disabled = !boxes.every(b => b.checked); };
+      const gate = () => { doneBtn.disabled = n < g.words[0] || !boxes.every(b => b.checked); };
       boxes.forEach(b => b.addEventListener('change', gate));
       gate();
       doneBtn.onclick = () => {
@@ -437,6 +443,12 @@ window.WriteModule = (function () {
         <div id="meter" style="margin-top:var(--sp-2)"></div>
         <p style="color:var(--mute);font-size:var(--fs-13);margin-top:var(--sp-2)">Auto-saved as you type.</p>
         <div id="slips"></div>
+        <div class="grammar-box" style="margin-top:var(--sp-4)">
+          <h3>Final self-review</h3>
+          <label style="display:flex;gap:10px;align-items:flex-start;margin-top:var(--sp-3)"><input type="checkbox" data-review /> <span>I answered every part of the prompt.</span></label>
+          <label style="display:flex;gap:10px;align-items:flex-start;margin-top:var(--sp-2)"><input type="checkbox" data-review /> <span>I connected ideas with at least two linking words.</span></label>
+          <label style="display:flex;gap:10px;align-items:flex-start;margin-top:var(--sp-2)"><input type="checkbox" data-review /> <span>I read the response aloud and corrected anything that sounded wrong.</span></label>
+        </div>
         <div class="spacer"></div>
         <div class="row" style="justify-content:space-between;flex-wrap:wrap;gap:var(--sp-3)">
           <div class="row" style="gap:var(--sp-2)">
@@ -445,25 +457,32 @@ window.WriteModule = (function () {
           </div>
           <button class="btn primary big" id="done" disabled>Mark as practiced</button>
         </div>
-        <p style="color:var(--mute);font-size:var(--fs-13);margin-top:var(--sp-2);text-align:right">Reach ${minWords} words to complete. Read it aloud once — your ear catches what your eye misses.</p>
+        <p style="color:var(--mute);font-size:var(--fs-13);margin-top:var(--sp-2);text-align:right">Reach ${minWords} words, run the slip scan, and complete the self-review.</p>
       </div>`;
 
     const ta = container.querySelector('#essay');
     const meter = container.querySelector('#meter');
     const doneBtn = container.querySelector('#done');
+    let scanned = false;
     const paint = () => {
       const n = words(ta.value);
       meter.innerHTML = meterHTML(n, minWords, Math.max(minWords * 2, minWords + 40), true);
-      doneBtn.disabled = n < minWords;
+      const reviewed = [...container.querySelectorAll('[data-review]')].every(box => box.checked);
+      doneBtn.disabled = n < minWords || !scanned || !reviewed;
       window.Storage.setItem(draftKey, ta.value);
     };
     ta.addEventListener('input', paint);
     paint();
 
     container.querySelectorAll('[data-rel]').forEach(b => { b.onclick = () => App.go('write', { sample: b.dataset.rel }); });
-    container.querySelector('#scan').onclick = () => { container.querySelector('#slips').innerHTML = slipsHTML(ta.value); };
+    container.querySelector('#scan').onclick = () => {
+      scanned = true;
+      container.querySelector('#slips').innerHTML = slipsHTML(ta.value);
+      paint();
+    };
+    container.querySelectorAll('[data-review]').forEach(box => box.addEventListener('change', paint));
     container.querySelector('#clear').onclick = () => {
-      if (confirm('Clear your draft?')) { ta.value = ''; paint(); container.querySelector('#slips').innerHTML = ''; }
+      if (confirm('Clear your draft?')) { ta.value = ''; scanned = false; container.querySelectorAll('[data-review]').forEach(box => { box.checked = false; }); paint(); container.querySelector('#slips').innerHTML = ''; }
     };
     doneBtn.onclick = () => {
       App.markLessonDone(`write:${key}`);

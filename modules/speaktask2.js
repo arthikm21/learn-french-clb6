@@ -168,7 +168,7 @@ window.SpeakTask2Module = (function () {
     else if (tcfScore >= 6) clb = '5';
     else if (tcfScore >= 4) clb = '4';
 
-    if (total >= 65) App.markLessonDone(`st2:${id}`);
+    App.recordAttempt(`st2:${id}`, total, 65, 'automated-speaking-self-check');
 
     const passColor = tcfScore >= 7 ? 'var(--good)' : 'var(--warn)';
     const passBg = tcfScore >= 7 ? 'rgba(52,199,89,.12)' : 'rgba(255,159,10,.12)';

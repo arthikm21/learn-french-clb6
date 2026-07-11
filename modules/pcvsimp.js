@@ -84,7 +84,7 @@ window.PCvsImpModule = (function () {
 
     function finish() {
       const pct = Math.round((correct / drills.length) * 100);
-      if (pct >= 70) App.markLessonDone('grammar:g30-pc-vs-imp');
+      App.recordAttempt('grammar:g30-pc-vs-imp', pct, 70, 'grammar-contrast');
       container.innerHTML = Chrome.finishScreen({
         icon: pct >= 80 ? '🏆' : pct >= 70 ? '🎯' : '💪',
         title: pct >= 80 ? 'Mastered!' : pct >= 70 ? 'Passed!' : 'Re-study and try again',

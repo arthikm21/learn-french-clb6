@@ -23,7 +23,7 @@ window.GrammarModule = (function () {
           <h2>Deep dives — the four hardest grammar concepts, solved visually</h2>
           <p>y vs en · pronoun order · si-clauses · qui/que/dont/où. Decision trees, not memorization.</p>
         </div>
-        <button class="btn primary" onclick="event.stopPropagation();App.go('deepdive')">Open<span class="arr">→</span></button>
+        <span class="btn primary" aria-hidden="true">Open<span class="arr">→</span></span>
       </div>
 
       <h2 class="section-h">All units</h2>
@@ -169,7 +169,7 @@ window.GrammarModule = (function () {
     function finish() {
       const pct = Math.round((correct / u.quiz.length) * 100);
       const pass = pct >= 70;
-      if (pass) App.markLessonDone(`grammar:${u.id}`);
+      App.recordAttempt(`grammar:${u.id}`, pct, 70, 'grammar-quiz');
       container.innerHTML = Chrome.finishScreen({
         back: 'grammar', crumbs: ['Grammar', u.title, 'Result'],
         icon: pass ? '🏅' : '💪',

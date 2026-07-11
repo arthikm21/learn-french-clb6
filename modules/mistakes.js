@@ -102,7 +102,7 @@ window.MistakesModule = (function () {
         <button class="btn ghost" id="clear-all">Clear all</button>
       </div>
       <div class="row" style="margin-bottom:var(--sp-4);flex-wrap:wrap;gap:6px">
-        ${Object.entries(typeCounts).map(([t, n]) => `<button class="btn sm ghost" data-filter="${t}">${t} (${n})</button>`).join('')}
+        ${Object.entries(typeCounts).map(([t, n]) => `<button class="btn sm ghost" data-filter="${escapeAttr(t)}">${escapeHTML(t)} (${n})</button>`).join('')}
         <button class="btn sm ghost" data-filter="">all</button>
       </div>
       <div id="list"></div>`;
@@ -122,11 +122,11 @@ window.MistakesModule = (function () {
         div.innerHTML = `
           <div class="row" style="justify-content:space-between;align-items:flex-start;gap:8px;flex-wrap:wrap">
             <div style="flex:1;min-width:0">
-              <span class="tag">${mk.type}</span>
+              <span class="tag">${escapeHTML(mk.type)}</span>
               <span class="tag" style="background:${dueSoon ? 'rgba(255,59,48,.12)' : 'rgba(52,199,89,.12)'};color:${dueSoon ? 'var(--bad)' : 'var(--good)'}">${dueLabel}</span>
               <span class="tag">L${mk.level || 0}/4</span>
               <span style="color:var(--mute);font-size:13px"> · ${ago}</span>
-              <p style="margin-top:8px">${mk.prompt}</p>
+              <p style="margin-top:8px">${escapeHTML(mk.prompt)}</p>
               <p style="color:var(--bad);font-size:14px;margin-top:4px">You: ${escapeHTML(mk.your)}</p>
               <p style="color:var(--good);font-size:14px">Correct: ${escapeHTML(mk.correct)}</p>
             </div>
@@ -179,8 +179,8 @@ window.MistakesModule = (function () {
         <div class="lesson">
           <h2>🎯 Weak Spot Review</h2>
           <div class="progress"><div style="width:${(i / queue.length) * 100}%"></div></div>
-          <p style="color:var(--mute)"><span class="tag">${mk.type}</span> <span class="tag">L${mk.level || 0}/4</span> ${i+1} / ${queue.length}</p>
-          <div class="q-prompt">${mk.prompt}</div>
+          <p style="color:var(--mute)"><span class="tag">${escapeHTML(mk.type)}</span> <span class="tag">L${mk.level || 0}/4</span> ${i+1} / ${queue.length}</p>
+          <div class="q-prompt">${escapeHTML(mk.prompt)}</div>
           <input class="input" id="ans" placeholder="Type the correct answer..." autocomplete="off" autocapitalize="off"/>
           <div id="fb"></div>
           <div class="spacer"></div>

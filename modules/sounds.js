@@ -91,7 +91,7 @@ window.Sounds = (function () {
       const v = Settings.getMasterVolume();
       if (typeof v === 'number' && v >= 0 && v <= 1) return v;
     }
-    return 0.7;
+    return 0.5;
   }
   function setMasterVolume(v) {
     if (!master) return;
@@ -517,17 +517,11 @@ window.Sounds = (function () {
     // Always skip: form inputs (typing has its own keyboard sound) + explicit opt-outs.
     if (target.closest('input, textarea, [data-no-tick]')) return null;
 
-    // Mic + audio-playing controls: route to a quiet pre-roll tick instead of the
-    // generic click — the actual audio is the main feedback, the tick is overlay.
+    // Mic and playback controls are silent: the recording/audio itself is the
+    // feedback, and an extra synthetic tick only competes with it.
     if (target.closest('.mic-btn')) return null; // mic has its own pulse + audio
     if (target.closest('.wp-play, .wp-close')) return null; // word-pop manages its own
-    if (target.closest('[data-rate]')) {
-      const rate = parseFloat(target.closest('[data-rate]').dataset.rate);
-      if (rate <= 0.75) return 'speedSlow';
-      if (rate >= 1.15) return 'speedFast';
-      return 'speedNormal';
-    }
-    if (target.closest('[data-play], #r-play, #r-stop, #play, #replay, #hear, .btn-play, [data-replay]')) return 'playAudio';
+    if (target.closest('[data-rate], [data-play], #r-play, #r-stop, #play, #replay, #hear, .btn-play, [data-replay]')) return null;
 
     // Disabled buttons:
     const btn = target.closest('button, .btn');
@@ -556,9 +550,9 @@ window.Sounds = (function () {
       return box.checked ? 'toggleOff' : 'toggleOn';
     }
 
-    // Native <select> dropdown changes — bind via change handler elsewhere,
-    // but a pointerdown on the select itself signals interaction; tick subtly.
-    if (target.closest('select.input, select')) return 'selectChange';
+    // Selects sound only after their value actually changes (see setup()).
+    // Playing here as well caused a double sound for one interaction.
+    if (target.closest('select.input, select')) return null;
 
     // Back / icon / modal-close → woody tap (clickBack).
     if (target.closest('.chrome-back, .icon-btn, .credit-modal-close')) return 'clickBack';
@@ -582,12 +576,13 @@ window.Sounds = (function () {
     // Multiple-choice options / interactive picker tiles.
     if (target.closest('.option, [data-pick], [data-i], [data-g]')) return 'clickOption';
 
-    // Home grid cards + spotlight (going to a new section) → nav swoosh.
-    if (target.closest('.card, .spotlight[onclick], [data-route], #user-chip, #credit-link, .footer a')) {
-      const card = target.closest('.card, .spotlight');
-      if (card && card.style.cursor === 'default') return null;
+    // Cards sound only when they truly have an action. Previously every .card
+    // matched, so clicking blank space inside an informational card made noise.
+    const card = target.closest('.card, .spotlight');
+    if (card && (card.hasAttribute('onclick') || typeof card.onclick === 'function')) {
       return 'nav';
     }
+    if (target.closest('[data-route], #user-chip, #credit-link, .footer a')) return 'nav';
     if (target.closest('.nav a')) return 'nav';
 
     // Generic primary tap surfaces — fall through to the main clack.
@@ -610,19 +605,8 @@ window.Sounds = (function () {
 
     function dispatch(p) {
       const name = p.name;
-      // Top-nav links get a per-position pitch on the C-major scale so the
-      // row of routes sounds like a small xylophone. Everything else falls
-      // back to the standard dispatch.
-      if (name === 'nav') {
-        const navLink = p.target.closest && p.target.closest('.nav a[data-route]');
-        if (navLink) {
-          const siblings = navLink.parentElement
-            ? Array.from(navLink.parentElement.querySelectorAll('a[data-route]'))
-            : [];
-          const idx = siblings.indexOf(navLink);
-          if (idx >= 0) { playNavTab(idx); return; }
-        }
-      }
+      // Navigation uses one restrained sound. The previous per-position
+      // xylophone made ordinary movement through the app unnecessarily chatty.
       play(name);
     }
 
@@ -674,5 +658,6 @@ window.Sounds = (function () {
   return {
     play, tick, tickBack,
     duck, setMasterVolume,
+    classifyTarget: shouldTick,
   };
 })();

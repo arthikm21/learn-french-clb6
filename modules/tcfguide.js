@@ -16,19 +16,19 @@ window.TCFGuideModule = (function () {
       <div class="hero">
         <div class="flag-stripes"></div>
         <h1>🎯 TCF Canada Prep Guide</h1>
-        <p>Everything you need to know before sitting the TCF Canada exam to score CLB 6.</p>
+        <p>Current format, score references, strategy, and test-day preparation for an NCLC 6 target.</p>
       </div>
       <div class="grid">
         <div class="card" onclick="App.go('tcfguide', {sub:'strategy'})"><div class="icon">📋</div><h3>Strategy Guide</h3><p>Time-per-question, what to skip, register expectations, common traps.</p></div>
         <div class="card" onclick="App.go('tcfguide', {sub:'conversion'})"><div class="icon">📊</div><h3>Score Conversion Table</h3><p>TCF Canada 0-699 / 0-20 → CLB band. Official IRCC chart.</p></div>
         <div class="card" onclick="App.go('tcfguide', {sub:'checklist'})"><div class="icon">📅</div><h3>Test-Day Checklist</h3><p>What to bring, when to arrive, what to expect at the exam center.</p></div>
-        <div class="card" onclick="App.go('tcfguide', {sub:'history'})"><div class="icon">📈</div><h3>My Mock History</h3><p>Your past TCF mock attempts. Track score trajectory across sessions.</p></div>
+        <div class="card" onclick="App.go('tcfguide', {sub:'history'})"><div class="icon">📈</div><h3>My Practice History</h3><p>Your past four-skill simulations and raw practice evidence.</p></div>
       </div>
       <div class="spacer"></div>
       <div class="grammar-box">
         <h3>📚 What is the TCF Canada?</h3>
-        <p>The <b>TCF Canada</b> (Test de connaissance du français) is the official French proficiency test accepted by IRCC for Canadian immigration (Express Entry, PR, citizenship) and federal job competitions. It is one of two recognized tests (the other being TEF Canada).</p>
-        <p style="margin-top:8px">Structure: 4 sections — <b>Compréhension orale (CO)</b>, <b>Compréhension écrite (CE)</b>, <b>Expression écrite (EE)</b>, <b>Expression orale (EO)</b>. Total time ~2h45 minutes.</p>
+        <p>The <b>TCF Canada</b> (Test de connaissance du français) is a French proficiency test accepted by IRCC for Canadian economic immigration applications. It is one of the French tests listed by IRCC alongside TEF Canada.</p>
+        <p style="margin-top:8px">Structure: 4 sections — <b>Compréhension orale (CO)</b>, <b>Compréhension écrite (CE)</b>, <b>Expression écrite (EE)</b>, <b>Expression orale (EO)</b>. Total test time is approximately 2h47.</p>
         <p style="margin-top:8px">CO and CE are 39 multiple-choice each, scored on the <b>0-699 scale</b>. EE and EO are graded by certified raters on a <b>0-20 scale</b>.</p>
         <p style="margin-top:8px"><b>For CLB 6 (Express Entry minimum for French points)</b>: you need CO ≥ 398, CE ≥ 406, EE ≥ 7/20, EO ≥ 7/20.</p>
       </div>
@@ -90,7 +90,7 @@ window.TCFGuideModule = (function () {
           <li><b>Task 3</b> (~5 min): argumentative monologue. Take a clear position. 3 reasons. 1 example. 1 counter-argument addressed ("Certes... cependant...").</li>
           <li><b>Speak slowly and clearly.</b> Better to say less well than to rush and make errors.</li>
           <li><b>Use the 30-second prep time</b> to outline (mental list of points). Don't write full sentences.</li>
-          <li><b>Connectors aloud</b>: d'abord, ensuite, enfin, par conséquent, par exemple. They organize your speech and signal CLB 6+ to the rater.</li>
+          <li><b>Connectors aloud</b>: d'abord, ensuite, enfin, par conséquent, par exemple. Use them naturally to make the organization of your response easier to follow.</li>
           <li><b>Don't apologize for errors mid-flow.</b> Just keep going. Self-correction is fine, panic isn't.</li>
         </ul>
       </div>
@@ -123,8 +123,8 @@ window.TCFGuideModule = (function () {
         <tbody>
           <tr><td><b>10</b></td><td>549-699</td><td>549-699</td><td>16-20</td><td>16-20</td></tr>
           <tr><td>9</td><td>523-548</td><td>524-548</td><td>14-15</td><td>14-15</td></tr>
-          <tr><td>8</td><td>503-522</td><td>500-523</td><td>12-13</td><td>12-13</td></tr>
-          <tr><td>7</td><td>458-502</td><td>453-499</td><td>10-11</td><td>10-11</td></tr>
+          <tr><td>8</td><td>503-522</td><td>499-523</td><td>12-13</td><td>12-13</td></tr>
+          <tr><td>7</td><td>458-502</td><td>453-498</td><td>10-11</td><td>10-11</td></tr>
           <tr style="background:rgba(52,199,89,.12)"><td><b>6</b></td><td><b>398-457</b></td><td><b>406-452</b></td><td><b>7-9</b></td><td><b>7-9</b></td></tr>
           <tr><td>5</td><td>369-397</td><td>375-405</td><td>6</td><td>6</td></tr>
           <tr><td>4</td><td>331-368</td><td>342-374</td><td>4-5</td><td>4-5</td></tr>
@@ -133,10 +133,8 @@ window.TCFGuideModule = (function () {
 
       <div class="grammar-box">
         <h3>📖 How to read this</h3>
-        <p>To claim CLB 6 for IRCC, your TCF Canada scores must reach the green row. Your <b>overall CLB</b> is the <b>minimum across the four skills</b>. If you score CLB 9 in reading but CLB 5 in speaking, your overall is CLB 5.</p>
-        <p style="margin-top:8px"><b>For Express Entry French language points</b>: CLB 7 in all 4 skills earns 25-50 additional points. CLB 6 earns 0 French-specific bonus but qualifies you as bilingual under some streams.</p>
-        <p style="margin-top:8px"><b>For Canadian citizenship</b>: CLB 4 in CO and EO is sufficient (no reading/writing required).</p>
-        <p style="margin-top:8px"><b>For federal jobs designated bilingual</b>: typical requirement is CLB 6 in both languages (sometimes CLB 7 for senior positions).</p>
+        <p>To meet an all-skills NCLC 6 target, every TCF Canada result must reach the green row. IRCC assesses each language ability separately, so one stronger ability does not compensate for another below the program requirement.</p>
+        <p style="margin-top:8px">Immigration eligibility and points rules depend on the program and can change. Confirm your exact requirements with IRCC before booking or submitting results.</p>
       </div>
 
       <div class="grammar-box" style="background:rgba(0,85,164,.08)">
@@ -159,9 +157,9 @@ window.TCFGuideModule = (function () {
       <div class="grammar-box">
         <h3>📅 Before the exam (1 week ahead)</h3>
         <ul style="margin-left:20px;line-height:1.8">
-          <li>Confirm exam center address and start time (TCF Canada is typically 30 min check-in + 2h45 exam = ~3h15 on site).</li>
+          <li>Confirm the test centre address, check-in time, and local instructions. The four test sections total approximately 2h47, excluding centre procedures.</li>
           <li>Practice typing in French on a French AZERTY keyboard if your exam uses one. Some centers offer QWERTY.</li>
-          <li>Take 1-2 full mocks on this site under timed conditions.</li>
+          <li>Run 1–2 timed four-skill simulations, then use official sample material for final format rehearsal.</li>
           <li>Sleep 8+ hours the night before. No new content the day before.</li>
         </ul>
       </div>
@@ -213,8 +211,8 @@ window.TCFGuideModule = (function () {
       ${Support.kitCard('sheets')}
       <div class="grammar-box">
         <h3>📬 Results</h3>
-        <p>TCF Canada results arrive in <b>4-6 weeks</b> by email. You receive a PDF with TCF scores per skill, valid for <b>2 years</b> for IRCC purposes.</p>
-        <p style="margin-top:8px">If you need a retake: book at least 30 days after your previous attempt.</p>
+        <p>France Éducation international transmits TCF Canada results to the test centre within <b>15 working days</b> after receiving the session materials. Your centre provides the official certificate, which is valid for <b>2 years</b>.</p>
+        <p style="margin-top:8px">If you need a retake, wait at least <b>20 days</b> between TCF Canada sittings and confirm scheduling with your test centre.</p>
       </div>
       <div class="center" style="margin-top:24px">
         <button class="btn ghost" onclick="App.go('tcfguide')">← Guide</button>
@@ -227,16 +225,16 @@ window.TCFGuideModule = (function () {
     container.innerHTML = `
       <div class="hero">
         <div class="flag-stripes"></div>
-        <h1>📈 My Mock History</h1>
-        <p>Your past TCF mock attempts. ${history.length} attempt${history.length === 1 ? '' : 's'} recorded.</p>
+        <h1>📈 My Practice History</h1>
+        <p>Your past four-skill simulations. ${history.length} attempt${history.length === 1 ? '' : 's'} recorded.</p>
       </div>
       ${history.length === 0 ? `
       <div class="empty">
         <div class="big-icon">🎯</div>
-        <h2>No mock attempts yet</h2>
-        <p style="color:var(--mute)">Take the TCF Canada Mock to see your scores tracked here.</p>
+        <h2>No simulation attempts yet</h2>
+        <p style="color:var(--mute)">Run the TCF Canada practice simulation to track your raw practice evidence here.</p>
         <div class="spacer"></div>
-        <button class="btn big" onclick="App.go('mock')">Take the mock test</button>
+        <button class="btn big" onclick="App.go('mock')">Start practice simulation</button>
       </div>
       ` : renderHistoryList(history)}
       <div class="center" style="margin-top:24px">
@@ -254,7 +252,12 @@ window.TCFGuideModule = (function () {
         <div class="grammar-box">
           <h3>Attempt ${i + 1} · ${fmt(h.when)}</h3>
           <div class="row" style="margin-top:8px;flex-wrap:wrap">
-            ${h.skills.map(s => `<span class="tag" style="font-size:13px;padding:5px 12px">${iconFor(s.skill)} ${labelFor(s.skill)}: ${s.score}${typeof s.score === 'number' && s.score > 100 ? '' : '/20'} (CLB ${s.clb})</span>`).join('')}
+            ${h.skills.map(s => {
+              const result = typeof s.pct === 'number' && s.score === undefined
+                ? `${s.pct}% practice${s.status ? ' · ' + s.status : ''}`
+                : `${s.score}${typeof s.score === 'number' && s.score > 100 ? '' : '/20'} (CLB ${s.clb})`;
+              return `<span class="tag" style="font-size:13px;padding:5px 12px">${iconFor(s.skill)} ${labelFor(s.skill)}: ${Chrome.escapeHTML(result)}</span>`;
+            }).join('')}
           </div>
         </div>`;
     }).join('');

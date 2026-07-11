@@ -11,23 +11,51 @@ window.PathModule = (function () {
   function render(container) {
     const totalDone = LESSON_PATH.filter(Path.isItemDone).length;
     const totalPct = Math.round((totalDone / LESSON_PATH.length) * 100);
-    const nextItem = LESSON_PATH.find(n => !Path.isItemDone(n));
-    const currentPhaseId = nextItem ? nextItem.phase : PHASES[PHASES.length - 1].id;
+    const nextItem = LESSON_PATH.find(n => !Path.isItemDone(n) && Path.phaseUnlocked(n.phase));
+    const nextGate = PHASES.find(ph => Path.phaseUnlocked(ph.id) && !Path.gatePassed(ph.id) && Path.gateEligible(ph.id));
+    const currentPhaseId = nextItem ? nextItem.phase : nextGate ? nextGate.id : PHASES[PHASES.length - 1].id;
+    const courseCovered = totalDone === LESSON_PATH.length;
 
     container.innerHTML = `
       ${Chrome.render({ back: 'home', crumbs: ['Home', 'Path'] })}
       <section class="hero">
         <div class="flag-stripes"></div>
-        <p class="eyebrow-h">Your Path to CLB 6</p>
-        <h1>Eight phases.<br/>Seven gates.<br/>One goal.</h1>
-        <p style="margin-top:var(--sp-4)">${totalDone} of ${LESSON_PATH.length} milestones · ${totalPct}%. Each phase ends in a mini-mock gate. Pass it to unlock the next phase.</p>
+        <p class="eyebrow-h">Your Path toward NCLC 6</p>
+        <h1>Eight phases.<br/>One clear next step.</h1>
+        <p style="margin-top:var(--sp-4)">${totalDone} of ${LESSON_PATH.length} learning milestones · ${totalPct}% course coverage. Seven knowledge checks unlock the path; Phase 8 ends in timed four-skill practice.</p>
         <div class="progress" style="height:6px;background:var(--surface-2);border-radius:var(--r-pill);overflow:hidden;margin-top:var(--sp-5);max-width:520px">
           <div style="height:100%;width:${totalPct}%;background:var(--ink);border-radius:var(--r-pill);transition:width var(--t-slow) var(--ease-out)"></div>
         </div>
       </section>
 
+      ${nextItem ? `
+        <section class="spotlight" style="border-color:var(--accent)">
+          <div>
+            <p class="eyebrow">Continue · Phase ${nextItem.phase}</p>
+            <h2>${escapeHTML(nextItem.title)}</h2>
+            <p>${escapeHTML(nextItem.desc)}</p>
+            <div class="spacer"></div>
+            <button class="btn primary big" id="path-continue">Continue learning<span class="arr">→</span></button>
+          </div>
+        </section>` : nextGate ? `
+        <section class="spotlight" style="border-color:var(--accent)">
+          <div>
+            <p class="eyebrow">Phase ${nextGate.id} checkpoint ready</p>
+            <h2>${escapeHTML(nextGate.gateTitle)}</h2>
+            <p>Use the knowledge check to confirm this phase before continuing.</p>
+            <div class="spacer"></div>
+            <button class="btn primary big" id="path-gate">Take knowledge check<span class="arr">→</span></button>
+          </div>
+        </section>` : courseCovered ? `
+        <section class="spotlight"><div><p class="eyebrow">Path covered</p><h2>Every course milestone is complete.</h2><p>Review weak spots and use timed practice to build stronger evidence.</p></div></section>` : ''}
+
       <div id="phases"></div>
     `;
+
+    const continueBtn = container.querySelector('#path-continue');
+    if (continueBtn && nextItem) continueBtn.onclick = () => openItem(nextItem);
+    const gateBtn = container.querySelector('#path-gate');
+    if (gateBtn && nextGate) gateBtn.onclick = () => App.go('gate', { phase: String(nextGate.id) });
 
     const host = container.querySelector('#phases');
 
@@ -88,6 +116,10 @@ window.PathModule = (function () {
         </summary>
         <div style="padding:var(--sp-3) 0 0 0">
           <p style="color:var(--ink-2);font-size:var(--fs-14);padding:0 var(--sp-3);margin-bottom:var(--sp-3)">${escapeHTML(ph.desc)}</p>
+          ${Array.isArray(ph.canDo) ? `<div class="grammar-box" style="margin:0 var(--sp-3) var(--sp-4);padding:var(--sp-4)">
+            <p class="eyebrow" style="margin-bottom:var(--sp-2)">${passed ? 'Demonstrated in course checks' : 'By the end of this phase'}</p>
+            <ul style="margin-left:20px;color:var(--ink-2)">${ph.canDo.map(outcome => `<li>${escapeHTML(outcome)}</li>`).join('')}</ul>
+          </div>` : ''}
           <div style="padding:0 var(--sp-3);margin-bottom:var(--sp-4)">
             <div style="display:flex;height:6px;border-radius:var(--r-pill);overflow:hidden;background:var(--surface-2)">${mixSegs}</div>
             <div style="display:flex;gap:var(--sp-3);margin-top:6px;flex-wrap:wrap">${mixLegend}</div>
@@ -101,28 +133,35 @@ window.PathModule = (function () {
       const list = sec.querySelector('[data-list]');
       items.forEach(n => {
         const done = Path.isItemDone(n);
+        const locked = !unlocked;
         const isNext = !!(nextItem && nextItem.id === n.id);
+        const evidence = window.Mastery ? Mastery.get(Path.doneKey(n)) : null;
         const node = document.createElement('div');
-        node.className = `path-node ${done ? 'done' : (isNext ? 'unlocked' : '')}`;
+        node.className = `path-node ${locked ? 'locked' : done ? 'done' : (isNext ? 'unlocked' : '')}`;
+        node.setAttribute('role', 'button');
+        node.setAttribute('tabindex', locked ? '-1' : '0');
+        node.setAttribute('aria-disabled', String(locked));
         if (isNext) node.style.boxShadow = '0 0 0 2px var(--accent), var(--e2)';
 
         const nextTag = isNext ? '<span class="tag" style="background:var(--accent);color:white">Next</span>' : '';
+        const evidenceTag = evidence && typeof evidence.best === 'number'
+          ? `<span class="tag" style="background:${evidence.status === 'mastered' ? 'rgba(52,199,89,.12)' : 'rgba(255,159,10,.14)'};color:${evidence.status === 'mastered' ? 'var(--good)' : 'var(--warn)'}">${evidence.status === 'mastered' ? 'Mastered' : 'Building'} · best ${evidence.best}%</span>`
+          : evidence && evidence.status === 'practiced'
+            ? '<span class="tag">Practiced</span>'
+            : '';
 
         node.innerHTML = `
           <div class="num">${done ? '✓' : n.id}</div>
           <div class="info">
-            <h4>${escapeHTML(n.title)} ${nextTag}</h4>
+            <h4>${escapeHTML(n.title)} ${nextTag} ${evidenceTag}</h4>
             <p>${escapeHTML(n.desc)}</p>
           </div>`;
-        node.onclick = () => {
-          const params = {};
-          if (n.deck) params.deck = n.deck;
-          if (n.unit) params.unit = n.unit;
-          if (n.game) params.game = n.game;
-          if (n.set) params.set = n.set;
-          if (n.text) params.text = n.text;
-          if (n.prompt) params.prompt = n.prompt;
-          App.go(n.route, params);
+        node.onclick = () => locked ? Toast.info(`Pass Phase ${ph.id - 1}'s knowledge check first.`) : openItem(n);
+        node.onkeydown = event => {
+          if (!locked && (event.key === 'Enter' || event.key === ' ')) {
+            event.preventDefault();
+            openItem(n);
+          }
         };
         list.appendChild(node);
       });
@@ -144,7 +183,7 @@ window.PathModule = (function () {
       gateCard.innerHTML = `
         <div class="row" style="justify-content:space-between;align-items:flex-start;gap:var(--sp-3)">
           <div style="flex:1;min-width:0">
-            <p style="text-transform:uppercase;letter-spacing:var(--ls-wide);font-size:var(--fs-11);font-weight:var(--fw-semi);color:var(--mute);margin-bottom:6px">Phase ${ph.id} · Gate</p>
+            <p style="text-transform:uppercase;letter-spacing:var(--ls-wide);font-size:var(--fs-11);font-weight:var(--fw-semi);color:var(--mute);margin-bottom:6px">Phase ${ph.id} · ${ph.final ? 'Practice simulation' : 'Knowledge check'}</p>
             <h3><span class="gate-glyph">${App.svgIcon(ph.final ? 'target' : 'shield')}</span>${escapeHTML(ph.gateTitle)}</h3>
             <p style="margin-top:4px;color:var(--ink-2);font-size:var(--fs-14)">${escapeHTML(ph.gateDesc)}</p>
           </div>
@@ -158,6 +197,17 @@ window.PathModule = (function () {
 
       host.appendChild(sec);
     });
+  }
+
+  function openItem(item) {
+    const params = {};
+    if (item.deck) params.deck = item.deck;
+    if (item.unit) params.unit = item.unit;
+    if (item.game) params.game = item.game;
+    if (item.set) params.set = item.set;
+    if (item.text) params.text = item.text;
+    if (item.prompt) params.prompt = item.prompt;
+    App.go(item.route, params);
   }
 
   return { render };

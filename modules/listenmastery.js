@@ -61,9 +61,9 @@ window.ListenMasteryModule = (function () {
         <div>
           <p class="eyebrow">Mixed practice</p>
           <h2>All categories, shuffled</h2>
-          <p>12 random clips from a pool of ${all.length} — fresh mix every run. The closest thing to the real exam.</p>
+          <p>12 random clips from a pool of ${all.length} — a fresh, focused listening mix every run.</p>
         </div>
-        <button class="btn primary big">Start mixed<span class="arr">→</span></button>
+        <span class="btn primary big" aria-hidden="true">Start mixed<span class="arr">→</span></span>
       </div>
 
       <h2 class="section-h">By category</h2>

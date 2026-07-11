@@ -1,0 +1,14 @@
+{
+  "name": "bonjour-frenchclb6",
+  "private": true,
+  "scripts": {
+    "start": "node scripts/serve.js",
+    "test": "node --test tests/*.test.js",
+    "check:content": "node scripts/validate.js",
+    "check:syntax": "node tests/check-syntax.js",
+    "check": "npm run check:syntax && npm run check:content && npm test"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

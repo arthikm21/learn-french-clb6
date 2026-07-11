@@ -1,128 +1,5 @@
-// User profiles + namespaced storage. No backend, no password.
-// Multiple users share same browser, each with own progress.
-
-window.Storage = (function () {
-  const CUR = 'fr_current_user_v2';
-  const USERS = 'fr_users_v2';
-
-  function getCurrentUser() {
-    return localStorage.getItem(CUR) || '';
-  }
-  function setCurrentUser(name) {
-    if (name) localStorage.setItem(CUR, name);
-    else localStorage.removeItem(CUR);
-  }
-  function listUsers() {
-    try { return JSON.parse(localStorage.getItem(USERS)) || []; } catch { return []; }
-  }
-  function saveUsers(list) {
-    localStorage.setItem(USERS, JSON.stringify(list));
-  }
-  function addUser(name) {
-    const u = listUsers();
-    if (!u.includes(name)) { u.push(name); saveUsers(u); }
-  }
-  function removeUser(name) {
-    const u = listUsers().filter(x => x !== name);
-    saveUsers(u);
-    // Wipe all data for this user
-    const prefix = `fr_u_${name}_`;
-    Object.keys(localStorage).forEach(k => {
-      if (k.startsWith(prefix)) localStorage.removeItem(k);
-    });
-    if (getCurrentUser() === name) setCurrentUser('');
-  }
-  function prefixedKey(key) {
-    const u = getCurrentUser();
-    return u ? `fr_u_${u}_${key}` : `fr_anon_${key}`;
-  }
-  function getItem(key) {
-    return localStorage.getItem(prefixedKey(key));
-  }
-  function setItem(key, val) {
-    localStorage.setItem(prefixedKey(key), val);
-  }
-  function removeItem(key) {
-    localStorage.removeItem(prefixedKey(key));
-  }
-  function resetCurrentUserProgress() {
-    const u = getCurrentUser();
-    if (!u) return;
-    const prefix = `fr_u_${u}_`;
-    Object.keys(localStorage).forEach(k => {
-      if (k.startsWith(prefix)) localStorage.removeItem(k);
-    });
-  }
-
-  // ---- Backup / restore ----
-  // Everything lives in localStorage; one browser cleanup wipes months of
-  // study. Export bundles every key of the CURRENT user (stored suffix-only,
-  // so a backup restores into any username — moving device or browser works).
-  function exportData() {
-    const u = getCurrentUser();
-    if (!u) return null;
-    const prefix = `fr_u_${u}_`;
-    const data = {};
-    Object.keys(localStorage).forEach(k => {
-      if (k.startsWith(prefix)) data[k.slice(prefix.length)] = localStorage.getItem(k);
-    });
-    return { app: 'bonjour-frenchclb6', version: 1, user: u, exportedAt: new Date().toISOString(), data };
-  }
-  // Validates and writes a backup into the CURRENT user's namespace.
-  // Returns the number of keys restored, or -1 if the payload is not a backup.
-  function importData(obj) {
-    if (!obj || obj.app !== 'bonjour-frenchclb6' || !obj.data || typeof obj.data !== 'object') return -1;
-    const u = getCurrentUser();
-    if (!u) return -1;
-    let n = 0;
-    for (const [suffix, val] of Object.entries(obj.data)) {
-      if (typeof val !== 'string') continue;
-      try { localStorage.setItem(`fr_u_${u}_${suffix}`, val); n++; } catch { break; }
-    }
-    return n;
-  }
-
-  // One-time migration from old un-namespaced keys → "Guest" user.
-  function migrateLegacy() {
-    if (localStorage.getItem('fr_migrated_v2') === '1') return;
-    const legacyKeys = ['fr_app_state_v1', 'fr_srs_v1', 'fr_mistakes_v1'];
-    const draftKeys = Object.keys(localStorage).filter(k => k.startsWith('fr_draft_'));
-    const hasLegacy = legacyKeys.some(k => localStorage.getItem(k)) || draftKeys.length > 0;
-    if (hasLegacy) {
-      addUser('Guest');
-      setCurrentUser('Guest');
-      const remap = {
-        'fr_app_state_v1': 'state',
-        'fr_srs_v1': 'srs',
-        'fr_mistakes_v1': 'mistakes',
-      };
-      for (const [oldK, newK] of Object.entries(remap)) {
-        const v = localStorage.getItem(oldK);
-        if (v) {
-          localStorage.setItem(`fr_u_Guest_${newK}`, v);
-          localStorage.removeItem(oldK);
-        }
-      }
-      for (const dk of draftKeys) {
-        const v = localStorage.getItem(dk);
-        const newK = dk.replace(/^fr_draft_/, 'draft_');
-        localStorage.setItem(`fr_u_Guest_${newK}`, v);
-        localStorage.removeItem(dk);
-      }
-    }
-    localStorage.setItem('fr_migrated_v2', '1');
-  }
-
-  return {
-    getCurrentUser, setCurrentUser,
-    listUsers, addUser, removeUser,
-    getItem, setItem, removeItem,
-    resetCurrentUserProgress,
-    exportData, importData,
-    migrateLegacy,
-  };
-})();
-
+// Profile screens only. Persistence lives in storage.js so it can evolve and
+// be regression-tested without the DOM-heavy account UI.
 window.ProfileModule = (function () {
   function sanitize(name) {
     return String(name || '').trim().replace(/[^a-zA-Z0-9_\- ]/g, '').slice(0, 24);
@@ -158,9 +35,9 @@ window.ProfileModule = (function () {
       <div class="spotlight" style="grid-template-columns:1fr">
         <div>
           <p class="eyebrow">Step 1 — Choose a username</p>
-          <h2>Letters, numbers, spaces. Max 24 chars.</h2>
+          <h2>Letters, numbers, spaces, hyphens, or underscores. Max 24 chars.</h2>
           <div class="spacer"></div>
-          <input class="input" id="uname" placeholder="e.g. alex, marie123, mon-nom" autocomplete="off" autocapitalize="off" style="font-size:var(--fs-19);padding:var(--sp-4) var(--sp-5)" />
+          <input class="input" id="uname" placeholder="e.g. alex, marie123, mon-nom" maxlength="24" autocomplete="off" autocapitalize="off" aria-describedby="err" style="font-size:var(--fs-19);padding:var(--sp-4) var(--sp-5)" />
           <div id="err" style="color:var(--bad);margin-top:var(--sp-2);font-size:var(--fs-14);font-weight:var(--fw-semi)"></div>
           <div class="spacer"></div>
           <button class="btn primary big" id="start">Start learning<span class="arr">→</span></button>
@@ -182,8 +59,14 @@ window.ProfileModule = (function () {
     const err = container.querySelector('#err');
     inp.focus();
     const start = () => {
-      const name = sanitize(inp.value);
+      const raw = String(inp.value || '').trim();
+      const name = sanitize(raw);
       if (!name) { err.textContent = 'Please type a username.'; return; }
+      if (name !== raw) {
+        err.textContent = 'Use only letters, numbers, spaces, hyphens, or underscores.';
+        inp.setAttribute('aria-invalid', 'true');
+        return;
+      }
       if (name.length < 2) { err.textContent = 'Username must be at least 2 characters.'; return; }
       const existing = Storage.listUsers().includes(name);
       if (existing) {
@@ -195,6 +78,7 @@ window.ProfileModule = (function () {
     };
     container.querySelector('#start').onclick = start;
     inp.onkeydown = e => { if (e.key === 'Enter') start(); };
+    inp.oninput = () => { err.textContent = ''; inp.removeAttribute('aria-invalid'); };
     container.querySelectorAll('[data-u]').forEach(b => {
       b.onclick = () => {
         Storage.setCurrentUser(b.dataset.u);
@@ -206,7 +90,7 @@ window.ProfileModule = (function () {
   function renderProfile(container) {
     const cur = Storage.getCurrentUser();
     const users = Storage.listUsers();
-    const lessonsDone = Object.keys(App.state.lessons || {}).length;
+    const lessonsDone = App.pathDoneCount();
     const pct = Math.round((lessonsDone / LESSON_PATH.length) * 100);
     container.innerHTML = `
       ${Chrome.render({ back: 'home', crumbs: ['Home', 'Profile'] })}
@@ -230,13 +114,13 @@ window.ProfileModule = (function () {
 
       <div class="grammar-box">
         <h3>🔊 Sound</h3>
-        <p style="color:var(--ink-2);font-size:var(--fs-14);margin-bottom:var(--sp-3)">Tactile click + reward sounds. Tune the mix to taste.</p>
+        <p style="color:var(--ink-2);font-size:var(--fs-14);margin-bottom:var(--sp-3)">Learning feedback is on by default. Routine interface sounds are optional.</p>
         <div class="toggle-row">
           <div class="info">
-            <h4>UI click sounds</h4>
-            <p>A tactile clack when you tap buttons, options, cards.</p>
+            <h4>Extra interface sounds</h4>
+            <p>Optional taps for navigation, buttons, options, and controls. Blank space is always silent.</p>
           </div>
-          <input type="checkbox" class="toggle" id="set-clicks" ${Settings.isClickSoundOn() ? 'checked' : ''} aria-label="UI click sounds"/>
+          <input type="checkbox" class="toggle" id="set-clicks" ${Settings.isClickSoundOn() ? 'checked' : ''} aria-label="Extra interface sounds"/>
         </div>
         <div class="toggle-row">
           <div class="info">
@@ -296,7 +180,7 @@ window.ProfileModule = (function () {
         <div class="toggle-row">
           <div class="info">
             <h4>Confetti on milestones</h4>
-            <p>Burst when you complete a lesson, pass a gate, or hit a streak.</p>
+            <p>Burst when you complete a lesson or pass a knowledge check.</p>
           </div>
           <input type="checkbox" class="toggle" id="set-confetti" ${Settings.isConfettiOn() ? 'checked' : ''} aria-label="Confetti on milestones"/>
         </div>

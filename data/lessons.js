@@ -1,7 +1,8 @@
-// Learning path — TCF Canada immigration-focused. 8 phases, 7 gates + final readiness battery.
+// Learning path — TCF Canada immigration-focused. 8 phases, course checks,
+// and a full-duration final practice battery.
 //
-// Mission: 0 French → CLB 6 Listening/Speaking, CLB 4-5 Reading/Writing for adult
-// immigrants and federal-skilled-worker candidates. 45-60 min/day × 8-12 months.
+// Mission: build toward NCLC 6 evidence across all four French abilities for
+// adult learners preparing for TCF Canada. Timing varies by starting level.
 //
 // Effort allocation across the path: 40% Listening · 40% Speaking · 10% Reading · 10% Writing.
 // Phonics, grammar, vocab are SUPPORT layers — they unlock oral skills, not goals in themselves.
@@ -18,6 +19,7 @@ window.PHASES = [
     gateId: 'phase-1',
     gateTitle: 'Phonics & Greetings Gate',
     gateDesc: '15 Qs. Identify sounds, match common phrases, pick the right greeting.',
+    canDo: ['Recognize and reproduce core French sound contrasts', 'Introduce yourself and handle basic greetings aloud'],
   },
   {
     id: 2,
@@ -30,18 +32,20 @@ window.PHASES = [
     gateId: 'phase-2',
     gateTitle: 'Core Grammar Gate',
     gateDesc: '20 Qs across articles, être/avoir, -er verbs, negation, basic vocab.',
+    canDo: ['Build short present-tense statements and questions', 'Describe identity, family, possessions, and simple preferences'],
   },
   {
     id: 3,
     name: 'Conversations',
     subtitle: 'Ask · answer · describe out loud',
-    desc: 'First real exchanges. Café orders, asking the time, describing your home and family. Listen to native speakers, then speak with them.',
+    desc: 'First real exchanges. Café orders, asking the time, describing your home and family. Listen to Canadian French neural audio, then speak in response.',
     eta: '~14 days',
     clb: 'CLB 3-4',
     icon: '💬',
     gateId: 'phase-3',
     gateTitle: 'Communication Gate',
     gateDesc: '20 Qs covering question formation, adjective agreement, café/weather/home vocab.',
+    canDo: ['Ask for information and respond in familiar exchanges', 'Describe people, places, weather, and immediate needs'],
   },
   {
     id: 4,
@@ -54,6 +58,7 @@ window.PHASES = [
     gateId: 'phase-4',
     gateTitle: 'Past Tense Gate',
     gateDesc: '20 Qs: passé composé conjugation, reflexive verbs, time + places vocab.',
+    canDo: ['Narrate a completed event in a clear sequence', 'Read and write short notes about daily routines and past events'],
   },
   {
     id: 5,
@@ -66,18 +71,20 @@ window.PHASES = [
     gateId: 'phase-5',
     gateTitle: 'Future & Service Gate',
     gateDesc: '20 Qs: futur proche, partitive du/de la, health + shopping + money vocab.',
+    canDo: ['Handle common service interactions and requests', 'Explain a simple problem and state near-future plans'],
   },
   {
     id: 6,
     name: 'Range & Nuance',
     subtitle: 'Imparfait + pronouns — sound less robotic',
-    desc: 'Describe past habits. Replace repeated nouns with le / la / lui / leur / y / en. Native speakers do this constantly. This is the CLB 5 boundary.',
+    desc: 'Describe past habits. Replace repeated nouns with le / la / lui / leur / y / en. These patterns make communication more natural and precise.',
     eta: '~14 days',
     clb: 'CLB 4-5',
     icon: '🎭',
     gateId: 'phase-6',
     gateTitle: 'Imparfait & Pronouns Gate',
     gateDesc: '20 Qs: imparfait formation, object pronouns, y/en, professions vocab.',
+    canDo: ['Contrast background, habits, and completed past events', 'Sustain clearer descriptions without repeating the same nouns'],
   },
   {
     id: 7,
@@ -90,18 +97,20 @@ window.PHASES = [
     gateId: 'phase-7',
     gateTitle: 'CLB 6 Grammar Gate',
     gateDesc: '25 Qs: conditional, si-clauses, subjunctive, relative pronouns, plus-que-parfait, connectors.',
+    canDo: ['State and support an opinion with reasons and examples', 'Connect ideas, compare options, and discuss hypothetical situations'],
   },
   {
     id: 8,
-    name: 'Readiness Battery',
-    subtitle: 'CLB 6 mock test + band estimate',
-    desc: 'Full TCF-format mock simulates the real exam. Get your CLB band per skill.',
+    name: 'Exam Practice Battery',
+    subtitle: 'Timed four-skill practice + evidence review',
+    desc: 'Rehearse all four TCF Canada skills, study the practice evidence, and target the areas that still need work.',
     eta: '~10 days',
     clb: 'CLB 6',
     icon: '🎯',
     gateId: 'phase-8',
-    gateTitle: 'Final Readiness Mock',
-    gateDesc: 'Full 4-skill mock test. CLB band estimate per skill. Pass = ready for the real exam.',
+    gateTitle: 'Final Practice Simulation',
+    gateDesc: 'Timed four-skill simulation with raw practice results and targeted next steps. It does not certify an official CLB band.',
+    canDo: ['Complete timed practice across all four TCF Canada abilities', 'Use practice evidence to identify the next skill to strengthen'],
     final: true,
   },
 ];
@@ -205,14 +214,14 @@ window.LESSON_PATH = [
   { id: 83, phase: 7, title: 'Write: If I won lottery',    desc: 'Conditional × 3+ times.',                              route: 'write',   prompt: 'w7',              xp: 90 },
   { id: 84, phase: 7, title: 'Listen: news brief',         desc: 'Short news in French.',                                route: 'listen',  set: 'news',               xp: 90 },
 
-  // ───────────────── PHASE 8 — Readiness Battery ─────────────────
+  // ───────────────── PHASE 8 — Timed Practice Battery ─────────────────
   { id: 85, phase: 8, title: 'Read CLB 5 — La journée',    desc: 'Reading CLB 5.',                                       route: 'read',    text: 'r9',                xp: 90 },
   { id: 86, phase: 8, title: 'Read CLB 5 — Activities',    desc: 'Reading CLB 5.',                                       route: 'read',    text: 'r10',               xp: 90 },
   { id: 87, phase: 8, title: 'Read CLB 5 — Letter',        desc: 'Reading CLB 5.',                                       route: 'read',    text: 'r11',               xp: 90 },
   { id: 88, phase: 8, title: 'Read CLB 6 — Immigration',   desc: 'Reading CLB 6.',                                       route: 'read',    text: 'r12',               xp: 100 },
   { id: 89, phase: 8, title: 'Read CLB 6 — Invitation',    desc: 'CLB 6 letter.',                                        route: 'read',    text: 'r3',                xp: 100 },
-  { id: 90, phase: 8, title: 'CLB 6 Mock — Listen',        desc: 'Full listening test.',                                 route: 'listen',  set: 'mock',               xp: 120 },
-  { id: 91, phase: 8, title: 'CLB 6 Mock — Speak',         desc: 'Full speaking test.',                                  route: 'speak',   set: 'mock',               xp: 120 },
+  { id: 90, phase: 8, title: 'Timed Listening Practice',   desc: 'Practise listening under pressure.',                   route: 'listen',  set: 'mock',               xp: 120 },
+  { id: 91, phase: 8, title: 'Timed Speaking Practice',    desc: 'Rehearse a sustained speaking response.',              route: 'speak',   set: 'mock',               xp: 120 },
   { id: 92, phase: 8, title: 'CLB 6 Mock — Write',         desc: 'Formal email task.',                                   route: 'write',   prompt: 'w8',              xp: 120 },
 ];
 

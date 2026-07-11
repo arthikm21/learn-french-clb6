@@ -1,10 +1,10 @@
-// Phase gate — a mini-mock that decides whether the next phase unlocks.
+// Phase gate — a course knowledge check that decides whether the next phase unlocks.
 // Routes:
 //   #gate              → list of all gates with status (locked / available / passed)
 //   #gate?phase=N      → intro card for the gate
 //   #gate?phase=N&run=1 → run the quiz
 //
-// Phase 8 is the final readiness battery — redirects to mock test.
+// Phase 8 redirects to the final full-duration practice simulation.
 
 window.PhaseGateModule = (function () {
   function escapeHTML(s) {
@@ -58,9 +58,9 @@ window.PhaseGateModule = (function () {
       ${Chrome.render({ back: 'home', crumbs: ['Home', 'Gates'] })}
       <section class="hero">
         <div class="flag-stripes"></div>
-        <p class="eyebrow-h">Phase Gates</p>
-        <h1>Eight gates.<br/>One CLB 6.</h1>
-        <p style="margin-top:var(--sp-4)">Each phase ends in a mini-mock. Pass at 80% to unlock the next phase. Wrong answers feed your Weak Spots automatically.</p>
+        <p class="eyebrow-h">Phase Knowledge Checks</p>
+        <h1>Learn.<br/>Check.<br/>Continue.</h1>
+        <p style="margin-top:var(--sp-4)">Complete at least 80% of a phase, then pass its course check to unlock the next phase. These checks verify taught material; they are not official language scores.</p>
       </section>
       <div class="grid">${cards}</div>
     `;
@@ -89,17 +89,17 @@ window.PhaseGateModule = (function () {
         ${Chrome.render({ back: 'gate', crumbs: ['Gates', `Phase ${phase.id}`] })}
         <section class="hero accent">
           <div class="flag-stripes"></div>
-          <p class="eyebrow-h" style="color:rgba(255,255,255,.7)">Final Readiness Battery</p>
+          <p class="eyebrow-h" style="color:rgba(255,255,255,.7)">Final Practice Battery</p>
           <h1>${phase.icon} ${escapeHTML(phase.name)}</h1>
           <p style="margin-top:var(--sp-4)">${escapeHTML(phase.desc)}</p>
         </section>
         <div class="grammar-box">
           <h3>What this is</h3>
-          <p>This is the full TCF Canada Mock Test. 4 skills, ~3 hours at real TCF section timings, real exam structure. You get a CLB band per skill.</p>
-          <p style="margin-top:var(--sp-2)"><b>Pass criterion:</b> CLB 6 or higher across all 4 skills.</p>
+          <p>A full-duration four-skill TCF Canada practice simulation with official section counts and timings, raw practice results, and targeted next steps.</p>
+          <p style="margin-top:var(--sp-2)"><b>Important:</b> it does not reproduce official scoring, certify an NCLC/CLB band, or replace official sample material and human feedback.</p>
         </div>
         <div class="row" style="justify-content:center;margin-top:var(--sp-7);gap:var(--sp-3)">
-          <button class="btn primary big" onclick="App.go('mock')">Start mock test<span class="arr">→</span></button>
+          <button class="btn primary big" onclick="App.go('mock')">Start practice simulation<span class="arr">→</span></button>
           <button class="btn ghost big" onclick="App.go('gate')">Back to Gates</button>
         </div>`;
       return;
@@ -131,7 +131,7 @@ window.PhaseGateModule = (function () {
         <div class="meter" style="margin-top:var(--sp-3);height:6px;background:var(--surface-2);border-radius:var(--r-pill);overflow:hidden">
           <div style="height:100%;width:${prog.pct}%;background:var(--ink);border-radius:var(--r-pill);transition:width var(--t-slow) var(--ease-out)"></div>
         </div>
-        ${prog.pct < 80 ? `<p style="margin-top:var(--sp-3);color:var(--warn)">⚠️ You can attempt the gate now, but completing the lessons first gives you the best shot.</p>` : ''}
+        ${prog.pct < 80 ? `<p style="margin-top:var(--sp-3);color:var(--warn)">Complete at least 80% of this phase to unlock its knowledge check.</p>` : ''}
       </div>
 
       <div class="grammar-box">
@@ -149,7 +149,9 @@ window.PhaseGateModule = (function () {
       <div class="row" style="justify-content:center;margin-top:var(--sp-7);gap:var(--sp-3)">
         ${locked
           ? `<button class="btn ghost big" disabled>Locked — pass Phase ${phase.id - 1} first</button>`
-          : `<button class="btn primary big" id="start-gate">${passed ? 'Retake gate' : 'Start gate'}<span class="arr">→</span></button>`}
+          : !eligible
+            ? `<button class="btn ghost big" disabled>Locked — complete 80% of this phase</button>`
+            : `<button class="btn primary big" id="start-gate">${passed ? 'Retake check' : 'Start check'}<span class="arr">→</span></button>`}
         <button class="btn ghost big" onclick="App.go('gate')">Back to Gates</button>
       </div>
     `;
@@ -159,6 +161,12 @@ window.PhaseGateModule = (function () {
   }
 
   function renderQuiz(container, phase) {
+    const phaseStatus = status(phase);
+    if (phaseStatus === 'locked' || phaseStatus === 'prep') {
+      Toast.info(phaseStatus === 'locked' ? `Pass Phase ${phase.id - 1}'s check first.` : 'Complete 80% of this phase first.');
+      renderIntro(container, phase);
+      return;
+    }
     const gate = GATES[phase.gateId];
     if (!gate) { App.go('gate'); return; }
     // Random draw per attempt — retakes get different questions.
@@ -220,7 +228,7 @@ window.PhaseGateModule = (function () {
     function finish() {
       const pct = Math.round((correct / quiz.length) * 100);
       const pass = (correct / quiz.length) >= gate.pass;
-      if (pass) App.markLessonDone(`gate:phase-${phase.id}`);
+      App.recordAttempt(`gate:phase-${phase.id}`, pct, Math.round(gate.pass * 100), 'phase-check');
       const nextPh = PHASES.find(p => p.id === phase.id + 1);
 
       container.innerHTML = `

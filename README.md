@@ -1,20 +1,20 @@
 # Bonjour! — Interactive French Learning → CLB 6
 
-Self-paced French learning web app. Targets **CLB 6 in all four modules** (Listening, Speaking, Reading, Writing) at ~30-45 min/day over 3-4 months.
+Self-paced French learning web app with a structured pathway toward **NCLC/CLB 6 across listening, speaking, reading, and writing**. Readiness timing depends on the learner's starting level and authentic practice outside the app.
 
 ## Stack
 - Pure HTML / CSS / JavaScript. No build step. No dependencies.
-- Uses browser SpeechSynthesis (TTS) and SpeechRecognition (mic) APIs.
+- Uses pre-generated Canadian French neural MP3s with browser speech-synthesis fallback, plus local MediaRecorder capture for speaking practice.
 - All progress stored in `localStorage`.
 
 ## Run locally
-Open `index.html` directly in a browser, or:
+Use the included preview server so production-style clean URLs work:
 ```
-python3 -m http.server 8000
+npm start
 ```
-Then visit `http://localhost:8000`.
+Then visit `http://localhost:8765`. Set a different port with `PORT=8000 npm start`.
 
-> Speaking module needs Chrome / Edge + microphone permission.
+> Recorded speaking tasks need a modern browser and microphone permission. Shadowing works without a microphone.
 
 ## Deploy
 Static site — drops onto Vercel / Netlify / GitHub Pages with zero config. `vercel.json` included.
@@ -23,7 +23,7 @@ Static site — drops onto Vercel / Netlify / GitHub Pages with zero config. `ve
 - **Child-first**: pattern + audio + visuals before explicit grammar.
 - **Professor-rigorous**: each grammar unit has explicit rules + practice quiz with explanations.
 - **Spaced repetition (SM-2)** for vocabulary.
-- **38-step path** ordered to CLB 6 with locked progression.
+- **Structured path** ordered from foundations through CLB 6 practice.
 
 ## Modules
 | Module | CLB skill | What it does |
@@ -31,7 +31,7 @@ Static site — drops onto Vercel / Netlify / GitHub Pages with zero config. `ve
 | Vocab Garden | — | SRS flashcards across 10 themed decks |
 | Grammar Quests | — | 12 grammar units A1 → B1 + quizzes |
 | Listening Lab | Listening | TTS dictation, Levenshtein-tolerant grading |
-| Speaking Mirror | Speaking | Mic + pronunciation similarity score |
+| Speaking practice | Speaking | Accountable shadowing, local recording, task rehearsal, and honest self-checks |
 | Reading Quests | Reading | Graded texts + MC comprehension |
-| Writing Workshop | Writing | Prompted writing + rubric pattern checks |
+| Writing Workshop | Writing | Models, prompted writing, slip scans, and structured self-review |
 | Games | — | Gender Sort · Conjugation Race · Sentence Builder · Memory Match |

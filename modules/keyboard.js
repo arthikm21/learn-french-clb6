@@ -171,10 +171,40 @@ window.Keyboard = (function () {
     document.querySelectorAll('.options').forEach(enhanceOptions);
   }
 
-  function init() {
+  // Legacy modules render navigation cards as divs with inline onclick. Give
+  // those surfaces button semantics centrally while they are migrated over
+  // time, so every visible action remains keyboard reachable today.
+  function enhanceClickableSurface(el) {
+    if (el.__a11yClickable) return;
+    el.__a11yClickable = true;
+    el.setAttribute('role', 'button');
+    if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
+    el.addEventListener('keydown', (event) => {
+      if (event.key !== 'Enter' && event.key !== ' ') return;
+      event.preventDefault();
+      event.stopPropagation();
+      el.click();
+    });
+  }
+
+  function scanForClickableSurfaces() {
+    // Many modules bind `element.onclick = …` after inserting their cards.
+    // That creates a function property, not an `[onclick]` attribute, so an
+    // attribute-only selector silently missed a large share of the app.
+    document.querySelectorAll('.card, .spotlight').forEach(el => {
+      if (typeof el.onclick === 'function') enhanceClickableSurface(el);
+    });
+  }
+
+  function scan() {
     scanForOptions();
+    scanForClickableSurfaces();
+  }
+
+  function init() {
+    scan();
     const root = document.getElementById('app') || document.body;
-    const mo = new MutationObserver(scanForOptions);
+    const mo = new MutationObserver(scan);
     mo.observe(root, { childList: true, subtree: true });
   }
 
@@ -184,5 +214,5 @@ window.Keyboard = (function () {
     init();
   }
 
-  return { enhanceOptions };
+  return { enhanceOptions, enhanceClickableSurface };
 })();

@@ -4,8 +4,8 @@
 //
 // Shape: { id, level: 'F'|'A1'|'A2'|'B1'|'B2', topic, skipIfPass: [lessonKey],
 //          q, opts: [3], a: index }
-// skipIfPass keys MUST exist in LESSON_PATH (see app.js doneKey) — a correct
-// answer auto-marks those lessons done. Use [] for pure-assessment questions.
+// skipIfPass is retained as a topic-to-path mapping for analysis and older
+// backups. The current diagnostic does not auto-complete lessons from one item.
 
 window.DIAGNOSTIC_BANK = [
   // ───────────────────────── FOUNDATION (CLB 2-3) — 20 ─────────────────────────

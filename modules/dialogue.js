@@ -182,7 +182,7 @@ window.DialogueModule = (function () {
 
     function finish() {
       const pct = Math.round((correct / d.questions.length) * 100);
-      if (pct >= 70) App.markLessonDone(`dialogue:${id}`);
+      App.recordAttempt(`dialogue:${id}`, pct, 70, 'dialogue-comprehension');
       container.innerHTML = Chrome.finishScreen({
         back: 'dialogue', crumbs: ['Dialogues', d.title, 'Result'],
         icon: pct >= 70 ? '🎯' : '👂',

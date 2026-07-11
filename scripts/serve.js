@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 
 const ROOT = path.join(__dirname, '..');
-const PORT = 8765;
+const PORT = Number(process.env.PORT || 8765);
 
 const MIME = {
   '.html': 'text/html; charset=utf-8',
@@ -20,12 +20,24 @@ const MIME = {
 http.createServer((req, res) => {
   let urlPath = req.url.split('?')[0];
   if (urlPath === '/' || urlPath === '') urlPath = '/index.html';
-  const fp = path.join(ROOT, urlPath);
-  if (!fp.startsWith(ROOT)) { res.writeHead(403); res.end('forbidden'); return; }
-  fs.readFile(fp, (err, data) => {
-    if (err) { res.writeHead(404); res.end('not found: ' + urlPath); return; }
-    const ext = path.extname(fp);
-    res.writeHead(200, { 'Content-Type': MIME[ext] || 'application/octet-stream' });
-    res.end(data);
-  });
+  const clean = path.normalize(urlPath).replace(/^(\.\.[/\\])+/, '');
+  const fp = path.join(ROOT, clean);
+  if (!fp.startsWith(ROOT + path.sep) && fp !== ROOT) { res.writeHead(403); res.end('forbidden'); return; }
+
+  // Mirror Vercel's `cleanUrls` behavior so links like /grammar/articles and
+  // /clb6-french-course are testable locally instead of producing false 404s.
+  const candidates = path.extname(fp)
+    ? [fp]
+    : [fp, fp + '.html', path.join(fp, 'index.html')];
+  const read = index => {
+    if (index >= candidates.length) { res.writeHead(404); res.end('not found: ' + urlPath); return; }
+    fs.readFile(candidates[index], (err, data) => {
+      if (err) { read(index + 1); return; }
+      const ext = path.extname(candidates[index]);
+      res.writeHead(200, { 'Content-Type': MIME[ext] || 'application/octet-stream' });
+      if (req.method === 'HEAD') res.end();
+      else res.end(data);
+    });
+  };
+  read(0);
 }).listen(PORT, () => console.log(`serving on http://localhost:${PORT}`));

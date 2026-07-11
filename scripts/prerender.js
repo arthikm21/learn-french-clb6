@@ -151,7 +151,7 @@ ${bodyHtml}
       <a href="/grammar/">Grammar</a>
       <a href="/tcf-canada-mock-test">Mock test</a>
     </nav>
-    <p class="footer-fine">Free CLB 6 / TCF Canada prep · No accounts · No tracking · Native Canadian French audio · <a href="/">frenchclb6.ca</a></p>
+    <p class="footer-fine">Free CLB 6 / TCF Canada prep · No accounts · No tracking · Canadian French neural audio · <a href="/">frenchclb6.ca</a></p>
   </footer>
 </body>
 </html>
@@ -202,7 +202,7 @@ const gSlugMap = new Map(window.GRAMMAR.map(u => [u.id, grammarSlug(u)]));
 function scenarioPage(sc, all) {
   const url = `/scenarios/${sc.id}`;
   const title = `${sc.title} — French Dialogue & Key Phrases | Bonjour!`;
-  const description = truncate(`${sc.subtitle}. A bilingual French–English dialogue with key vocabulary, grammar notes and phrases to practise for CLB 6 / TCF Canada. Free, with native Canadian audio.`);
+  const description = truncate(`${sc.subtitle}. A bilingual French–English dialogue with key vocabulary, grammar notes and phrases to practise for CLB 6 / TCF Canada. Free, with Canadian French neural audio.`);
 
   const dialogue = sc.dialogue.map(l =>
     `      <p style="margin:0 0 12px"><b>${esc(l.text)}</b><br><span style="color:var(--ink-2)">${esc(l.en)}</span></p>`).join('\n');
@@ -246,7 +246,7 @@ function scenarioPage(sc, all) {
     comp ? box(`      <h2>Check your understanding</h2>\n${comp}`) : '',
     speak ? box(`      <h2>Your speaking challenge</h2>\n${speak}`) : '',
     ctaSpotlight('Practise with audio', 'Run this scenario in the app',
-      'Hear every line in native Canadian French, shadow it aloud, and self-check — free, no signup, all in your browser.',
+      'Hear every line in Canadian French neural audio, shadow it aloud, and self-check — free, no signup, all in your browser.',
       '/#scenario', 'Open the scenarios'),
     `    <h2 class="section-h">More scenarios</h2>
     <p>${related}</p>
@@ -286,7 +286,7 @@ function scenarioIndex(all) {
       `${all.length} real-life situations you'll actually face in Canada — each a bilingual French–English dialogue with key vocabulary, a grammar focus, and phrases to practise aloud.`),
     groups,
     ctaSpotlight('Free · no signup', 'Practise every scenario with audio',
-      'Open the app to hear each dialogue in native Canadian French, shadow it aloud, and track your progress — all in your browser.',
+      'Open the app to hear each dialogue in Canadian French neural audio, shadow it aloud, and track your progress — all in your browser.',
       '/#scenario', 'Open the scenarios'),
     backRow(),
   ].join('\n\n');
