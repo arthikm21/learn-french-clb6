@@ -67,10 +67,33 @@ window.TTS = (function () {
     window.addEventListener('keydown', unlockOnce, { once: false, passive: true });
   }
 
-  function normalize(text) {
-    if (!text) return '';
-    let t = String(text).replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
-    t = t.replace(/\s*\(\s*[A-Za-z][A-Za-z\s',.!?\-]*\)\s*$/, '').trim();
+  // normalize — the manifest key for a display string: what the neural voice
+  // actually says. MUST stay byte-identical to cleanForSpeech() in
+  // scripts/extract.js (which builds strings.json + the manifest), or lookups
+  // miss and we fall back to (worse) browser speech. It strips teaching
+  // scaffolding the voice would otherwise read literally: HTML tags, [slot
+  // placeholders], trailing (English/grammar glosses), transformation arrows
+  // (-> spoken pause), and ___ fill-in blanks (-> gap).
+  function normalize(input) {
+    let t = String(input == null ? '' : input);
+    t = t.replace(/<[^>]+>/g, '');                        // HTML tags (inline: no space)
+    t = t.replace(/\s+/g, ' ');                           // normalize whitespace
+    t = t.replace(/\[[^\]\[]*\]/g, ' ');                  // [slot placeholders]
+    for (let i = 0; i < 4; i++) {                          // trailing (gloss/label)
+      const n = t.replace(/\s*\([^()]*\)\s*$/, '').replace(/\s+$/, '');
+      if (n === t) break;
+      t = n;
+    }
+    t = t.replace(/\s*[→⟶➜⇒←⟵]\s*/g, '. ');   // arrows -> spoken pause
+    t = t.replace(/_{2,}/g, ' … ');                       // long blank -> gap
+    t = t.replace(/(^|[\s([])_(?=[\s)\].,;:!?]|$)/g, '$1 … '); // lone blank
+    t = t.replace(/\s+([,.])/g, '$1');                    // space before , or .
+    t = t.replace(/([.!?»])\s*\.(\s|$)/g, '$1$2');   // extra period after .!?»
+    t = t.replace(/([.!?»])\s*\.(\s|$)/g, '$1$2');
+    t = t.replace(/,(?:\s*,)+/g, ',');                    // collapse commas
+    t = t.replace(/\(\s*\)/g, ' ');                       // empty parens
+    t = t.replace(/\s{2,}/g, ' ').trim();
+    t = t.replace(/^[\s,.;:…»]+\s*/, '').trim();          // leading junk
     return t;
   }
 

@@ -14,16 +14,39 @@ const ROOT = path.join(__dirname, '..');
   require(path.join(ROOT, 'data', n + '.js'));
 });
 
-const stripTags = s => String(s).replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
-// Strip trailing English-in-parens translations like "Je suis. (I am)"
-const stripEnglishGloss = s => s.replace(/\s*\(\s*[A-Za-z][A-Za-z\s',.!?-]*\)\s*$/, '').trim();
+// cleanForSpeech — turn a display string into what the neural voice should SAY.
+// MUST stay byte-identical to normalize() in modules/tts.js, or the app's audio
+// lookup will miss the manifest and fall back to (worse) browser speech.
+// It removes teaching scaffolding the voice would otherwise read literally:
+//   HTML tags, [slot placeholders], trailing (English/grammar glosses),
+//   transformation arrows (-> spoken pause), and ___ fill-in blanks (-> gap).
+function cleanForSpeech(input) {
+  let t = String(input == null ? '' : input);
+  t = t.replace(/<[^>]+>/g, '');                        // HTML tags (inline: no space)
+  t = t.replace(/\s+/g, ' ');                           // normalize whitespace
+  t = t.replace(/\[[^\]\[]*\]/g, ' ');                  // [slot placeholders]
+  for (let i = 0; i < 4; i++) {                          // trailing (gloss/label)
+    const n = t.replace(/\s*\([^()]*\)\s*$/, '').replace(/\s+$/, '');
+    if (n === t) break;
+    t = n;
+  }
+  t = t.replace(/\s*[→⟶➜⇒←⟵]\s*/g, '. ');   // arrows -> spoken pause
+  t = t.replace(/_{2,}/g, ' … ');                       // long blank -> gap
+  t = t.replace(/(^|[\s([])_(?=[\s)\].,;:!?]|$)/g, '$1 … '); // lone blank
+  t = t.replace(/\s+([,.])/g, '$1');                    // space before , or . (removal artifact)
+  t = t.replace(/([.!?»])\s*\.(\s|$)/g, '$1$2');   // extra period after .!?» (arrow artifact)
+  t = t.replace(/([.!?»])\s*\.(\s|$)/g, '$1$2');
+  t = t.replace(/,(?:\s*,)+/g, ',');                    // collapse commas
+  t = t.replace(/\(\s*\)/g, ' ');                       // empty parens
+  t = t.replace(/\s{2,}/g, ' ').trim();
+  t = t.replace(/^[\s,.;:…»]+\s*/, '').trim();          // leading junk
+  return t;
+}
 const strings = new Set();
 const add = s => {
   if (!s) return;
-  const t = stripEnglishGloss(stripTags(s));
+  const t = cleanForSpeech(s);
   if (!t || t.length < 1) return;
-  // Skip strings that are obviously not French (English-only or pure numbers)
-  // Heuristic: keep if has French accent, OR has spaces/multiple words, OR is in known French wordlist (skip — just include all)
   strings.add(t);
 };
 
@@ -171,7 +194,7 @@ const voicedStrings = new Set(); // entries: "VOICE|text"
 if (window.SCENARIOS) for (const sc of window.SCENARIOS) {
   // Dialogue: respect speaker voice
   if (sc.dialogue) for (const line of sc.dialogue) {
-    const t = stripEnglishGloss(stripTags(line.text));
+    const t = cleanForSpeech(line.text);
     if (!t) continue;
     if (line.voice === 'jean') voicedStrings.add('fr-CA-JeanNeural|' + t);
     else add(t); // default Sylvie
