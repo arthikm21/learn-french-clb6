@@ -75,7 +75,7 @@ window.PathModule = (function () {
 
       const statusGlyph = passed ? App.svgIcon('check') : !unlocked ? App.svgIcon('lock') : isCurrent ? App.svgIcon('play') : ph.id;
       const statusColor = passed ? 'var(--good)' : !unlocked ? 'var(--mute)' : isCurrent ? 'var(--accent)' : 'var(--ink-2)';
-      const statusBg    = passed ? 'rgba(52,199,89,.12)' : !unlocked ? 'var(--surface-2)' : isCurrent ? 'rgba(94,92,230,.12)' : 'var(--surface-2)';
+      const statusBg    = passed ? 'color-mix(in srgb, var(--good) 14%, transparent)' : !unlocked ? 'var(--surface-2)' : isCurrent ? 'color-mix(in srgb, var(--accent-fill) 14%, transparent)' : 'var(--surface-2)';
 
       const sec = document.createElement('details');
       sec.style.marginBottom = '12px';
@@ -87,10 +87,10 @@ window.PathModule = (function () {
       // Segmented bar showing how much of this phase is each skill — visualizes
       // the 40/40/10/10 oral-first emphasis without needing a separate page.
       const SKILL_META = {
-        L: { color: '#0A84FF', label: 'Listen' },
-        S: { color: '#FF453A', label: 'Speak' },
-        R: { color: '#FF9F0A', label: 'Read' },
-        W: { color: '#30D158', label: 'Write' },
+        L: { color: 'var(--sk-listen)', label: 'Listen' },
+        S: { color: 'var(--sk-speak)', label: 'Speak' },
+        R: { color: 'var(--sk-read)', label: 'Read' },
+        W: { color: 'var(--sk-write)', label: 'Write' },
         F: { color: 'var(--mute)', label: 'Foundation' },
       };
       const mixSegs = ['L','S','R','W','F']
@@ -145,7 +145,7 @@ window.PathModule = (function () {
 
         const nextTag = isNext ? '<span class="tag" style="background:var(--accent);color:white">Next</span>' : '';
         const evidenceTag = evidence && typeof evidence.best === 'number'
-          ? `<span class="tag" style="background:${evidence.status === 'mastered' ? 'rgba(52,199,89,.12)' : 'rgba(255,159,10,.14)'};color:${evidence.status === 'mastered' ? 'var(--good)' : 'var(--warn)'}">${evidence.status === 'mastered' ? 'Mastered' : 'Building'} · best ${evidence.best}%</span>`
+          ? `<span class="tag" style="background:${evidence.status === 'mastered' ? 'color-mix(in srgb, var(--good) 14%, transparent)' : 'color-mix(in srgb, var(--warn) 16%, transparent)'};color:${evidence.status === 'mastered' ? 'var(--good)' : 'var(--warn)'}">${evidence.status === 'mastered' ? 'Mastered' : 'Building'} · best ${evidence.best}%</span>`
           : evidence && evidence.status === 'practiced'
             ? '<span class="tag">Practiced</span>'
             : '';
@@ -169,9 +169,9 @@ window.PathModule = (function () {
       // Gate card at the end of the phase
       const gateHost = sec.querySelector('[data-gate-host]');
       const gateLabel = passed
-        ? `<span class="tag" style="background:rgba(52,199,89,.12);color:var(--good)">✓ Gate passed</span>`
+        ? `<span class="tag" style="background:color-mix(in srgb, var(--good) 14%, transparent);color:var(--good)">✓ Gate passed</span>`
         : eligible
-          ? `<span class="tag" style="background:rgba(94,92,230,.12);color:var(--accent)">Ready to take</span>`
+          ? `<span class="tag" style="background:color-mix(in srgb, var(--accent-fill) 14%, transparent);color:var(--accent-fill)">Ready to take</span>`
           : `<span class="tag">Complete 80% of the phase</span>`;
 
       const gateCard = document.createElement('div');

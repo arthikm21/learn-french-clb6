@@ -34,7 +34,7 @@ window.ReadModule = (function () {
         ${Chrome.render({ back: 'read', crumbs: ['Read', t.title] })}
         <div class="lesson">
           <h2>📖 ${t.title} <span class="tag">${t.level}</span></h2>
-          <div class="reading-text" id="r-text" style="background:var(--surface-2);border:1px solid var(--line);padding:var(--sp-5);border-radius:var(--r-md);line-height:var(--lh-loose);font-size:var(--fs-17);white-space:pre-wrap;color:var(--ink)">${sentenceHTML}</div>
+          <div class="reading-text" id="r-text" lang="fr" style="background:var(--surface-2);border:1px solid var(--line);padding:var(--sp-5);border-radius:var(--r-md);line-height:var(--lh-loose);font-size:var(--fs-17);white-space:pre-wrap;color:var(--ink)">${sentenceHTML}</div>
           <div class="reading-player" id="r-player">
             <button class="btn primary" id="r-play">▶ Listen to text</button>
             <button class="btn secondary" id="r-stop" disabled aria-label="Stop audio">⏸</button>

@@ -20,30 +20,47 @@
   --gray-800: #1D1D1F;   /* Apple's primary text */
   --gray-900: #0A0A0B;
 
-  /* Brand — French flag, demoted to accent */
-  --bleu:     #0055A4;
-  --bleu-2:   #003D7A;
-  --rouge:    #EF4135;
-  --accent:   #5E5CE6;   /* indigo, Apple-like */
-  --accent-2: #7C3AED;
+  /* Brand — one stable action colour. French flag demoted: rouge stays for
+     identity, blue unified onto the brand action so two blues don't compete. */
+  --bleu:     #2948B8;
+  --bleu-2:   #203A96;
+  --rouge:    #B83B45;   /* decorative French rouge */
+  --accent:   #2948B8;   /* primary action + keyboard focus */
+  --accent-2: #203A96;   /* action hover */
 
-  /* Semantic */
-  --good:     #34C759;
-  --good-2:   #248A3D;
-  --warn:     #FF9F0A;
-  --bad:      #FF3B30;
-  --bad-2:    #C7251C;
+  /* Semantic — all pass WCAG AA (white-on-fill and text-on-paper). */
+  --good:     #19743A;
+  --good-2:   #145C2E;
+  --warn:     #8A4B00;
+  --bad:      #B42318;
+  --bad-2:    #8F1A12;
+  --info:     #175CD3;
+  /* Solid fills that carry white text (buttons, toasts, badges). Kept dark
+     enough for >=4.5:1 with #FFF in BOTH themes so success/danger never fail. */
+  --good-fill: #19743A;
+  --bad-fill:  #B42318;
+  --warn-fill: #8A4B00;
 
-  /* Surfaces */
-  --bg:        var(--gray-50);
-  --surface:   var(--gray-0);    /* card default */
-  --surface-2: var(--gray-100);  /* nested card */
-  --surface-3: var(--gray-150);  /* even nested */
-  --ink:       var(--gray-800);
-  --ink-2:     var(--gray-600);
-  --mute:      var(--gray-500);
-  --line:      var(--gray-200);
-  --line-2:    var(--gray-300);
+  /* Canonical skill accents — one meaning everywhere (Path, Progress, headers,
+     cards). Reading is teal so success green stays unmistakable; exam is slate
+     so it never reads as an error. */
+  --sk-found:  #2948B8;
+  --sk-listen: #0B63CE;
+  --sk-speak:  #783E9D;
+  --sk-read:   #00796B;
+  --sk-write:  #935500;
+  --sk-exam:   #334155;
+
+  /* Surfaces — warm "Paper". Neutrals picked, not defaulted. */
+  --bg:        #F7F6F2;
+  --surface:   #FFFFFF;    /* card default */
+  --surface-2: #F0EFEB;    /* nested card */
+  --surface-3: #E7E5DF;    /* raised control */
+  --ink:       #171A21;
+  --ink-2:     #4D535F;
+  --mute:      #676D78;
+  --line:      #DDDAD2;
+  --line-2:    #CFCBC1;
 
   /* Legacy aliases (kept so existing modules still render) */
   --blanc:    var(--gray-0);
@@ -51,19 +68,29 @@
   --card:     var(--surface);
 
   /* Type scale (modular, Apple-like ramp) */
-  --fs-11: 11px;
-  --fs-12: 12px;
-  --fs-13: 13px;
-  --fs-14: 14px;
-  --fs-15: 15px;
-  --fs-17: 17px;   /* body */
-  --fs-19: 19px;
-  --fs-22: 22px;
-  --fs-28: 28px;
-  --fs-34: 34px;
-  --fs-44: 44px;
-  --fs-56: 56px;
-  --fs-72: 72px;
+  /* rem-based (÷16 root) so the Profile text-size control — which sets the
+     root font-size — actually scales every token-based size. Identical px at
+     the default 16px root. */
+  --fs-11: 0.6875rem;  /* 11 */
+  --fs-12: 0.75rem;    /* 12 */
+  --fs-13: 0.8125rem;  /* 13 */
+  --fs-14: 0.875rem;   /* 14 */
+  --fs-15: 0.9375rem;  /* 15 */
+  --fs-16: 1rem;       /* 16 */
+  --fs-17: 1.0625rem;  /* 17 — body */
+  --fs-19: 1.1875rem;  /* 19 */
+  --fs-22: 1.375rem;   /* 22 */
+  --fs-28: 1.75rem;    /* 28 */
+  --fs-34: 2.125rem;   /* 34 */
+  --fs-44: 2.75rem;    /* 44 */
+  --fs-56: 3.5rem;     /* 56 */
+  --fs-72: 4.5rem;     /* 72 */
+
+  /* Fonts. --serif carries substantial French prose (reading passages, model
+     answers) for an editorial, exam-paper feel and a clear FR/EN hierarchy.
+     'Source Serif 4' leads so a self-hosted woff2 upgrade takes over with no
+     code change; until then a quality serif system stack renders offline. */
+  --serif: 'Source Serif 4', 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, 'Times New Roman', serif;
 
   /* Line heights */
   --lh-tight: 1.1;
@@ -116,8 +143,8 @@
   --e4: 0 12px 24px rgba(15, 17, 21, .08), 0 24px 60px rgba(15, 17, 21, .14);
   --shadow: var(--e2); /* legacy */
 
-  /* Focus ring */
-  --ring: 0 0 0 4px rgba(94, 92, 230, .25);
+  /* Focus ring — brand blue */
+  --ring: 0 0 0 4px rgba(41, 72, 184, .28);
 
   /* Motion */
   --t-fast:   120ms;
@@ -156,19 +183,40 @@ body.dark {
   --gray-800: #F2F2F7;
   --gray-900: #FFFFFF;
 
-  --bleu:    #5AA0E0;
-  --rouge:   #FF6961;
-  --accent:  #7D7AFF;
+  --bleu:    #5E74E0;
+  --rouge:   #E06A72;
+  --accent:  #4C63D2;    /* action fill; white text passes on it */
+  --accent-2:#6076E0;    /* action hover */
 
-  --bg:        #08080A; /* deep neutral, not pure black — OLED smear + glass floor */
-  --surface:   #17171B;
-  --surface-2: #212127;
-  --surface-3: #2B2B33;
-  --ink:       #F5F5F7;
-  --ink-2:     #C9C9D1;
-  --mute:      #95959F;
-  --line:      rgba(255, 255, 255, .09);
-  --line-2:    rgba(255, 255, 255, .14);
+  /* Semantic — remapped for dark: bright enough as text on the Ink surfaces. */
+  --good:     #57C285;
+  --good-2:   #57C285;
+  --warn:     #E0A34B;
+  --bad:      #F0857B;
+  --bad-2:    #F0857B;
+  --info:     #6C9BF0;
+  /* Solid fills carrying white text stay dark enough for AA in dark mode too. */
+  --good-fill: #1E7A40;
+  --bad-fill:  #B93321;
+  --warn-fill: #7A4300;
+
+  /* Canonical skill accents — lighter tints for legibility on the Ink ground. */
+  --sk-found:  #7C90E8;
+  --sk-listen: #5CA6F0;
+  --sk-speak:  #C39BE0;
+  --sk-read:   #3FBFAC;
+  --sk-write:  #D6A15A;
+  --sk-exam:   #94A3B8;
+
+  --bg:        #0D1016; /* deep neutral Ink canvas */
+  --surface:   #151922;
+  --surface-2: #1D232E;
+  --surface-3: #272F3C;
+  --ink:       #F6F5F2;
+  --ink-2:     #CAC7C0;
+  --mute:      #9DA3AE;
+  --line:      #2D3542;
+  --line-2:    #3A4453;
   --blanc:     var(--surface);
   --cream:     var(--surface-2);
   --card:      var(--surface);
@@ -179,7 +227,7 @@ body.dark {
   --e4: 0 12px 24px rgba(0,0,0,.6), 0 24px 60px rgba(0,0,0,.8);
   --shadow: var(--e2);
 
-  --ring: 0 0 0 4px rgba(125, 122, 255, .35);
+  --ring: 0 0 0 4px rgba(96, 118, 224, .40);
 }
 
 /* ---------- RESET ---------- */
@@ -232,7 +280,7 @@ h1, h2, h3, h4 {
 
 p { line-height: var(--lh-base); }
 
-::selection { background: rgba(94, 92, 230, .2); color: var(--ink); }
+::selection { background: color-mix(in srgb, var(--accent-fill) 22%, transparent); color: var(--ink); }
 
 /* Numbers want tabular alignment in stats/progress */
 .stat, .stats, .progress-num, .meter-label { font-variant-numeric: tabular-nums; }
@@ -333,7 +381,7 @@ p { line-height: var(--lh-base); }
 body.dark .nav a.active { background: var(--gray-800); color: var(--gray-50); }
 
 /* Nav pills — color-coded shortcuts (oral focus, mock) */
-.nav .nav-pill-accent { background: rgba(94, 92, 230, .12); color: var(--accent); }
+.nav .nav-pill-accent { background: rgba(41, 72, 184, .12); color: var(--accent); }
 .nav .nav-pill-listen { background: rgba(10, 132, 255, .12); color: #0A84FF; }
 .nav .nav-pill-mock   { background: var(--rouge); color: #fff; }
 
@@ -547,7 +595,7 @@ main {
   gap: var(--sp-4);
   border-radius: var(--r-lg);
   background:
-    linear-gradient(135deg, rgba(0, 85, 164, .06), rgba(239, 65, 53, .06)),
+    linear-gradient(135deg, rgba(41, 72, 184, .06), rgba(184, 59, 69, .06)),
     var(--surface-2);
   border: 1px solid var(--line);
   text-align: left;
@@ -948,7 +996,7 @@ body.dark .card .meter > div { background: var(--gray-700); }
   font-variant-numeric: tabular-nums;
 }
 .path-node.unlocked .num { background: var(--accent); color: white; }
-.path-node.done .num { background: var(--good); color: white; }
+.path-node.done .num { background: var(--good-fill); color: white; }
 .path-node.locked .num { background: var(--surface-2); color: var(--mute); }
 .path-node .info { min-width: 0; flex: 1; }
 .path-node .info h4 {
@@ -1118,10 +1166,10 @@ body.dark .btn:hover { background: #34343E; }
 }
 .btn.ghost:hover { background: var(--surface-2); border-color: var(--ink-2); }
 
-.btn.success { background: var(--good); color: white; }
-.btn.success:hover { background: var(--good-2); }
-.btn.danger { background: var(--bad); color: white; }
-.btn.danger:hover { background: var(--bad-2); }
+.btn.success { background: var(--good-fill); color: white; }
+.btn.success:hover { background: color-mix(in srgb, var(--good-fill) 90%, #000); }
+.btn.danger { background: var(--bad-fill); color: white; }
+.btn.danger:hover { background: color-mix(in srgb, var(--bad-fill) 90%, #000); }
 
 .btn.big { padding: 13px 26px; font-size: var(--fs-17); min-height: 48px; border-radius: var(--r-pill); }
 .btn.sm  { padding: 7px 14px;  font-size: var(--fs-13); min-height: 32px; }
@@ -1330,7 +1378,7 @@ textarea.input { min-height: 140px; resize: vertical; line-height: var(--lh-base
   align-content: flex-start;
   transition: border-color var(--t-fast), background var(--t-fast);
 }
-.dnd-zone.over { border-color: var(--accent); background: rgba(94, 92, 230, .08); }
+.dnd-zone.over { border-color: var(--accent); background: rgba(41, 72, 184, .08); }
 .dnd-zone h4 {
   width: 100%; color: var(--mute);
   font-size: var(--fs-11); text-transform: uppercase;
@@ -1382,7 +1430,7 @@ textarea.input { min-height: 140px; resize: vertical; line-height: var(--lh-base
   line-height: 1.2;
 }
 .mem-card.flipped { background: var(--surface-2); color: var(--ink); }
-.mem-card.matched { background: var(--good); color: white; opacity: .7; cursor: default; }
+.mem-card.matched { background: var(--good-fill); color: white; opacity: .7; cursor: default; }
 .mem-card:active:not(.matched) { transform: scale(.95); }
 
 /* =========================================================================
@@ -1472,7 +1520,7 @@ textarea.input { min-height: 140px; resize: vertical; line-height: var(--lh-base
 .center > .mic-btn { margin: 0 auto; }
 .mic-btn:hover { box-shadow: var(--e3); }
 .mic-btn:active { transform: scale(.95); }
-.mic-btn.listening { animation: mic-pulse 1.4s var(--ease-in-out) infinite; background: var(--bad); }
+.mic-btn.listening { animation: mic-pulse 1.4s var(--ease-in-out) infinite; background: var(--bad-fill); }
 @keyframes mic-pulse {
   0%, 100% { box-shadow: 0 0 0 0 rgba(255, 59, 48, .5), var(--e2); }
   50%      { box-shadow: 0 0 0 22px rgba(255, 59, 48, 0), var(--e2); }
@@ -1516,8 +1564,8 @@ textarea.input { min-height: 140px; resize: vertical; line-height: var(--lh-base
 }
 .tag.fem { background: rgba(255, 59, 48, .12); color: var(--bad-2); }
 body.dark .tag.fem { color: var(--rouge); }
-.tag.masc { background: rgba(0, 85, 164, .12); color: var(--bleu); }
-.tag.verb { background: rgba(94, 92, 230, .12); color: var(--accent); }
+.tag.masc { background: rgba(41, 72, 184, .12); color: var(--bleu); }
+.tag.verb { background: rgba(41, 72, 184, .12); color: var(--accent); }
 
 .empty {
   text-align: center;
@@ -2239,9 +2287,9 @@ body[data-anim="off"] .speed-lines { display: none !important; }
 body.dark .toast { background: var(--gray-800); color: var(--gray-50); }
 .toast.toast-in { opacity: 1; transform: translateY(0) scale(1); }
 .toast.toast-out { opacity: 0; transform: translateY(-10px); }
-.toast.toast-good { background: var(--good); color: white; }
-.toast.toast-bad  { background: var(--bad); color: white; }
-.toast.toast-warn { background: var(--warn); color: #1a1a2e; }
+.toast.toast-good { background: var(--good-fill); color: white; }
+.toast.toast-bad  { background: var(--bad-fill); color: white; }
+.toast.toast-warn { background: var(--warn-fill); color: #fff; }
 
 /* =========================================================================
    SKELETON
@@ -2355,14 +2403,20 @@ body.dark .toast { background: var(--gray-800); color: var(--gray-50); }
   border-radius: var(--r-pill);
   white-space: nowrap;
 }
-.dl-A    { background: rgba(0, 85, 164, .12);   color: var(--bleu); }
-.dl-B    { background: rgba(239, 65, 53, .12);  color: var(--rouge); }
-.dl-NARR { background: rgba(94, 92, 230, .12);  color: var(--accent); }
+.dl-A    { background: rgba(41, 72, 184, .12);   color: var(--bleu); }
+.dl-B    { background: rgba(184, 59, 69, .12);  color: var(--rouge); }
+.dl-NARR { background: rgba(41, 72, 184, .12);  color: var(--accent); }
 .dl-text { flex: 1; line-height: var(--lh-base); word-break: break-word; color: var(--ink); }
 
 /* =========================================================================
    READING PLAYER + SENTENCE HIGHLIGHT
    ========================================================================= */
+/* French passage sets in the serif for an editorial, exam-paper read. */
+.reading-text {
+  font-family: var(--serif);
+  font-size: var(--fs-17);
+  line-height: var(--lh-loose);
+}
 .reading-text .r-sent {
   display: inline;
   transition: background var(--t-base);
@@ -2595,17 +2649,17 @@ body::before {
   z-index: -1;
   pointer-events: none;
   background:
-    radial-gradient(60vw 60vw at 12% 0%,  rgba(94, 92, 230, .21), transparent 64%),
-    radial-gradient(66vw 66vw at 92% 16%, rgba(0, 85, 164, .16),  transparent 66%),
-    radial-gradient(60vw 60vw at 50% 104%, rgba(239, 65, 53, .13), transparent 62%),
-    radial-gradient(44vw 44vw at 70% 56%, rgba(124, 58, 237, .10), transparent 66%);
+    radial-gradient(60vw 60vw at 12% 0%,  rgba(41, 72, 184, .21), transparent 64%),
+    radial-gradient(66vw 66vw at 92% 16%, rgba(41, 72, 184, .16),  transparent 66%),
+    radial-gradient(60vw 60vw at 50% 104%, rgba(184, 59, 69, .13), transparent 62%),
+    radial-gradient(44vw 44vw at 70% 56%, rgba(41, 72, 184, .10), transparent 66%);
 }
 body.dark::before {
   /* Two quiet indigo washes — a key light top-left, a floor glow at the
      bottom. Surfaces carry the depth now (elevation ladder), so the
      ambience only has to keep the stage from reading as a void. */
   background:
-    radial-gradient(72vw 60vw at 18% -6%,  rgba(99, 102, 241, .16), transparent 62%),
+    radial-gradient(72vw 60vw at 18% -6%,  rgba(41, 72, 184, .16), transparent 62%),
     radial-gradient(80vw 50vw at 55% 108%, rgba(76, 82, 190, .10),  transparent 64%);
 }
 /* Slow liquid drift — full tier only, transform-only (composited) */
@@ -2684,42 +2738,40 @@ body.dark .toast { background: rgba(44, 44, 52, .78); color: #fff; }
 }
 
 /* ---------- SURFACE GLASS (no blur — safe at any element count) ---------- */
+/* Content surfaces are OPAQUE + a quiet elevation ladder (audit: learning
+   content stable, not translucent). Glass is reserved for chrome/overlays. */
 .card, .path-node, .phase-chip, .grammar-box, .skeleton-card,
 .support-card, .kit-card, .kit-strip, .kit-item, .seo-collapse,
 .footer-support-card, .reading-player, .conj-table {
-  background: var(--glass-bg);
-  border-color: var(--glass-line);
-  box-shadow: var(--glass-edge-soft), var(--glass-shadow-1);
+  background: var(--surface);
+  border-color: var(--line);
+  box-shadow: var(--e1);
 }
 .card:hover {
-  background: var(--glass-bg-hover);
-  border-color: var(--glass-line);
-  box-shadow: var(--glass-edge), var(--glass-shadow-2);
+  background: var(--surface);
+  border-color: var(--line-2);
+  box-shadow: var(--e2);
 }
 .path-node:hover, .phase-chip:hover, .kit-item:hover {
-  background: var(--glass-bg-hover);
-  box-shadow: var(--glass-edge), var(--glass-shadow-1);
+  background: var(--surface-2);
+  box-shadow: var(--e2);
 }
 .path-node.locked:hover,
-.phase-chip.locked:hover { background: color-mix(in srgb, var(--surface) 50%, transparent); }
-.path-node.locked:hover { box-shadow: var(--glass-edge-soft), var(--glass-shadow-1); }
+.phase-chip.locked:hover { background: var(--surface-2); }
+.path-node.locked:hover { box-shadow: var(--e1); }
 .phase-chip.locked:hover { box-shadow: none; }
-/* Keep tinted variants tinted — re-tint over glass instead of flat surface */
-.support-card.preply-card { background: color-mix(in srgb, var(--bleu) 8%, transparent); }
-.support-card.tip-card    { background: color-mix(in srgb, var(--rouge) 6%, transparent); }
-body.dark .support-card.preply-card,
-body.dark .support-card.tip-card { background: var(--glass-bg); }
+/* Tinted variants: tint OVER the opaque surface so they stay solid. */
+.support-card.preply-card { background: color-mix(in srgb, var(--bleu) 8%, var(--surface)); }
+.support-card.tip-card    { background: color-mix(in srgb, var(--rouge) 6%, var(--surface)); }
 .kit-card {
   background: linear-gradient(135deg,
-    color-mix(in srgb, var(--bleu) 8%, transparent),
-    color-mix(in srgb, var(--rouge) 5%, transparent));
+    color-mix(in srgb, var(--bleu) 8%, var(--surface)),
+    color-mix(in srgb, var(--rouge) 5%, var(--surface)));
 }
-body.dark .kit-card { background: var(--glass-bg); }
 
-/* Icon wells inside cards get a soft glass inset */
+/* Icon wells inside cards: solid tinted well, no glass. */
 .card .icon {
-  background: color-mix(in srgb, var(--surface-2) 60%, transparent);
-  box-shadow: var(--glass-edge-soft);
+  background: var(--surface-2);
 }
 
 /* Pills + small controls: translucent capsules */
@@ -2737,13 +2789,14 @@ body.dark .kit-card { background: var(--glass-bg); }
 /* .chrome-back/.icon-btn had no border before — keep their box metrics */
 .chrome-back { border: 1px solid var(--glass-line); }
 
-/* Quiz options + game tokens — glassy, still high-contrast when graded */
+/* Quiz options + game tokens — OPAQUE learning surfaces (audit: content should
+   be stable, not translucent/competing). Glass stays on chrome only. */
 .option, .token {
-  background: var(--glass-bg);
-  border-color: var(--glass-line);
-  box-shadow: var(--glass-edge-soft);
+  background: var(--surface);
+  border-color: var(--line-2);
+  box-shadow: none;
 }
-.option:hover { background: var(--glass-bg-hover); border-color: var(--ink-2); }
+.option:hover { background: var(--surface-2); border-color: var(--ink-2); }
 .option.correct { background: rgba(52, 199, 89, .18); border-color: var(--good); box-shadow: var(--glass-edge-soft); }
 .option.wrong   { background: rgba(255, 59, 48, .16); border-color: var(--bad);  box-shadow: var(--glass-edge-soft); }
 body.dark .option.correct { background: rgba(52, 199, 89, .22); }
@@ -2775,7 +2828,7 @@ body.dark .option.wrong   { background: rgba(255, 59, 48, .22); }
 .nav a.active {
   background: var(--accent-fill, var(--accent));
   color: #fff;
-  box-shadow: 0 2px 10px rgba(94, 92, 230, .30);
+  box-shadow: 0 2px 10px color-mix(in srgb, var(--accent-fill) 30%, transparent);
 }
 body.dark .nav a.active {
   background: var(--accent-fill, var(--accent));
@@ -2836,17 +2889,17 @@ body.dark .btn:hover { background: #34343E; }
 
 /* Success / danger — solid semantic fills */
 .btn.success, body.dark .btn.success {
-  background: var(--good);
+  background: var(--good-fill);
   color: #fff;
-  box-shadow: 0 4px 14px rgba(52, 199, 89, .28);
+  box-shadow: 0 4px 14px rgba(25, 116, 58, .28);
 }
-.btn.success:hover, body.dark .btn.success:hover { background: color-mix(in srgb, var(--good) 88%, #fff); }
+.btn.success:hover, body.dark .btn.success:hover { background: color-mix(in srgb, var(--good-fill) 90%, #000); }
 .btn.danger, body.dark .btn.danger {
-  background: var(--bad);
+  background: var(--bad-fill);
   color: #fff;
-  box-shadow: 0 4px 14px rgba(255, 59, 48, .28);
+  box-shadow: 0 4px 14px rgba(180, 35, 24, .28);
 }
-.btn.danger:hover, body.dark .btn.danger:hover { background: color-mix(in srgb, var(--bad) 88%, #fff); }
+.btn.danger:hover, body.dark .btn.danger:hover { background: color-mix(in srgb, var(--bad-fill) 90%, #000); }
 
 /* Mic button — solid accent orb, glow stays (it is the affordance) */
 .mic-btn {
@@ -2932,7 +2985,7 @@ body::after {
   background:
     radial-gradient(32vw 32vw at 80% 6%,  rgba(255, 159, 10, .09), transparent 62%),
     radial-gradient(28vw 28vw at 6% 78%,  rgba(10, 132, 255, .10), transparent 60%),
-    radial-gradient(24vw 24vw at 94% 90%, rgba(124, 58, 237, .11), transparent 60%);
+    radial-gradient(24vw 24vw at 94% 90%, rgba(41, 72, 184, .11), transparent 60%);
 }
 body.dark::after {
   /* One faint cool counterpoint — anything louder turns the stage to mud */
@@ -2988,12 +3041,12 @@ body[data-anim="full"]::after {
   inset: 0;
   pointer-events: none;
   background:
-    radial-gradient(48% 70% at 88% 0%,  rgba(94, 92, 230, .10), transparent 70%),
-    radial-gradient(40% 60% at 0% 100%, rgba(239, 65, 53, .07), transparent 70%);
+    radial-gradient(48% 70% at 88% 0%,  rgba(41, 72, 184, .10), transparent 70%),
+    radial-gradient(40% 60% at 0% 100%, rgba(184, 59, 69, .07), transparent 70%);
 }
 body.dark .hero::after {
   background:
-    radial-gradient(48% 70% at 88% 0%,  rgba(125, 122, 255, .16), transparent 70%),
+    radial-gradient(48% 70% at 88% 0%,  rgba(76, 99, 210, .16), transparent 70%),
     radial-gradient(40% 60% at 0% 100%, rgba(255, 105, 97, .10), transparent 70%);
 }
 .hero.accent::after { display: none; }
@@ -3007,15 +3060,10 @@ body.dark .phase-chip .meter > div {
 }
 .ring circle.fg, body.dark .ring circle.fg { stroke: var(--accent); }
 
-/* ── Icon tiles: 6-hue cycle, iOS-app-icon feel ────────────────────────── */
-.card .icon { transition: transform var(--t-base) var(--ease-snap), background var(--t-fast); }
-.grid .card:nth-child(6n+1) .icon { background: linear-gradient(135deg, rgba(94, 92, 230, .18),  rgba(94, 92, 230, .07)); }
-.grid .card:nth-child(6n+2) .icon { background: linear-gradient(135deg, rgba(10, 132, 255, .18),  rgba(10, 132, 255, .07)); }
-.grid .card:nth-child(6n+3) .icon { background: linear-gradient(135deg, rgba(239, 65, 53, .16),   rgba(239, 65, 53, .06)); }
-.grid .card:nth-child(6n+4) .icon { background: linear-gradient(135deg, rgba(255, 159, 10, .20),  rgba(255, 159, 10, .07)); }
-.grid .card:nth-child(6n+5) .icon { background: linear-gradient(135deg, rgba(52, 199, 89, .18),   rgba(52, 199, 89, .07)); }
-.grid .card:nth-child(6n+6) .icon { background: linear-gradient(135deg, rgba(124, 58, 237, .16),  rgba(124, 58, 237, .06)); }
-body[data-anim="full"] .card:hover .icon { transform: scale(1.1) rotate(-4deg); }
+/* ── Icon tiles: calm + consistent. Category grids tint by --cat; other grids
+   use a neutral well with the glyph in the accent. No position-based rainbow. */
+.card .icon { transition: transform var(--t-base) var(--ease-snap), background var(--t-fast); color: var(--accent); }
+body[data-anim="full"] .card:hover .icon { transform: scale(1.06); }
 
 /* ── Entrance choreography: grids + path rise in, staggered ────────────── */
 body[data-anim="full"] .grid > *,
@@ -3054,19 +3102,19 @@ body[data-anim="full"] .path-list > *:nth-child(n+12) { animation-delay: 410ms; 
 /* ── Interactions glow accent, not gray ────────────────────────────────── */
 .option:hover {
   border-color: color-mix(in srgb, var(--accent) 55%, var(--glass-line));
-  box-shadow: var(--glass-edge-soft), 0 4px 16px rgba(94, 92, 230, .14);
+  box-shadow: var(--glass-edge-soft), 0 4px 16px rgba(41, 72, 184, .14);
 }
 .card:hover {
   border-color: color-mix(in srgb, var(--accent) 30%, var(--glass-line));
-  box-shadow: var(--glass-edge), var(--glass-shadow-2), 0 12px 36px rgba(94, 92, 230, .10);
+  box-shadow: var(--glass-edge), var(--glass-shadow-2), 0 12px 36px rgba(41, 72, 184, .10);
 }
 .path-node.unlocked .num {
   background: var(--accent-fill, var(--accent));
-  box-shadow: 0 2px 8px rgba(94, 92, 230, .30);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--accent-fill) 30%, transparent);
 }
 .path-node.done .num {
-  background: var(--good);
-  box-shadow: 0 2px 8px rgba(52, 199, 89, .25);
+  background: var(--good-fill);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--good-fill) 28%, transparent);
 }
 body[data-anim="full"] .btn:hover { transform: translateY(-1px); }
 body[data-anim="full"] .btn:active { transform: scale(.96); }
@@ -3116,8 +3164,11 @@ body[data-anim="full"] .btn:active { transform: scale(.96); }
 /* Declared on body (not :root): the route palettes override --accent on
    body[data-route], and var() substitution resolves per-element — on :root
    these would freeze to the default indigo and never re-tint. */
-body { --accent-fill: var(--accent); --ring: 0 0 0 4px color-mix(in srgb, var(--accent) 28%, transparent); }
-body.dark { --accent-fill: #5A58D6; --ring: 0 0 0 4px color-mix(in srgb, var(--accent) 38%, transparent); }
+/* --accent-fill = STABLE brand action fill. Routes recolour --accent (content
+   identity) but never this, so buttons, nav, mic, path chips and the focus
+   ring stay one brand blue on every screen. */
+body { --accent-fill: #2948B8; --ring: 0 0 0 4px color-mix(in srgb, #2948B8 28%, transparent); }
+body.dark { --accent-fill: #4C63D2; --ring: 0 0 0 4px color-mix(in srgb, #4C63D2 42%, transparent); }
 
 /* Route-reactive accent, solid fills (the button system above already
    consumes --accent-fill; these keep nav + path + mic on the same accent). */
@@ -3145,50 +3196,28 @@ body.dark { --accent-fill: #5A58D6; --ring: 0 0 0 4px color-mix(in srgb, var(--a
               0 12px 36px color-mix(in srgb, var(--accent) 12%, transparent);
 }
 
-/* ── Section palettes — body[data-route] set by the router ─────────────── */
-/* Listening = blue */
+/* ── Route accents — CONTENT IDENTITY ONLY, canonical skill colours.
+   The --sk-* tokens are theme-aware (defined for light and dark), so one
+   line per skill covers both themes. Actions stay brand via --accent-fill.
+   Reading is teal (not green) so it never collides with success; exam is
+   slate (not red) so it never reads as an error. ────────────────────── */
+/* Listening */
 body[data-route="listen"], body[data-route="listenmastery"],
-body[data-route="dialogue"], body[data-route="phonics"] {
-  --accent: #0071E3; --accent-2: #0059B3;
-}
-body.dark[data-route="listen"], body.dark[data-route="listenmastery"],
-body.dark[data-route="dialogue"], body.dark[data-route="phonics"] {
-  --accent: #6FB6FF; --accent-fill: #0E6FD8;
-}
-/* Speaking = purple */
+body[data-route="dialogue"], body[data-route="phonics"] { --accent: var(--sk-listen); }
+/* Speaking */
 body[data-route="speak"], body[data-route="speaktasks"],
-body[data-route="scenario"], body[data-route="connectormastery"] {
-  --accent: #8944AB; --accent-2: #6B3488;
-}
-body.dark[data-route="speak"], body.dark[data-route="speaktasks"],
-body.dark[data-route="scenario"], body.dark[data-route="connectormastery"] {
-  --accent: #CD7DF5; --accent-fill: #8636BC;
-}
-/* Reading = green */
-body[data-route="read"] { --accent: #1E8E3E; --accent-2: #17702F; }
-body.dark[data-route="read"] { --accent: #43C46B; --accent-fill: #128A40; }
-/* Writing = amber */
-body[data-route="write"], body[data-route="writetask3"] {
-  --accent: #B25000; --accent-2: #8F4000;
-}
-body.dark[data-route="write"], body.dark[data-route="writetask3"] {
-  --accent: #F5A623; --accent-fill: #A85800;
-}
-/* Vocab = teal */
-body[data-route="vocab"] { --accent: #00757C; --accent-2: #005A60; }
-body.dark[data-route="vocab"] { --accent: #4DCFD9; --accent-fill: #0A7580; }
-/* Games = pink */
-body[data-route="games"] { --accent: #C7366F; --accent-2: #A02857; }
-body.dark[data-route="games"] { --accent: #FF7DA0; --accent-fill: #C2255C; }
-/* Exam pressure = rouge */
+body[data-route="scenario"], body[data-route="connectormastery"] { --accent: var(--sk-speak); }
+/* Reading */
+body[data-route="read"] { --accent: var(--sk-read); }
+/* Writing */
+body[data-route="write"], body[data-route="writetask3"] { --accent: var(--sk-write); }
+/* Vocabulary → foundations */
+body[data-route="vocab"] { --accent: var(--sk-found); }
+/* Games → speaking family (playful) */
+body[data-route="games"] { --accent: var(--sk-speak); }
+/* Exam / gates / diagnostics → slate */
 body[data-route="mock"], body[data-route="gate"],
-body[data-route="diagnostic"], body[data-route="mistakes"] {
-  --accent: #D42B20; --accent-2: #A81F16;
-}
-body.dark[data-route="mock"], body.dark[data-route="gate"],
-body.dark[data-route="diagnostic"], body.dark[data-route="mistakes"] {
-  --accent: #FF7A72; --accent-fill: #D02F35;
-}
+body[data-route="diagnostic"], body[data-route="mistakes"] { --accent: var(--sk-exam); }
 /* Accent shifts glide instead of snapping */
 body { transition: background var(--t-base) var(--ease-in-out), color var(--t-base) var(--ease-in-out); }
 .btn.primary, .nav a.active, .mic-btn, .path-node.unlocked .num {
@@ -3377,14 +3406,6 @@ body.dark .spotlight {
   background-image: linear-gradient(180deg, rgba(255, 255, 255, .05), rgba(255, 255, 255, 0) 42%);
 }
 
-/* Icon tiles: light-mode alphas (.16–.20) disappear on charcoal — restate
-   the 6-hue cycle bright enough to survive dark */
-body.dark .grid .card:nth-child(6n+1) .icon { background: linear-gradient(135deg, rgba(125, 122, 255, .34), rgba(125, 122, 255, .12)); }
-body.dark .grid .card:nth-child(6n+2) .icon { background: linear-gradient(135deg, rgba(10, 132, 255, .32),  rgba(10, 132, 255, .11)); }
-body.dark .grid .card:nth-child(6n+3) .icon { background: linear-gradient(135deg, rgba(255, 105, 97, .30),  rgba(255, 105, 97, .10)); }
-body.dark .grid .card:nth-child(6n+4) .icon { background: linear-gradient(135deg, rgba(255, 179, 64, .30),  rgba(255, 179, 64, .10)); }
-body.dark .grid .card:nth-child(6n+5) .icon { background: linear-gradient(135deg, rgba(48, 209, 88, .30),   rgba(48, 209, 88, .10)); }
-body.dark .grid .card:nth-child(6n+6) .icon { background: linear-gradient(135deg, rgba(191, 90, 242, .30),  rgba(191, 90, 242, .10)); }
 
 /* Ring track was invisible on glass in both modes */
 .ring circle.bg { stroke: color-mix(in srgb, var(--ink) 12%, transparent); }
@@ -3408,19 +3429,17 @@ body.dark .grid .card:nth-child(6n+6) .icon { background: linear-gradient(135deg
    match its specificity (class + attr), so each restates .card-group-h/.grid
    — a bare [data-cat="x"] (0,1,0) would lose to the default's .grid[data-cat]
    (0,2,0) and everything would fall back to indigo. */
+/* Categories map to canonical skill families. --sk-* are theme-aware, so the
+   tint derives per-theme via color-mix — no separate dark rules needed. */
 .card-group-h[data-cat],
 .grid[data-cat] {
-  --cat: #5E5CE6;                 /* found (default) */
-  --cat-tile: rgba(94, 92, 230, .14);
+  --cat: var(--sk-found);        /* found (default) */
+  --cat-tile: color-mix(in srgb, var(--cat) 14%, transparent);
 }
-.card-group-h[data-cat="oral"],  .grid[data-cat="oral"]  { --cat: #8944AB; --cat-tile: rgba(137, 68, 171, .14); }
-.card-group-h[data-cat="found"], .grid[data-cat="found"] { --cat: #5E5CE6; --cat-tile: rgba(94, 92, 230, .14); }
-.card-group-h[data-cat="input"], .grid[data-cat="input"] { --cat: #0071E3; --cat-tile: rgba(0, 113, 227, .14); }
-.card-group-h[data-cat="exam"],  .grid[data-cat="exam"]  { --cat: #C7251C; --cat-tile: rgba(199, 37, 28, .13); }
-body.dark .card-group-h[data-cat="oral"],  body.dark .grid[data-cat="oral"]  { --cat: #CD7DF5; --cat-tile: rgba(205, 125, 245, .18); }
-body.dark .card-group-h[data-cat="found"], body.dark .grid[data-cat="found"] { --cat: #9A97FF; --cat-tile: rgba(154, 151, 255, .18); }
-body.dark .card-group-h[data-cat="input"], body.dark .grid[data-cat="input"] { --cat: #6FB6FF; --cat-tile: rgba(111, 182, 255, .18); }
-body.dark .card-group-h[data-cat="exam"],  body.dark .grid[data-cat="exam"]  { --cat: #FF8A82; --cat-tile: rgba(255, 138, 130, .18); }
+.card-group-h[data-cat="oral"],  .grid[data-cat="oral"]  { --cat: var(--sk-speak); }
+.card-group-h[data-cat="found"], .grid[data-cat="found"] { --cat: var(--sk-found); }
+.card-group-h[data-cat="input"], .grid[data-cat="input"] { --cat: var(--sk-listen); }
+.card-group-h[data-cat="exam"],  .grid[data-cat="exam"]  { --cat: var(--sk-exam); }
 
 /* Section label with a category-colored tick */
 .card-group-h {
@@ -3444,15 +3463,8 @@ body.dark .card-group-h[data-cat="exam"],  body.dark .grid[data-cat="exam"]  { -
 }
 .card-group-h:first-of-type { margin-top: var(--sp-4); }
 
-/* Icon tiles: category-tinted well + stroke glyph. These win over the
-   6-hue nth-child cycle because [data-cat] grids opt into category color. */
-.grid[data-cat] .card .icon,
-.grid[data-cat] .card:nth-child(6n+1) .icon,
-.grid[data-cat] .card:nth-child(6n+2) .icon,
-.grid[data-cat] .card:nth-child(6n+3) .icon,
-.grid[data-cat] .card:nth-child(6n+4) .icon,
-.grid[data-cat] .card:nth-child(6n+5) .icon,
-.grid[data-cat] .card:nth-child(6n+6) .icon {
+/* Icon tiles: category-tinted well + stroke glyph. */
+.grid[data-cat] .card .icon {
   background: var(--cat-tile);
   color: var(--cat);
 }
@@ -3714,13 +3726,13 @@ body.dark .topbar.scrolled {
 .hero::after {
   background:
     linear-gradient(115deg, transparent 40%, rgba(255, 255, 255, .18) 50%, transparent 60%),
-    radial-gradient(48% 70% at 88% 0%,  rgba(94, 92, 230, .10), transparent 70%),
-    radial-gradient(40% 60% at 0% 100%, rgba(239, 65, 53, .07), transparent 70%);
+    radial-gradient(48% 70% at 88% 0%,  rgba(41, 72, 184, .10), transparent 70%),
+    radial-gradient(40% 60% at 0% 100%, rgba(184, 59, 69, .07), transparent 70%);
 }
 body.dark .hero::after {
   background:
     linear-gradient(115deg, transparent 42%, rgba(255, 255, 255, .05) 50%, transparent 58%),
-    radial-gradient(48% 70% at 88% 0%,  rgba(125, 122, 255, .16), transparent 70%),
+    radial-gradient(48% 70% at 88% 0%,  rgba(76, 99, 210, .16), transparent 70%),
     radial-gradient(40% 60% at 0% 100%, rgba(255, 105, 97, .10), transparent 70%);
 }
 
@@ -3728,10 +3740,10 @@ body.dark .hero::after {
      refract (dark keeps its quiet stage) ─────────────────────────────────── */
 body:not(.dark)::before {
   background:
-    radial-gradient(60vw 60vw at 12% 0%,   rgba(94, 92, 230, .27), transparent 64%),
-    radial-gradient(66vw 66vw at 92% 16%,  rgba(0, 85, 164, .20),  transparent 66%),
-    radial-gradient(60vw 60vw at 50% 104%, rgba(239, 65, 53, .16), transparent 62%),
-    radial-gradient(44vw 44vw at 70% 56%,  rgba(124, 58, 237, .13), transparent 66%);
+    radial-gradient(60vw 60vw at 12% 0%,   rgba(41, 72, 184, .27), transparent 64%),
+    radial-gradient(66vw 66vw at 92% 16%,  rgba(41, 72, 184, .20),  transparent 66%),
+    radial-gradient(60vw 60vw at 50% 104%, rgba(184, 59, 69, .16), transparent 62%),
+    radial-gradient(44vw 44vw at 70% 56%,  rgba(41, 72, 184, .13), transparent 66%);
 }
 
 /* ── Progress ring: the arc is alive — visible track, luminous tip ─────── */
@@ -3789,15 +3801,25 @@ body.dark .nav-menu { background: rgba(21, 21, 27, .97); }
    remains high-contrast on links, fields, custom cards, and native controls. */
 :focus:not(:focus-visible) { outline: none; }
 :focus-visible {
-  outline: 3px solid var(--accent);
+  outline: 3px solid var(--accent-fill);
   outline-offset: 3px;
 }
 .input:focus-visible, .btn:focus-visible, .option:focus-visible,
 .card[role="button"]:focus-visible, .spotlight[role="button"]:focus-visible,
 .brand:focus-visible, .stat:focus-visible, .nav a:focus-visible {
-  outline: 3px solid var(--accent);
+  outline: 3px solid var(--accent-fill);
   outline-offset: 3px;
   box-shadow: var(--ring);
+}
+/* Script-managed focus targets — route headings (focusHeading() sets
+   tabindex="-1" + .focus() for screen-reader announcement) and locked path
+   nodes — receive focus for a11y only. They are not keyboard-tabbable, so
+   they must never paint the visible outline the rule above would otherwise
+   draw on the hero heading after a keyboard interaction. */
+[tabindex="-1"]:focus,
+[tabindex="-1"]:focus-visible {
+  outline: none;
+  box-shadow: none;
 }
 
 .brand {
@@ -3827,4 +3849,24 @@ body[data-anim="full"] .card:not([onclick]):not([data-route]):not([role="button"
 @media (prefers-reduced-transparency: reduce) {
   .card::after, .spotlight::after { display: none; }
   .topbar.scrolled { background: var(--bg); }
+}
+
+/* High-contrast / forced-colours (e.g. Windows High Contrast): the OS palette
+   replaces our colours and drops box-shadows, so restore structure with system
+   colours — visible borders, a real focus outline, and non-colour cues for
+   graded quiz states (which otherwise rely on background tint alone). */
+@media (forced-colors: active) {
+  .card, .option, .input, .btn, .path-node, .phase-chip,
+  .grammar-box, .reading-player, .stat, .token {
+    border: 1px solid CanvasText;
+  }
+  :focus-visible,
+  .btn:focus-visible, .option:focus-visible, .input:focus-visible,
+  .card[role="button"]:focus-visible, .nav a:focus-visible {
+    outline: 2px solid Highlight;
+    outline-offset: 2px;
+  }
+  .option.correct { outline: 2px solid Highlight; }
+  .option.wrong   { outline: 2px dashed CanvasText; }
+  .option[aria-checked="true"], .option[aria-selected="true"] { outline: 2px solid Highlight; }
 }

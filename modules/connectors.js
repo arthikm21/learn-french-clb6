@@ -33,13 +33,13 @@ window.ConnectorsModule = (function () {
           </div>
           <div class="grammar-box" style="border-left-color:var(--warn)">
             <h3>🎯 Use this connector to continue (verbal or typed)</h3>
-            <p style="font-family:'Fredoka',sans-serif;font-size:30px;color:var(--bleu)">${d.target}</p>
+            <p style="font-variant-numeric:tabular-nums;font-size:30px;color:var(--bleu)">${d.target}</p>
             <p style="margin-top:6px;color:var(--mute);font-size:13px">${d.targetExplain}</p>
             <p style="margin-top:4px;font-size:13px"><span class="tag" style="background:rgba(94,92,230,.12);color:var(--accent)">${d.category}</span></p>
           </div>
           <p style="text-align:center;color:var(--mute)">Continue the idea using <b>${d.target}</b>. 30s timer.</p>
           <div class="center">
-            <p style="font-family:'Fredoka',sans-serif;font-size:32px;color:var(--bleu)" id="c-timer">${timeLeft}s</p>
+            <p style="font-variant-numeric:tabular-nums;font-size:32px;color:var(--bleu)" id="c-timer">${timeLeft}s</p>
             <button class="mic-btn" id="c-mic">🎙️</button>
             <p style="color:var(--mute);margin-top:8px;font-size:14px" id="c-status">Press mic to speak OR type in the box below.</p>
             <div class="transcript" id="c-trans">—</div>

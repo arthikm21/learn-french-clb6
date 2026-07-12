@@ -260,7 +260,7 @@ window.WriteModule = (function () {
           ${s.model.map(b => `
             <div style="margin-top:var(--sp-3);padding:var(--sp-3);background:var(--surface-2);border-radius:var(--r-md)">
               <p style="font-size:var(--fs-12);text-transform:uppercase;letter-spacing:var(--ls-wide);font-weight:var(--fw-semi);color:var(--accent);margin-bottom:6px">${esc(b.label)}</p>
-              <p style="color:var(--ink)">${frHTML(b.fr)}</p>
+              <p lang="fr" style="color:var(--ink);font-family:var(--serif);font-size:var(--fs-17);line-height:var(--lh-loose)">${frHTML(b.fr)}</p>
             </div>`).join('')}
           ${Chrome.gloss(s.summaryEn)}
         </div>

@@ -105,8 +105,12 @@ window.ProfileModule = (function () {
         <h3>Appearance</h3>
         <p style="color:var(--ink-2);font-size:var(--fs-14)">Theme and text size. Saved on this device.</p>
         <div class="spacer"></div>
+        <div id="theme-seg" role="group" aria-label="Theme" style="display:inline-flex;gap:var(--sp-2);flex-wrap:wrap;margin-bottom:var(--sp-3)">
+          <button class="btn secondary" data-theme-mode="system">System</button>
+          <button class="btn secondary" data-theme-mode="light">Light</button>
+          <button class="btn secondary" data-theme-mode="dark">Dark</button>
+        </div>
         <div class="row">
-          <button class="btn secondary" id="theme-toggle">Toggle dark mode</button>
           <button class="btn secondary" id="font-up">A+</button>
           <button class="btn secondary" id="font-down">A−</button>
         </div>
@@ -228,10 +232,24 @@ window.ProfileModule = (function () {
         <button class="btn danger" id="delete">Delete this profile</button>
       </div>`;
 
-    container.querySelector('#theme-toggle').onclick = () => {
-      const dark = App.toggleTheme();
-      Toast.info(dark ? 'Dark mode on' : 'Light mode on');
+    const themeSeg = container.querySelector('#theme-seg');
+    const paintThemeSeg = () => {
+      const cur = App.currentThemeMode();
+      themeSeg.querySelectorAll('[data-theme-mode]').forEach(b => {
+        const on = b.dataset.themeMode === cur;
+        b.classList.toggle('primary', on);
+        b.classList.toggle('secondary', !on);
+        b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
     };
+    paintThemeSeg();
+    themeSeg.querySelectorAll('[data-theme-mode]').forEach(b => {
+      b.onclick = () => {
+        App.setTheme(b.dataset.themeMode);
+        paintThemeSeg();
+        Toast.info('Theme: ' + b.dataset.themeMode);
+      };
+    });
     container.querySelector('#font-up').onclick = () => adjustFontSize(1);
     container.querySelector('#font-down').onclick = () => adjustFontSize(-1);
 

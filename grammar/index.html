@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#0055A4" />
+  <meta name="theme-color" content="#2948B8" />
 
   <title>French Grammar Guide for CLB 6 — A1 to B1, Explained Simply</title>
   <meta name="description" content="A free French grammar guide for CLB 6 / TCF Canada: articles, verbs, tenses, pronouns and the B1 points that decide the exam — each explained with clear examples." />
@@ -24,10 +24,7 @@
   <meta property="og:locale" content="en_CA" />
   <meta name="twitter:card" content="summary_large_image" />
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" media="print" onload="this.media='all'" />
-  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" /></noscript>
+  <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="stylesheet" href="/styles.css" />
   <link rel="stylesheet" href="/fonts/fonts.css" />
 
@@ -249,6 +246,17 @@
 </script>
 </head>
 <body>
+  <script>
+    /* Pre-paint theme so standalone pages match the app (saved pref or system
+       dark) before first render — no flash, parity with index.html. */
+    try {
+      var t = localStorage.getItem('fr_theme_v1');
+      var dark = t === 'dark' || (!t && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
+      if (dark) document.body.classList.add('dark');
+      document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
+      if (dark) { var m = document.querySelector('meta[name="theme-color"]'); if (m) m.setAttribute('content', '#0D1016'); }
+    } catch (e) {}
+  </script>
   <header class="topbar">
     <a class="brand" href="/" style="text-decoration:none">
       <span class="logo">🐓</span>

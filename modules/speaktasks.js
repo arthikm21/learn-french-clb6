@@ -239,7 +239,7 @@ window.SpeakTasksModule = (function () {
           <p style="color:var(--mute);font-size:13px;margin-bottom:14px">Press the mic, describe the scene in French until the timer runs out. The recording stays on this device.</p>
           <div class="center">
             <button class="mic-btn" id="rec-btn" title="Press to record" aria-label="Start recording">🎙️</button>
-            <p style="font-family:'Fredoka',sans-serif;font-size:32px;color:var(--bleu);margin-top:10px" id="rec-timer" aria-live="polite">${t.targetTime}s</p>
+            <p style="font-variant-numeric:tabular-nums;font-size:32px;color:var(--bleu);margin-top:10px" id="rec-timer" aria-live="polite">${t.targetTime}s</p>
             <p id="rec-status" style="color:var(--mute);margin-top:4px;font-size:14px;max-width:500px;margin-left:auto;margin-right:auto" aria-live="polite">Press the mic to start. Your recording stays on this device — nothing uploads.</p>
             <div id="rec-result" style="margin-top:14px"></div>
           </div>
@@ -354,7 +354,7 @@ window.SpeakTasksModule = (function () {
             <p style="color:var(--mute);font-size:13px;margin-bottom:14px">Press the mic, answer aloud in French. Stays on this device.</p>
             <div class="center">
               <button class="mic-btn" id="rec-btn" title="Press to record" aria-label="Start recording">🎙️</button>
-              <p style="font-family:'Fredoka',sans-serif;font-size:28px;color:var(--bleu);margin-top:10px" id="rec-timer" aria-live="polite">30s</p>
+              <p style="font-variant-numeric:tabular-nums;font-size:28px;color:var(--bleu);margin-top:10px" id="rec-timer" aria-live="polite">30s</p>
               <p id="rec-status" style="color:var(--mute);margin-top:4px;font-size:14px" aria-live="polite">Press the mic to start.</p>
               <div id="rec-result" style="margin-top:14px"></div>
             </div>
@@ -496,7 +496,7 @@ window.SpeakTasksModule = (function () {
           </div>
           <div class="grammar-box">
             <h3>👤 Other person says:</h3>
-            <p style="font-size:18px;line-height:1.5;font-family:'Fredoka',sans-serif;color:var(--bleu)">"${Chrome.escapeHTML(turn.other)}"</p>
+            <p style="font-size:18px;line-height:1.5;font-variant-numeric:tabular-nums;color:var(--bleu)">"${Chrome.escapeHTML(turn.other)}"</p>
             ${Chrome.gloss(turn.otherEn)}
             <button class="btn secondary" id="hear" style="margin-top:8px">🔊 Hear them</button>
           </div>
@@ -506,7 +506,7 @@ window.SpeakTasksModule = (function () {
             <h3>Record your reply</h3>
             <div class="center">
               <button class="mic-btn" id="rec-btn" title="Press to record" aria-label="Start recording">🎙️</button>
-              <p style="font-family:'Fredoka',sans-serif;font-size:28px;color:var(--bleu);margin-top:10px" id="rec-timer" aria-live="polite">25s</p>
+              <p style="font-variant-numeric:tabular-nums;font-size:28px;color:var(--bleu);margin-top:10px" id="rec-timer" aria-live="polite">25s</p>
               <p id="rec-status" style="color:var(--mute);margin-top:4px;font-size:14px" aria-live="polite">Press the mic to start.</p>
               <div id="rec-result" style="margin-top:14px"></div>
             </div>
@@ -598,7 +598,7 @@ window.SpeakTasksModule = (function () {
           </div>
           <p style="margin-top:8px;color:var(--mute);font-size:13px">Role-plays are graded by completeness here. A real CLB rater also scores fluency, accuracy, pronunciation, and appropriate register.</p>
         </div>
-        <h3 style="font-family:'Fredoka',sans-serif;color:var(--bleu);margin:18px 0 8px">Conversation transcript</h3>
+        <h3 style="font-variant-numeric:tabular-nums;color:var(--bleu);margin:18px 0 8px">Conversation transcript</h3>
         ${answers.map((a) => `
           <div class="dialogue-line">
             <div class="dl-speaker dl-A">👤 Other</div>

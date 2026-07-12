@@ -863,16 +863,40 @@ window.App = (function () {
   }
 
   // -------- Theme --------
+  function applyThemeMeta(dark) {
+    document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
+    const m = document.querySelector('meta[name="theme-color"]');
+    if (m) m.setAttribute('content', dark ? '#0D1016' : '#2948B8');
+  }
   function loadTheme() {
+    const mq = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)');
     const t = localStorage.getItem('fr_theme_v1');
-    if (t === 'dark' || (!t && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-      document.body.classList.add('dark');
+    const dark = t === 'dark' || (!t && mq && mq.matches);
+    document.body.classList.toggle('dark', dark);
+    applyThemeMeta(dark);
+    // System mode (no explicit choice saved): follow live OS theme changes.
+    if (mq && mq.addEventListener) {
+      mq.addEventListener('change', (e) => {
+        if (!localStorage.getItem('fr_theme_v1')) {
+          document.body.classList.toggle('dark', e.matches);
+          applyThemeMeta(e.matches);
+        }
+      });
     }
   }
-  function toggleTheme() {
-    const dark = document.body.classList.toggle('dark');
-    localStorage.setItem('fr_theme_v1', dark ? 'dark' : 'light');
+  // mode: 'system' | 'light' | 'dark'. 'system' clears the saved pref so the
+  // pre-paint bootstrap + OS listener follow the OS. Light/dark are explicit.
+  function setTheme(mode) {
+    const mq = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)');
+    if (mode === 'system') localStorage.removeItem('fr_theme_v1');
+    else localStorage.setItem('fr_theme_v1', mode);
+    const dark = mode === 'dark' || (mode === 'system' && mq && mq.matches);
+    document.body.classList.toggle('dark', dark);
+    applyThemeMeta(dark);
     return dark;
+  }
+  function currentThemeMode() {
+    return localStorage.getItem('fr_theme_v1') || 'system';
   }
 
   // -------- Init --------
@@ -903,5 +927,5 @@ window.App = (function () {
 
   document.addEventListener('DOMContentLoaded', init);
 
-  return { state, go, addXP, markLessonDone, recordAttempt, continueNext, nextPathItem, pathDoneCount, svgIcon, phaseIcon, reloadForUser, toggleTheme };
+  return { state, go, addXP, markLessonDone, recordAttempt, continueNext, nextPathItem, pathDoneCount, svgIcon, phaseIcon, reloadForUser, setTheme, currentThemeMode };
 })();

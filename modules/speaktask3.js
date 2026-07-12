@@ -92,7 +92,7 @@ window.SpeakTask3Module = (function () {
           <p style="color:var(--mute);font-size:13px;margin-bottom:14px">Stays on your device. Press the mic when ready.</p>
           <div class="center">
             <button class="mic-btn" id="rec-btn" title="Press to record" aria-label="Start recording">🎙️</button>
-            <p style="font-family:'Fredoka',sans-serif;font-size:32px;color:var(--bleu);margin-top:10px" id="rec-timer" aria-live="polite">${formatTime(t.targetTime)}</p>
+            <p style="font-variant-numeric:tabular-nums;font-size:32px;color:var(--bleu);margin-top:10px" id="rec-timer" aria-live="polite">${formatTime(t.targetTime)}</p>
             <p id="rec-status" style="color:var(--mute);margin-top:4px;font-size:14px;max-width:500px;margin-left:auto;margin-right:auto" aria-live="polite">Press the mic when ready to speak.</p>
             <div id="rec-result" style="margin-top:14px"></div>
           </div>

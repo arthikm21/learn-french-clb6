@@ -32,9 +32,9 @@ window.ProgressModule = (function () {
         <svg width="${size}" height="${size}">
           <circle class="bg" cx="${size/2}" cy="${size/2}" r="${r}" stroke-width="${stroke}"/>
           <circle cx="${size/2}" cy="${size/2}" r="${r}" stroke-width="${stroke}"
-            fill="none" stroke="${color}" stroke-linecap="round"
+            fill="none" stroke-linecap="round"
             stroke-dasharray="${c.toFixed(2)}" stroke-dashoffset="${offset.toFixed(2)}"
-            style="transition:stroke-dashoffset var(--t-slower) var(--ease-out)"/>
+            style="stroke:${color};transition:stroke-dashoffset var(--t-slower) var(--ease-out)"/>
         </svg>
         <div class="ring-label">
           <span class="pct">${pct}<small style="font-size:.5em;font-weight:var(--fw-semi);color:var(--mute)">%</small></span>
@@ -51,7 +51,7 @@ window.ProgressModule = (function () {
       const prog = Path.phaseProgress(ph.id);
       const statusGlyph = passed ? '✓' : unlocked ? '▶' : '🔒';
       const statusColor = passed ? 'var(--good)' : unlocked ? 'var(--accent)' : 'var(--mute)';
-      const statusBg    = passed ? 'rgba(52,199,89,.12)' : unlocked ? 'rgba(94,92,230,.12)' : 'var(--surface-2)';
+      const statusBg    = passed ? 'color-mix(in srgb, var(--good) 14%, transparent)' : unlocked ? 'color-mix(in srgb, var(--accent-fill) 14%, transparent)' : 'var(--surface-2)';
       const onclick = !unlocked
         ? `Toast.info('Locked — pass Phase ${ph.id - 1} first')`
         : `App.go('gate', { phase: '${ph.id}' })`;
@@ -144,19 +144,19 @@ window.ProgressModule = (function () {
           <p style="font-weight:var(--fw-semi);color:var(--ink)">Overall coverage</p>
         </div>
         <div class="card" style="cursor:default;display:flex;flex-direction:column;align-items:center;gap:var(--sp-3)">
-          ${ringSVG(pct(buckets.L), '#0A84FF', 132, buckets.L.done + '/' + buckets.L.total, 'listen')}
+          ${ringSVG(pct(buckets.L), 'var(--sk-listen)', 132, buckets.L.done + '/' + buckets.L.total, 'listen')}
           <p style="font-weight:var(--fw-semi);color:var(--ink)">Listening</p>
         </div>
         <div class="card" style="cursor:default;display:flex;flex-direction:column;align-items:center;gap:var(--sp-3)">
-          ${ringSVG(pct(buckets.S), '#FF453A', 132, buckets.S.done + '/' + buckets.S.total, 'speak')}
+          ${ringSVG(pct(buckets.S), 'var(--sk-speak)', 132, buckets.S.done + '/' + buckets.S.total, 'speak')}
           <p style="font-weight:var(--fw-semi);color:var(--ink)">Speaking</p>
         </div>
         <div class="card" style="cursor:default;display:flex;flex-direction:column;align-items:center;gap:var(--sp-3)">
-          ${ringSVG(pct(buckets.R), '#FF9F0A', 132, buckets.R.done + '/' + buckets.R.total, 'read')}
+          ${ringSVG(pct(buckets.R), 'var(--sk-read)', 132, buckets.R.done + '/' + buckets.R.total, 'read')}
           <p style="font-weight:var(--fw-semi);color:var(--ink)">Reading</p>
         </div>
         <div class="card" style="cursor:default;display:flex;flex-direction:column;align-items:center;gap:var(--sp-3)">
-          ${ringSVG(pct(buckets.W), '#30D158', 132, buckets.W.done + '/' + buckets.W.total, 'write')}
+          ${ringSVG(pct(buckets.W), 'var(--sk-write)', 132, buckets.W.done + '/' + buckets.W.total, 'write')}
           <p style="font-weight:var(--fw-semi);color:var(--ink)">Writing</p>
         </div>
       </div>

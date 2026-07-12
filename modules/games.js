@@ -58,7 +58,7 @@ window.GamesModule = (function () {
           </div>
           <div class="center">
             <p style="color:var(--mute);font-size:14px">Is this noun masculine or feminine?</p>
-            <div style="font-family:'Fredoka';font-size:48px;margin:20px 0;color:var(--ink)">${c.emoji || '🇫🇷'} ${noun}</div>
+            <div style="font-variant-numeric:tabular-nums;font-size:48px;margin:20px 0;color:var(--ink)">${c.emoji || '🇫🇷'} ${noun}</div>
             <button class="btn secondary" id="hear">🔊 Hear pronunciation</button>
           </div>
           <div class="spacer"></div>
@@ -393,7 +393,7 @@ window.GamesModule = (function () {
           <h2>🌐 Quick Translate</h2>
           <div class="progress"><div style="width:${(i / queue.length) * 100}%"></div></div>
           <div class="row" style="justify-content:space-between"><span>${correct} / ${queue.length}</span><span>${i + 1}</span></div>
-          <div class="center"><div style="font-family:'Fredoka';font-size:40px;margin:20px 0;color:var(--bleu)">${c.fr}</div><button class="btn secondary" id="hear" aria-label="Hear the word">🔊</button></div>
+          <div class="center"><div style="font-variant-numeric:tabular-nums;font-size:40px;margin:20px 0;color:var(--bleu)">${c.fr}</div><button class="btn secondary" id="hear" aria-label="Hear the word">🔊</button></div>
           <div class="spacer"></div>
           <div class="options">${opts.map((o, k) => `<div class="option" data-i="${k}">${o}</div>`).join('')}</div>
           <div id="fb"></div>
@@ -617,7 +617,7 @@ window.GamesModule = (function () {
           <div class="row" style="justify-content:space-between"><span>Score: <b>${correct}</b></span><span>${i+1}/${queue.length}</span></div>
           <p style="color:var(--mute);margin:14px 0">This sentence has ONE error. Type the corrected sentence below.</p>
           <div class="grammar-box" style="border-left-color:var(--bad)">
-            <p style="font-size:19px;font-family:'Fredoka',sans-serif;color:var(--bad)">${d.wrong}</p>
+            <p style="font-size:19px;font-variant-numeric:tabular-nums;color:var(--bad)">${d.wrong}</p>
           </div>
           <input class="input" id="ans" placeholder="Type the corrected version..." autocomplete="off"/>
           <div class="row" style="margin-top:8px"><button class="btn secondary" id="hint">💡 Hint</button></div>
@@ -706,12 +706,12 @@ window.GamesModule = (function () {
           <div class="row" style="justify-content:space-between"><span>Score: <b>${correct}</b></span><span>${i+1}/${queue.length}</span></div>
           <div class="center" style="margin:18px 0">
             <p style="font-size:18px;color:var(--mute)">Conjugate:</p>
-            <p style="font-family:'Fredoka',sans-serif;font-size:30px;color:var(--bleu)">${d.subj} ___ <i style="color:var(--mute);font-size:20px">(${d.inf})</i></p>
+            <p style="font-variant-numeric:tabular-nums;font-size:30px;color:var(--bleu)">${d.subj} ___ <i style="color:var(--mute);font-size:20px">(${d.inf})</i></p>
           </div>
           <div class="dnd-zone" id="answer" style="min-height:60px;justify-content:center"><h4 style="text-align:center">Your answer (tap letter to remove)</h4></div>
           <div class="spacer"></div>
           <div class="dnd-zone" id="pool" style="justify-content:center"><h4 style="text-align:center">Letters (tap to add)</h4>
-            ${letters.map((l, k) => `<div class="token" data-l="${l}" data-k="${k}" style="min-width:44px;justify-content:center;font-family:'Fredoka';font-size:20px">${l}</div>`).join('')}
+            ${letters.map((l, k) => `<div class="token" data-l="${l}" data-k="${k}" style="min-width:44px;justify-content:center;font-variant-numeric:tabular-nums;font-size:20px">${l}</div>`).join('')}
           </div>
           <div id="fb"></div>
           <div class="spacer"></div>
