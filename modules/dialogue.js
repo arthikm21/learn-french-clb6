@@ -7,8 +7,8 @@ window.DialogueModule = (function () {
       <section class="hero">
         <div class="flag-stripes"></div>
         <p class="eyebrow-h">Listening Dialogues</p>
-        <h1>Two speakers.<br/>Real questions.</h1>
-        <p style="margin-top:var(--sp-4)">Multi-speaker CLB 4-6 conversations. Listen, then answer comprehension questions — the exact format CLB exams test.</p>
+        <h1>Two speakers.<br /> Real questions.</h1>
+        <p style="margin-top:var(--sp-4)">Multi-speaker NCLC 4–6 practice conversations. Listen, then answer comprehension questions that build the skills used in French proficiency tests.</p>
       </section>
       <div class="grid" id="d-grid"></div>`;
     const grid = container.querySelector('#d-grid');
@@ -79,7 +79,7 @@ window.DialogueModule = (function () {
       container.innerHTML = `
         ${Chrome.render({ back: 'dialogue', crumbs: ['Dialogues', d.title] })}
         <div class="lesson">
-          <h2>💬 ${d.title} <span class="tag">${d.level}</span>${tcfMode ? ' <span class="tag" style="background:var(--rouge);color:white">🎯 TCF mode</span>' : ''}</h2>
+          <h1>💬 ${d.title} <span class="tag">${d.level}</span>${tcfMode ? ' <span class="tag" style="background:var(--rouge);color:white">🎯 TCF mode</span>' : ''}</h1>
           <p style="color:var(--mute);font-style:italic;margin-bottom:14px">${d.intro}</p>
           ${tcfMode ? `<div class="grammar-box" style="border-left-color:var(--bad)"><h3>⚠️ TCF Exam Mode</h3><p>Audio plays <b>ONCE</b>. No replay. No transcript. Listen carefully, then answer the questions.</p></div>` : ''}
           <div class="row" style="justify-content:center;gap:10px;flex-wrap:wrap">
@@ -135,7 +135,7 @@ window.DialogueModule = (function () {
           progress: { current: qi, total: d.questions.length }
         })}
         <div class="lesson">
-          <h2>💬 ${d.title}${tcfMode ? ' <span class="tag" style="background:var(--rouge);color:white">🎯 TCF mode</span>' : ''}</h2>
+          <h1>💬 ${d.title}${tcfMode ? ' <span class="tag" style="background:var(--rouge);color:white">🎯 TCF mode</span>' : ''}</h1>
           ${tcfMode ? '' : `<div class="row" style="margin-bottom:10px"><button class="btn secondary" id="replay">🔊 Replay dialogue</button></div>`}
           <div class="q-prompt">${q.q}</div>
           <div class="options">

@@ -6,7 +6,7 @@ window.ReadModule = (function () {
       <section class="hero">
         <div class="flag-stripes"></div>
         <p class="eyebrow-h">Reading Quests</p>
-        <h1>Read it.<br/>Understand it.</h1>
+        <h1>Read it.<br /> Understand it.</h1>
         <p style="margin-top:var(--sp-4)">Short authentic-style texts with comprehension questions, CLB 4 to 6.</p>
       </section>
       <div class="grid" id="r-grid"></div>`;
@@ -33,7 +33,7 @@ window.ReadModule = (function () {
       container.innerHTML = `
         ${Chrome.render({ back: 'read', crumbs: ['Read', t.title] })}
         <div class="lesson">
-          <h2>📖 ${t.title} <span class="tag">${t.level}</span></h2>
+          <h1>📖 ${t.title} <span class="tag">${t.level}</span></h1>
           <div class="reading-text" id="r-text" lang="fr" style="background:var(--surface-2);border:1px solid var(--line);padding:var(--sp-5);border-radius:var(--r-md);line-height:var(--lh-loose);font-size:var(--fs-17);white-space:pre-wrap;color:var(--ink)">${sentenceHTML}</div>
           <div class="reading-player" id="r-player">
             <button class="btn primary" id="r-play">▶ Listen to text</button>
@@ -109,7 +109,7 @@ window.ReadModule = (function () {
           progress: { current: qi, total: t.questions.length }
         })}
         <div class="lesson">
-          <h2>📖 ${t.title}</h2>
+          <h1>📖 ${t.title}</h1>
           <details style="margin-bottom:var(--sp-4)"><summary style="cursor:pointer;color:var(--accent);font-weight:var(--fw-semi)">Show text again</summary>
             <div style="background:var(--surface-2);padding:var(--sp-4);border-radius:var(--r-md);margin-top:var(--sp-2);white-space:pre-wrap;font-size:var(--fs-15);line-height:var(--lh-base);color:var(--ink)">${t.text}</div>
           </details>

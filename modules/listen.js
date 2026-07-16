@@ -25,7 +25,7 @@ window.ListenModule = (function () {
       <section class="hero">
         <div class="flag-stripes"></div>
         <p class="eyebrow-h">Listening Lab</p>
-        <h1>Hear it.<br/>Then type it.</h1>
+        <h1>Hear it.<br /> Then type it.</h1>
         <p style="margin-top:var(--sp-4)">Canadian French neural audio. Start slow. Build to natural pace.</p>
       </section>
       <div class="grid" id="l-grid"></div>`;
@@ -57,7 +57,7 @@ window.ListenModule = (function () {
           progress: { current: i, total: s.items.length }
         })}
         <div class="lesson">
-          <h2>🎧 ${s.title}</h2>
+          <h1>🎧 ${s.title}</h1>
           <div class="center">
             <div class="row" style="justify-content:center;gap:8px;margin-bottom:8px;flex-wrap:wrap">
               <button class="btn secondary" data-rate="0.6">🐢 Slow</button>

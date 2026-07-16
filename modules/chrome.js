@@ -27,7 +27,12 @@ window.Chrome = (function () {
 
     let backHTML = '';
     if (back) {
-      const target = typeof back === 'string' ? `App.go('${back}')` : back;
+      // Detail screens pass a small function so they can return to the exact
+      // parent item. Resolve it now; interpolating the function object itself
+      // produces an invalid inline handler such as "() => App.go(...)".
+      const target = typeof back === 'string'
+        ? `App.go('${back}')`
+        : (typeof back === 'function' ? back() : String(back));
       backHTML = `
         <button class="chrome-back" onclick="${target}" aria-label="Back">
           <svg class="arrow" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -143,19 +148,26 @@ window.Chrome = (function () {
       } catch {}
     }
 
+    const cheerEvent = opts.cheerEvent || (pct !== null && pct >= 90 ? 'milestone' : 'complete');
+    const cheerHTML = window.CheerSquad
+      ? CheerSquad.renderInline(cheerEvent, { placement: 'finish' })
+      : '';
+
     return `
       ${render({ back: opts.back, crumbs: opts.crumbs })}
-      <div class="lesson center">
-        <div class="empty">
-          <div class="big-icon">${icon}</div>
-          <p style="text-transform:uppercase;letter-spacing:var(--ls-wide);font-size:var(--fs-12);font-weight:var(--fw-semi);color:var(--good);margin-bottom:var(--sp-2)">✓ Session complete</p>
-          <h2>${title}</h2>
-          ${scoreHTML}
-          ${subHTML}
-          ${opts.extra || ''}
-          <div class="spacer"></div>
-          <div class="row" style="justify-content:center;flex-wrap:wrap">${actionsHTML}</div>
-          ${nextHTML}
+      <div class="lesson">
+        <div class="empty finish-layout">
+          <div class="finish-copy">
+            <p style="text-transform:uppercase;letter-spacing:var(--ls-wide);font-size:var(--fs-12);font-weight:var(--fw-semi);color:var(--good);margin-bottom:var(--sp-2)">✓ Session complete</p>
+            <h1>${title}</h1>
+            ${scoreHTML}
+            ${subHTML}
+            ${opts.extra || ''}
+            <div class="spacer"></div>
+            <div class="row" style="justify-content:flex-start;flex-wrap:wrap">${actionsHTML}</div>
+            ${nextHTML}
+          </div>
+          <div class="finish-cheer">${cheerHTML || `<div class="big-icon">${icon}</div>`}</div>
         </div>
       </div>`;
   }
@@ -211,10 +223,16 @@ window.Chrome = (function () {
         // Hot streak across the page lifetime
         advance._streak = (advance._streak || 0) + 1;
         if (advance._streak >= 3 && picked) Celebrate.speedLines(picked);
+        if (advance._streak === 3 && window.CheerSquad) CheerSquad.show('streak');
       } catch {}
     } else if (result === 'wrong') {
       advance._streak = 0;
+      advance._misses = (advance._misses || 0) + 1;
+      if (advance._misses === 2 && window.CheerSquad) {
+        try { CheerSquad.show('retry'); } catch {}
+      }
     }
+    if (result === 'correct') advance._misses = 0;
 
     let remaining = seconds;
     let timer = null;
@@ -224,7 +242,7 @@ window.Chrome = (function () {
     host.innerHTML = auto ? `
       <div class="advance-row" role="group" aria-label="Continue or wait">
         <button type="button" class="btn ghost advance-wait" data-act="wait">Wait</button>
-        <button type="button" class="btn primary advance-next" data-act="next" aria-live="polite">
+        <button type="button" class="btn primary advance-next" data-act="next">
           Next <span class="advance-arrow">→</span> <span class="advance-cd">(${remaining})</span>
         </button>
       </div>

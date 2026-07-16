@@ -18,7 +18,7 @@ window.SpeakModule = (function () {
       <section class="hero">
         <div class="flag-stripes"></div>
         <p class="eyebrow-h">Speaking · Repeat after me</p>
-        <h1>Hear it.<br/>Say it out loud.</h1>
+        <h1>Hear it.<br /> Say it out loud.</h1>
         <p style="margin-top:var(--sp-4)">Canadian French neural audio plays. You repeat it aloud—at your own pace, in your own voice. Rate how it felt. The hard ones come back.</p>
       </section>
 
@@ -56,7 +56,7 @@ window.SpeakModule = (function () {
     // Pull due cards from SRS first, then fall back to fresh sentences.
     // Accept both "string" and { fr, en } shapes so old + new content render.
     const items = s.items.map(t => (typeof t === 'string' ? { fr: t } : t));
-    let queue = SRS.dueCards(setKey, items);
+    let queue = SRS.dueCards(`speak:${setKey}`, items);
     if (queue.length === 0) queue = items.slice();
 
     let i = 0;
@@ -81,8 +81,9 @@ window.SpeakModule = (function () {
           crumbs: ['Speak', s.title],
           progress: { current: i, total: queue.length }
         })}
-        <div class="lesson">
-          <h2>🎙️ ${escapeHTML(s.title)}</h2>
+        <div class="lesson lesson-with-cheer">
+          <h1>🎙️ ${escapeHTML(s.title)}</h1>
+          <div class="lesson-cheer-slot">${window.CheerSquad ? CheerSquad.renderInline('pronunciation', { compact: true }) : ''}</div>
 
           <div class="center" style="margin-top:var(--sp-7)">
             <p style="text-transform:uppercase;letter-spacing:var(--ls-wide);font-size:var(--fs-12);font-weight:var(--fw-semi);color:var(--mute);margin-bottom:var(--sp-3)">Repeat after me</p>
@@ -131,7 +132,7 @@ window.SpeakModule = (function () {
         b.onclick = () => {
           const q = parseInt(b.dataset.rateSelf, 10);
           ratedTargets.add(target);
-          SRS.review(setKey, target, q);
+          SRS.review(`speak:${setKey}`, target, q);
           // Hard = surface as a weak spot to come back to, AND replay it later in
           // this same session (max twice) so the rep lands now, not just tomorrow.
           if (q === 0) {
@@ -166,17 +167,21 @@ window.SpeakModule = (function () {
         ${Chrome.render({ back: 'speak', crumbs: ['Speak', s.title, 'Complete'] })}
         <div class="lesson center">
           <div class="empty">
-            <div class="big-icon">🗣️</div>
+            <div class="finish-cheer">
+              ${window.CheerSquad
+                ? CheerSquad.renderInline(complete ? 'complete' : 'retry', { placement: 'finish', compact: true })
+                : '<div class="big-icon">🗣️</div>'}
+            </div>
             <p style="text-transform:uppercase;letter-spacing:var(--ls-wide);font-size:var(--fs-12);font-weight:var(--fw-semi);color:${complete ? 'var(--good)' : 'var(--warn)'};margin-bottom:var(--sp-2)">${complete ? '✓ Practice target met' : 'Practice recorded'}</p>
-            <h2>${complete ? 'Shadowing session finished' : 'Finish the spoken reps'}</h2>
+            <h1>${complete ? 'Shadowing session finished' : 'Finish the spoken reps'}</h1>
             <p>You confirmed <b>${ratedTargets.size}/${items.length}</b> original lines aloud (${coverage}%). ${hardRatings} hard rating${hardRatings === 1 ? '' : 's'} · ${skipped} skip${skipped === 1 ? '' : 's'}.</p>
             <p style="color:var(--mute);margin-top:var(--sp-2)">${complete ? 'Hard lines return sooner through spaced review.' : 'Confirm at least 80% aloud for this path milestone. Skipped lines do not count.'}</p>
             <p style="color:var(--mute);margin-top:var(--sp-2)">Speaking is the only skill the site cannot grade for you. Your reps are your reps. Do them aloud.</p>
             <div class="grammar-box" style="border-left-color:var(--accent);text-align:left;max-width:560px;margin:var(--sp-6) auto 0">
               <h3>🗣️ Want your speaking actually graded?</h3>
-              <p>The site can't hear you — a real tutor can. Live pronunciation feedback is the one thing self-study can't replace. <b>New Preply learners get 50% off their first lesson</b>, so trying one costs next to nothing.</p>
+              <p>The site can't hear you — a real tutor can. Live pronunciation feedback is the one thing self-study cannot replace. Availability and pricing vary by tutor.</p>
               <div class="row" style="justify-content:center;margin-top:var(--sp-3)">
-                <a class="btn primary" href="https://preply.sjv.io/c/7425774/1987575/24422" target="_blank" rel="sponsored noopener">Get 50% off a French tutor<span class="arr">→</span></a>
+                <a class="btn primary" href="https://preply.sjv.io/c/7425774/1987575/24422" target="_blank" rel="sponsored noopener">Browse French tutors<span class="arr">→</span></a>
               </div>
               <p style="color:var(--mute);font-size:var(--fs-12);text-align:center;margin-top:var(--sp-3)">Affiliate link · we may earn a commission, at no cost to you.</p>
             </div>

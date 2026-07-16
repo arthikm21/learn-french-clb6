@@ -1,60 +1,82 @@
 // Profile screens only. Persistence lives in storage.js so it can evolve and
 // be regression-tested without the DOM-heavy account UI.
 window.ProfileModule = (function () {
+  const FONT_SIZES = [14, 15, 16, 17, 18, 20];
+  function savedFontSize() {
+    try {
+      const n = parseInt(localStorage.getItem('fr_fontsize_v1') || '16', 10);
+      return FONT_SIZES.includes(n) ? n : 16;
+    } catch { return 16; }
+  }
   function sanitize(name) {
     return String(name || '').trim().replace(/[^a-zA-Z0-9_\- ]/g, '').slice(0, 24);
   }
 
   function adjustFontSize(delta) {
-    const sizes = [14, 15, 16, 17, 18, 20];
-    let cur = parseInt(localStorage.getItem('fr_fontsize_v1') || '16');
+    const sizes = FONT_SIZES;
+    let cur = savedFontSize();
     let idx = sizes.indexOf(cur);
     if (idx < 0) idx = 2;
     idx = Math.max(0, Math.min(sizes.length - 1, idx + delta));
     cur = sizes[idx];
-    localStorage.setItem('fr_fontsize_v1', String(cur));
+    try { localStorage.setItem('fr_fontsize_v1', String(cur)); } catch {}
     document.documentElement.style.setProperty('font-size', cur + 'px');
     Toast.info('Text size: ' + cur + 'px');
   }
   function applySavedFontSize() {
-    const s = localStorage.getItem('fr_fontsize_v1');
-    if (s) document.documentElement.style.setProperty('font-size', s + 'px');
+    document.documentElement.style.setProperty('font-size', savedFontSize() + 'px');
   }
   applySavedFontSize();
 
   function renderWelcome(container) {
     const existing = Storage.listUsers();
     container.innerHTML = `
-      <section class="hero accent">
-        <div class="flag-stripes"></div>
-        <p class="eyebrow-h" style="color:rgba(255,255,255,.7)">Bienvenue</p>
-        <h1>Free.<br/>No signup.<br/>Just French.</h1>
-        <p style="margin-top:var(--sp-5);max-width:560px">Pick a username to save your progress. No password. No email. Everything stays in this browser.</p>
-      </section>
+      <div class="welcome-shell">
+        <section class="welcome-stage">
+          <div class="welcome-copy">
+            <p class="welcome-kicker">Canadian French · TCF preparation</p>
+            <h1>French for the life <em>you’re building</em> in Canada.</h1>
+            <p class="welcome-lede">A guided path to NCLC 6 through real conversations, Canadian French audio, and focused practice for the moments that matter.</p>
+            <div class="welcome-proof" aria-label="Course highlights">
+              <div><strong>92</strong><span>guided milestones</span></div>
+              <div><strong>50</strong><span>real-life scenarios</span></div>
+              <div><strong>4</strong><span>exam skills trained</span></div>
+            </div>
+          </div>
 
-      <div class="spotlight" style="grid-template-columns:1fr">
-        <div>
-          <p class="eyebrow">Step 1 — Choose a username</p>
-          <h2>Letters, numbers, spaces, hyphens, or underscores. Max 24 chars.</h2>
-          <div class="spacer"></div>
-          <input class="input" id="uname" placeholder="e.g. alex, marie123, mon-nom" maxlength="24" autocomplete="off" autocapitalize="off" aria-describedby="err" style="font-size:var(--fs-19);padding:var(--sp-4) var(--sp-5)" />
-          <div id="err" style="color:var(--bad);margin-top:var(--sp-2);font-size:var(--fs-14);font-weight:var(--fw-semi)"></div>
-          <div class="spacer"></div>
-          <button class="btn primary big" id="start">Start learning<span class="arr">→</span></button>
-        </div>
-      </div>
+          <aside class="welcome-profile" aria-labelledby="welcome-profile-title">
+            <p class="welcome-step">01 / Start here</p>
+            <h2 id="welcome-profile-title">Choose how we should greet you.</h2>
+            <p>This creates a private learning profile on this device. No account, password, or email.</p>
+            <div class="welcome-form">
+              <label for="uname">Your first name or nickname</label>
+              <input class="input" id="uname" placeholder="e.g. Marie" maxlength="24" autocomplete="off" autocapitalize="off" aria-describedby="err welcome-private" />
+              <div id="err" role="alert" style="color:#F1A0A6;margin-top:8px;font-size:13px;font-weight:600"></div>
+              <button class="btn big" id="start">Begin my path<span class="arr">→</span></button>
+            </div>
+            <p class="welcome-private" id="welcome-private">Your progress stays in this browser and never leaves this device.</p>
+          </aside>
+        </section>
+
+        <section class="lesson-preview" aria-label="Example French lesson">
+          <div class="preview-meta">A taste of your first lesson</div>
+          <div>
+            <p class="preview-phrase" lang="fr">Je voudrais prendre rendez-vous.</p>
+            <p class="preview-translation">I would like to make an appointment.</p>
+          </div>
+          <div class="preview-flow" aria-label="Learning sequence"><span>Listen</span><i></i><span>Repeat</span><i></i><span>Use it</span></div>
+        </section>
 
       ${existing.length > 0 ? `
-      <div class="card" style="cursor:default;background:var(--surface);margin-top:var(--sp-5)">
-        <p class="eyebrow" style="text-transform:uppercase;letter-spacing:var(--ls-wide);font-size:var(--fs-12);font-weight:var(--fw-semi);color:var(--mute);margin-bottom:var(--sp-3)">Continue as existing user</p>
+      <div class="welcome-existing">
+        <p class="eyebrow" style="margin-bottom:12px">Continue as an existing learner</p>
         <div class="row" style="gap:var(--sp-2);flex-wrap:wrap">
-          ${existing.map(u => `<button class="btn secondary" data-u="${escapeAttr(u)}">👤 ${escapeHTML(u)}</button>`).join('')}
+          ${existing.map(u => `<button class="btn secondary" data-u="${escapeAttr(u)}">${escapeHTML(u)}</button>`).join('')}
         </div>
       </div>` : ''}
 
-      <p style="text-align:center;color:var(--mute);font-size:var(--fs-13);margin-top:var(--sp-7)">
-        No tracking · No accounts · No data leaves this browser
-      </p>`;
+        <p class="welcome-trust">Free to use · No tracking · No account · Canadian French audio</p>
+      </div>`;
     const inp = container.querySelector('#uname');
     const err = container.querySelector('#err');
     inp.focus();
@@ -190,10 +212,10 @@ window.ProfileModule = (function () {
         </div>
         <div class="toggle-row">
           <div class="info">
-            <h4>Mascot animations</h4>
-            <p>Tiny life signals on the 🐓 logo — bobs idle, flaps on wins.</p>
+            <h4>Cheer squad</h4>
+            <p>Colorful encouragement at useful learning moments. Never shown during timed exam work.</p>
           </div>
-          <input type="checkbox" class="toggle" id="set-mascot" ${Settings.isMascotOn() ? 'checked' : ''} aria-label="Mascot animations"/>
+          <input type="checkbox" class="toggle" id="set-cheer-squad" ${Settings.isCheerSquadOn() ? 'checked' : ''} aria-label="Cheer squad"/>
         </div>
       </div>
 
@@ -296,10 +318,11 @@ window.ProfileModule = (function () {
       Settings.setConfetti(e.target.checked);
       Toast.info(e.target.checked ? 'Confetti on' : 'Confetti off');
     };
-    const mascot = container.querySelector('#set-mascot');
-    if (mascot) mascot.onchange = (e) => {
-      Settings.setMascot(e.target.checked);
-      Toast.info(e.target.checked ? 'Mascot animations on' : 'Mascot animations off');
+    const cheerSquad = container.querySelector('#set-cheer-squad');
+    if (cheerSquad) cheerSquad.onchange = (e) => {
+      Settings.setCheerSquad(e.target.checked);
+      if (!e.target.checked && window.CheerSquad) CheerSquad.dismiss();
+      Toast.info(e.target.checked ? 'Cheer squad on' : 'Cheer squad off');
     };
 
     container.querySelectorAll('[data-switch]').forEach(b => {

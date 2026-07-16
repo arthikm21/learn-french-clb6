@@ -27,6 +27,8 @@ const ROOT = path.join(__dirname, '..');
 
 const SITE = 'https://frenchclb6.ca';
 const TODAY = new Date().toISOString().slice(0, 10);
+const indexSource = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
+const ASSET_VERSION = (indexSource.match(/styles\.css\?v=([0-9]+)/) || [])[1] || TODAY.replace(/-/g, '');
 
 // Hand-made landing pages (kept in the repo root). Add new ones here so they stay
 // in the sitemap. [path, priority]
@@ -52,6 +54,7 @@ const esc = s => String(s == null ? '' : s)
 const attr = esc;
 const stripTags = s => String(s == null ? '' : s).replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
 const truncate = (s, n = 158) => { s = String(s); return s.length <= n ? s : s.slice(0, n - 1).replace(/\s+\S*$/, '') + '…'; };
+const stripTerminal = s => String(s == null ? '' : s).trim().replace(/[.!?…]+$/, '');
 const frEn = x => (typeof x === 'string' ? { fr: x, en: '' } : x);
 
 function jsonLd(graph) {
@@ -93,11 +96,11 @@ function crumbsHtml(trail) {
 function shell({ urlPath, title, description, ogType = 'article', navExtra = '', bodyHtml, graph }) {
   const url = SITE + urlPath;
   return `<!DOCTYPE html>
-<html lang="en">
+<html lang="en-CA">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#2948B8" />
+  <meta name="theme-color" content="#FBF8F3" />
 
   <title>${esc(title)}</title>
   <meta name="description" content="${attr(description)}" />
@@ -114,13 +117,20 @@ function shell({ urlPath, title, description, ogType = 'article', navExtra = '',
   <meta property="og:title" content="${attr(title)}" />
   <meta property="og:description" content="${attr(description)}" />
   <meta property="og:image" content="${SITE}/og-image.jpg" />
+  <meta property="og:image:alt" content="Bonjour! French practice for Canada" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
   <meta property="og:url" content="${url}" />
   <meta property="og:locale" content="en_CA" />
   <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="${attr(title)}" />
+  <meta name="twitter:description" content="${attr(description)}" />
+  <meta name="twitter:image" content="${SITE}/og-image.jpg" />
 
   <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
-  <link rel="stylesheet" href="/styles.css" />
-  <link rel="stylesheet" href="/fonts/fonts.css" />
+  <link rel="stylesheet" href="/styles.css?v=${ASSET_VERSION}" />
+  <link rel="stylesheet" href="/fonts/fonts.css?v=${ASSET_VERSION}" />
+  <link rel="stylesheet" href="/editorial.css?v=${ASSET_VERSION}" />
 
   ${jsonLd(graph)}
 </head>
@@ -133,21 +143,22 @@ function shell({ urlPath, title, description, ogType = 'article', navExtra = '',
       var dark = t === 'dark' || (!t && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
       if (dark) document.body.classList.add('dark');
       document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
-      if (dark) { var m = document.querySelector('meta[name="theme-color"]'); if (m) m.setAttribute('content', '#0D1016'); }
+      if (dark) { var m = document.querySelector('meta[name="theme-color"]'); if (m) m.setAttribute('content', '#111722'); }
     } catch (e) {}
   </script>
+  <a class="skip-link" href="#main-content">Skip to lesson content</a>
   <header class="topbar">
     <a class="brand" href="/" style="text-decoration:none">
-      <span class="logo">🐓</span>
-      <span class="brand-name">Bonjour!</span>
+      <span class="brand-mark" aria-hidden="true">B<span>.</span></span>
+      <span class="brand-lockup"><span class="brand-name">Bonjour</span><small>French for Canada</small></span>
     </a>
-    <nav class="nav" style="position:static;display:flex;transform:none;box-shadow:none;background:transparent">
+    <nav class="nav" aria-label="Primary" style="position:static;display:flex;transform:none;box-shadow:none;background:transparent">
       <a href="/">Home</a>
       ${navExtra}
     </nav>
   </header>
 
-  <main>
+  <main id="main-content" tabindex="-1">
 ${bodyHtml}
   </main>
 
@@ -209,22 +220,23 @@ const gSlugMap = new Map(window.GRAMMAR.map(u => [u.id, grammarSlug(u)]));
 // ── scenario pages ───────────────────────────────────────────────────────────
 function scenarioPage(sc, all) {
   const url = `/scenarios/${sc.id}`;
-  const title = `${sc.title} — French Dialogue & Key Phrases | Bonjour!`;
-  const description = truncate(`${sc.subtitle}. A bilingual French–English dialogue with key vocabulary, grammar notes and phrases to practise for CLB 6 / TCF Canada. Free, with Canadian French neural audio.`);
+  const scenarioTitle = `${sc.title} — French Dialogue`;
+  const title = scenarioTitle.length <= 49 ? `${scenarioTitle} | Bonjour!` : truncate(scenarioTitle, 60);
+  const description = `${stripTerminal(sc.subtitle)}. Practise with a bilingual dialogue, key vocabulary, grammar notes and Canadian French audio.`;
 
   const dialogue = sc.dialogue.map(l =>
-    `      <p style="margin:0 0 12px"><b>${esc(l.text)}</b><br><span style="color:var(--ink-2)">${esc(l.en)}</span></p>`).join('\n');
+    `      <p style="margin:0 0 12px"><b lang="fr-CA">${esc(l.text)}</b><br><span lang="en" style="color:var(--ink-2)">${esc(l.en)}</span></p>`).join('\n');
 
-  const vocab = `      <table class="conj-table"><tbody>\n` +
-    sc.vocab.map(v => `        <tr><td><b>${esc(v.fr)}</b></td><td>${esc(v.en)}</td></tr>`).join('\n') +
+  const vocab = `      <table class="conj-table"><caption class="sr-only">French vocabulary and English meanings</caption><thead><tr><th scope="col">French</th><th scope="col">English</th></tr></thead><tbody>\n` +
+    sc.vocab.map(v => `        <tr><th scope="row" lang="fr-CA">${esc(v.fr)}</th><td lang="en">${esc(v.en)}</td></tr>`).join('\n') +
     `\n      </tbody></table>`;
 
   const gf = sc.grammarFocus;
   const gfExamples = (gf.examples && gf.examples.length)
-    ? `\n      <ul style="margin-left:20px;line-height:1.9;margin-top:6px">${gf.examples.map(e => `<li>${e}</li>`).join('')}</ul>` : '';
+    ? `\n      <ul lang="fr-CA" style="margin-left:20px;line-height:1.9;margin-top:6px">${gf.examples.map(e => `<li>${e}</li>`).join('')}</ul>` : '';
 
   const shadow = sc.shadowLines.map(frEn).map(s =>
-    `      <p style="margin:0 0 10px"><b>${esc(s.fr)}</b>${s.en ? ` — <span style="color:var(--ink-2)">${esc(s.en)}</span>` : ''}</p>`).join('\n');
+    `      <p style="margin:0 0 10px"><b lang="fr-CA">${esc(s.fr)}</b>${s.en ? ` — <span lang="en" style="color:var(--ink-2)">${esc(s.en)}</span>` : ''}</p>`).join('\n');
 
   const comp = (sc.comprehension && sc.comprehension.length)
     ? sc.comprehension.map((c, i) =>
@@ -232,7 +244,7 @@ function scenarioPage(sc, all) {
 
   const st = sc.speakingTask;
   const speak = st ? `      <p>${esc(st.prompt)}</p>
-      <p style="margin-top:8px"><b>${esc(st.model)}</b><br><span style="color:var(--ink-2)">${esc(st.modelEn)}</span></p>` : '';
+      <p style="margin-top:8px"><b lang="fr-CA">${esc(st.model)}</b><br><span lang="en" style="color:var(--ink-2)">${esc(st.modelEn)}</span></p>` : '';
 
   // related: same category first, then others
   const others = all.filter(s => s.id !== sc.id);
@@ -247,6 +259,8 @@ function scenarioPage(sc, all) {
       <p><b>You:</b> ${esc(sc.situation.you)}</p>
       <p style="margin-top:6px"><b>Them:</b> ${esc(sc.situation.them)}</p>
       <p style="margin-top:6px"><b>Goal:</b> ${esc(sc.situation.goal)}</p>`),
+    box(`      <h2>Learning note</h2>
+      <p>This is a fictional practice dialogue, not personal, legal, medical, financial, immigration, or government-service advice. Eligibility, documents, fees, timelines, and rules can change; verify important details with the official service.</p>`, true),
     box(`      <h2>The conversation (French &amp; English)</h2>\n${dialogue}`),
     box(`      <h2>Key vocabulary</h2>\n${vocab}`),
     box(`      <h3>Grammar in this conversation — ${esc(gf.title)}</h3>\n      <p>${gf.note}</p>${gfExamples}`, true),
@@ -316,14 +330,15 @@ function scenarioIndex(all) {
 function grammarPage(unit, all) {
   const slug = gSlugMap.get(unit.id);
   const url = `/grammar/${slug}`;
-  const title = `${unit.title} — French Grammar Explained (${unit.level}) | Bonjour!`;
+  const grammarTitle = `${unit.title} — French Grammar`;
+  const title = grammarTitle.length <= 49 ? `${grammarTitle} | Bonjour!` : truncate(grammarTitle, 60);
   const description = truncate(stripTags(unit.intro) || `${unit.title}: a clear, example-first French grammar explanation for CLB 6 / B1 learners.`);
 
   const rules = unit.rules.map(r => {
     const table = (r.table && r.table.length)
-      ? `\n      <table class="conj-table"><tbody>${r.table.map(row => `<tr><td><b>${esc(row[0])}</b></td><td>${esc(row[1])}</td></tr>`).join('')}</tbody></table>` : '';
+      ? `\n      <table class="conj-table"><caption class="sr-only">${esc(r.title)} forms and examples</caption><thead><tr><th scope="col">Form</th><th scope="col">Meaning or example</th></tr></thead><tbody>${r.table.map(row => `<tr><th scope="row" lang="fr-CA">${esc(row[0])}</th><td lang="fr-CA">${esc(row[1])}</td></tr>`).join('')}</tbody></table>` : '';
     const examples = (r.examples && r.examples.length)
-      ? `\n      <ul style="margin-left:20px;line-height:1.9;margin-top:6px">${r.examples.map(e => `<li>${e}</li>`).join('')}</ul>` : '';
+      ? `\n      <ul lang="fr-CA" style="margin-left:20px;line-height:1.9;margin-top:6px">${r.examples.map(e => `<li>${e}</li>`).join('')}</ul>` : '';
     const bodyP = r.body ? `\n      <p>${r.body}</p>` : '';
     return box(`      <h3>${esc(r.title)}</h3>${bodyP}${table}${examples}`);
   }).join('\n\n');
@@ -407,8 +422,8 @@ function connectorsPage(all) {
   const groups = order.map(cat => {
     const items = byCat[cat].map(c => {
       const ex = (c.examples || []).map(frEn).map(e =>
-        `<li>${e.fr}${e.en ? ` <span style="color:var(--ink-2)">— ${esc(e.en)}</span>` : ''}</li>`).join('');
-      return `      <h3>${esc(c.word)} <span style="color:var(--ink-2);font-weight:500">— ${esc(c.gloss)}</span></h3>
+        `<li><span lang="fr-CA">${esc(e.fr)}</span>${e.en ? ` <span lang="en" style="color:var(--ink-2)">— ${esc(e.en)}</span>` : ''}</li>`).join('');
+      return `      <h3><span lang="fr-CA">${esc(c.word)}</span> <span style="color:var(--ink-2);font-weight:500">— ${esc(c.gloss)}</span></h3>
       ${c.when ? `<p>${c.when}</p>` : ''}
       <ul style="margin-left:20px;line-height:1.9;margin-top:6px">${ex}</ul>`;
     }).join('\n');

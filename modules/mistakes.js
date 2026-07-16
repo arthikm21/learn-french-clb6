@@ -73,7 +73,7 @@ window.MistakesModule = (function () {
         <section class="hero">
           <div class="flag-stripes"></div>
           <p class="eyebrow-h">Weak Spots</p>
-          <h1>Nothing here.<br/>Yet.</h1>
+        <h1>Nothing here.<br /> Yet.</h1>
           <p style="margin-top:var(--sp-4)">Get questions wrong and they appear here for spaced review.</p>
         </section>
         <div class="empty">
@@ -200,7 +200,7 @@ window.MistakesModule = (function () {
         const c2 = norm(mk.correct); // alternate exact
         if (!v) return;
         answered = true;
-        const right = v === c || v === c2 || (c && v.includes(c));
+        const right = v === c || v === c2;
         if (right) {
           correctCount++;
           promote(mk.sig);

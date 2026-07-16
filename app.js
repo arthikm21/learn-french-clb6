@@ -84,25 +84,19 @@ window.App = (function () {
     if (!state.lessons[key]) {
       state.lessons[key] = true;
       save();
-      // Reward sound — gate passes get the bigger fanfare, regular lessons
-      // the standard complete chime.
-      if (window.Sounds && typeof Sounds.play === 'function') {
-        try { Sounds.play(key.startsWith('gate:') ? 'gate' : 'complete'); } catch {}
-      }
-      // Mascot wing flap — visual confirmation in the topbar
-      if (window.Settings && Settings.isMascotOn && Settings.isMascotOn()) {
-        const logo = document.querySelector('.logo');
-        if (logo) {
-          logo.classList.remove('celebrating');
-          // Force reflow so the next add restarts the animation
-          void logo.offsetWidth;
-          logo.classList.add('celebrating');
-          setTimeout(() => logo.classList.remove('celebrating'), 800);
+      // Result screens own ordinary completion feedback. Phase gates use a
+      // custom result screen, so their one coordinated milestone package is
+      // emitted here instead of duplicating sound/confetti across two layers.
+      if (key.startsWith('gate:')) {
+        if (window.Sounds && typeof Sounds.play === 'function') {
+          try { Sounds.play('gate'); } catch {}
         }
-      }
-      // Confetti burst — bigger for a gate pass, modest for regular lessons
-      if (window.Celebrate && typeof Celebrate.confetti === 'function') {
-        try { Celebrate.confetti({ intensity: key.startsWith('gate:') ? 'large' : 'small' }); } catch {}
+        if (window.CheerSquad) {
+          try { CheerSquad.show('milestone', { force: true, duration: 4200 }); } catch {}
+        }
+        if (window.Celebrate && typeof Celebrate.confetti === 'function') {
+          try { Celebrate.confetti({ intensity: 'large' }); } catch {}
+        }
       }
     }
   }
@@ -187,6 +181,7 @@ window.App = (function () {
     // Same idea for any active microphone recording — without this the mic
     // capture indicator stays on after the user navigates mid-record.
     if (window.Record && typeof Record.stopAll === 'function') Record.stopAll();
+    if (window.CheerSquad && typeof CheerSquad.resetRoute === 'function') CheerSquad.resetRoute();
     // Gate everything behind welcome screen if no current user.
     const cur = window.Storage.getCurrentUser();
     const container = document.getElementById('app');
@@ -196,13 +191,18 @@ window.App = (function () {
       return;
     }
     showNav();
-    const { route, params } = parseHash();
+    const parsed = parseHash();
+    const route = routes[parsed.route] ? parsed.route : 'home';
+    const params = parsed.params;
+    if (route !== parsed.route && history && history.replaceState) {
+      history.replaceState(null, '', Router.build('home'));
+    }
     // Per-route styling hook: styles.css re-tints --accent by section
     // (listen=blue, read=green, write=amber, mock=rouge, …).
     document.body.dataset.route = route;
     container.scrollTop = 0;
     window.scrollTo(0, 0);
-    const fn = routes[route] || routes.home;
+    const fn = routes[route];
     const paint = () => paintRoute(fn, route, params, container);
     // Native page transition (crossfade + slide, defined in styles.css) when
     // the browser supports it and animations are at full tier. The DOM update
@@ -210,9 +210,13 @@ window.App = (function () {
     if (document.startViewTransition && document.body.dataset.anim === 'full') {
       const transition = document.startViewTransition(paint);
       // Rapid navigation legitimately skips an in-flight transition. Its
-      // `finished` promise rejects with AbortError; consume that expected
-      // rejection so normal navigation never pollutes the console.
-      if (transition && transition.finished) transition.finished.catch(() => {});
+      // lifecycle promises can reject with AbortError; consume those expected
+      // rejections so normal navigation never pollutes the console.
+      if (transition) {
+        if (transition.ready) transition.ready.catch(() => {});
+        if (transition.updateCallbackDone) transition.updateCallbackDone.catch(() => {});
+        if (transition.finished) transition.finished.catch(() => {});
+      }
     } else {
       paint();
     }
@@ -300,13 +304,13 @@ window.App = (function () {
   // Called when user is switched/created/reset. Reload state from storage and re-render.
   function reloadForUser() {
     load();
-    if (location.hash.startsWith('#profile')) {
-      // Stay on profile if there's a user; otherwise welcome.
-      if (!window.Storage.getCurrentUser()) location.hash = '#home';
-    } else {
-      location.hash = '#home';
-    }
-    renderActive();
+    const target = location.hash.startsWith('#profile') && window.Storage.getCurrentUser()
+      ? location.hash
+      : '#home';
+    // Changing the hash already triggers renderActive. Only render directly
+    // when the target is unchanged so profile switches never double-render.
+    if (location.hash === target) renderActive();
+    else location.hash = target;
   }
 
   // -------- Home --------
@@ -333,7 +337,7 @@ window.App = (function () {
       { cat: 'input', label: 'Listening, reading & writing', cards: [
         ['listen', 'waveform', 'Listening Lab', '', '15 dictation sets at slow, normal, and natural speed.'],
         ['dialogue', 'message', 'Dialogues', '', '8 multi-speaker conversations with comprehension questions.'],
-        ['read', 'bookOpen', 'Reading', '', '30 graded texts from CLB 3 to 6 — emails, ads, news, brochures, fiction.'],
+        ['read', 'bookOpen', 'Reading', '', '60 graded texts from CLB 3 to 6 — emails, ads, news, brochures, fiction.'],
         ['write', 'pen', 'Writing Workshop', '', '8 prompts. Real grammar checker detects gender, tense, elision errors.'],
       ]},
       { cat: 'exam', label: 'TCF tasks & review', cards: [
@@ -363,7 +367,20 @@ window.App = (function () {
   // as a menu; a numbered plan tells the learner exactly what today is.
   // Order mirrors the pedagogy: clear reviews first (retention), then new
   // material, then one speaking rep (oral is half the outcome).
-  function renderTodayCard(next, nextGate, srsDue, weakDue, topDueDeck) {
+  function dueReviewAction(topDueDeck) {
+    const deck = topDueDeck && topDueDeck[0];
+    if (!deck) return `App.go('vocab')`;
+    const split = deck.indexOf(':');
+    const domain = split >= 0 ? deck.slice(0, split) : '';
+    const id = split >= 0 ? deck.slice(split + 1) : deck;
+    if (domain === 'vocab') return `App.go('vocab', { deck: '${escapeHTML(id)}' })`;
+    if (domain === 'speak') return `App.go('speak', { set: '${escapeHTML(id)}' })`;
+    if (domain === 'scenario') return `App.go('scenario', { id: '${escapeHTML(id)}' })`;
+    if (domain === 'connector') return `App.go('connectormastery', { focus: '${escapeHTML(id)}' })`;
+    return `App.go('vocab')`;
+  }
+
+  function renderTodayCard(next, nextGate, srsDue, weakDue, topDueDeck, progress) {
     const reviewCount = srsDue.total + weakDue;
     const steps = [];
     if (reviewCount > 0) {
@@ -371,9 +388,7 @@ window.App = (function () {
         title: `Clear ${reviewCount} review${reviewCount === 1 ? '' : 's'}`,
         sub: 'Due today — 5 minutes now protects everything already learned.',
         btn: 'Review',
-        onclick: srsDue.total > 0
-          ? `App.go('vocab'${topDueDeck ? `, { deck: '${topDueDeck[0]}' }` : ''})`
-          : `App.go('mistakes')`,
+        onclick: srsDue.total > 0 ? dueReviewAction(topDueDeck) : `App.go('mistakes')`,
       });
     }
     steps.push(next ? {
@@ -399,23 +414,49 @@ window.App = (function () {
       onclick: `App.go('speak')`,
     });
     return `
-      <div class="spotlight today-card">
-        <div style="flex:1;min-width:0">
-          <p class="eyebrow">Today · ~15 min</p>
-          <h2>Your plan</h2>
-          <div class="today-steps">
-            ${steps.map((s, i) => `
-              <div class="today-step">
-                <span class="today-num">${i + 1}</span>
-                <div class="today-step-info">
-                  <h4>${s.title}</h4>
-                  <p>${s.sub}</p>
-                </div>
-                <button class="btn ${i === 0 ? 'primary' : 'secondary'}" onclick="${s.onclick}">${s.btn}<span class="arr">→</span></button>
-              </div>`).join('')}
+      <section class="home-plan" aria-labelledby="today-title">
+        <div class="home-plan-head">
+          <div>
+            <p class="panel-overline">Today</p>
+            <h2 id="today-title">Your learning plan</h2>
           </div>
+          <p class="home-plan-time">About 15 minutes</p>
         </div>
-      </div>`;
+        <ol class="today-steps">
+          ${steps.map((s, i) => `
+            <li class="today-step">
+              <span class="today-num">${i + 1}</span>
+              <div class="today-step-info">
+                <h3>${s.title}</h3>
+                <p>${s.sub}</p>
+              </div>
+              <button class="btn ${i === 0 ? 'primary' : 'ghost'}" onclick="${s.onclick}">${s.btn}<span class="arr">→</span></button>
+            </li>`).join('')}
+        </ol>
+        <div class="home-progress" aria-label="${progress.pct}% of learning path complete">
+          <h3>Your path</h3>
+          <div class="home-progress-track" role="progressbar" aria-label="Learning path progress" aria-valuemin="0" aria-valuemax="${progress.total}" aria-valuenow="${progress.done}">
+            <span style="width:${progress.pct}%"></span><i style="left:${progress.pct}%"></i>
+          </div>
+          <p class="home-progress-meta">Phase ${progress.phase} · ${progress.done} of ${progress.total}</p>
+        </div>
+      </section>`;
+  }
+
+  function todayPhraseFor(next) {
+    const phrases = {
+      phonics: { fr: 'Je voudrais un café, s\'il vous plaît.', en: 'I would like a coffee, please.' },
+      vocab: { fr: 'Bonjour, comment allez-vous ?', en: 'Hello, how are you?' },
+      grammar: { fr: 'Je vais pratiquer un peu chaque jour.', en: 'I am going to practise a little every day.' },
+      listen: { fr: 'Pouvez-vous répéter plus lentement ?', en: 'Can you repeat more slowly?' },
+      listenmastery: { fr: 'J\'écoute une deuxième fois.', en: 'I am listening a second time.' },
+      speak: { fr: 'Je peux le dire à voix haute.', en: 'I can say it out loud.' },
+      scenario: { fr: 'Bonjour, j\'aimerais vous poser une question.', en: 'Hello, I would like to ask you a question.' },
+      read: { fr: 'Je comprends l\'idée principale.', en: 'I understand the main idea.' },
+      write: { fr: 'À mon avis, cette solution est pratique.', en: 'In my opinion, this solution is practical.' },
+      games: { fr: 'Petit à petit, je progresse.', en: 'Little by little, I am making progress.' },
+    };
+    return phrases[next && next.route] || { fr: 'Je voudrais un café, s\'il vous plaît.', en: 'I would like a coffee, please.' };
   }
 
   function renderHome(container) {
@@ -426,75 +467,109 @@ window.App = (function () {
     // spotlight the moment any exist.
     const srsDue = (window.SRS && SRS.dueSummary) ? SRS.dueSummary() : { total: 0, byDeck: {} };
     const weakDue = (window.MistakesModule && MistakesModule.getDue) ? MistakesModule.getDue().length : 0;
-    const topDueDeck = Object.entries(srsDue.byDeck)
-      .filter(([k]) => window.VOCAB && VOCAB[k])
-      .sort((a, b) => b[1] - a[1])[0];
+    const topDueDeck = Object.entries(srsDue.byDeck).sort((a, b) => b[1] - a[1])[0];
     const done = pathDoneCount();
     const total = LESSON_PATH.length;
     const pct = Math.round((done / total) * 100);
-    const user = escapeHTML(window.Storage.getCurrentUser());
-
-    // Progress ring SVG. The drawn arc never drops below a sliver — a true
-    // 0-1% otherwise renders as an empty circle and reads as "broken".
-    const ringSize = 132;
-    const ringStroke = 10;
-    const ringR = (ringSize - ringStroke) / 2;
-    const ringC = 2 * Math.PI * ringR;
-    const arcPct = Math.max(pct, done > 0 ? 2.5 : 1.25);
-    const ringOffset = ringC * (1 - arcPct / 100);
+    const currentPhaseId = (next && next.phase) || (PHASES[PHASES.length - 1] || {}).id;
+    const currentPhase = PHASES.find(ph => ph.id === currentPhaseId) || PHASES[0];
+    const phrase = todayPhraseFor(next);
+    const heroAction = next
+      ? { label: 'Continue lesson', onclick: 'App.continueNext()' }
+      : nextGate
+        ? { label: `Take Phase ${nextGate.id} check`, onclick: `App.go('gate', { phase: '${nextGate.id}' })` }
+        : { label: 'Start simulation', onclick: `App.go('mock')` };
+    let returningToday = false;
+    try {
+      const now = new Date();
+      const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+      const lastVisit = Storage.getItem('cheer_last_visit_day');
+      returningToday = !!(lastVisit && lastVisit !== today);
+      Storage.setItem('cheer_last_visit_day', today);
+    } catch {}
+    const homeCheerEvent = returningToday ? 'return' : 'home';
+    const homeCheer = window.CheerSquad
+      ? CheerSquad.renderInline(homeCheerEvent, {
+          placement: 'hero',
+          compact: true,
+          board: returningToday,
+        })
+      : '';
 
     container.innerHTML = `
-      <section class="hero">
-        <div class="flag-stripes"></div>
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:var(--sp-6);flex-wrap:wrap">
-          <div style="flex:1;min-width:260px">
-            <p style="text-transform:uppercase;letter-spacing:var(--ls-wide);font-size:var(--fs-12);font-weight:var(--fw-semi);color:var(--mute);margin-bottom:var(--sp-3)">Bonjour, ${user}</p>
-            <h1>Build toward NCLC 6.<br/>See the evidence.</h1>
-            <p style="margin-top:var(--sp-4)">A focused TCF Canada learning path across listening, speaking, reading, and writing—with a clear next step and visible capability milestones.</p>
-          </div>
-          <div class="ring" style="width:${ringSize}px;height:${ringSize}px;flex-shrink:0">
-            <svg width="${ringSize}" height="${ringSize}">
-              <circle class="bg" cx="${ringSize/2}" cy="${ringSize/2}" r="${ringR}" stroke-width="${ringStroke}"/>
-              <circle class="fg" cx="${ringSize/2}" cy="${ringSize/2}" r="${ringR}" stroke-width="${ringStroke}"
-                stroke-dasharray="${ringC.toFixed(2)}" stroke-dashoffset="${ringOffset.toFixed(2)}"/>
-            </svg>
-            <div class="ring-label">
-              <span class="pct"><span data-pct>${pct}</span><small style="font-size:.5em;font-weight:var(--fw-semi);color:var(--mute)">%</small></span>
-              <span class="meta">${done}/${total}</span>
+      <div class="home-shell">
+        <section class="alive-hero" aria-labelledby="alive-home-title">
+          <div class="alive-copy">
+            <p class="alive-kicker">Today's French</p>
+            <h1 id="alive-home-title">Ready for today's French?</h1>
+            <p class="alive-lede">A little practice, every day.</p>
+            <div class="alive-actions">
+              <button class="btn primary big" onclick="${heroAction.onclick}">${escapeHTML(heroAction.label)}<span class="arr">→</span></button>
+              <span class="alive-duration">${svgIcon('history')}About 15 minutes</span>
             </div>
           </div>
-        </div>
-      </section>
 
-      ${done === 0 ? `
-      <div class="spotlight" onclick="App.go('diagnostic')" style="cursor:pointer">
-        <div>
-          <p class="eyebrow">Recommended</p>
-          <h2>Start with a 5-minute knowledge sample</h2>
-          <p>20 quick questions reveal likely focus areas before you begin. It does not invent a language level or mark full lessons complete.</p>
-        </div>
-        <span class="btn primary big" aria-hidden="true">Take it<span class="arr">→</span></span>
-      </div>` : ''}
+          <div class="language-canvas" aria-label="Daily pronunciation studio">
+            <span class="language-block" data-shape="primary" aria-hidden="true"><i class="language-glyph">ou</i></span>
+            <span class="language-block" data-shape="warm" aria-hidden="true"></span>
+            <span class="language-block" data-shape="tall" aria-hidden="true"></span>
+            <span class="language-block" data-shape="sun" aria-hidden="true"></span>
+            <span class="language-block" data-shape="sky" aria-hidden="true"></span>
+            <span class="language-block" data-shape="mint" aria-hidden="true"></span>
 
-      ${renderTodayCard(next, nextGate, srsDue, weakDue, topDueDeck)}
+            <section class="phrase-display" aria-labelledby="home-phrase-label">
+              <div class="phrase-heading-row">
+                <p class="phrase-label" id="home-phrase-label">Today's phrase</p>
+                <span class="phrase-context">Everyday French</span>
+              </div>
+              <p class="phrase-fr" lang="fr-CA">${escapeHTML(phrase.fr)}</p>
+              <p class="phrase-en">${escapeHTML(phrase.en)}</p>
+              <div class="phrase-actions">
+                <button class="phrase-play" id="home-phrase-play" type="button" aria-label="Play today's French phrase">${svgIcon('play')}</button>
+                <span>Listen · Repeat · Speak</span>
+              </div>
+            </section>
+            <div class="home-cheer">${homeCheer}</div>
+          </div>
+        </section>
 
-      <div class="spotlight" onclick="App.go('scenario')" style="cursor:pointer;border:1px solid var(--accent)">
-        <div>
-          <p class="eyebrow" style="color:var(--accent)">Real-life scenarios</p>
-          <h2>Calling a landlord. Opening a bank account.</h2>
-          <p>One Canadian life situation at a time. Listen → understand → repeat → speak it yourself. No textbooks. Just the conversations you'll actually have.</p>
-        </div>
-        <span class="btn primary big" aria-hidden="true">Open scenarios<span class="arr">→</span></span>
-      </div>
+        ${renderTodayCard(next, nextGate, srsDue, weakDue, topDueDeck, {
+          pct,
+          done,
+          total,
+          phase: currentPhase.id,
+        })}
 
-      <div class="spotlight" onclick="App.go('mock')" style="cursor:pointer">
-        <div>
-          <p class="eyebrow" style="color:var(--rouge)">TCF Canada Practice Simulation</p>
-          <h2>Practise all four skills together</h2>
-          <p>~2h47 · 39 listening and 39 reading questions · all three writing and speaking task types · practice priorities at the end.</p>
+        ${done === 0 ? `
+        <section class="home-recommendation">
+          <div>
+            <p class="panel-overline">Recommended first</p>
+            <h3>Find your strongest starting point.</h3>
+            <p>Twenty quick questions reveal likely focus areas without inventing a language level or completing lessons for you.</p>
+          </div>
+          <button class="btn primary" onclick="App.go('diagnostic')">Take the 5-minute sample<span class="arr">→</span></button>
+        </section>` : ''}
+
+        <div class="home-feature-grid">
+          <section class="home-feature">
+            <div>
+              <p class="panel-overline">Real-life French</p>
+              <h3>From calling a landlord to opening a bank account.</h3>
+              <p>Listen, understand, repeat, and speak through the conversations you will actually have.</p>
+              <button class="btn ghost" onclick="App.go('scenario')" style="margin-top:18px">Explore scenarios<span class="arr">→</span></button>
+            </div>
+            <span class="feature-index" aria-hidden="true">01</span>
+          </section>
+          <section class="home-feature">
+            <div>
+              <p class="panel-overline">Exam rehearsal</p>
+              <h3>Practise all four TCF Canada skills together.</h3>
+              <p>A complete simulation with practical evidence and clear priorities for what to strengthen next.</p>
+              <button class="btn ghost" onclick="App.go('mock')" style="margin-top:18px">View simulation<span class="arr">→</span></button>
+            </div>
+            <span class="feature-index" aria-hidden="true">02</span>
+          </section>
         </div>
-        <span class="btn big" aria-hidden="true" style="background:var(--rouge);color:white">Start simulation<span class="arr">→</span></span>
-      </div>
 
       <h2 class="section-h">Your phases</h2>
       <p class="section-sub">Eight phases. Seven course checks unlock the path; the final phase combines timed four-skill practice and evidence review.</p>
@@ -540,7 +615,18 @@ window.App = (function () {
         &nbsp;·&nbsp;
         <a href="#profile" style="color:var(--ink-2)">Profile</a>
       </p>
+      </div>
     `;
+    const phrasePlay = container.querySelector('#home-phrase-play');
+    if (phrasePlay) phrasePlay.onclick = () => {
+      const stage = container.querySelector('.language-canvas');
+      if (stage) {
+        stage.classList.remove('is-speaking');
+        requestAnimationFrame(() => stage.classList.add('is-speaking'));
+        setTimeout(() => stage.classList.remove('is-speaking'), 1800);
+      }
+      TTS.speak(phrase.fr, 1.0);
+    };
     // Hydrate phase strip
     const strip = container.querySelector('#phase-strip');
     if (strip && window.PHASES) {
@@ -577,27 +663,6 @@ window.App = (function () {
         if (window.Keyboard) Keyboard.enhanceClickableSurface(el);
       });
     }
-    // Ring entrance: arc sweeps in from empty, label counts up. Full tier
-    // only — other tiers render the final state immediately.
-    if (document.body.dataset.anim === 'full') {
-      const fg = container.querySelector('.ring circle.fg');
-      if (fg) {
-        fg.style.strokeDashoffset = ringC.toFixed(2);
-        requestAnimationFrame(() => requestAnimationFrame(() => {
-          fg.style.strokeDashoffset = ringOffset.toFixed(2);
-        }));
-      }
-      const pctEl = container.querySelector('[data-pct]');
-      if (pctEl && pct > 0) {
-        const t0 = performance.now(), dur = 900;
-        const tick = (t) => {
-          const k = Math.min(1, (t - t0) / dur);
-          pctEl.textContent = Math.round(pct * (1 - Math.pow(1 - k, 3)));
-          if (k < 1 && pctEl.isConnected) requestAnimationFrame(tick);
-        };
-        requestAnimationFrame(tick);
-      }
-    }
   }
 
   function renderAbout(container) {
@@ -633,7 +698,7 @@ window.App = (function () {
       <div class="grammar-box">
         <h3 class="h3-icon">${svgIcon('wrench')}Tech</h3>
         <p>Static site. No accounts. No tracking. All your progress lives in your browser's localStorage, keyed by the username you pick. Multiple users on the same browser supported. Clear browser data → progress resets.</p>
-        <p>Source code on GitHub. Pull requests welcome.</p>
+        <p>The project is independently maintained. Exam and immigration references link to official sources where current rules matter.</p>
       </div>
 
       <div class="grammar-box" style="background:color-mix(in srgb, var(--warn) 10%, var(--surface));border-left-color:var(--warn)">
@@ -650,12 +715,12 @@ window.App = (function () {
 
       <div class="grammar-box">
         <h3 class="h3-icon">${svgIcon('message')}Found a typo or have a suggestion?</h3>
-        <p>Open an issue on GitHub: <a href="https://github.com/arthikm21/learn-french-clb6/issues" target="_blank" rel="noopener" style="color:var(--bleu)">github.com/arthikm21/learn-french-clb6/issues</a></p>
+        <p>Bonjour! is maintained as an independent learning project. Check the official sources linked throughout the guide before relying on immigration or exam information.</p>
       </div>
 
       <div class="grammar-box">
         <h3 class="h3-icon" style="--h3i:var(--warn)">${svgIcon('heart')}If Bonjour! helped you</h3>
-        <p>This site is free, and it stays free — no paywall, no accounts, no ads. It's built and paid for by one person. If it moved your French even a little closer to CLB 6, a small one-time gift keeps the audio flowing and the lights on. No pressure, ever — honestly, just using it and telling one friend already means a lot.</p>
+        <p>This site is free, and it stays free — no paywall, no accounts, and no third-party display ads. It is built and paid for by one person. If it moved your French forward, a small one-time gift keeps the audio flowing and the lights on. No pressure, ever.</p>
         <div class="center" style="margin-top:12px">
           <a class="btn primary" href="https://buymeacoffee.com/frenchclb6" target="_blank" rel="noopener">Help keep Bonjour! free<span class="arr">→</span></a>
         </div>
@@ -735,29 +800,74 @@ window.App = (function () {
     const backdrop = document.getElementById('nav-backdrop');
     const closeBtn = document.getElementById('nav-close');
     if (!ham || !nav || !backdrop) return;
-    function close() {
+    const mobileNav = window.matchMedia('(max-width: 1100px)');
+    const isMobileNav = () => window.innerWidth <= 1100 || window.getComputedStyle(ham).display !== 'none';
+    function exposeDrawer(exposed) {
+      // The closed drawer remains translated off-canvas, so CSS alone does
+      // not remove its links from the keyboard or accessibility tree.
+      nav.inert = !exposed;
+      if (exposed) nav.removeAttribute('aria-hidden');
+      else nav.setAttribute('aria-hidden', 'true');
+    }
+    function close(restoreFocus = false) {
+      const wasOpen = nav.classList.contains('open');
       nav.classList.remove('open');
       backdrop.classList.remove('open');
       ham.setAttribute('aria-expanded', 'false');
       document.body.classList.remove('nav-open');
+      ham.setAttribute('aria-label', 'Open menu');
+      if (isMobileNav()) exposeDrawer(false);
+      // Making the focused drawer inert can send focus back to the document.
+      // Restore it on the next frame, after that accessibility state settles.
+      if (restoreFocus && wasOpen) {
+        window.requestAnimationFrame(() => ham.focus({ preventScroll: true }));
+      }
     }
     function toggle() {
-      const open = !nav.classList.contains('open');
-      nav.classList.toggle('open', open);
-      backdrop.classList.toggle('open', open);
-      ham.setAttribute('aria-expanded', String(open));
-      document.body.classList.toggle('nav-open', open);
+      // Route every closing path through close() so the drawer is always
+      // hidden from assistive technology and focus always returns safely.
+      if (nav.classList.contains('open')) { close(true); return; }
+      exposeDrawer(true);
+      nav.classList.add('open');
+      backdrop.classList.add('open');
+      ham.setAttribute('aria-expanded', 'true');
+      ham.setAttribute('aria-label', 'Close menu');
+      document.body.classList.add('nav-open');
+      const first = closeBtn || nav.querySelector('a, button');
+      if (first) first.focus();
+    }
+    function syncForViewport() {
+      if (isMobileNav()) {
+        exposeDrawer(nav.classList.contains('open'));
+      } else {
+        nav.classList.remove('open');
+        backdrop.classList.remove('open');
+        document.body.classList.remove('nav-open');
+        ham.setAttribute('aria-expanded', 'false');
+        ham.setAttribute('aria-label', 'Open menu');
+        exposeDrawer(true);
+      }
     }
     ham.addEventListener('click', toggle);
-    backdrop.addEventListener('click', close);
-    if (closeBtn) closeBtn.addEventListener('click', close);
+    backdrop.addEventListener('click', () => close(true));
+    if (closeBtn) closeBtn.addEventListener('click', () => close(true));
     nav.addEventListener('click', (e) => {
-      if (e.target.closest('a[data-route]')) close();
+      if (e.target.closest('a[data-route]')) close(false);
     });
-    window.addEventListener('hashchange', close);
+    window.addEventListener('hashchange', () => close(false));
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && nav.classList.contains('open')) close();
+      if (e.key === 'Escape' && nav.classList.contains('open')) { e.preventDefault(); close(true); return; }
+      if (e.key === 'Tab' && nav.classList.contains('open')) {
+        const focusables = Array.from(nav.querySelectorAll('a[href], button:not([disabled])')).filter(el => el.offsetParent !== null);
+        if (!focusables.length) return;
+        const first = focusables[0], last = focusables[focusables.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
     });
+    if (mobileNav.addEventListener) mobileNav.addEventListener('change', syncForViewport);
+    else if (mobileNav.addListener) mobileNav.addListener(syncForViewport);
+    syncForViewport();
   }
 
   // -------- Desktop nav dropdowns (Practice / Exam) --------
@@ -830,28 +940,6 @@ window.App = (function () {
     });
   }
 
-  // -------- Liquid glass: pointer-tracked specular sheen --------
-  // One delegated rAF-throttled listener feeds --mx/--my to whichever glass
-  // card the cursor is over; styles.css paints the highlight (full anim tier,
-  // fine pointers only — the media query there gates visibility, so this
-  // stays cheap: one closest() + two setProperty per frame at most.
-  function setupLiquidPointer() {
-    if (!window.matchMedia || !matchMedia('(hover: hover) and (pointer: fine)').matches) return;
-    let raf = 0, last = null;
-    document.addEventListener('pointermove', (e) => {
-      last = e;
-      if (raf) return;
-      raf = requestAnimationFrame(() => {
-        raf = 0;
-        const el = last.target && last.target.closest ? last.target.closest('.card, .spotlight') : null;
-        if (!el) return;
-        const r = el.getBoundingClientRect();
-        el.style.setProperty('--mx', (last.clientX - r.left).toFixed(1) + 'px');
-        el.style.setProperty('--my', (last.clientY - r.top).toFixed(1) + 'px');
-      });
-    }, { passive: true });
-  }
-
   // -------- Topbar condenses on scroll --------
   function setupTopbarScroll() {
     const tb = document.querySelector('.topbar');
@@ -863,21 +951,30 @@ window.App = (function () {
   }
 
   // -------- Theme --------
+  function readThemePref() {
+    try { return localStorage.getItem('fr_theme_v1'); } catch { return null; }
+  }
+  function writeThemePref(mode) {
+    try {
+      if (mode === 'system') localStorage.removeItem('fr_theme_v1');
+      else localStorage.setItem('fr_theme_v1', mode);
+    } catch {}
+  }
   function applyThemeMeta(dark) {
     document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
     const m = document.querySelector('meta[name="theme-color"]');
-    if (m) m.setAttribute('content', dark ? '#0D1016' : '#2948B8');
+    if (m) m.setAttribute('content', dark ? '#111722' : '#FBF8F3');
   }
   function loadTheme() {
     const mq = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)');
-    const t = localStorage.getItem('fr_theme_v1');
+    const t = readThemePref();
     const dark = t === 'dark' || (!t && mq && mq.matches);
     document.body.classList.toggle('dark', dark);
     applyThemeMeta(dark);
     // System mode (no explicit choice saved): follow live OS theme changes.
     if (mq && mq.addEventListener) {
       mq.addEventListener('change', (e) => {
-        if (!localStorage.getItem('fr_theme_v1')) {
+        if (!readThemePref()) {
           document.body.classList.toggle('dark', e.matches);
           applyThemeMeta(e.matches);
         }
@@ -888,15 +985,14 @@ window.App = (function () {
   // pre-paint bootstrap + OS listener follow the OS. Light/dark are explicit.
   function setTheme(mode) {
     const mq = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)');
-    if (mode === 'system') localStorage.removeItem('fr_theme_v1');
-    else localStorage.setItem('fr_theme_v1', mode);
+    writeThemePref(mode);
     const dark = mode === 'dark' || (mode === 'system' && mq && mq.matches);
     document.body.classList.toggle('dark', dark);
     applyThemeMeta(dark);
     return dark;
   }
   function currentThemeMode() {
-    return localStorage.getItem('fr_theme_v1') || 'system';
+    return readThemePref() || 'system';
   }
 
   // -------- Init --------
@@ -907,7 +1003,6 @@ window.App = (function () {
     setupMobileNav();
     setupNavSections();
     setupCreditModal();
-    setupLiquidPointer();
     setupTopbarScroll();
     refreshTopbar();
     document.querySelectorAll('[data-route]').forEach(el => {
@@ -923,6 +1018,9 @@ window.App = (function () {
     });
     window.addEventListener('hashchange', renderActive);
     renderActive();
+    if (window.Storage.isPersistent && !Storage.isPersistent()) {
+      setTimeout(() => Toast.warn('Browser storage is unavailable. Progress will last only until this tab closes.', 7000), 0);
+    }
   }
 
   document.addEventListener('DOMContentLoaded', init);

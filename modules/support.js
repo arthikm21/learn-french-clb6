@@ -1,6 +1,6 @@
 // Support / monetization nudges — shown ONLY at win moments (a section done, a
 // gate passed, the mock finished), never on the front page. It rotates between
-// a Preply tutor offer (50% off the first lesson) and a humble keep-it-free ask,
+// an optional Preply tutor link and a humble keep-it-free ask,
 // and throttles itself so it lands when the learner just felt a win — and never
 // twice in a row with the same message.
 //
@@ -16,26 +16,26 @@ window.Support = (function () {
   const PREPLY = 'https://preply.sjv.io/c/7425774/1987575/24422';
   const COFFEE = 'https://buymeacoffee.com/frenchclb6';
 
-  // Preply hooklines. All lean on the new-learner 50%-off first lesson and the
-  // one thing self-study can't give: a real person correcting your French.
+  // Preply hooklines lean on the one thing self-study cannot provide:
+  // a real person correcting the learner's French.
   const PREPLY_HOOKS = [
     {
       eyebrow: '🇫🇷 Take it to a real conversation',
       h: 'You practised it — now say it to a human',
-      p: 'Shadowing builds the base, but CLB 6 speaking is won talking to a real person. New Preply learners get <b>50% off their first lesson</b> — often just a few dollars to try one.',
-      cta: 'Claim 50% off a French tutor',
+      p: 'Shadowing builds the base, but speaking improves faster with specific feedback from a real person. Tutor availability and pricing vary.',
+      cta: 'Browse French tutors',
     },
     {
       eyebrow: '🎯 Lock in your exam score',
       h: 'One hour a week with a tutor changes the result',
-      p: 'A native French tutor catches the mistakes a website never can. New learners get <b>50% off the first lesson</b> — try one before your TCF / TEF Canada date.',
-      cta: 'Get 50% off your first lesson',
+      p: 'A fluent French tutor can catch the mistakes a website cannot hear. Consider one feedback session before your TCF / TEF Canada date.',
+      cta: 'Browse French tutors',
     },
     {
       eyebrow: '🗣️ Ready to be corrected live?',
       h: 'You just earned a real conversation',
-      p: 'Bring what you practised to a Canadian-French tutor and get corrected in real time. Preply gives new learners <b>50% off the first lesson</b> — pick a time that fits you.',
-      cta: 'Find a tutor — 50% off',
+      p: 'Bring what you practised to a French tutor and get corrected in real time. Choose a tutor, schedule, and price that fit you.',
+      cta: 'Find a French tutor',
     },
   ];
 
@@ -56,13 +56,13 @@ window.Support = (function () {
       <div class="support-card tip-card">
         <p class="eyebrow" style="color:var(--rouge)">💛 Nice work</p>
         <h3>Keep Bonjour! free for the next person</h3>
-        <p>No ads, no paywall, no account — built by one person. If it's helping your French, a small one-time gift keeps the audio playing. Only if it's earned it.</p>
+        <p>No third-party display ads, no paywall, no account — built by one person. If it's helping your French, a small one-time gift keeps the audio playing. Only if it's earned it.</p>
         <a class="btn ghost big" href="${COFFEE}" target="_blank" rel="noopener">Help keep it free<span class="arr">→</span></a>
       </div>`;
   }
 
   function preplyInline(text) {
-    return `<a href="${PREPLY}" target="_blank" rel="sponsored noopener" style="color:var(--bleu);font-weight:var(--fw-semi)">${text || 'a French tutor (50% off the first lesson)'}</a>`;
+    return `<a href="${PREPLY}" target="_blank" rel="sponsored noopener" style="color:var(--bleu);font-weight:var(--fw-semi)">${text || 'a French tutor'}</a>`;
   }
 
   // Throttled, rotating nudge for completion screens. A global counter advances

@@ -45,7 +45,7 @@ window.SpeakTasksModule = (function () {
       <section class="hero">
         <div class="flag-stripes"></div>
         <p class="eyebrow-h">Speaking practice</p>
-        <h1>Record. Listen.<br/>Self-rate.</h1>
+        <h1>Record. Listen.<br /> Self-rate.</h1>
         <p style="margin-top:var(--sp-4)">Describe scenes. Answer questions. Play roles. Your recording stays on this device — nothing uploads. Built for the TCF / TEF Canada speaking format.</p>
       </section>
       <div class="grammar-box" style="border-left-color:var(--accent)">
@@ -86,6 +86,7 @@ window.SpeakTasksModule = (function () {
   //   #rec-status    — text node for status messages
   //   #rec-result    — empty container; filled with <audio> after stop
   function attachRecorder(panel, { maxSeconds, onComplete }) {
+    if (window.Record) Record.stopAll();
     const btn = panel.querySelector('#rec-btn');
     const timerEl = panel.querySelector('#rec-timer');
     const status = panel.querySelector('#rec-status');
@@ -104,6 +105,7 @@ window.SpeakTasksModule = (function () {
     let stopping = false;
 
     async function start() {
+      if (rec) { try { rec.cleanup(); } catch {} rec = null; }
       btn.disabled = true;
       status.textContent = 'Asking for microphone…';
       try {
@@ -206,11 +208,11 @@ window.SpeakTasksModule = (function () {
     const safeTitle = Chrome.escapeHTML(taskTitle || '');
     return `
       <div class="grammar-box" style="border-left-color:var(--accent);margin-top:14px">
-        <h3>🎯 Want a native grader on this exact task?</h3>
-        <p>Recording yourself + self-rating builds the muscle. The other half is hearing a native speaker react — which words landed, where you sounded hesitant, what to fix next. <b>New Preply learners get 50% off their first lesson</b>, so trying one costs next to nothing.</p>
+        <h3>🎯 Want human feedback on this exact task?</h3>
+        <p>Recording yourself and self-rating builds the muscle. The other half is hearing a fluent speaker react — which words landed, where you sounded hesitant, and what to fix next. Tutor availability and pricing vary.</p>
         <p style="margin-top:8px;color:var(--mute);font-size:13px">Open the link and paste this in your tutor's chat: <i>"${safeTitle}"</i></p>
         <div class="row" style="justify-content:center;margin-top:10px">
-          <a class="btn primary" href="${PREPLY}" target="_blank" rel="sponsored noopener">Get 50% off a tutor<span class="arr">→</span></a>
+          <a class="btn primary" href="${PREPLY}" target="_blank" rel="sponsored noopener">Browse French tutors<span class="arr">→</span></a>
         </div>
         <p style="color:var(--mute);font-size:12px;text-align:center;margin-top:8px">Affiliate link — booking through it helps keep this site free, at no cost to you.</p>
       </div>`;
@@ -221,7 +223,7 @@ window.SpeakTasksModule = (function () {
     const keywordList = (t.keywords || []).slice(0, 8).map(Chrome.escapeHTML).join(', ');
     container.innerHTML = `
       <div class="lesson">
-        <h2>${t.emoji || '🖼️'} ${Chrome.escapeHTML(t.title)} <span class="tag">${Chrome.escapeHTML(t.level)}</span></h2>
+        <h1>${t.emoji || '🖼️'} ${Chrome.escapeHTML(t.title)} <span class="tag">${Chrome.escapeHTML(t.level)}</span></h1>
         <div class="grammar-box">
           <h3>🖼️ Scene to describe</h3>
           <p><i>${Chrome.escapeHTML(t.sceneDesc)}</i></p>
@@ -239,7 +241,7 @@ window.SpeakTasksModule = (function () {
           <p style="color:var(--mute);font-size:13px;margin-bottom:14px">Press the mic, describe the scene in French until the timer runs out. The recording stays on this device.</p>
           <div class="center">
             <button class="mic-btn" id="rec-btn" title="Press to record" aria-label="Start recording">🎙️</button>
-            <p style="font-variant-numeric:tabular-nums;font-size:32px;color:var(--bleu);margin-top:10px" id="rec-timer" aria-live="polite">${t.targetTime}s</p>
+            <p role="timer" aria-label="Recording time remaining" style="font-variant-numeric:tabular-nums;font-size:32px;color:var(--bleu);margin-top:10px" id="rec-timer">${t.targetTime}s</p>
             <p id="rec-status" style="color:var(--mute);margin-top:4px;font-size:14px;max-width:500px;margin-left:auto;margin-right:auto" aria-live="polite">Press the mic to start. Your recording stays on this device — nothing uploads.</p>
             <div id="rec-result" style="margin-top:14px"></div>
           </div>
@@ -306,15 +308,14 @@ window.SpeakTasksModule = (function () {
       total = Math.round((rubricScore + typedScore) / 2);
     }
 
-    const clb = total >= 75 ? (t.level.includes('6') ? 'CLB 6' : 'CLB 5') : total >= 55 ? 'CLB 4' : 'CLB 3';
-    App.recordAttempt(`speaktask:${id}`, total, 65, 'automated-speaking-self-check');
+    App.recordAttempt(`speaktask:${id}`, total, 65, 'speaking-structure-self-check');
 
     const passColor = total >= 70 ? 'var(--good)' : 'var(--warn)';
     const passBg = total >= 70 ? 'rgba(52,199,89,.12)' : 'rgba(255,159,10,.12)';
 
     container.querySelector('#report').innerHTML = `
       <div class="grammar-box" style="background:${passBg};border-left-color:${passColor};margin-top:14px">
-        <h3>📊 Session score: ${total}/100 · ${clb}</h3>
+        <h3>📊 Practice structure check: ${total}/100</h3>
         <div class="row" style="margin-top:8px;flex-wrap:wrap">
           <span class="tag">Self-rubric: ${rubricHits.length}/${rubricMax}</span>
           ${typedScore != null ? `<span class="tag">Typed transcript: ${typedScore}/100</span>` : '<span class="tag" style="color:var(--mute)">No typed transcript</span>'}
@@ -323,7 +324,7 @@ window.SpeakTasksModule = (function () {
         </div>
         ${typedScore != null && keywordsHit.length ? `<p style="margin-top:10px"><b>Keywords found:</b> ${keywordsHit.join(', ')}</p>` : ''}
         ${typedScore != null && keywordsHit.length < 4 ? `<p style="margin-top:6px;color:var(--mute);font-size:14px"><b>Missed expected words:</b> ${t.keywords.filter(k => !keywordsHit.includes(k)).slice(0, 6).join(', ')}</p>` : ''}
-        <p style="margin-top:10px;color:var(--mute);font-size:13px">A real CLB grader also rates pronunciation, intonation, hesitation, and grammatical accuracy from your actual voice. Replay your recording above and judge those for yourself — or send it to a tutor below.</p>
+        <p style="margin-top:10px;color:var(--mute);font-size:13px">This cannot estimate a TCF or NCLC level. A trained evaluator also considers pronunciation, intonation, hesitation, grammatical accuracy, range, and task fulfilment from the actual recording.</p>
       </div>
       ${preplyCTA(t.title)}`;
   }
@@ -338,7 +339,7 @@ window.SpeakTasksModule = (function () {
       const q = t.questions[qi];
       container.innerHTML = `
         <div class="lesson">
-          <h2>❓ ${Chrome.escapeHTML(t.title)} <span class="tag">${Chrome.escapeHTML(t.level)}</span></h2>
+          <h1>❓ ${Chrome.escapeHTML(t.title)} <span class="tag">${Chrome.escapeHTML(t.level)}</span></h1>
           <div class="progress"><div style="width:${(qi / t.questions.length) * 100}%"></div></div>
           <div class="grammar-box">
             <h3>Question ${qi + 1} of ${t.questions.length}</h3>
@@ -354,7 +355,7 @@ window.SpeakTasksModule = (function () {
             <p style="color:var(--mute);font-size:13px;margin-bottom:14px">Press the mic, answer aloud in French. Stays on this device.</p>
             <div class="center">
               <button class="mic-btn" id="rec-btn" title="Press to record" aria-label="Start recording">🎙️</button>
-              <p style="font-variant-numeric:tabular-nums;font-size:28px;color:var(--bleu);margin-top:10px" id="rec-timer" aria-live="polite">30s</p>
+              <p role="timer" aria-label="Recording time remaining" style="font-variant-numeric:tabular-nums;font-size:28px;color:var(--bleu);margin-top:10px" id="rec-timer">30s</p>
               <p id="rec-status" style="color:var(--mute);margin-top:4px;font-size:14px" aria-live="polite">Press the mic to start.</p>
               <div id="rec-result" style="margin-top:14px"></div>
             </div>
@@ -451,11 +452,11 @@ window.SpeakTasksModule = (function () {
     const rubricPct = rubricMaxTotal ? Math.round((rubricTotal / rubricMaxTotal) * 100) : 0;
     const typedPct = typedTarget ? Math.min(100, Math.round((typedWords / typedTarget) * 100)) : null;
     const total = typedPct != null ? Math.round((rubricPct + typedPct) / 2) : rubricPct;
-    App.recordAttempt(`speaktask:${id}`, total, 65, 'automated-speaking-self-check');
+    App.recordAttempt(`speaktask:${id}`, total, 65, 'speaking-structure-self-check');
 
     container.innerHTML = `
       <div class="lesson">
-        <h2>📊 ${Chrome.escapeHTML(t.title)} — Results</h2>
+        <h1>📊 ${Chrome.escapeHTML(t.title)} — Results</h1>
         <div class="grammar-box" style="background:${total >= 70 ? 'rgba(52,199,89,.12)' : 'rgba(255,159,10,.12)'};border-left-color:${total >= 70 ? 'var(--good)' : 'var(--warn)'}">
           <h3>Overall: ${total}/100</h3>
           <div class="row" style="margin-top:8px;flex-wrap:wrap">
@@ -488,7 +489,7 @@ window.SpeakTasksModule = (function () {
       const turn = t.turns[turnIdx];
       container.innerHTML = `
         <div class="lesson">
-          <h2>🎭 ${Chrome.escapeHTML(t.title)} <span class="tag">${Chrome.escapeHTML(t.level)}</span></h2>
+          <h1>🎭 ${Chrome.escapeHTML(t.title)} <span class="tag">${Chrome.escapeHTML(t.level)}</span></h1>
           <div class="progress"><div style="width:${(turnIdx / t.turns.length) * 100}%"></div></div>
           <div class="grammar-box" style="border-left-color:var(--warn)">
             <h3>📋 Scenario</h3>
@@ -506,7 +507,7 @@ window.SpeakTasksModule = (function () {
             <h3>Record your reply</h3>
             <div class="center">
               <button class="mic-btn" id="rec-btn" title="Press to record" aria-label="Start recording">🎙️</button>
-              <p style="font-variant-numeric:tabular-nums;font-size:28px;color:var(--bleu);margin-top:10px" id="rec-timer" aria-live="polite">25s</p>
+              <p role="timer" aria-label="Recording time remaining" style="font-variant-numeric:tabular-nums;font-size:28px;color:var(--bleu);margin-top:10px" id="rec-timer">25s</p>
               <p id="rec-status" style="color:var(--mute);margin-top:4px;font-size:14px" aria-live="polite">Press the mic to start.</p>
               <div id="rec-result" style="margin-top:14px"></div>
             </div>
@@ -585,18 +586,18 @@ window.SpeakTasksModule = (function () {
     const rubricPct = rubricMaxTotal ? Math.round((rubricTotal / rubricMaxTotal) * 100) : 0;
     const typedPct = typedTarget ? Math.min(100, Math.round((typedWords / typedTarget) * 100)) : null;
     const total = typedPct != null ? Math.round((rubricPct + typedPct) / 2) : rubricPct;
-    App.recordAttempt(`speaktask:${id}`, total, 65, 'automated-speaking-self-check');
+    App.recordAttempt(`speaktask:${id}`, total, 65, 'speaking-structure-self-check');
 
     container.innerHTML = `
       <div class="lesson">
-        <h2>🎭 ${Chrome.escapeHTML(t.title)} — Complete</h2>
+        <h1>🎭 ${Chrome.escapeHTML(t.title)} — Complete</h1>
         <div class="grammar-box" style="background:${total >= 70 ? 'rgba(52,199,89,.12)' : 'rgba(255,159,10,.12)'};border-left-color:${total >= 70 ? 'var(--good)' : 'var(--warn)'}">
           <h3>Session score: ${total}/100</h3>
           <div class="row" style="margin-top:8px;flex-wrap:wrap">
             <span class="tag">Self-rubric: ${rubricTotal}/${rubricMaxTotal}</span>
             ${typedPct != null ? `<span class="tag">Typed: ${typedPct}/100</span>` : ''}
           </div>
-          <p style="margin-top:8px;color:var(--mute);font-size:13px">Role-plays are graded by completeness here. A real CLB rater also scores fluency, accuracy, pronunciation, and appropriate register.</p>
+          <p style="margin-top:8px;color:var(--mute);font-size:13px">This is a completeness self-check, not a TCF or NCLC estimate. A trained rater also evaluates fluency, accuracy, pronunciation, range, and appropriate register.</p>
         </div>
         <h3 style="font-variant-numeric:tabular-nums;color:var(--bleu);margin:18px 0 8px">Conversation transcript</h3>
         ${answers.map((a) => `

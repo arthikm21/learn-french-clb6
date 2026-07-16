@@ -6,7 +6,7 @@ window.VocabModule = (function () {
       <section class="hero">
         <div class="flag-stripes"></div>
         <p class="eyebrow-h">Vocabulary</p>
-        <h1>Hear it.<br/>Then know it.</h1>
+        <h1>Hear it.<br /> Then know it.</h1>
         <p style="margin-top:var(--sp-4)">Pick a deck. Flip the card. Rate how easy. SRS schedules your next review automatically.</p>
       </section>
       <div class="grid" id="deck-grid"></div>`;
@@ -14,8 +14,8 @@ window.VocabModule = (function () {
     const dueByDeck = (SRS.dueSummary ? SRS.dueSummary().byDeck : {});
     for (const key of Object.keys(VOCAB)) {
       const d = VOCAB[key];
-      const p = SRS.progress(key, d.cards);
-      const due = dueByDeck[key] || 0;
+      const p = SRS.progress(`vocab:${key}`, d.cards);
+      const due = dueByDeck[`vocab:${key}`] || 0;
       const card = document.createElement('div');
       card.className = 'card';
       card.innerHTML = `
@@ -31,7 +31,7 @@ window.VocabModule = (function () {
   function renderStudy(container, deckKey) {
     const deck = VOCAB[deckKey];
     if (!deck) { App.go('vocab'); return; }
-    let cards = SRS.dueCards(deckKey, deck.cards);
+    let cards = SRS.dueCards(`vocab:${deckKey}`, deck.cards);
     if (cards.length === 0) cards = deck.cards.slice();
     // shuffle
     cards = cards.sort(() => Math.random() - 0.5);
@@ -53,8 +53,8 @@ window.VocabModule = (function () {
           progress: { current: i, total: cards.length }
         })}
         <div class="lesson">
-          <h2>${deck.icon} ${deck.name}</h2>
-          <div class="flashcard" id="fc">
+          <h1>${deck.icon} ${deck.name}</h1>
+          <div class="flashcard" id="fc" role="button" tabindex="0" aria-label="French flashcard. Press Enter or Space to flip">
             <div class="inner">
               <div class="face front">
                 <div>
@@ -92,13 +92,19 @@ window.VocabModule = (function () {
         fc.classList.toggle('flipped');
         if (fc.classList.contains('flipped')) container.querySelector('#srs-ctrl').style.display = 'flex';
       };
+      fc.onkeydown = (e) => {
+        if (e.key !== 'Enter' && e.key !== ' ') return;
+        if (e.target.closest('button')) return;
+        e.preventDefault();
+        fc.click();
+      };
       container.querySelector('#play').onclick = (e) => { e.stopPropagation(); TTS.speak(c.fr); };
       // auto-play on appear
       TTS.speakSoon(c.fr, 1.0, 250);
       container.querySelector('#back').onclick = () => App.go('vocab');
       container.querySelectorAll('[data-q]').forEach(b => b.onclick = () => {
         const q = parseInt(b.dataset.q);
-        SRS.review(deckKey, c.fr, q);
+        SRS.review(`vocab:${deckKey}`, c.fr, q);
         App.addXP(q >= 4 ? 5 : 2);
         // Reinsert weak cards (Again / Hard) a few positions ahead so they come
         // back before the session ends. Max 2 requeues per card.

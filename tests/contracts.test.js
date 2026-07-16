@@ -17,6 +17,7 @@ test('index local assets resolve and persistence loads before profile UI', () =>
   assert.deepEqual(missing, []);
   assert.ok(html.indexOf('modules/storage.js') < html.indexOf('modules/profile.js'));
   assert.ok(html.indexOf('modules/storage.js') < html.indexOf('modules/mastery.js'));
+  assert.ok(html.indexOf('modules/cheersquad.js') < html.indexOf('modules/chrome.js'));
   assert.ok(html.indexOf('modules/mastery.js') < html.indexOf('app.js'));
   assert.ok(html.indexOf('modules/router.js') < html.indexOf('app.js'));
   assert.match(html, /class="skip-link" href="#app"/);
@@ -43,6 +44,27 @@ test('clickable cards are keyboard upgraded and do not nest buttons', () => {
   for (const source of [app, grammar, listening]) {
     assert.doesNotMatch(source, /class="spotlight"[^>]*onclick[\s\S]{0,650}<button/);
   }
+});
+
+test('closed mobile navigation is inert and Escape restores focus', () => {
+  const app = fs.readFileSync('app.js', 'utf8');
+  assert.match(app, /nav\.inert\s*=\s*!exposed/);
+  assert.match(app, /nav\.setAttribute\('aria-hidden',\s*'true'\)/);
+  assert.match(app, /ham\.focus\(\{\s*preventScroll:\s*true\s*\}\)/);
+  assert.match(app, /e\.key\s*===\s*'Escape'[\s\S]*close\(true\)/);
+});
+
+test('home artwork uses a bounded semantic grid instead of scattered offsets', () => {
+  const app = fs.readFileSync('app.js', 'utf8');
+  const css = fs.readFileSync('editorial.css', 'utf8');
+
+  assert.match(app, /class="language-block" data-shape="primary" aria-hidden="true"/);
+  assert.match(app, /<ol class="today-steps">/);
+  assert.match(app, /role="progressbar"/);
+  assert.doesNotMatch(app, /language-block-(?:one|two|three|four|five|six|seven|glass)/);
+  assert.match(css, /grid-template-columns: repeat\(12, minmax\(0, 1fr\)\)/);
+  assert.match(css, /\.home-cheer \{[\s\S]{0,260}grid-area: 6 \/ 10 \/ 11 \/ 13/);
+  assert.doesNotMatch(css, /\.home-cheer[^}]*right:\s*-/);
 });
 
 test('writing evidence cannot be completed without a full draft', () => {

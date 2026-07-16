@@ -11,6 +11,7 @@ const MIME = {
   '.js': 'application/javascript; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
   '.json': 'application/json; charset=utf-8',
+  '.webmanifest': 'application/manifest+json; charset=utf-8',
   '.mp3': 'audio/mpeg',
   '.png': 'image/png',
   '.jpg': 'image/jpeg',
@@ -30,7 +31,14 @@ http.createServer((req, res) => {
     ? [fp]
     : [fp, fp + '.html', path.join(fp, 'index.html')];
   const read = index => {
-    if (index >= candidates.length) { res.writeHead(404); res.end('not found: ' + urlPath); return; }
+    if (index >= candidates.length) {
+      fs.readFile(path.join(ROOT, '404.html'), (error, data) => {
+        res.writeHead(404, { 'Content-Type': 'text/html; charset=utf-8' });
+        if (req.method === 'HEAD') res.end();
+        else res.end(error ? '<h1>Page not found</h1>' : data);
+      });
+      return;
+    }
     fs.readFile(candidates[index], (err, data) => {
       if (err) { read(index + 1); return; }
       const ext = path.extname(candidates[index]);

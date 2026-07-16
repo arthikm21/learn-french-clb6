@@ -10,8 +10,9 @@ window.PCvsImpModule = (function () {
 
     function showStudy() {
       container.innerHTML = `
+        ${Chrome.render({ back: 'grammar', crumbs: ['Grammar', u.title] })}
         <div class="lesson">
-          <h2>⚔️ ${u.title} <span class="tag">${u.level}</span></h2>
+          <h1>⚔️ ${u.title} <span class="tag">${u.level}</span></h1>
           <p style="font-size:16px;line-height:1.6;margin:10px 0 16px">${u.intro}</p>
           ${u.framework.map(f => `
             <div class="grammar-box">
@@ -34,8 +35,9 @@ window.PCvsImpModule = (function () {
       if (drillIdx >= drills.length) return finish();
       const d = drills[drillIdx];
       container.innerHTML = `
+        ${Chrome.render({ back: 'grammar', crumbs: ['Grammar', u.title, 'Drill'] })}
         <div class="lesson">
-          <h2>⚔️ ${u.title}</h2>
+          <h1>⚔️ ${u.title}</h1>
           <div class="progress"><div style="width:${(drillIdx / drills.length) * 100}%"></div></div>
           <div class="row" style="justify-content:space-between"><span>Score: <b>${correct}</b></span><span>${drillIdx + 1}/${drills.length}</span></div>
           <div class="q-prompt" style="font-size:22px;line-height:1.6;margin:18px 0">${d.sentence}</div>
@@ -89,7 +91,7 @@ window.PCvsImpModule = (function () {
         icon: pct >= 80 ? '🏆' : pct >= 70 ? '🎯' : '💪',
         title: pct >= 80 ? 'Mastered!' : pct >= 70 ? 'Passed!' : 'Re-study and try again',
         score: { correct, total: drills.length },
-        sub: pct >= 80 ? 'This is the hardest CLB 6 grammar distinction. Well done.' : pct >= 70 ? 'Solid. Review the framework boxes and run again to reach mastery.' : 'Re-read the framework boxes carefully — focus on the "scene vs event" mental test.',
+        sub: pct >= 80 ? 'You handled a demanding NCLC 6 practice distinction. Well done.' : pct >= 70 ? 'Solid. Review the framework boxes and run again to reach mastery.' : 'Re-read the framework boxes carefully — focus on the "scene vs event" mental test.',
         actions: [
           { label: 'Restart', onclick: "App.go('pcvsimp')", primary: true },
           { label: 'Back to Grammar', onclick: "App.go('grammar')" },

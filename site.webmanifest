@@ -1,13 +1,13 @@
 {
   "name": "Bonjour! — Free CLB 6 French Course",
   "short_name": "Bonjour!",
-  "description": "Free CLB 6 / TCF Canada French course. Native Canadian French audio, a full exam-format mock test, grammar, speaking and writing practice. No signup, no tracking.",
+  "description": "Free CLB 6 / TCF Canada French practice with Canadian French neural audio, grammar, speaking, writing and a four-skill practice simulation. No signup or tracking.",
   "lang": "en-CA",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#0055A4",
+  "background_color": "#FBF8F3",
+  "theme_color": "#FBF8F3",
   "categories": ["education", "productivity"],
   "icons": [
     { "src": "/favicon-96x96.png", "sizes": "96x96", "type": "image/png" },

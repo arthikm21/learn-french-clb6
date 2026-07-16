@@ -6,7 +6,7 @@ window.PhonicsModule = (function () {
       <section class="hero">
         <div class="flag-stripes"></div>
         <p class="eyebrow-h">Phonics & Sounds</p>
-        <h1>Sounds first.<br/>Words later.</h1>
+        <h1>Sounds first.<br /> Words later.</h1>
         <p style="margin-top:var(--sp-4)">Pronunciation is the foundation. These seven lessons train contrasts that make later listening and speaking practice clearer.</p>
       </section>
       <div class="grid" id="p-grid"></div>`;
@@ -16,7 +16,7 @@ window.PhonicsModule = (function () {
       const card = document.createElement('div');
       card.className = 'card';
       card.innerHTML = `
-        <div class="icon">${u.icon}</div>
+        <div class="icon">${App.svgIcon('volume')}</div>
         <h3>${u.title}</h3>
         <p>${u.sounds.length} sounds${done ? ' · <span class="tag" style="color:var(--good)">✓ Done</span>' : ''}</p>`;
       card.onclick = () => App.go('phonics', { unit: u.id });
@@ -29,8 +29,9 @@ window.PhonicsModule = (function () {
     if (!u) { App.go('phonics'); return; }
     container.innerHTML = `
       ${Chrome.render({ back: 'phonics', crumbs: ['Phonics', u.title] })}
-      <div class="lesson">
-        <h2>${u.icon} ${u.title}</h2>
+      <div class="lesson lesson-with-cheer">
+        <h1 class="h3-icon">${App.svgIcon('volume')}${u.title}</h1>
+        <div class="lesson-cheer-slot">${window.CheerSquad ? CheerSquad.renderInline('pronunciation', { compact: true }) : ''}</div>
         <p style="font-size:var(--fs-17);line-height:var(--lh-loose);margin:var(--sp-3) 0 var(--sp-5);color:var(--ink-2)">${u.intro}</p>
         ${u.warn ? `<div class="feedback bad" style="margin:var(--sp-3) 0">${u.warn}</div>` : ''}
         <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:var(--sp-3)">
@@ -41,7 +42,7 @@ window.PhonicsModule = (function () {
                   <div style="font-size:var(--fs-34);font-weight:var(--fw-bold);color:var(--accent);letter-spacing:var(--ls-snug)">${s.ipa}</div>
                   <div style="color:var(--mute);font-size:var(--fs-13);margin-top:4px">spelling: <b>${s.spell}</b></div>
                 </div>
-                <button class="btn secondary sm" data-play="${i}" aria-label="Play sound">🔊</button>
+                <button class="btn secondary sm" data-play="${i}" aria-label="Play sound">${App.svgIcon('volume')}</button>
               </div>
               <div style="margin-top:var(--sp-3);font-size:var(--fs-22);font-weight:var(--fw-bold);color:var(--ink);letter-spacing:var(--ls-snug)">${s.word}</div>
               <div style="color:var(--mute);font-style:italic">${s.mean}</div>
@@ -69,7 +70,7 @@ window.PhonicsModule = (function () {
       const btnRow = container.querySelector('.row:last-child');
       const btn = document.createElement('button');
       btn.className = 'btn secondary';
-      btn.textContent = '🎧 Minimal-pair ear drill';
+      btn.innerHTML = `${App.svgIcon('headphones')}Minimal-pair ear drill`;
       btn.onclick = () => renderMinPairDrill(container, u.id);
       btnRow.insertBefore(btn, btnRow.querySelector('#done'));
     }
@@ -92,12 +93,12 @@ window.PhonicsModule = (function () {
           progress: { current: i, total: queue.length }
         })}
         <div class="lesson">
-          <h2>🎧 ${mp.title}</h2>
+          <h1 class="h3-icon">${App.svgIcon('headphones')}${mp.title}</h1>
           <p style="color:var(--mute);font-size:var(--fs-14)">${mp.desc}</p>
           <div class="spacer"></div>
           <p class="center" style="color:var(--mute);font-size:var(--fs-14)">Which word do you hear?</p>
           <div class="center">
-            <button class="btn primary big" id="replay">🔊 Hear again</button>
+            <button class="btn primary big" id="replay">${App.svgIcon('volume')}Hear again</button>
           </div>
           <div class="spacer"></div>
           <div class="options" style="grid-template-columns:1fr 1fr">

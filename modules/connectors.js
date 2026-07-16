@@ -7,8 +7,6 @@ window.ConnectorsModule = (function () {
     let queue = [...window.CONNECTOR_DRILLS].sort(() => Math.random() - 0.5).slice(0, 10);
     let timer = null;
     let timeLeft = 30;
-    let recordedText = '';
-    let recording = false;
     let aborted = false;
 
     const onHash = () => { if (!location.hash.startsWith('#connectors')) { aborted = true; clearInterval(timer); window.removeEventListener('hashchange', onHash); } };
@@ -18,13 +16,12 @@ window.ConnectorsModule = (function () {
       if (aborted) return;
       if (i >= queue.length) return finish();
       const d = queue[i];
-      recordedText = '';
-      recording = false;
       timeLeft = 30;
 
       container.innerHTML = `
+        ${Chrome.render({ back: 'connectormastery', crumbs: ['Practice', 'Connector drill'] })}
         <div class="lesson">
-          <h2>🔗 Discourse Connector Drill <span class="tag">CLB 5-6</span></h2>
+          <h1>🔗 Discourse Connector Drill <span class="tag">NCLC 5–6 practice</span></h1>
           <div class="progress"><div style="width:${(i / queue.length) * 100}%"></div></div>
           <div class="row" style="justify-content:space-between"><span>Score: <b>${correct}</b></span><span>${i + 1}/${queue.length}</span></div>
           <div class="grammar-box">
@@ -32,20 +29,18 @@ window.ConnectorsModule = (function () {
             <p style="font-size:18px;line-height:1.5;font-style:italic">"${d.prompt}"</p>
           </div>
           <div class="grammar-box" style="border-left-color:var(--warn)">
-            <h3>🎯 Use this connector to continue (verbal or typed)</h3>
+            <h3>🎯 Use this connector to continue</h3>
             <p style="font-variant-numeric:tabular-nums;font-size:30px;color:var(--bleu)">${d.target}</p>
             <p style="margin-top:6px;color:var(--mute);font-size:13px">${d.targetExplain}</p>
             <p style="margin-top:4px;font-size:13px"><span class="tag" style="background:rgba(94,92,230,.12);color:var(--accent)">${d.category}</span></p>
           </div>
-          <p style="text-align:center;color:var(--mute)">Continue the idea using <b>${d.target}</b>. 30s timer.</p>
+          <p style="text-align:center;color:var(--mute)">Say your continuation aloud, then type what you said using <b>${d.target}</b>. 30s timer.</p>
           <div class="center">
-            <p style="font-variant-numeric:tabular-nums;font-size:32px;color:var(--bleu)" id="c-timer">${timeLeft}s</p>
-            <button class="mic-btn" id="c-mic">🎙️</button>
-            <p style="color:var(--mute);margin-top:8px;font-size:14px" id="c-status">Press mic to speak OR type in the box below.</p>
-            <div class="transcript" id="c-trans">—</div>
+            <p role="timer" aria-label="Time remaining" style="font-variant-numeric:tabular-nums;font-size:32px;color:var(--bleu)" id="c-timer">${timeLeft}s</p>
+            <p style="color:var(--mute);margin-top:8px;font-size:14px">Your voice is never sent to a recognition service. This drill checks the typed continuation only.</p>
           </div>
           <div class="spacer"></div>
-          <input class="input" id="c-typed" placeholder="Or type your continuation here..."/>
+          <input class="input" id="c-typed" lang="fr-CA" autocomplete="off" placeholder="Type your French continuation here..."/>
           <div id="c-fb"></div>
           <div class="spacer"></div>
           <div class="row" style="justify-content:space-between">
@@ -57,9 +52,6 @@ window.ConnectorsModule = (function () {
           </div>
         </div>`;
 
-      const mic = container.querySelector('#c-mic');
-      const status = container.querySelector('#c-status');
-      const trans = container.querySelector('#c-trans');
       const typed = container.querySelector('#c-typed');
       const timerEl = container.querySelector('#c-timer');
 
@@ -71,31 +63,11 @@ window.ConnectorsModule = (function () {
         if (timeLeft <= 0) { clearInterval(timer); check(true); }
       }, 1000);
 
-      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-      const rec = SR ? new SR() : null;
-      if (rec) {
-        rec.lang = 'fr-CA'; rec.interimResults = true; rec.continuous = true;
-        rec.onresult = (e) => {
-          let interim = '', finalT = '';
-          for (let k = e.resultIndex; k < e.results.length; k++) {
-            const r = e.results[k];
-            if (r.isFinal) finalT += r[0].transcript + ' '; else interim += r[0].transcript;
-          }
-          if (finalT) recordedText += finalT;
-          trans.textContent = (recordedText + interim).trim() || '—';
-        };
-      }
-      mic.onclick = () => {
-        if (recording) { recording = false; mic.classList.remove('listening'); try { rec && rec.stop(); } catch {}; return; }
-        recording = true; recordedText = ''; mic.classList.add('listening');
-        try { rec && rec.start(); } catch {}
-      };
-
       let answered = false; // Enter re-press stacked timeouts → skipped questions
       function check(timedOut) {
         if (answered) return;
         clearInterval(timer);
-        const userResponse = (typed.value.trim() || recordedText.trim());
+        const userResponse = typed.value.trim();
         if (!userResponse && !timedOut) {
           Toast.warn('Type or speak a continuation first.');
           // Restart timer briefly
@@ -138,7 +110,7 @@ window.ConnectorsModule = (function () {
         icon: '🔗',
         title: pct >= 80 ? 'Excellent!' : pct >= 60 ? 'Good work!' : 'Keep practicing',
         score: { correct, total: queue.length },
-        sub: pct >= 80 ? 'You handle TCF-level discourse connectors with confidence.' : pct >= 60 ? 'Solid. Re-run the drill — random sample varies each time.' : 'Review the connector list in the Grammar Connectors unit, then drill again.',
+        sub: pct >= 80 ? 'You used advanced discourse connectors consistently in this practice set.' : pct >= 60 ? 'Solid. Re-run the drill — random sample varies each time.' : 'Review the connector list in the Grammar Connectors unit, then drill again.',
         actions: [
           { label: '↻ Drill again', onclick: "App.go('connectors')", primary: true },
           { label: 'Home', onclick: "App.go('home')" },

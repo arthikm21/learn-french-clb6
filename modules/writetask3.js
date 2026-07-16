@@ -129,18 +129,7 @@ window.WriteTask3Module = (function () {
     score -= Math.min(20, grammarErrors.length * 4);
     score = Math.max(0, Math.min(100, score + 10));
 
-    // TCF EE 0-20 + CLB
-    const tcfScore = Math.round((score / 100) * 20);
-    let clb = '<4';
-    if (tcfScore >= 16) clb = '10';
-    else if (tcfScore >= 14) clb = '9';
-    else if (tcfScore >= 12) clb = '8';
-    else if (tcfScore >= 10) clb = '7';
-    else if (tcfScore >= 7) clb = '6';
-    else if (tcfScore >= 6) clb = '5';
-    else if (tcfScore >= 4) clb = '4';
-
-    App.recordAttempt(`wt3:${id}`, words >= 120 ? score : 0, 65, 'automated-writing-self-check');
+    App.recordAttempt(`wt3:${id}`, words >= 120 ? score : 0, 65, 'writing-structure-self-check');
 
     // Record errors as weak spots
     for (const err of grammarErrors.slice(0, 3)) {
@@ -153,12 +142,12 @@ window.WriteTask3Module = (function () {
       });
     }
 
-    const passColor = tcfScore >= 7 ? 'var(--good)' : 'var(--warn)';
-    const passBg = tcfScore >= 7 ? 'rgba(52,199,89,.12)' : 'rgba(255,159,10,.12)';
+    const passColor = score >= 65 ? 'var(--good)' : 'var(--warn)';
+    const passBg = score >= 65 ? 'rgba(52,199,89,.12)' : 'rgba(255,159,10,.12)';
     container.querySelector('#wt3-report').innerHTML = `
       <div class="grammar-box" style="background:${passBg};border-left-color:${passColor}">
-        <h3>📊 TCF EE estimated: ${tcfScore}/20 · CLB ${clb}</h3>
-        <p>Overall: <b>${score}/100</b></p>
+        <h3>📊 Practice structure check: ${score}/100</h3>
+        <p>This automated check covers length, structure, and a limited set of common patterns. It is not a TCF or NCLC score estimate.</p>
         <div class="row" style="margin-top:8px;flex-wrap:wrap">
           <span class="tag">Words: ${words}</span>
           <span class="tag">Sentences: ${sentences}</span>

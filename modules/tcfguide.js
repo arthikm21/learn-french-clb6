@@ -20,7 +20,7 @@ window.TCFGuideModule = (function () {
       </div>
       <div class="grid">
         <div class="card" onclick="App.go('tcfguide', {sub:'strategy'})"><div class="icon">📋</div><h3>Strategy Guide</h3><p>Time-per-question, what to skip, register expectations, common traps.</p></div>
-        <div class="card" onclick="App.go('tcfguide', {sub:'conversion'})"><div class="icon">📊</div><h3>Score Conversion Table</h3><p>TCF Canada 0-699 / 0-20 → CLB band. Official IRCC chart.</p></div>
+        <div class="card" onclick="App.go('tcfguide', {sub:'conversion'})"><div class="icon">📊</div><h3>Score Conversion Table</h3><p>TCF Canada 0-699 / 0-20 → NCLC band. Official IRCC chart.</p></div>
         <div class="card" onclick="App.go('tcfguide', {sub:'checklist'})"><div class="icon">📅</div><h3>Test-Day Checklist</h3><p>What to bring, when to arrive, what to expect at the exam center.</p></div>
         <div class="card" onclick="App.go('tcfguide', {sub:'history'})"><div class="icon">📈</div><h3>My Practice History</h3><p>Your past four-skill simulations and raw practice evidence.</p></div>
       </div>
@@ -30,7 +30,7 @@ window.TCFGuideModule = (function () {
         <p>The <b>TCF Canada</b> (Test de connaissance du français) is a French proficiency test accepted by IRCC for Canadian economic immigration applications. It is one of the French tests listed by IRCC alongside TEF Canada.</p>
         <p style="margin-top:8px">Structure: 4 sections — <b>Compréhension orale (CO)</b>, <b>Compréhension écrite (CE)</b>, <b>Expression écrite (EE)</b>, <b>Expression orale (EO)</b>. Total test time is approximately 2h47.</p>
         <p style="margin-top:8px">CO and CE are 39 multiple-choice each, scored on the <b>0-699 scale</b>. EE and EO are graded by certified raters on a <b>0-20 scale</b>.</p>
-        <p style="margin-top:8px"><b>For CLB 6 (Express Entry minimum for French points)</b>: you need CO ≥ 398, CE ≥ 406, EE ≥ 7/20, EO ≥ 7/20.</p>
+        <p style="margin-top:8px"><b>For an NCLC 6 target</b>: the IRCC equivalency ranges begin at CO 398, CE 406, EE 7/20, and EO 7/20. Program eligibility varies. The separate additional French-language CRS points require at least NCLC 7 in all four abilities.</p>
       </div>
       ${Support.kitStrip()}
       <div class="center" style="margin-top:24px">
@@ -51,10 +51,10 @@ window.TCFGuideModule = (function () {
         <ul style="margin-left:20px;line-height:1.8">
           <li><b>Audio plays ONCE.</b> No replay. This is the biggest mental shift from typical practice.</li>
           <li><b>Time per question: ~50 seconds.</b> Move fast.</li>
-          <li><b>Read questions BEFORE the audio plays.</b> Each segment shows the question on screen first. Skim the options to predict what to listen for.</li>
+          <li><b>Use any preview time the test interface gives you.</b> Scan the prompt and options quickly, but follow the instructions at your test centre because delivery can be paper- or computer-based.</li>
           <li><b>If unsure, eliminate then guess.</b> Wrong answers don't penalize — every blank is a wasted opportunity.</li>
           <li>Common traps: numbers that sound alike (treize/seize, soixante/septante isn't used here but soixante-dix/quatre-vingt are tricky), distracting fillers, false-friend cognates.</li>
-          <li>Difficulty climbs: Qs 1-15 easy, Qs 16-30 medium, Qs 31-39 hard. Don't burn time on Q 38 if you're shaky on Q 25.</li>
+          <li>Question difficulty increases progressively. Keep moving and protect your attention for the later items.</li>
         </ul>
       </div>
 
@@ -73,8 +73,8 @@ window.TCFGuideModule = (function () {
       <div class="grammar-box">
         <h3>✍️ Expression écrite (EE) — 60 min for 3 tasks</h3>
         <ul style="margin-left:20px;line-height:1.8">
-          <li><b>Task 1</b> (~10 min): short formal email/message, 60-120 words. <b>Always include</b> greeting (Madame, Monsieur,), reason, polite closing (Cordialement,).</li>
-          <li><b>Task 2</b> (~20 min): descriptive article OR letter requesting info, 120-150 words. Structure: introduction, 2-3 body points, conclusion.</li>
+          <li><b>Task 1</b> (60–120 words): write a message that describes, recounts, or explains something to one or more recipients. Match the greeting and register to the prompt.</li>
+          <li><b>Task 2</b> (120–150 words): write an article, letter, note, or similar text that recounts an experience and includes comments or opinions.</li>
           <li><b>Task 3</b> (~25 min): compare 2 opinion texts + give your own view, 120-180 words. <b>Critical structure</b>: 1) summarize both opinions (1-2 sentences each), 2) take YOUR position clearly, 3) give 2 reasons, 4) provide 1 concrete example.</li>
           <li><b>Use connectors</b>: cependant, par conséquent, d'une part... d'autre part, en revanche, par ailleurs. Markers raise scores significantly.</li>
           <li><b>Register</b>: Task 1 formal (vous), Task 3 can be slightly less formal but still polished.</li>
@@ -85,11 +85,11 @@ window.TCFGuideModule = (function () {
       <div class="grammar-box">
         <h3>🎙️ Expression orale (EO) — 15 min for 3 tasks</h3>
         <ul style="margin-left:20px;line-height:1.8">
-          <li><b>Task 1</b> (~3 min): self-intro + describe daily routine. <b>Prepare</b>: name, age, profession, family, hobbies, hometown, why you're learning French.</li>
-          <li><b>Task 2</b> (~3-4 min): ask the examiner questions. <b>You're the interviewer</b>. Use varied structures: est-ce que, où, quand, comment, pourquoi, combien, quel(le), avez-vous, pourriez-vous...</li>
-          <li><b>Task 3</b> (~5 min): argumentative monologue. Take a clear position. 3 reasons. 1 example. 1 counter-argument addressed ("Certes... cependant...").</li>
+          <li><b>Task 1</b> (2 minutes, no preparation): a directed interview about you and familiar topics. Practise concise answers about work, family, interests, routines, and reasons for learning French.</li>
+          <li><b>Task 2</b> (5 minutes 30 total, including 2 minutes of preparation): an interaction in which you seek information. Use varied question forms: est-ce que, où, quand, comment, pourquoi, combien, quel(le), avez-vous, pourriez-vous...</li>
+          <li><b>Task 3</b> (4 minutes 30, no preparation): express and support a point of view. Take a clear position, organize reasons, and add a concrete example.</li>
           <li><b>Speak slowly and clearly.</b> Better to say less well than to rush and make errors.</li>
-          <li><b>Use the 30-second prep time</b> to outline (mental list of points). Don't write full sentences.</li>
+          <li><b>Use Task 2 preparation time</b> to outline a short list of questions. Do not try to script full sentences.</li>
           <li><b>Connectors aloud</b>: d'abord, ensuite, enfin, par conséquent, par exemple. Use them naturally to make the organization of your response easier to follow.</li>
           <li><b>Don't apologize for errors mid-flow.</b> Just keep going. Self-correction is fine, panic isn't.</li>
         </ul>
@@ -114,20 +114,21 @@ window.TCFGuideModule = (function () {
     container.innerHTML = `
       <div class="hero">
         <div class="flag-stripes"></div>
-        <h1>📊 TCF Canada → CLB Conversion</h1>
+        <h1>📊 TCF Canada → NCLC Conversion</h1>
         <p>Official IRCC equivalency chart. Use this to set your target score before booking the exam.</p>
       </div>
 
       <table class="conj-table">
-        <thead><tr><th>CLB</th><th>CO (Listening)</th><th>CE (Reading)</th><th>EE (Writing) /20</th><th>EO (Speaking) /20</th></tr></thead>
+        <caption class="sr-only">Official TCF Canada result equivalencies by NCLC level</caption>
+        <thead><tr><th scope="col">NCLC</th><th scope="col">CO (Listening)</th><th scope="col">CE (Reading)</th><th scope="col">EE (Writing) /20</th><th scope="col">EO (Speaking) /20</th></tr></thead>
         <tbody>
-          <tr><td><b>10</b></td><td>549-699</td><td>549-699</td><td>16-20</td><td>16-20</td></tr>
-          <tr><td>9</td><td>523-548</td><td>524-548</td><td>14-15</td><td>14-15</td></tr>
-          <tr><td>8</td><td>503-522</td><td>499-523</td><td>12-13</td><td>12-13</td></tr>
-          <tr><td>7</td><td>458-502</td><td>453-498</td><td>10-11</td><td>10-11</td></tr>
-          <tr style="background:rgba(52,199,89,.12)"><td><b>6</b></td><td><b>398-457</b></td><td><b>406-452</b></td><td><b>7-9</b></td><td><b>7-9</b></td></tr>
-          <tr><td>5</td><td>369-397</td><td>375-405</td><td>6</td><td>6</td></tr>
-          <tr><td>4</td><td>331-368</td><td>342-374</td><td>4-5</td><td>4-5</td></tr>
+          <tr><th scope="row">10+</th><td>549-699</td><td>549-699</td><td>16-20</td><td>16-20</td></tr>
+          <tr><th scope="row">9</th><td>523-548</td><td>524-548</td><td>14-15</td><td>14-15</td></tr>
+          <tr><th scope="row">8</th><td>503-522</td><td>499-523</td><td>12-13</td><td>12-13</td></tr>
+          <tr><th scope="row">7</th><td>458-502</td><td>453-498</td><td>10-11</td><td>10-11</td></tr>
+          <tr style="background:rgba(52,199,89,.12)"><th scope="row">6</th><td><b>398-457</b></td><td><b>406-452</b></td><td><b>7-9</b></td><td><b>7-9</b></td></tr>
+          <tr><th scope="row">5</th><td>369-397</td><td>375-405</td><td>6</td><td>6</td></tr>
+          <tr><th scope="row">4</th><td>331-368</td><td>342-374</td><td>4-5</td><td>4-5</td></tr>
         </tbody>
       </table>
 
@@ -139,7 +140,7 @@ window.TCFGuideModule = (function () {
 
       <div class="grammar-box" style="background:rgba(0,85,164,.08)">
         <h3>🔗 Official source</h3>
-        <p>Conversion table from IRCC: <a href="https://www.canada.ca/en/immigration-refugees-citizenship/services/immigrate-canada/express-entry/documents/language-requirements/test-equivalency-charts.html" target="_blank" rel="noopener" style="color:var(--bleu)">canada.ca — language test equivalency charts</a></p>
+        <p>Conversion table from IRCC: <a href="https://www.canada.ca/en/immigration-refugees-citizenship/services/immigrate-canada/express-entry/documents/language-test.html" target="_blank" rel="noopener" style="color:var(--bleu)">canada.ca — language test results</a></p>
       </div>
       <div class="center" style="margin-top:24px">
         <button class="btn ghost" onclick="App.go('tcfguide')">← Guide</button>

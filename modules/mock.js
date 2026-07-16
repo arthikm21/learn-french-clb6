@@ -7,6 +7,8 @@ window.MockModule = (function () {
     session = {
       startTime: Date.now(),
       sectionIdx: 0,
+      sectionStartedAt: null,
+      sectionDeadline: null,
       results: { listen: null, read: null, write: null, speak: null },
     };
     return session;
@@ -56,9 +58,12 @@ window.MockModule = (function () {
   }
 
   function renderSection(container, sec) {
-    const elapsedSec = Math.floor((Date.now() - session.startTime) / 1000);
-    const sectionStart = Date.now();
-    let timeLeft = sec.duration;
+    if (!session.sectionStartedAt || !session.sectionDeadline) {
+      session.sectionStartedAt = Date.now();
+      session.sectionDeadline = session.sectionStartedAt + sec.duration * 1000;
+    }
+    const sectionStart = session.sectionStartedAt;
+    let timeLeft = Math.max(0, Math.ceil((session.sectionDeadline - Date.now()) / 1000));
     let timerInterval = null;
 
     container.innerHTML = `
@@ -90,7 +95,7 @@ window.MockModule = (function () {
     }
 
     timerInterval = setInterval(() => {
-      timeLeft--;
+      timeLeft = Math.max(0, Math.ceil((session.sectionDeadline - Date.now()) / 1000));
       const el = container.querySelector('#mock-timer');
       if (el) el.textContent = formatTime(timeLeft);
       if (timeLeft <= 0) { clearInterval(timerInterval); finishSection(true); }
@@ -108,20 +113,26 @@ window.MockModule = (function () {
     };
     window.addEventListener('hashchange', onHashAway);
 
+    let sectionFinished = false;
     function finishSection(timeExpired = false) {
+      if (sectionFinished) return;
       if (!timeExpired && sectionData.isComplete && !sectionData.isComplete()) {
         if (!confirm('This section is not complete. Finish it now and count unanswered work as missing?')) return;
       }
+      sectionFinished = true;
       if (timerInterval) clearInterval(timerInterval);
       window.removeEventListener('hashchange', onHashAway);
       const result = sectionData.collect ? sectionData.collect() : { score: 0 };
       result.timeSpent = Math.floor((Date.now() - sectionStart) / 1000);
       session.results[sec.id] = result;
+      session.sectionStartedAt = null;
+      session.sectionDeadline = null;
       session.sectionIdx++;
       Toast.good(`${sec.title} done. Moving on…`);
       App.go('mock');
     }
     container.querySelector('#finish-section').onclick = () => finishSection(false);
+    if (timeLeft <= 0) queueMicrotask(() => finishSection(true));
     container.querySelector('#abort').onclick = () => {
       if (confirm('Exit the simulation? This attempt will be lost.')) {
         if (timerInterval) clearInterval(timerInterval);
@@ -331,7 +342,7 @@ window.MockModule = (function () {
           <div class="lesson">
             <h2>✍️ ${wt.label}</h2>
             <div class="grammar-box"><h3>📝 Prompt</h3><p>${w.prompt}</p></div>
-            <textarea class="input" id="mock-essay" placeholder="Écrivez ici..." style="font-size:16px;min-height:280px"></textarea>
+            <textarea class="input" id="mock-essay" lang="fr-CA" placeholder="Écrivez ici..." style="font-size:16px;min-height:280px"></textarea>
             <div class="row" style="margin-top:8px;color:var(--mute);font-size:13px"><span id="mock-wc">0 words</span></div>
             <div class="spacer"></div>
             <div class="center"><button class="btn big" id="next-wtask">Next writing task →</button></div>
@@ -367,7 +378,7 @@ window.MockModule = (function () {
             <div class="grammar-box" style="border-left-color:var(--bleu)"><h3>👤 ${t3.opinionA.author}</h3><p>${t3.opinionA.text}</p></div>
             <div class="grammar-box" style="border-left-color:var(--rouge)"><h3>👥 ${t3.opinionB.author}</h3><p>${t3.opinionB.text}</p></div>
             <div class="grammar-box" style="border-left-color:var(--warn)"><h3>Task</h3><p>${t3.promptInstructions}</p></div>
-            <textarea class="input" id="mock-essay-t3" placeholder="Comparez les deux opinions et donnez la vôtre (~150 mots)..." style="font-size:16px;min-height:280px"></textarea>
+            <textarea class="input" id="mock-essay-t3" lang="fr-CA" placeholder="Comparez les deux opinions et donnez la vôtre (~150 mots)..." style="font-size:16px;min-height:280px"></textarea>
             <div class="row" style="margin-top:8px;color:var(--mute);font-size:13px"><span id="mock-wc-t3">0 words</span></div>
             <div class="spacer"></div>
             <div class="center"><button class="btn big" id="next-wtask">Next writing task →</button></div>
@@ -403,11 +414,10 @@ window.MockModule = (function () {
     return {
       isComplete: () => taskIdx >= sec.writeTasks.length,
       collect: () => {
-        if (results.length === 0) return { pct: 0, wordCount: 0, rubric: '0/0', errors: 0 };
-        const avg = Math.round(results.reduce((s, r) => s + r.score, 0) / results.length);
+        const avg = Math.round(results.reduce((s, r) => s + r.score, 0) / sec.writeTasks.length);
         const totalWords = results.reduce((s, r) => s + r.wordCount, 0);
         const totalErrors = results.reduce((s, r) => s + r.errors, 0);
-        return { pct: avg, wordCount: totalWords, rubric: `${results.length}/${sec.writeTasks.length}`, errors: totalErrors, tasks: results };
+        return { pct: avg, wordCount: totalWords, rubric: `${results.length}/${sec.writeTasks.length}`, errors: totalErrors, tasks: results, complete: results.length === sec.writeTasks.length };
       },
     };
   }
@@ -421,6 +431,9 @@ window.MockModule = (function () {
     let taskIdx = 0;
     const results = [];
     function showTask() {
+      // Task changes do not change the hash, so release the previous recorder
+      // and blob URL before replacing its DOM.
+      if (window.Record) Record.stopAll();
       if (taskIdx >= sec.speakTasks.length) {
         body.innerHTML = `<div class="grammar-box" style="border-left-color:var(--good)"><h3>✓ Speaking section complete</h3></div>`;
         return;
@@ -456,7 +469,7 @@ window.MockModule = (function () {
             <p style="color:var(--mute);font-size:13px;margin-bottom:12px">Press the mic and speak in French. Recording stays on this device. Target: ${targetWords}+ words.</p>
             <div class="center">
               <button class="mic-btn" id="m-mic" title="Press to record" aria-label="Start recording">🎙️</button>
-              <p style="font-variant-numeric:tabular-nums;font-size:28px;color:var(--bleu);margin-top:10px" id="m-timer" aria-live="polite">${targetSec}s</p>
+              <p role="timer" aria-label="Recording time remaining" style="font-variant-numeric:tabular-nums;font-size:28px;color:var(--bleu);margin-top:10px" id="m-timer">${targetSec}s</p>
               <p style="color:var(--mute);margin-top:4px;font-size:14px" id="m-status" aria-live="polite">Press the mic to start.</p>
               <div id="m-result" style="margin-top:14px"></div>
             </div>
@@ -464,7 +477,7 @@ window.MockModule = (function () {
           <div class="grammar-box" id="m-rate-panel" style="display:none;border-left-color:var(--bleu)">
             <h3>Type what you said <span class="tag" style="background:rgba(0,85,164,.12);color:var(--bleu)">For the grader</span></h3>
             <p style="color:var(--mute);font-size:13px;margin-bottom:10px">Listen to your recording and type it out. The practice report compares its length with the task target; it does not grade your French.</p>
-            <textarea id="m-typeback" rows="6" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);font-family:inherit;font-size:15px;line-height:1.5" placeholder="Type your spoken answer (optional but recommended)"></textarea>
+            <textarea id="m-typeback" lang="fr-CA" rows="6" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);font-family:inherit;font-size:15px;line-height:1.5" placeholder="Type your spoken answer (optional but recommended)"></textarea>
           </div>
           <div class="center"><button class="btn big" id="next-task" disabled>Next task →</button></div>
         </div>`;
@@ -491,6 +504,7 @@ window.MockModule = (function () {
       async function start() {
         const oldAudio = resultEl.querySelector('audio');
         if (oldAudio) { try { oldAudio.pause(); } catch {} }
+        if (rec) { try { rec.cleanup(); } catch {} rec = null; }
         mic.disabled = true;
         status.textContent = 'Asking for microphone…';
         try { rec = await Record.create(); }
@@ -546,13 +560,13 @@ window.MockModule = (function () {
     return {
       isComplete: () => taskIdx >= sec.speakTasks.length,
       collect: () => {
-        let totalWords = 0, totalTarget = 0;
+        let totalWords = 0;
         for (const r of results) {
           totalWords += (r.transcript.match(/[\p{L}\p{N}]+/gu) || []).length;
-          totalTarget += r.targetWords;
         }
+        const totalTarget = sec.speakTasks.reduce((sum, task) => sum + (task.type === 'task3' ? 200 : task.type === 'task2' ? 100 : 60), 0);
         const pct = totalTarget ? Math.min(100, Math.round(totalWords / totalTarget * 100)) : 0;
-        return { results, totalWords, pct };
+        return { results, totalWords, pct, complete: results.length === sec.speakTasks.length };
       },
     };
   }
@@ -589,7 +603,7 @@ window.MockModule = (function () {
 
     const scored = skills.map(s => {
       const sr = r[s.id];
-      if (!sr) return { ...s, missing: true };
+      if (!sr || sr.complete === false) return { ...s, sr, missing: true };
       return { ...s, sr, result: practiceResult(s.id, sr.pct) };
     });
     const completedAll = scored.every(s => !s.missing);
@@ -645,7 +659,7 @@ window.MockModule = (function () {
       </div>
       <div class="grammar-box" style="background:rgba(0,85,164,.08)">
         <h3>📊 Official TCF Canada score reference</h3>
-        <table class="conj-table"><thead><tr><th>CLB</th><th>CO score</th><th>CE score</th><th>EE / EO</th></tr></thead><tbody>
+        <table class="conj-table"><thead><tr><th>NCLC</th><th>CO score</th><th>CE score</th><th>EE / EO</th></tr></thead><tbody>
           <tr><td>10</td><td>549+</td><td>549+</td><td>16+</td></tr>
           <tr><td>9</td><td>523-548</td><td>524-548</td><td>14-15</td></tr>
           <tr><td>8</td><td>503-522</td><td>499-523</td><td>12-13</td></tr>

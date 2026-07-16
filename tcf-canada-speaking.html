@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#2948B8" />
+  <meta name="theme-color" content="#FBF8F3" />
 
   <title>TCF Canada Speaking Practice — Expression Orale Tasks 1, 2, 3</title>
   <meta name="description" content="TCF Canada speaking explained: three tasks, timing, scoring considerations, and free recorded practice with Canadian French neural audio. No signup." />
@@ -24,9 +24,10 @@
   <meta property="og:locale" content="en_CA" />
   <meta name="twitter:card" content="summary_large_image" />
 
-  <link rel="stylesheet" href="styles.css" />
-  <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
-  <link rel="stylesheet" href="fonts/fonts.css" />
+  <link rel="stylesheet" href="styles.css?v=202607160126" />
+  <link rel="preload" href="/fonts/inter-latin.woff2?v=202607160126" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="fonts/fonts.css?v=202607160126" />
+  <link rel="stylesheet" href="/editorial.css?v=202607160126" />
 
   <script type="application/ld+json">
   {
@@ -81,21 +82,22 @@
       var dark = t === "dark" || (!t && window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches);
       if (dark) document.body.classList.add("dark");
       document.documentElement.style.colorScheme = dark ? "dark" : "light";
-      if (dark) { var m = document.querySelector("meta[name=\"theme-color\"]"); if (m) m.setAttribute("content", "#0D1016"); }
+      if (dark) { var m = document.querySelector("meta[name=\"theme-color\"]"); if (m) m.setAttribute("content", "#111722"); }
     } catch (e) {}
   </script>
+  <a class="skip-link" href="#main-content">Skip to lesson content</a>
   <header class="topbar">
     <a class="brand" href="/" style="text-decoration:none">
-      <span class="logo">🐓</span>
-      <span class="brand-name">Bonjour!</span>
+      <span class="brand-mark" aria-hidden="true">B<span>.</span></span>
+      <span class="brand-lockup"><span class="brand-name">Bonjour</span><small>French for Canada</small></span>
     </a>
-    <nav class="nav" style="position:static;display:flex;transform:none;box-shadow:none;background:transparent">
+    <nav class="nav" aria-label="Primary" style="position:static;display:flex;transform:none;box-shadow:none;background:transparent">
       <a href="/">Home</a>
       <a href="/tcf-canada-mock-test">Mock test</a>
     </nav>
   </header>
 
-  <main>
+  <main id="main-content" tabindex="-1">
     <nav class="chrome-crumbs" aria-label="Breadcrumb" style="margin-bottom:var(--sp-4)">
       <a href="/" style="color:var(--bleu)">Home</a><span class="sep">›</span><b>TCF Canada speaking</b>
     </nav>

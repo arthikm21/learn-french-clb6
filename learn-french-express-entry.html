@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-CA">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#2948B8" />
+  <meta name="theme-color" content="#FBF8F3" />
 
   <title>Learn French for Express Entry — Free Course for Canada PR Points</title>
   <meta name="description" content="Learn French for Express Entry: understand NCLC targets, realistic preparation factors, and a free four-skill course with Canadian French neural audio. No signup." />
@@ -23,9 +23,10 @@
   <meta property="og:locale" content="en_CA" />
   <meta name="twitter:card" content="summary_large_image" />
 
-  <link rel="stylesheet" href="styles.css" />
-  <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
-  <link rel="stylesheet" href="fonts/fonts.css" />
+  <link rel="stylesheet" href="styles.css?v=202607160126" />
+  <link rel="preload" href="/fonts/inter-latin.woff2?v=202607160126" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="fonts/fonts.css?v=202607160126" />
+  <link rel="stylesheet" href="/editorial.css?v=202607160126" />
 
   <script type="application/ld+json">
   {
@@ -80,21 +81,22 @@
       var dark = t === "dark" || (!t && window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches);
       if (dark) document.body.classList.add("dark");
       document.documentElement.style.colorScheme = dark ? "dark" : "light";
-      if (dark) { var m = document.querySelector("meta[name=\"theme-color\"]"); if (m) m.setAttribute("content", "#0D1016"); }
+      if (dark) { var m = document.querySelector("meta[name=\"theme-color\"]"); if (m) m.setAttribute("content", "#111722"); }
     } catch (e) {}
   </script>
+  <a class="skip-link" href="#main-content">Skip to lesson content</a>
   <header class="topbar">
     <a class="brand" href="/" style="text-decoration:none">
-      <span class="logo">🐓</span>
-      <span class="brand-name">Bonjour!</span>
+      <span class="brand-mark" aria-hidden="true">B<span>.</span></span>
+      <span class="brand-lockup"><span class="brand-name">Bonjour</span><small>French for Canada</small></span>
     </a>
-    <nav class="nav" style="position:static;display:flex;transform:none;box-shadow:none;background:transparent">
+    <nav class="nav" aria-label="Primary" style="position:static;display:flex;transform:none;box-shadow:none;background:transparent">
       <a href="/">Home</a>
       <a href="/how-to-score-clb6">How to score CLB 6</a>
     </nav>
   </header>
 
-  <main>
+  <main id="main-content" tabindex="-1">
     <nav class="chrome-crumbs" aria-label="Breadcrumb" style="margin-bottom:var(--sp-4)">
       <a href="/" style="color:var(--bleu)">Home</a><span class="sep">›</span><b>Learn French for Express Entry</b>
     </nav>
@@ -122,13 +124,14 @@
     </div>
 
     <div class="grammar-box" style="border-left-color:var(--accent)">
-      <h2>A realistic timeline from zero</h2>
-      <table class="conj-table"><tbody>
-        <tr><td><b>Starting point</b></td><td><b>To CLB 6</b></td><td><b>Daily study</b></td></tr>
-        <tr><td>Complete beginner</td><td>8–12 months</td><td>45–60 min</td></tr>
-        <tr><td>Already near target</td><td>Individual</td><td>30–60 min plus feedback</td></tr>
+      <h2>Plan by evidence, not a promised timeline</h2>
+      <table class="conj-table"><caption class="sr-only">Practice priorities by starting point</caption><thead>
+        <tr><th scope="col">Starting point</th><th scope="col">First priority</th><th scope="col">Practice approach</th></tr>
+      </thead><tbody>
+        <tr><th scope="row">Complete beginner</th><td>Build pronunciation, high-frequency vocabulary, and core sentence patterns</td><td>Consistent short sessions plus authentic listening</td></tr>
+        <tr><th scope="row">Already near target</th><td>Identify the weakest tested ability</td><td>Timed practice plus qualified feedback on speaking and writing</td></tr>
       </tbody></table>
-      <p style="margin-top:var(--sp-3)">The single biggest accelerator is <b>daily listening input</b> at native speed. Pair structured practice with real French audio every day and the timeline shortens.</p>
+      <p style="margin-top:var(--sp-3)">No website can predict a universal completion date. Starting ability, consistency, authentic interaction, and corrective feedback all change the timeline.</p>
     </div>
 
     <div class="grammar-box">

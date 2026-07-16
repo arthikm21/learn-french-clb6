@@ -19,7 +19,8 @@ window.TTS = (function () {
   function loadManifest() {
     if (manifest) return Promise.resolve(manifest);
     if (manifestPromise) return manifestPromise;
-    manifestPromise = fetch('audio/manifest.json', { cache: 'force-cache' })
+    // Let HTTP and the service worker revalidate this mapping after releases.
+    manifestPromise = fetch('audio/manifest.json', { cache: 'no-cache' })
       .then(r => r.ok ? r.json() : {})
       .then(m => { manifest = m; return m; })
       .catch(() => { manifest = {}; return manifest; });
@@ -182,7 +183,7 @@ window.TTS = (function () {
       }
     }
     if (myEpoch !== epoch) return; // don't fall back to speech-synth after a stop
-    fallbackSpeak(text, rate * 0.9);
+    fallbackSpeak(key, rate * 0.9);
   }
 
   // Sequential playback with onDone callback. Voice = 'fr-CA-SylvieNeural' (default) or 'fr-CA-JeanNeural'.

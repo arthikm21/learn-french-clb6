@@ -11,8 +11,11 @@ test('routine UI sounds are opt-in and default volume is restrained', () => {
 
   Settings.setClickSound(true);
   Settings.setMasterVolume(0.8);
+  Settings.setCheerSquad(false);
   assert.equal(localStorage.fr_setting_clicks_v1, '1');
   assert.equal(Settings.getMasterVolume(), 0.8);
+  assert.equal(Settings.isCheerSquadOn(), false);
+  assert.equal(Settings.isMascotOn(), false);
 });
 
 test('sound classifier ignores blank cards and playback controls', () => {

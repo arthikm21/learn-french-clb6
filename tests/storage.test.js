@@ -49,15 +49,18 @@ test('reset and deletion never cross user boundaries', () => {
 test('backup restore is exact and rejects malformed payloads', () => {
   const { Storage } = loadStorage();
   Storage.setCurrentUser('learner');
-  Storage.setItem('state', 'saved');
+  Storage.setItem('state', JSON.stringify({ lessons: { intro: true }, xp: 25 }));
   const backup = Storage.exportData();
   Storage.setItem('stale-draft', 'remove me');
 
   assert.equal(Storage.importData(backup), 1);
-  assert.equal(Storage.getItem('state'), 'saved');
+  assert.deepEqual(JSON.parse(Storage.getItem('state')), { lessons: { intro: true }, xp: 25 });
   assert.equal(Storage.getItem('stale-draft'), null);
   assert.equal(Storage.importData({ app: 'bonjour-frenchclb6', data: [] }), -1);
   assert.equal(Storage.importData({ app: 'another-app', data: {} }), -1);
+  assert.equal(Storage.importData({
+    app: 'bonjour-frenchclb6', version: 2, data: { state: 'not-json' },
+  }), -1);
 });
 
 test('many similar and unicode usernames remain fully isolated', () => {

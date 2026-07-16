@@ -79,7 +79,7 @@ window.SpeakTask2Module = (function () {
           <p style="color:var(--mute);font-size:13px;margin-bottom:14px">Stays on your device. Press the mic to start.</p>
           <div class="center">
             <button class="mic-btn" id="rec-btn" title="Press to record" aria-label="Start recording">🎙️</button>
-            <p style="font-variant-numeric:tabular-nums;font-size:32px;color:var(--bleu);margin-top:10px" id="rec-timer" aria-live="polite">${formatTime(t.targetTime)}</p>
+            <p role="timer" aria-label="Recording time remaining" style="font-variant-numeric:tabular-nums;font-size:32px;color:var(--bleu);margin-top:10px" id="rec-timer">${formatTime(t.targetTime)}</p>
             <p id="rec-status" style="color:var(--mute);margin-top:4px;font-size:14px;max-width:500px;margin-left:auto;margin-right:auto" aria-live="polite">Press the mic to start asking your questions in French.</p>
             <div id="rec-result" style="margin-top:14px"></div>
           </div>
@@ -137,12 +137,16 @@ window.SpeakTask2Module = (function () {
       'rising intonation (vous/tu + verb + ?)': sentences.some(s => /\b(vous|tu)\b/i.test(s) && !/\bavez-vous|êtes-vous\b/i.test(s)),
     };
     const distinctQStructures = Object.values(qPatterns).filter(Boolean).length;
-    const totalQuestions = (text.match(/\?/g) || []).length + sentences.filter(s => /^(est-ce que|quel|où|quand|comment|pourquoi|combien|qu'est-ce|qui|avez|êtes|pouvez|voulez|allez|faites)/i.test(s.trim())).length;
-    const actualQs = Math.max(totalQuestions, sentences.length);
+    const markedQuestions = (text.match(/\?/g) || []).length;
+    const questionStarts = sentences.filter(s => /^(est-ce que|quel|où|quand|comment|pourquoi|combien|qu'est-ce|qui|avez|êtes|pouvez|voulez|allez|faites)/i.test(s.trim())).length;
+    const actualQs = markedQuestions || questionStarts;
 
-    const infoMatched = t.requiredInfo.filter(info => {
-      const key = info.toLowerCase().split('(')[0].trim();
-      const keywords = key.split(' ').filter(w => w.length > 3);
+    // Required-info labels are English, so compare the learner's French
+    // transcript with the matching French model question instead.
+    const stop = new Set(['quel', 'quelle', 'quels', 'quelles', 'combien', 'comment', 'avec', 'pour', 'dans', 'sont', 'avez', 'êtes', 'puis', 'dois', 'faut', 'sera', 'est']);
+    const infoMatched = t.requiredInfo.filter((info, index) => {
+      const model = (t.sampleQuestions[index] || '').toLowerCase();
+      const keywords = (model.match(/[a-zà-ÿ]+/g) || []).filter(w => w.length > 3 && !stop.has(w));
       return keywords.some(kw => lower.includes(kw));
     });
 
@@ -158,25 +162,15 @@ window.SpeakTask2Module = (function () {
     }
     const total = typedPct != null ? Math.round((rubricPct + typedPct) / 2) : rubricPct;
 
-    const tcfScore = Math.round((total / 100) * 20);
-    let clb = '<4';
-    if (tcfScore >= 16) clb = '10';
-    else if (tcfScore >= 14) clb = '9';
-    else if (tcfScore >= 12) clb = '8';
-    else if (tcfScore >= 10) clb = '7';
-    else if (tcfScore >= 7) clb = '6';
-    else if (tcfScore >= 6) clb = '5';
-    else if (tcfScore >= 4) clb = '4';
+    App.recordAttempt(`st2:${id}`, total, 65, 'speaking-structure-self-check');
 
-    App.recordAttempt(`st2:${id}`, total, 65, 'automated-speaking-self-check');
-
-    const passColor = tcfScore >= 7 ? 'var(--good)' : 'var(--warn)';
-    const passBg = tcfScore >= 7 ? 'rgba(52,199,89,.12)' : 'rgba(255,159,10,.12)';
+    const passColor = total >= 65 ? 'var(--good)' : 'var(--warn)';
+    const passBg = total >= 65 ? 'rgba(52,199,89,.12)' : 'rgba(255,159,10,.12)';
 
     container.querySelector('#st2-report').innerHTML = `
       <div class="grammar-box" style="background:${passBg};border-left-color:${passColor};margin-top:14px">
-        <h3>📊 TCF EO Task 2 estimated: ${tcfScore}/20 · CLB ${clb}</h3>
-        <p>Overall: <b>${total}/100</b></p>
+        <h3>📊 Practice structure check: ${total}/100</h3>
+        <p>This checks your self-rubric and typed question coverage only. It cannot estimate a TCF or NCLC score from your voice.</p>
         <div class="row" style="margin-top:8px;flex-wrap:wrap">
           <span class="tag">Self-rubric: ${rubricHits.length}/${RUBRIC.length}</span>
           ${typedPct != null ? `<span class="tag">Typed questions: ${typedPct}/100</span>` : '<span class="tag" style="color:var(--mute)">No typed transcript</span>'}
@@ -205,6 +199,7 @@ window.SpeakTask2Module = (function () {
   // ---- Shared helpers (kept inline to avoid a new module for two callers) ----
 
   function attachRecorder(panel, { maxSeconds, timerFormatter, onComplete }) {
+    if (window.Record) Record.stopAll();
     const btn = panel.querySelector('#rec-btn');
     const timerEl = panel.querySelector('#rec-timer');
     const status = panel.querySelector('#rec-status');
@@ -226,6 +221,7 @@ window.SpeakTask2Module = (function () {
     async function start() {
       const oldAudio = resultEl.querySelector('audio');
       if (oldAudio) { try { oldAudio.pause(); } catch {} }
+      if (rec) { try { rec.cleanup(); } catch {} rec = null; }
       btn.disabled = true;
       status.textContent = 'Asking for microphone…';
       try {
@@ -323,11 +319,11 @@ window.SpeakTask2Module = (function () {
     const safeTitle = Chrome.escapeHTML(taskTitle || '');
     return `
       <div class="grammar-box" style="border-left-color:var(--accent);margin-top:14px">
-        <h3>🎯 Want a native grader on this exact task?</h3>
-        <p>Self-rating builds the muscle. The other half is hearing a native speaker react — which words landed, where you hesitated, what to fix. <b>New Preply learners get 50% off their first lesson.</b></p>
+        <h3>🎯 Want human feedback on this exact task?</h3>
+        <p>Self-rating builds the muscle. The other half is hearing a fluent speaker react — which words landed, where you hesitated, and what to fix. Tutor availability and pricing vary.</p>
         <p style="margin-top:8px;color:var(--mute);font-size:13px">Paste this in the tutor chat: <i>"${safeTitle}"</i></p>
         <div class="row" style="justify-content:center;margin-top:10px">
-          <a class="btn primary" href="${PREPLY}" target="_blank" rel="sponsored noopener">Get 50% off a tutor<span class="arr">→</span></a>
+          <a class="btn primary" href="${PREPLY}" target="_blank" rel="sponsored noopener">Browse French tutors<span class="arr">→</span></a>
         </div>
         <p style="color:var(--mute);font-size:12px;text-align:center;margin-top:8px">Affiliate link — booking through it helps keep this site free.</p>
       </div>`;

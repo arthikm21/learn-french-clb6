@@ -53,3 +53,4 @@
   X-Frame-Options: DENY
   Permissions-Policy: camera=(), geolocation=(), payment=(), usb=(), microphone=(self)
   Content-Security-Policy: frame-ancestors 'none'; base-uri 'self'; object-src 'none'; form-action 'self'
+  Strict-Transport-Security: max-age=31536000

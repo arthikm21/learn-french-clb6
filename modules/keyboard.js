@@ -151,8 +151,9 @@ window.Keyboard = (function () {
           e.preventDefault(); moveFocus(opts, -1, +1); break;
         case 'End':
           e.preventDefault(); moveFocus(opts, 0, -1); break;
-        case 'Enter':
-          // Commit the focused choice. (Space is reserved for audio playback.)
+        case 'Enter': case ' ':
+          // Commit the focused choice. A focused radio owns Space per the
+          // WAI-ARIA radiogroup pattern; the global audio shortcut never sees it.
           // stopPropagation is essential: committing mounts the advance row's
           // own document-level Enter handler, and without stopping here the
           // SAME Enter keydown would bubble to it and instantly skip to the

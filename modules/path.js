@@ -21,7 +21,7 @@ window.PathModule = (function () {
       <section class="hero">
         <div class="flag-stripes"></div>
         <p class="eyebrow-h">Your Path toward NCLC 6</p>
-        <h1>Eight phases.<br/>One clear next step.</h1>
+        <h1>Eight phases.<br /> One clear next step.</h1>
         <p style="margin-top:var(--sp-4)">${totalDone} of ${LESSON_PATH.length} learning milestones · ${totalPct}% course coverage. Seven knowledge checks unlock the path; Phase 8 ends in timed four-skill practice.</p>
         <div class="progress" style="height:6px;background:var(--surface-2);border-radius:var(--r-pill);overflow:hidden;margin-top:var(--sp-5);max-width:520px">
           <div style="height:100%;width:${totalPct}%;background:var(--ink);border-radius:var(--r-pill);transition:width var(--t-slow) var(--ease-out)"></div>

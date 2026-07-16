@@ -86,11 +86,10 @@
   --fs-56: 3.5rem;     /* 56 */
   --fs-72: 4.5rem;     /* 72 */
 
-  /* Fonts. --serif carries substantial French prose (reading passages, model
-     answers) for an editorial, exam-paper feel and a clear FR/EN hierarchy.
-     'Source Serif 4' leads so a self-hosted woff2 upgrade takes over with no
-     code change; until then a quality serif system stack renders offline. */
-  --serif: 'Source Serif 4', 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, 'Times New Roman', serif;
+  /* Keep every learning surface on the Apple-system UI family. The --serif
+     alias remains for older module markup, but intentionally resolves to the
+     same SF Pro/Inter stack instead of introducing an editorial typeface. */
+  --serif: var(--font-ui);
 
   /* Line heights */
   --lh-tight: 1.1;
@@ -626,6 +625,17 @@ main {
   line-height: 1.55;
   color: var(--ink-2);
 }
+.footer-credit {
+  appearance: none;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.footer-credit:hover,
+.footer-credit:focus-visible { color: var(--bleu); }
 .footer-support-btn {
   display: inline-flex;
   align-items: center;
@@ -1037,6 +1047,7 @@ body.dark .card .meter > div { background: var(--gray-700); }
   border: 1px solid var(--line);
   min-height: 400px;
 }
+.lesson h1,
 .lesson h2 {
   font-size: var(--fs-28);
   letter-spacing: var(--ls-snug);
@@ -1874,6 +1885,7 @@ body.dark .phase-chip .meter > div { background: var(--gray-700); }
   .spotlight h2 { font-size: var(--fs-22); }
 
   .lesson { padding: var(--sp-5); border-radius: var(--r-lg); min-height: 360px; }
+  .lesson h1,
   .lesson h2 { font-size: var(--fs-22); }
 
   .q-prompt { font-size: var(--fs-19); }

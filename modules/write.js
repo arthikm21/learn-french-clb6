@@ -2,7 +2,7 @@
 //
 // The old workshop pretended to grade free text with regexes and handed out
 // fake scores. This one teaches the way exam candidates actually learn:
-// study an annotated CLB-5 model for the real TCF/TEF task types, learn HOW
+// study an annotated NCLC-5 model for representative TCF/TEF task types, learn HOW
 // MUCH to write and how to structure it, write your own, then compare
 // honestly against the model with a self-check list.
 //
@@ -33,6 +33,38 @@ window.WriteModule = (function () {
   function frHTML(txt) { return esc(txt).replace(/\n/g, '<br>'); }
   function isDone(key) { return !!(App.state.lessons && App.state.lessons[key]); }
   const doneTag = '<span class="tag" style="background:rgba(52,199,89,.12);color:var(--good)">✓ Done</span>';
+
+  function bindDraftAutosave(textarea, key, status) {
+    let lastSaved = textarea.value;
+    let timer = null;
+    const setStatus = (message, failed) => {
+      status.textContent = message;
+      status.style.color = failed ? 'var(--bad)' : 'var(--mute)';
+    };
+    const flush = () => {
+      if (timer) { clearTimeout(timer); timer = null; }
+      if (textarea.value === lastSaved) return true;
+      const saved = window.Storage.setItem(key, textarea.value);
+      if (saved) {
+        lastSaved = textarea.value;
+        setStatus('Draft saved in this browser.', false);
+      } else {
+        setStatus('Draft could not be saved. Copy your text before leaving this page.', true);
+      }
+      return saved;
+    };
+    const schedule = () => {
+      setStatus('Saving…', false);
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(flush, 300);
+    };
+    textarea.addEventListener('input', schedule);
+    textarea.addEventListener('blur', flush);
+    if (window.Storage.isPersistent && !window.Storage.isPersistent()) {
+      setStatus('Private storage is unavailable; this draft will last only for this session.', true);
+    }
+    return { schedule, flush };
+  }
 
   // Word-count meter — the "how much to write" teacher.
   // openEnded = true for legacy "X+ words" prompts: no upper penalty, just a
@@ -97,7 +129,7 @@ window.WriteModule = (function () {
         <div class="card" data-sample="${s.id}">
           <div class="icon">${g.icon}</div>
           <h3>${esc(s.title)}</h3>
-          <p><span class="tag">${esc(g.exam)} ${esc(g.task)}</span> <span class="tag">CLB 5</span> ${isDone('writesample:' + s.id) ? doneTag : ''}</p>
+          <p><span class="tag">${esc(g.exam)} ${esc(g.task)}</span> <span class="tag">NCLC 5 practice</span> ${isDone('writesample:' + s.id) ? doneTag : ''}</p>
         </div>`).join('');
       return `<h2 class="section-h">${esc(g.exam)} — ${esc(g.task)} · ${esc(g.label)}</h2><div class="grid">${cards}</div>`;
     }).join('');
@@ -117,8 +149,8 @@ window.WriteModule = (function () {
       <section class="hero">
         <div class="flag-stripes"></div>
         <p class="eyebrow-h">Writing Workshop</p>
-        <h1>Learn from real<br/>exam models.</h1>
-        <p style="margin-top:var(--sp-4)">18 annotated CLB-5 model answers for the exact TCF Canada and TEF Canada writing tasks. See how much to write, steal the structures, then write your own.</p>
+        <h1>Learn from real<br /> exam models.</h1>
+        <p style="margin-top:var(--sp-4)">18 annotated NCLC 5 practice models for representative TCF Canada and TEF Canada writing task types. Study the structure, then write your own.</p>
       </section>
 
       <div class="grammar-box" style="border-left-color:var(--accent)">
@@ -153,7 +185,7 @@ window.WriteModule = (function () {
     container.innerHTML = `
       ${Chrome.render({ back: 'write', crumbs: ['Write', `${g.exam} ${g.task}`] })}
       <div class="lesson">
-        <h2>${g.icon} ${esc(g.exam)} · ${esc(g.task)} — ${esc(g.label)}</h2>
+        <h1>${g.icon} ${esc(g.exam)} · ${esc(g.task)} — ${esc(g.label)}</h1>
         <p style="font-size:var(--fs-17);color:var(--ink-2);margin:var(--sp-3) 0 var(--sp-5)">${esc(g.tagline)}</p>
 
         <div class="grammar-box" style="border-left-color:var(--accent)">
@@ -195,7 +227,7 @@ window.WriteModule = (function () {
             <div class="card" data-sample="${s.id}">
               <div class="icon">${g.icon}</div>
               <h3>${esc(s.title)}</h3>
-              <p><span class="tag">CLB 5</span> ${isDone('writesample:' + s.id) ? doneTag : ''}</p>
+              <p><span class="tag">NCLC 5 practice</span> ${isDone('writesample:' + s.id) ? doneTag : ''}</p>
             </div>`).join('')}
         </div>
       </div>`;
@@ -237,7 +269,7 @@ window.WriteModule = (function () {
       container.innerHTML = `
         ${header()}
         <div class="lesson">
-          <h2>${g.icon} ${esc(s.title)} <span class="tag">${esc(g.exam)} ${esc(g.task)}</span> <span class="tag">CLB 5</span></h2>
+          <h1>${g.icon} ${esc(s.title)} <span class="tag">${esc(g.exam)} ${esc(g.task)}</span> <span class="tag">NCLC 5 practice</span></h1>
           ${promptBox()}
           <div class="row" style="margin-top:var(--sp-5);gap:var(--sp-3);flex-wrap:wrap">
             <button class="btn primary big" id="go-write">✍️ Write mine first<span class="arr">→</span></button>
@@ -267,20 +299,20 @@ window.WriteModule = (function () {
 
         <div class="grammar-box">
           <h3>🗝️ Phrases to steal</h3>
-          <table class="conj-table"><tbody>
-            ${s.keyPhrases.map(k => `<tr><td style="width:55%"><b>${esc(k.fr)}</b></td><td>${esc(k.en)}</td></tr>`).join('')}
+          <table class="conj-table"><caption class="sr-only">French phrases and English meanings</caption><thead><tr><th scope="col">French</th><th scope="col">English</th></tr></thead><tbody>
+            ${s.keyPhrases.map(k => `<tr><th scope="row" lang="fr-CA" style="width:55%">${esc(k.fr)}</th><td lang="en">${esc(k.en)}</td></tr>`).join('')}
           </tbody></table>
         </div>
 
         <div class="grammar-box" style="border-left-color:var(--good)">
-          <h3>✅ Why this is CLB 5</h3>
+          <h3>✅ Features associated with NCLC 5 practice</h3>
           <ul style="margin-left:20px;line-height:var(--lh-loose);color:var(--ink-2)">
             ${s.whyClb5.map(w => `<li>${w}</li>`).join('')}
           </ul>
         </div>
 
         <div class="grammar-box" style="border-left-color:var(--bleu)">
-          <h3>🚀 What CLB 6 would add</h3>
+          <h3>🚀 What NCLC 6 practice would add</h3>
           <p>${s.toClb6}</p>
         </div>`;
     }
@@ -289,7 +321,7 @@ window.WriteModule = (function () {
       container.innerHTML = `
         ${header('Study')}
         <div class="lesson">
-          <h2>${g.icon} ${esc(s.title)} <span class="tag">Model</span></h2>
+          <h1>${g.icon} ${esc(s.title)} <span class="tag">Model</span></h1>
           ${promptBox()}
           ${studyBlocks()}
           <div class="row" style="justify-content:flex-end;margin-top:var(--sp-5)">
@@ -306,11 +338,11 @@ window.WriteModule = (function () {
       container.innerHTML = `
         ${header('Write')}
         <div class="lesson">
-          <h2>${g.icon} ${esc(s.title)} <span class="tag">Your turn</span></h2>
+          <h1>${g.icon} ${esc(s.title)} <span class="tag">Your turn</span></h1>
           ${promptBox()}
-          <textarea class="input" id="essay" placeholder="Écris ici en français...">${esc(saved)}</textarea>
+          <textarea class="input" id="essay" lang="fr-CA" placeholder="Écris ici en français...">${esc(saved)}</textarea>
           <div id="meter" style="margin-top:var(--sp-2)"></div>
-          <p style="color:var(--mute);font-size:var(--fs-13);margin-top:var(--sp-2)">Auto-saved as you type.</p>
+          <p id="draft-status" role="status" style="color:var(--mute);font-size:var(--fs-13);margin-top:var(--sp-2)">Draft saved in this browser.</p>
           <div id="slips"></div>
           <div class="spacer"></div>
           <div class="row" style="justify-content:space-between;flex-wrap:wrap;gap:var(--sp-3)">
@@ -325,11 +357,11 @@ window.WriteModule = (function () {
       const ta = container.querySelector('#essay');
       const meter = container.querySelector('#meter');
       const compareBtn = container.querySelector('#compare');
+      const autosave = bindDraftAutosave(ta, draftKey, container.querySelector('#draft-status'));
       const paint = () => {
         const n = words(ta.value);
         meter.innerHTML = meterHTML(n, g.words[0], g.words[1]);
         compareBtn.disabled = n < g.words[0];
-        window.Storage.setItem(draftKey, ta.value);
       };
       ta.addEventListener('input', paint);
       paint();
@@ -346,11 +378,11 @@ window.WriteModule = (function () {
       container.innerHTML = `
         ${header('Compare')}
         <div class="lesson">
-          <h2>${g.icon} ${esc(s.title)} <span class="tag">Compare</span></h2>
+          <h1>${g.icon} ${esc(s.title)} <span class="tag">Compare</span></h1>
 
           <div class="grammar-box" ${n ? '' : 'style="border-left-color:var(--warn)"'}>
             <h3>✍️ Your text <span class="tag">${n} words · target ${g.words[0]}–${g.words[1]}</span></h3>
-            <p style="color:var(--ink)">${mine ? frHTML(mine) : '<i style="color:var(--mute)">Nothing written yet — go back and try. Comparing an empty page teaches nothing.</i>'}</p>
+            <p lang="fr-CA" style="color:var(--ink)">${mine ? frHTML(mine) : '<i lang="en" style="color:var(--mute)">Nothing written yet — go back and try. Comparing an empty page teaches nothing.</i>'}</p>
           </div>
 
           ${studyBlocks()}
@@ -422,7 +454,7 @@ window.WriteModule = (function () {
     container.innerHTML = `
       ${Chrome.render({ back: 'write', crumbs: ['Write', t.title] })}
       <div class="lesson">
-        <h2>✍️ ${esc(t.title)} <span class="tag">${esc(t.level)}</span></h2>
+        <h1>✍️ ${esc(t.title)} <span class="tag">${esc(t.level)}</span></h1>
         <div class="grammar-box">
           <h3>📝 Prompt</h3>
           <p>${t.prompt}</p>
@@ -439,9 +471,9 @@ window.WriteModule = (function () {
           <h3>💡 Hints</h3>
           <ul style="margin-left:20px;line-height:var(--lh-loose);color:var(--ink-2)">${t.hints.map(h => `<li>${h}</li>`).join('')}</ul>
         </div>
-        <textarea class="input" id="essay" placeholder="Écris ici en français...">${esc(saved)}</textarea>
-        <div id="meter" style="margin-top:var(--sp-2)"></div>
-        <p style="color:var(--mute);font-size:var(--fs-13);margin-top:var(--sp-2)">Auto-saved as you type.</p>
+          <textarea class="input" id="essay" lang="fr-CA" placeholder="Écris ici en français...">${esc(saved)}</textarea>
+          <div id="meter" style="margin-top:var(--sp-2)"></div>
+          <p id="draft-status" role="status" style="color:var(--mute);font-size:var(--fs-13);margin-top:var(--sp-2)">Draft saved in this browser.</p>
         <div id="slips"></div>
         <div class="grammar-box" style="margin-top:var(--sp-4)">
           <h3>Final self-review</h3>
@@ -463,13 +495,13 @@ window.WriteModule = (function () {
     const ta = container.querySelector('#essay');
     const meter = container.querySelector('#meter');
     const doneBtn = container.querySelector('#done');
+    const autosave = bindDraftAutosave(ta, draftKey, container.querySelector('#draft-status'));
     let scanned = false;
     const paint = () => {
       const n = words(ta.value);
       meter.innerHTML = meterHTML(n, minWords, Math.max(minWords * 2, minWords + 40), true);
       const reviewed = [...container.querySelectorAll('[data-review]')].every(box => box.checked);
       doneBtn.disabled = n < minWords || !scanned || !reviewed;
-      window.Storage.setItem(draftKey, ta.value);
     };
     ta.addEventListener('input', paint);
     paint();
@@ -482,7 +514,7 @@ window.WriteModule = (function () {
     };
     container.querySelectorAll('[data-review]').forEach(box => box.addEventListener('change', paint));
     container.querySelector('#clear').onclick = () => {
-      if (confirm('Clear your draft?')) { ta.value = ''; scanned = false; container.querySelectorAll('[data-review]').forEach(box => { box.checked = false; }); paint(); container.querySelector('#slips').innerHTML = ''; }
+      if (confirm('Clear your draft?')) { ta.value = ''; scanned = false; container.querySelectorAll('[data-review]').forEach(box => { box.checked = false; }); paint(); autosave.flush(); container.querySelector('#slips').innerHTML = ''; }
     };
     doneBtn.onclick = () => {
       App.markLessonDone(`write:${key}`);

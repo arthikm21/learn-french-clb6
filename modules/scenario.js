@@ -59,7 +59,7 @@ window.ScenarioModule = (function () {
       <section class="hero">
         <div class="flag-stripes"></div>
         <p class="eyebrow-h">Real-life Scenarios</p>
-        <h1>Calling a landlord.<br/>Opening a bank account.<br/>One scenario at a time.</h1>
+        <h1>Calling a landlord.<br /> Opening a bank account.<br /> One scenario at a time.</h1>
         <p style="margin-top:var(--sp-4)">Each scenario walks you through one Canadian life situation in 7 steps: listen → understand → repeat → speak it yourself. No textbooks. Just the conversations you'll actually have.</p>
       </section>
       ${catBlocks}
@@ -152,7 +152,7 @@ window.ScenarioModule = (function () {
       container.innerHTML = `
         ${chromeRow()}
         <div class="lesson">
-          <h2>${sc.icon} ${escapeHTML(sc.title)}</h2>
+          <h1>${sc.icon} ${escapeHTML(sc.title)}</h1>
           <p style="color:var(--ink-2);font-size:var(--fs-17);line-height:var(--lh-loose);margin-bottom:var(--sp-5)">${escapeHTML(sc.subtitle)}</p>
 
           <div class="grammar-box" style="border-left-color:var(--accent)">
@@ -180,7 +180,7 @@ window.ScenarioModule = (function () {
       container.innerHTML = `
         ${chromeRow()}
         <div class="lesson">
-          <h2>2 · Listen to the dialogue</h2>
+          <h1>2 · Listen to the dialogue</h1>
           <p style="color:var(--ink-2);margin-bottom:var(--sp-5)">Play the full conversation. Listen all the way through once before reading the transcript. You can replay any line, or slow it down.</p>
 
           <div class="row" style="justify-content:center;gap:var(--sp-2);flex-wrap:wrap;margin-bottom:var(--sp-5)">
@@ -260,7 +260,7 @@ window.ScenarioModule = (function () {
       container.innerHTML = `
         ${chromeRow()}
         <div class="lesson">
-          <h2>3 · Key vocabulary</h2>
+          <h1>3 · Key vocabulary</h1>
           <p style="color:var(--ink-2);margin-bottom:var(--sp-5)">Click any French word to hear it. These are the terms you'll reuse in step 7 when you speak the scenario yourself.</p>
 
           <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:var(--sp-3)">
@@ -286,7 +286,7 @@ window.ScenarioModule = (function () {
       container.innerHTML = `
         ${chromeRow()}
         <div class="lesson">
-          <h2>4 · Grammar focus</h2>
+          <h1>4 · Grammar focus</h1>
           <p style="color:var(--ink-2);margin-bottom:var(--sp-5)">One pattern from this dialogue, isolated. Don't try to memorize — read aloud, hear the rhythm.</p>
 
           <div class="grammar-box" style="border-left-color:var(--accent)">
@@ -317,7 +317,7 @@ window.ScenarioModule = (function () {
         container.innerHTML = `
           ${chromeRow()}
           <div class="lesson">
-            <h2>5 · Repeat after me</h2>
+            <h1>5 · Repeat after me</h1>
             <p style="color:var(--mute);text-align:center;font-size:var(--fs-13);text-transform:uppercase;letter-spacing:var(--ls-wide);font-weight:var(--fw-semi);margin-bottom:var(--sp-3)">Line ${i + 1} of ${lines.length}</p>
 
             <div class="center" style="margin-top:var(--sp-5)">
@@ -384,7 +384,7 @@ window.ScenarioModule = (function () {
             ${chromeRow()}
             <div class="lesson center">
               <div class="big-icon">${correct === sc.comprehension.length ? '🎯' : '👂'}</div>
-              <h2>Comprehension done</h2>
+              <h1>Comprehension done</h1>
               <p>Score: <b>${correct}/${sc.comprehension.length}</b></p>
               ${nav()}
             </div>`;
@@ -395,7 +395,7 @@ window.ScenarioModule = (function () {
         container.innerHTML = `
           ${chromeRow()}
           <div class="lesson">
-            <h2>6 · Comprehension check</h2>
+            <h1>6 · Comprehension check</h1>
             <p style="color:var(--mute);text-align:center;font-size:var(--fs-13);text-transform:uppercase;letter-spacing:var(--ls-wide);font-weight:var(--fw-semi);margin:var(--sp-3) 0">Question ${qi + 1} of ${sc.comprehension.length}</p>
             <div class="q-prompt">${escapeHTML(q.q)}</div>
             <div class="options">
@@ -445,7 +445,7 @@ window.ScenarioModule = (function () {
         container.innerHTML = `
           ${chromeRow()}
           <div class="lesson">
-            <h2>7 · Your turn — speak it</h2>
+            <h1>7 · Your turn — speak it</h1>
 
             <div class="grammar-box" style="border-left-color:var(--accent)">
               <h3>Prompt</h3>
@@ -480,7 +480,7 @@ window.ScenarioModule = (function () {
             ` : ''}
 
             <p style="text-align:center;color:var(--mute);font-size:var(--fs-13);margin-top:var(--sp-6)">
-              Want feedback on how you actually said it? <a href="https://preply.sjv.io/c/7425774/1987575/24422" target="_blank" rel="sponsored noopener" style="color:var(--bleu);font-weight:var(--fw-semi)">Practise with a real tutor — 50% off your first lesson</a> <span style="opacity:.6">· affiliate</span>
+              Want feedback on how you actually said it? <a href="https://preply.sjv.io/c/7425774/1987575/24422" target="_blank" rel="sponsored noopener" style="color:var(--bleu);font-weight:var(--fw-semi)">Practise with a French tutor</a> <span style="opacity:.6">· affiliate</span>
             </p>
 
             ${nav()}

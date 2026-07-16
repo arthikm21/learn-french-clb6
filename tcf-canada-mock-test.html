@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-CA">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#2948B8" />
+  <meta name="theme-color" content="#FBF8F3" />
 
   <title>Free TCF Canada Practice Test — Four-Skill Simulation, No Signup</title>
   <meta name="description" content="A free full-duration TCF Canada practice simulation: 39 listening and 39 reading questions plus all speaking and writing task types. No signup." />
@@ -23,9 +23,10 @@
   <meta property="og:locale" content="en_CA" />
   <meta name="twitter:card" content="summary_large_image" />
 
-  <link rel="stylesheet" href="styles.css" />
-  <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
-  <link rel="stylesheet" href="fonts/fonts.css" />
+  <link rel="stylesheet" href="styles.css?v=202607160126" />
+  <link rel="preload" href="/fonts/inter-latin.woff2?v=202607160126" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="fonts/fonts.css?v=202607160126" />
+  <link rel="stylesheet" href="/editorial.css?v=202607160126" />
 
   <script type="application/ld+json">
   {
@@ -80,21 +81,22 @@
       var dark = t === "dark" || (!t && window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches);
       if (dark) document.body.classList.add("dark");
       document.documentElement.style.colorScheme = dark ? "dark" : "light";
-      if (dark) { var m = document.querySelector("meta[name=\"theme-color\"]"); if (m) m.setAttribute("content", "#0D1016"); }
+      if (dark) { var m = document.querySelector("meta[name=\"theme-color\"]"); if (m) m.setAttribute("content", "#111722"); }
     } catch (e) {}
   </script>
+  <a class="skip-link" href="#main-content">Skip to lesson content</a>
   <header class="topbar">
     <a class="brand" href="/" style="text-decoration:none">
-      <span class="logo">🐓</span>
-      <span class="brand-name">Bonjour!</span>
+      <span class="brand-mark" aria-hidden="true">B<span>.</span></span>
+      <span class="brand-lockup"><span class="brand-name">Bonjour</span><small>French for Canada</small></span>
     </a>
-    <nav class="nav" style="position:static;display:flex;transform:none;box-shadow:none;background:transparent">
+    <nav class="nav" aria-label="Primary" style="position:static;display:flex;transform:none;box-shadow:none;background:transparent">
       <a href="/">Home</a>
       <a href="/how-to-score-clb6">How to score CLB 6</a>
     </nav>
   </header>
 
-  <main>
+  <main id="main-content" tabindex="-1">
     <nav class="chrome-crumbs" aria-label="Breadcrumb" style="margin-bottom:var(--sp-4)">
       <a href="/" style="color:var(--bleu)">Home</a><span class="sep">›</span><b>TCF Canada mock test</b>
     </nav>
@@ -119,14 +121,15 @@
 
     <div class="grammar-box">
       <h2>The TCF Canada format at a glance</h2>
-      <table class="conj-table"><tbody>
-        <tr><td><b>Part</b></td><td><b>Official format</b></td><td><b>NCLC 6 result</b></td></tr>
-        <tr><td>Listening (Compréhension orale)</td><td>39 MCQ · 35 minutes</td><td>398–457</td></tr>
-        <tr><td>Reading (Compréhension écrite)</td><td>39 MCQ · 60 minutes</td><td>406–452</td></tr>
-        <tr><td>Speaking (Expression orale)</td><td>Face-to-face · 3 tasks · 12 minutes</td><td>7–9</td></tr>
-        <tr><td>Writing (Expression écrite)</td><td>3 tasks · 60 minutes</td><td>7–9</td></tr>
+      <table class="conj-table"><caption class="sr-only">TCF Canada section format and NCLC 6 equivalency ranges</caption><thead>
+        <tr><th scope="col">Part</th><th scope="col">Official format</th><th scope="col">NCLC 6 result</th></tr>
+      </thead><tbody>
+        <tr><th scope="row">Listening (Compréhension orale)</th><td>39 MCQ · 35 minutes</td><td>398–457</td></tr>
+        <tr><th scope="row">Reading (Compréhension écrite)</th><td>39 MCQ · 60 minutes</td><td>406–452</td></tr>
+        <tr><th scope="row">Speaking (Expression orale)</th><td>Face-to-face · 3 tasks · 12 minutes</td><td>7–9</td></tr>
+        <tr><th scope="row">Writing (Expression écrite)</th><td>3 tasks · 60 minutes</td><td>7–9</td></tr>
       </tbody></table>
-      <p style="margin-top:var(--sp-3);color:var(--ink-2);font-size:var(--fs-14)">You need CLB 6 in <b>each</b> part separately. Always confirm current cut-offs against the official IRCC equivalency chart before your exam.</p>
+      <p style="margin-top:var(--sp-3);color:var(--ink-2);font-size:var(--fs-14)">For an all-skills NCLC 6 target, each ability must reach its range separately. Program thresholds vary; always confirm current requirements and conversions with IRCC before your exam.</p>
     </div>
 
     <div class="grammar-box" style="border-left-color:var(--accent)">
@@ -154,7 +157,7 @@
       <h3>Is this TCF Canada mock test free?</h3>
       <p>Yes — free, no signup, no email. Your answers stay in your browser and never leave your device.</p>
       <h3 style="margin-top:var(--sp-4)">What does the TCF Canada exam include?</h3>
-      <p>Four mandatory parts: Listening and Reading (multiple choice), Speaking (a recorded interview with three tasks), and Writing (three tasks). CLB 6 is required in each part separately.</p>
+      <p>Four mandatory parts: Listening and Reading (multiple choice), Speaking (a recorded face-to-face interview with three tasks), and Writing (three tasks). The NCLC level needed depends on your immigration or citizenship pathway.</p>
       <h3 style="margin-top:var(--sp-4)">How many practice questions are there?</h3>
       <p>The simulation uses 39 listening and 39 reading questions plus all three speaking and writing task types. Original practice content and heuristic output checks mean the report is useful evidence—not official scoring.</p>
     </div>

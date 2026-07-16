@@ -51,7 +51,7 @@ window.ConnectorMasteryModule = (function () {
       <section class="hero">
         <div class="flag-stripes"></div>
         <p class="eyebrow-h">Connector Mastery</p>
-        <h1>Fourteen words.<br/>One CLB 6 marker.</h1>
+        <h1>Fourteen words.<br /> One CLB 6 marker.</h1>
         <p style="margin-top:var(--sp-4)">Using connectors automatically is one of the strongest predictors of CLB 6 speaking and writing. Learn the ${CONNECTORS.length} below — when each one fits, then drill until they appear in your output without thinking.</p>
       </section>
 
@@ -147,11 +147,12 @@ window.ConnectorMasteryModule = (function () {
     let i = 0, correct = 0;
 
     function commonChrome() {
+      const pageTitle = mode === 'mixed' ? 'Mixed connector drill' : `${mode} connector drill`;
       return Chrome.render({
         back: 'connectormastery',
         crumbs: ['Connector Mastery', mode === 'mixed' ? 'Mixed drill' : `${mode} drill`],
         progress: { current: i, total: queue.length },
-      });
+      }) + `<h1 class="sr-only">${escapeHTML(pageTitle)}</h1>`;
     }
 
     function show() {

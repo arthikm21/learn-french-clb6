@@ -53,7 +53,7 @@ window.ListenMasteryModule = (function () {
       <section class="hero">
         <div class="flag-stripes"></div>
         <p class="eyebrow-h">Listening Mastery</p>
-        <h1>Short clips.<br/>Five drill types.</h1>
+        <h1>Short clips.<br /> Five drill types.</h1>
         <p style="margin-top:var(--sp-4)">Real Canadian-life clips at four speeds. Listen, choose, fill, reorder, identify intent, or pick the best summary. Build the ear that CLB 6 demands.</p>
       </section>
 
@@ -110,11 +110,12 @@ window.ListenMasteryModule = (function () {
     }
 
     function commonChrome() {
+      const pageTitle = cat === '__all__' ? 'Mixed listening practice' : `${cat} listening practice`;
       return Chrome.render({
         back: 'listenmastery',
         crumbs: ['Listening Mastery', cat === '__all__' ? 'Mixed' : cat],
         progress: { current: i, total: queue.length },
-      });
+      }) + `<h1 class="sr-only">${escapeHTML(pageTitle)}</h1>`;
     }
 
     function show() {

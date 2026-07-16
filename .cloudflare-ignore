@@ -2,7 +2,24 @@ node_modules
 .git
 .vercel
 scripts
+tests
+design
+products
+.venv-tts
+.wrangler
 og.html
+og-image.png
+og-image 2.jpg
+fonts/instrument-sans-italic-latin.woff2
+fonts/instrument-sans-latin-ext.woff2
+fonts/instrument-sans-latin.woff2
+fonts/newsreader-latin-ext.woff2
+fonts/newsreader-latin.woff2
+*.md
+package.json
+vercel.json
+.gitignore
+.cloudflare-ignore
 .DS_Store
 *.log
 .claude

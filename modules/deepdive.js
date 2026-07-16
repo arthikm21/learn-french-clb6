@@ -223,7 +223,7 @@ window.DeepDiveModule = (function () {
       <section class="hero">
         <div class="flag-stripes"></div>
         <p class="eyebrow-h">Deep dives</p>
-        <h1>The four traps.<br/>Solved visually.</h1>
+        <h1>The four traps.<br /> Solved visually.</h1>
         <p style="margin-top:var(--sp-4)">The grammar points that decide CLB 5 vs CLB 6 graded outputs. Decision trees, not memorization.</p>
       </section>
       <div class="grid">

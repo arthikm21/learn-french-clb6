@@ -13,7 +13,7 @@ window.GrammarModule = (function () {
       <section class="hero">
         <div class="flag-stripes"></div>
         <p class="eyebrow-h">Grammar Quests</p>
-        <h1>Pattern first.<br/>Rule second.</h1>
+        <h1>Pattern first.<br /> Rule second.</h1>
         <p style="margin-top:var(--sp-4)">Like a child. Then like a student. Then like an athlete.</p>
       </section>
 
@@ -104,7 +104,7 @@ window.GrammarModule = (function () {
       container.innerHTML = `
         ${Chrome.render({ back: 'grammar', crumbs: ['Grammar', u.title] })}
         <div class="lesson">
-          <h2>${u.title} <span class="tag">${u.level}</span></h2>
+          <h1>${u.title} <span class="tag">${u.level}</span></h1>
           <p style="font-size:var(--fs-17);line-height:var(--lh-loose);margin:var(--sp-3) 0 var(--sp-5);color:var(--ink-2)">${u.intro}</p>
           ${before}
           ${ruleHeader}
@@ -127,7 +127,7 @@ window.GrammarModule = (function () {
           progress: { current: qi, total: u.quiz.length }
         })}
         <div class="lesson">
-          <h2>Practice — ${u.title}</h2>
+          <h1>Practice — ${u.title}</h1>
           <div class="q-prompt">${q.q}</div>
           <div class="options" id="opts">
             ${q.opts.map((o, i) => `<div class="option" data-i="${i}">${o}</div>`).join('')}

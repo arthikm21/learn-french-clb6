@@ -59,7 +59,7 @@ window.PhaseGateModule = (function () {
       <section class="hero">
         <div class="flag-stripes"></div>
         <p class="eyebrow-h">Phase Knowledge Checks</p>
-        <h1>Learn.<br/>Check.<br/>Continue.</h1>
+        <h1>Learn.<br /> Check.<br /> Continue.</h1>
         <p style="margin-top:var(--sp-4)">Complete at least 80% of a phase, then pass its course check to unlock the next phase. These checks verify taught material; they are not official language scores.</p>
       </section>
       <div class="grid">${cards}</div>

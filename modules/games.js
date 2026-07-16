@@ -1,5 +1,22 @@
 // Interactive games — all click/tap-based for mobile compatibility.
 window.GamesModule = (function () {
+  function makePressable(el, label) {
+    el.setAttribute('role', 'button');
+    el.setAttribute('tabindex', '0');
+    if (label) el.setAttribute('aria-label', label);
+    el.addEventListener('keydown', event => {
+      if (event.key !== 'Enter' && event.key !== ' ') return;
+      event.preventDefault();
+      el.click();
+    });
+  }
+
+  function isActiveGame(id) {
+    if (!location.hash.startsWith('#games')) return false;
+    const query = location.hash.split('?')[1] || '';
+    return new URLSearchParams(query).get('game') === id;
+  }
+
   const GAME_LIST = [
     { id: 'gender',    icon: '⚖️', title: 'Gender Sort',       desc: 'Tap noun, tap masculin or féminin. Fastest gender-mastery drill.' },
     { id: 'conjrace',  icon: '🏁', title: 'Conjugation Race',  desc: 'Type the right verb form before time runs out.' },
@@ -19,7 +36,7 @@ window.GamesModule = (function () {
       <section class="hero">
         <div class="flag-stripes"></div>
         <p class="eyebrow-h">Games</p>
-        <h1>Drill it.<br/>Through play.</h1>
+        <h1>Drill it.<br /> Through play.</h1>
         <p style="margin-top:var(--sp-4)">Nine games. Pattern recognition through repetition without grinding.${doneCount ? ` <b>${doneCount}/${GAME_LIST.length} completed.</b>` : ''}</p>
       </section>
       <div class="grid">
@@ -50,7 +67,7 @@ window.GamesModule = (function () {
       const noun = c.fr.replace(/^(le |la |l'|les |un |une |des )/, '');
       container.innerHTML = `
         <div class="lesson">
-          <h2>⚖️ Gender Sort</h2>
+          <h1>⚖️ Gender Sort</h1>
           <div class="progress"><div style="width:${(i / round.length) * 100}%"></div></div>
           <div class="row" style="justify-content:space-between;margin-bottom:10px">
             <span>Score: <b>${correct}</b></span>
@@ -156,11 +173,12 @@ window.GamesModule = (function () {
     }
 
     function show() {
+      if (aborted) return;
       if (i >= queue.length) return finish();
       const d = queue[i];
       container.innerHTML = `
         <div class="lesson">
-          <h2>🏁 Conjugation Race</h2>
+          <h1>🏁 Conjugation Race</h1>
           <div class="row" style="justify-content:space-between;margin-bottom:14px">
             <span>Score: <b>${correct}</b></span>
             <span>⏱ <b id="time">${time}</b>s</span>
@@ -231,14 +249,14 @@ window.GamesModule = (function () {
       const shuffled = [...s.fr].sort(() => Math.random() - 0.5);
       container.innerHTML = `
         <div class="lesson">
-          <h2>🧩 Sentence Builder</h2>
+          <h1>🧩 Sentence Builder</h1>
           <div class="progress"><div style="width:${(i / sentences.length) * 100}%"></div></div>
           <p><b>Translate:</b> "${s.en}"</p>
           <div class="spacer"></div>
           <div class="dnd-zone" id="answer"><h4>Your sentence (tap word to remove)</h4></div>
           <div class="spacer"></div>
           <div class="dnd-zone" id="pool"><h4>Word bank (tap to add)</h4>
-            ${shuffled.map((w, k) => `<div class="token" data-w="${escapeAttr(w)}" data-k="${k}">${w}</div>`).join('')}
+            ${shuffled.map((w, k) => `<div class="token" lang="fr-CA" data-w="${escapeAttr(w)}" data-k="${k}">${w}</div>`).join('')}
           </div>
           <div id="fb"></div>
           <div class="spacer"></div>
@@ -250,12 +268,18 @@ window.GamesModule = (function () {
       const pool = container.querySelector('#pool');
       const answer = container.querySelector('#answer');
       container.querySelectorAll('.token').forEach(t => {
+        makePressable(t, `Move word ${t.textContent}`);
         t.onclick = () => {
           if (t.parentElement === pool) answer.appendChild(t);
           else pool.appendChild(t);
         };
       });
-      container.querySelector('#check').onclick = () => {
+      let answered = false;
+      const checkBtn = container.querySelector('#check');
+      checkBtn.onclick = () => {
+        if (answered) return;
+        answered = true;
+        checkBtn.disabled = true;
         const built = Array.from(answer.querySelectorAll('.token')).map(t => t.dataset.w).join(' ').replace(/\s+/g, ' ').trim();
         const target = s.fr.join(' ');
         const right = built.toLowerCase().replace(/\s+/g, ' ') === target.toLowerCase().replace(/\s+/g, ' ');
@@ -312,7 +336,7 @@ window.GamesModule = (function () {
     function render() {
       container.innerHTML = `
         <div class="lesson">
-          <h2>🧠 Memory Match</h2>
+          <h1>🧠 Memory Match</h1>
           <p style="color:var(--mute)">Match French to English. Attempts: <b id="att">${attempts}</b></p>
           <div class="spacer"></div>
           <div class="memory-grid" id="grid"></div>
@@ -328,6 +352,7 @@ window.GamesModule = (function () {
         el.textContent = '?';
         el.dataset.k = k;
         el.onclick = () => flip(k, el);
+        makePressable(el, 'Hidden memory card');
         grid.appendChild(el);
       });
     }
@@ -344,16 +369,20 @@ window.GamesModule = (function () {
         const [a, b] = flipped;
         if (tiles[a.k].match === tiles[b.k].match && tiles[a.k].side !== tiles[b.k].side) {
           setTimeout(() => {
+            if (!isActiveGame('memory')) return;
             a.el.classList.add('matched'); b.el.classList.add('matched');
+            a.el.setAttribute('aria-label', `Matched ${tiles[a.k].text}`);
+            b.el.setAttribute('aria-label', `Matched ${tiles[b.k].text}`);
             flipped = []; matched++;
             App.addXP(4);
             if (matched === tiles.length / 2) {
               App.markLessonDone('games:memory');
-              setTimeout(finish, 600);
+              setTimeout(() => { if (isActiveGame('memory')) finish(); }, 600);
             }
           }, 350);
         } else {
           setTimeout(() => {
+            if (!isActiveGame('memory')) return;
             a.el.classList.remove('flipped'); a.el.textContent = '?';
             b.el.classList.remove('flipped'); b.el.textContent = '?';
             flipped = [];
@@ -390,7 +419,7 @@ window.GamesModule = (function () {
       const correctIdx = opts.indexOf(c.en);
       container.innerHTML = `
         <div class="lesson">
-          <h2>🌐 Quick Translate</h2>
+          <h1>🌐 Quick Translate</h1>
           <div class="progress"><div style="width:${(i / queue.length) * 100}%"></div></div>
           <div class="row" style="justify-content:space-between"><span>${correct} / ${queue.length}</span><span>${i + 1}</span></div>
           <div class="center"><div style="font-variant-numeric:tabular-nums;font-size:40px;margin:20px 0;color:var(--bleu)">${c.fr}</div><button class="btn secondary" id="hear" aria-label="Hear the word">🔊</button></div>
@@ -461,7 +490,7 @@ window.GamesModule = (function () {
       const d = queue[i];
       container.innerHTML = `
         <div class="lesson">
-          <h2>⚡ Tense Picker</h2>
+          <h1>⚡ Tense Picker</h1>
           <div class="progress"><div style="width:${(i / queue.length) * 100}%"></div></div>
           <div class="row" style="justify-content:space-between"><span>Score: <b>${correct}</b></span><span>${i+1}/${queue.length}</span></div>
           <div class="q-prompt">${d.fr}</div>
@@ -520,7 +549,16 @@ window.GamesModule = (function () {
     // Pull sentences from listening + dialogue
     const pool = [];
     if (window.LISTENING) for (const k of Object.keys(window.LISTENING)) {
-      for (const it of window.LISTENING[k].items) pool.push(it.audio);
+      const set = window.LISTENING[k];
+      if (Array.isArray(set.items)) {
+        for (const it of set.items) {
+          if (it && typeof it.audio === 'string' && it.audio.trim()) pool.push(it.audio.trim());
+        }
+      } else if (set && typeof set.transcript === 'string' && set.transcript.trim()) {
+        // TCF listening sets use one transcript plus comprehension questions
+        // rather than the legacy { items: [{ audio }] } shape.
+        pool.push(set.transcript.trim());
+      }
     }
     if (pool.length === 0) { container.innerHTML = '<div class="lesson"><p>No sentences available.</p></div>'; return; }
     let queue = pool.sort(() => Math.random() - 0.5).slice(0, 10);
@@ -536,11 +574,12 @@ window.GamesModule = (function () {
       if (time <= 0) { clearInterval(timer); finish(); }
     }
     function show() {
+      if (aborted) return;
       if (i >= queue.length) return finish();
       const target = queue[i];
       container.innerHTML = `
         <div class="lesson">
-          <h2>📝 Dictation Race</h2>
+          <h1>📝 Dictation Race</h1>
           <div class="row" style="justify-content:space-between"><span>Score: <b>${correct}</b></span><span>⏱ <b id="dtime">${time}</b>s</span><span>${i+1}/${queue.length}</span></div>
           <div class="spacer"></div>
           <div class="center">
@@ -583,7 +622,7 @@ window.GamesModule = (function () {
       window.removeEventListener('hashchange', onHash);
       if (aborted) return;
       App.recordAttempt('games:dictation', Math.round(correct / queue.length * 100), 70, 'timed-game');
-      container.innerHTML = `<div class="lesson center"><div class="empty"><div class="big-icon">📝</div><h2>Dictation Done</h2><p>Correct: <b>${correct}/${queue.length}</b> in ${120 - time}s</p><div class="spacer"></div><button class="btn big" onclick="App.go('games', { game: 'dictation' })">Race Again</button><button class="btn ghost big" onclick="App.go('games')">Other Games</button></div></div>`;
+      container.innerHTML = `<div class="lesson center"><div class="empty"><div class="big-icon">📝</div><h1>Dictation Done</h1><p>Correct: <b>${correct}/${queue.length}</b> in ${120 - time}s</p><div class="spacer"></div><button class="btn big" onclick="App.go('games', { game: 'dictation' })">Race Again</button><button class="btn ghost big" onclick="App.go('games')">Other Games</button></div></div>`;
     }
     show();
     timer = setInterval(tick, 1000);
@@ -612,7 +651,7 @@ window.GamesModule = (function () {
       const d = queue[i];
       container.innerHTML = `
         <div class="lesson">
-          <h2>🔍 Spot the Error</h2>
+          <h1>🔍 Spot the Error</h1>
           <div class="progress"><div style="width:${(i / queue.length) * 100}%"></div></div>
           <div class="row" style="justify-content:space-between"><span>Score: <b>${correct}</b></span><span>${i+1}/${queue.length}</span></div>
           <p style="color:var(--mute);margin:14px 0">This sentence has ONE error. Type the corrected sentence below.</p>
@@ -701,7 +740,7 @@ window.GamesModule = (function () {
       const letters = d.target.split('').sort(() => Math.random() - 0.5);
       container.innerHTML = `
         <div class="lesson">
-          <h2>🔤 Verb Anagram</h2>
+          <h1>🔤 Verb Anagram</h1>
           <div class="progress"><div style="width:${(i / queue.length) * 100}%"></div></div>
           <div class="row" style="justify-content:space-between"><span>Score: <b>${correct}</b></span><span>${i+1}/${queue.length}</span></div>
           <div class="center" style="margin:18px 0">
@@ -711,7 +750,7 @@ window.GamesModule = (function () {
           <div class="dnd-zone" id="answer" style="min-height:60px;justify-content:center"><h4 style="text-align:center">Your answer (tap letter to remove)</h4></div>
           <div class="spacer"></div>
           <div class="dnd-zone" id="pool" style="justify-content:center"><h4 style="text-align:center">Letters (tap to add)</h4>
-            ${letters.map((l, k) => `<div class="token" data-l="${l}" data-k="${k}" style="min-width:44px;justify-content:center;font-variant-numeric:tabular-nums;font-size:20px">${l}</div>`).join('')}
+            ${letters.map((l, k) => `<div class="token" lang="fr-CA" data-l="${l}" data-k="${k}" style="min-width:44px;justify-content:center;font-variant-numeric:tabular-nums;font-size:20px">${l}</div>`).join('')}
           </div>
           <div id="fb"></div>
           <div class="spacer"></div>
@@ -726,6 +765,7 @@ window.GamesModule = (function () {
       const pool = container.querySelector('#pool');
       const answer = container.querySelector('#answer');
       container.querySelectorAll('.token').forEach(t => {
+        makePressable(t, `Move letter ${t.textContent}`);
         t.onclick = () => {
           if (t.parentElement === pool) answer.appendChild(t);
           else pool.appendChild(t);
@@ -734,7 +774,13 @@ window.GamesModule = (function () {
       container.querySelector('#reset').onclick = () => {
         container.querySelectorAll('#answer .token').forEach(t => pool.appendChild(t));
       };
-      container.querySelector('#check').onclick = () => {
+      let answered = false;
+      const checkBtn = container.querySelector('#check');
+      checkBtn.onclick = () => {
+        if (answered) return;
+        answered = true;
+        checkBtn.disabled = true;
+        container.querySelector('#reset').disabled = true;
         const built = Array.from(answer.querySelectorAll('.token')).map(t => t.dataset.l).join('');
         const right = (built === d.target);
         if (right) {

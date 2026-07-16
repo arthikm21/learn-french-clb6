@@ -7,6 +7,20 @@
 // but not free, and the cache makes the call cost ≈ zero.
 
 window.Settings = (function () {
+  const memoryStorage = {};
+  Object.defineProperties(memoryStorage, {
+    getItem: { enumerable: false, value(key) { return Object.prototype.hasOwnProperty.call(this, key) ? this[key] : null; } },
+    setItem: { enumerable: false, value(key, value) { this[key] = String(value); } },
+  });
+  const localStorage = (() => {
+    try {
+      const store = window.localStorage;
+      const probe = '__bonjour_settings_probe__';
+      store.setItem(probe, '1');
+      store.removeItem(probe);
+      return store;
+    } catch { return memoryStorage; }
+  })();
   // Booleans
   const KEY_CLICK_SOUND     = 'fr_setting_clicks_v1';
   const KEY_PRONOUNCE       = 'fr_setting_pronounce_v1';
@@ -36,6 +50,12 @@ window.Settings = (function () {
     const v = localStorage.getItem(key);
     return (cache[key] = v === null ? def : v);
   }
+  function readEnum(key, allowed, def) {
+    const value = readStr(key, def);
+    if (allowed.includes(value)) return value;
+    cache[key] = def;
+    return def;
+  }
   function writeStr(key, val) {
     cache[key] = String(val);
     localStorage.setItem(key, String(val));
@@ -44,7 +64,7 @@ window.Settings = (function () {
     if (key in cache) return cache[key];
     const v = localStorage.getItem(key);
     const n = v === null ? def : parseFloat(v);
-    return (cache[key] = isNaN(n) ? def : n);
+    return (cache[key] = isNaN(n) ? def : Math.max(0, Math.min(1, n)));
   }
   function writeNum(key, val) {
     const n = Math.max(0, Math.min(1, parseFloat(val) || 0));
@@ -64,7 +84,7 @@ window.Settings = (function () {
   // - 'full'   → everything on
   function applyAnimClass() {
     if (typeof document === 'undefined' || !document.body) return;
-    let level = readStr(KEY_ANIM_LEVEL, '');
+    let level = readEnum(KEY_ANIM_LEVEL, ['', 'off', 'subtle', 'full'], '');
     if (!level) {
       // First load default: respect OS-level "Reduce motion" preference.
       const prefersReduce = typeof window.matchMedia === 'function'
@@ -98,7 +118,10 @@ window.Settings = (function () {
     isCelebrationsOn()  { return readBool(KEY_CELEBRATIONS, true); },
     setCelebrations(on) { writeBool(KEY_CELEBRATIONS, !!on); },
 
-    // Mascot animations
+    // Cheer squad. The legacy mascot methods remain as aliases so older calls
+    // and saved preferences keep working without a migration/reset.
+    isCheerSquadOn()  { return readBool(KEY_MASCOT, true); },
+    setCheerSquad(on) { writeBool(KEY_MASCOT, !!on); },
     isMascotOn()      { return readBool(KEY_MASCOT, true); },
     setMascot(on)     { writeBool(KEY_MASCOT, !!on); },
 
@@ -107,8 +130,8 @@ window.Settings = (function () {
     setConfetti(on)   { writeBool(KEY_CONFETTI, !!on); },
 
     // Click style: 'soft' | 'default' | 'mechanical'
-    getClickStyle()   { return readStr(KEY_CLICK_STYLE, 'default'); },
-    setClickStyle(s)  { writeStr(KEY_CLICK_STYLE, s); },
+    getClickStyle()   { return readEnum(KEY_CLICK_STYLE, ['soft', 'default', 'mechanical'], 'default'); },
+    setClickStyle(s)  { writeStr(KEY_CLICK_STYLE, ['soft', 'default', 'mechanical'].includes(s) ? s : 'default'); },
 
     // Master volume 0..1
     getMasterVolume() { return readNum(KEY_MASTER_VOLUME, 0.5); },
@@ -120,7 +143,7 @@ window.Settings = (function () {
     },
 
     // Animation level: 'off' | 'subtle' | 'full'
-    getAnimLevel()    { return readStr(KEY_ANIM_LEVEL, '') || (
+    getAnimLevel()    { return readEnum(KEY_ANIM_LEVEL, ['', 'off', 'subtle', 'full'], '') || (
       typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'subtle' : 'full'
     ); },
     setAnimLevel(level) {

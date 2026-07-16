@@ -100,7 +100,7 @@ window.ProgressModule = (function () {
       <section class="hero">
         <div class="flag-stripes"></div>
         <p class="eyebrow-h">Learning Evidence</p>
-        <h1>See what changed.<br/>Know what comes next.</h1>
+        <h1>See what changed.<br /> Know what comes next.</h1>
         <p style="margin-top:var(--sp-4)">Course completion shows coverage, not an official NCLC/CLB score. Phase checks and timed practice provide stronger evidence of what you can do.</p>
       </section>
 
