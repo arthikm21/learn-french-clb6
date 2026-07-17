@@ -963,7 +963,7 @@ window.App = (function () {
   function applyThemeMeta(dark) {
     document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
     const m = document.querySelector('meta[name="theme-color"]');
-    if (m) m.setAttribute('content', dark ? '#111722' : '#FBF8F3');
+    if (m) m.setAttribute('content', dark ? '#07080B' : '#FBF8F3');
   }
   function loadTheme() {
     const mq = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)');

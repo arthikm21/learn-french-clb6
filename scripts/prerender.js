@@ -143,7 +143,7 @@ function shell({ urlPath, title, description, ogType = 'article', navExtra = '',
       var dark = t === 'dark' || (!t && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
       if (dark) document.body.classList.add('dark');
       document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
-      if (dark) { var m = document.querySelector('meta[name="theme-color"]'); if (m) m.setAttribute('content', '#111722'); }
+      if (dark) { var m = document.querySelector('meta[name="theme-color"]'); if (m) m.setAttribute('content', '#07080B'); }
     } catch (e) {}
   </script>
   <a class="skip-link" href="#main-content">Skip to lesson content</a>

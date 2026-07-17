@@ -96,32 +96,34 @@
 }
 
 body.dark {
-  /* Premium dark: a deep blue-black stage with a real elevation ladder.
-     Each surface step is visibly lighter and slightly warmer; color comes
-     from the ambient glows + luminous accents, not from grey. */
-  --bg: #0A0E19;
-  --surface: #121828;
-  --surface-2: #1A2336;
-  --surface-3: #242F46;
-  --ink: #F4F7FF;
-  --ink-2: #C7D2E8;
-  --mute: #94A1BC;
-  --line: #273147;
-  --line-2: #3A4762;
-  --gray-50: #0A0E19;
-  --gray-100: #121828;
-  --gray-150: #1A2336;
-  --gray-200: #242F46;
-  --gray-300: #3A4762;
-  --gray-400: #5A6884;
-  --gray-500: #94A1BC;
+  /* Premium dark: pure midnight. The stage is neutral near-black — no blue
+     or violet cast in backgrounds, surfaces, or hairlines. Color lives only
+     in the accents: buttons, skill hues, glyphs, and the bento art. */
+  --bg: #07080B;
+  --surface: #101216;
+  --surface-2: #17191F;
+  --surface-3: #1F2229;
+  --ink: #F2F4F8;
+  --ink-2: #C3C9D4;
+  --mute: #9099A9;
+  --line: #23262D;
+  --line-2: #32363F;
+  --gray-50: #07080B;
+  --gray-100: #101216;
+  --gray-150: #17191F;
+  --gray-200: #1F2229;
+  --gray-300: #32363F;
+  --gray-400: #565C68;
+  --gray-500: #9099A9;
   --gray-600: #C0C4CE;
   --gray-700: #D8DBE3;
   --gray-800: #EEF0F6;
   --gray-900: #FFFFFF;
   --cobalt: #7C9CFF;
   --cobalt-deep: #9AB4FF;
-  --violet: #B39DF5;
+  /* Stage-adjacent mixes (meters, plan wash) lean blue in dark so nothing
+     reads lavender; the speak skill keeps its own violet via --sk-speak. */
+  --violet: #7FA0F5;
   --sky: #72BFF5;
   --coral: #FF9587;
   --butter: #FFD070;
@@ -154,16 +156,18 @@ body.dark {
   --e3: 0 20px 52px rgba(0, 0, 0, .42);
   --e4: 0 30px 80px rgba(0, 0, 0, .52);
   --ring: 0 0 0 4px rgba(124, 156, 255, .30);
-  --glass-fill: rgba(20, 27, 44, .62);
-  --glass-fill-strong: rgba(20, 27, 44, .82);
-  --glass-line: rgba(255, 255, 255, .12);
-  --glass-shadow: 0 20px 52px rgba(0, 0, 0, .40), inset 0 1px 0 rgba(255, 255, 255, .10);
+  --glass-fill: rgba(14, 15, 19, .62);
+  --glass-fill-strong: rgba(14, 15, 19, .82);
+  --glass-line: rgba(255, 255, 255, .11);
+  --glass-shadow: 0 20px 52px rgba(0, 0, 0, .40), inset 0 1px 0 rgba(255, 255, 255, .09);
   --grad-brand: linear-gradient(135deg, #4568EC 0%, #5B48D8 100%);
   --grad-brand-hover: linear-gradient(135deg, #5578F5 0%, #6B58E8 100%);
-  --grad-text: linear-gradient(105deg, #8CA8FF 5%, #C0A6FF 55%, #FF9587 105%);
-  --grad-track: linear-gradient(90deg, #6F95FF, #B39DF5);
+  /* Accent gradients skip the lavender midpoint in dark — blue to coral,
+     so headlines pop without tinting the page purple. */
+  --grad-text: linear-gradient(105deg, #6E96FF 10%, #FF9587 100%);
+  --grad-track: linear-gradient(90deg, #4F74EC, #74A9FF);
   --shadow-card: 0 1px 2px rgba(0, 0, 0, .22), 0 14px 38px rgba(0, 0, 0, .26);
-  --shadow-glass: 0 24px 64px rgba(0, 0, 0, .40), inset 0 1px 0 rgba(255, 255, 255, .10);
+  --shadow-glass: 0 24px 64px rgba(0, 0, 0, .40), inset 0 1px 0 rgba(255, 255, 255, .09);
 }
 
 html {
@@ -1405,15 +1409,14 @@ body[data-anim="full"] .cheer-pose-confetti .cheer-spark { animation: cheer-spar
 .footer-links a { padding: 9px 13px; min-height: 40px; font-size: 13px; }
 
 /* Dark-mode corrections */
-body.dark .evidence-panel { background: #0E1526; }
+body.dark .evidence-panel { background: #0D0E12; }
 body.dark .welcome-profile {
   background:
-    radial-gradient(120% 90% at 85% -10%, rgba(80, 110, 245, .30), transparent 58%),
-    radial-gradient(90% 70% at -10% 110%, rgba(224, 96, 88, .16), transparent 55%),
-    linear-gradient(165deg, #10182C 0%, #080D1C 100%);
+    radial-gradient(120% 90% at 85% -10%, rgba(70, 100, 236, .16), transparent 55%),
+    linear-gradient(165deg, #101216 0%, #08090C 100%);
 }
 body.dark .welcome-copy::after { color: rgba(226, 118, 126, .07); }
-body.dark .hero.accent { background: #0E1526; }
+body.dark .hero.accent { background: #0D0E12; }
 /* Surfaces catch the ambient key light — a faint top glow separates every
    raised card from the stage without resorting to heavy borders. */
 body.dark .card,
@@ -1451,11 +1454,10 @@ body:not(.dark)::before {
     radial-gradient(50vw 50vw at 94% 12%, rgba(109, 63, 212, .06), transparent 64%),
     radial-gradient(56vw 44vw at 52% 108%, rgba(255, 115, 95, .07), transparent 60%);
 }
+/* Dark mode: no ambient washes at all — the stage stays pure midnight.
+   (styles.css paints its own dark glows on body::before; nuke them.) */
 body.dark::before {
-  background:
-    radial-gradient(64vw 56vw at 12% -6%, rgba(70, 100, 236, .16), transparent 60%),
-    radial-gradient(52vw 48vw at 96% 14%, rgba(150, 110, 250, .11), transparent 62%),
-    radial-gradient(70vw 50vw at 50% 112%, rgba(255, 115, 95, .07), transparent 60%);
+  background: none;
 }
 
 /* ── Route accents survive dark mode ────────────────────────────────────
@@ -1526,6 +1528,12 @@ body.dark[data-route="diagnostic"], body.dark[data-route="mistakes"] { --accent:
     radial-gradient(110% 130% at 100% -20%, color-mix(in srgb, var(--accent, var(--cobalt)) 9%, transparent), transparent 52%),
     var(--surface);
 }
+/* Dark heroes stay midnight — the accent is a whisper in the corner, not a wash */
+body.dark .hero:not(.accent) {
+  background:
+    radial-gradient(90% 110% at 100% -20%, color-mix(in srgb, var(--accent, var(--cobalt)) 6%, transparent), transparent 48%),
+    var(--surface);
+}
 .eyebrow-h,
 .hero p.eyebrow-h,
 .lesson p.eyebrow-h {
@@ -1594,15 +1602,15 @@ body.dark[data-route="diagnostic"], body.dark[data-route="mistakes"] { --accent:
 }
 
 /* ── Dark chrome — navy glass, not grey ─────────────────────────────────── */
-body.dark .nav-menu { background: #131A2C; border-color: var(--line-2); }
+body.dark .nav-menu { background: #131519; border-color: var(--line-2); }
 body.dark .topbar {
-  background: rgba(15, 21, 36, .78);
-  border-color: rgba(255, 255, 255, .09);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, .35), inset 0 1px 0 rgba(255, 255, 255, .07);
+  background: rgba(11, 12, 15, .80);
+  border-color: rgba(255, 255, 255, .08);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .35), inset 0 1px 0 rgba(255, 255, 255, .06);
 }
 body.dark .topbar.scrolled {
-  background: rgba(15, 21, 36, .88);
-  box-shadow: 0 14px 38px rgba(0, 0, 0, .48), inset 0 1px 0 rgba(255, 255, 255, .07);
+  background: rgba(11, 12, 15, .90);
+  box-shadow: 0 14px 38px rgba(0, 0, 0, .48), inset 0 1px 0 rgba(255, 255, 255, .06);
 }
 body.dark .footer-support-icon,
 body.dark .btn:not(.primary):not(.secondary):not(.ghost) { box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .06); }
