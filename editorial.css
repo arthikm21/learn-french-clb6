@@ -1640,6 +1640,76 @@ body[data-anim="subtle"] .welcome-copy > *,
 body[data-anim="subtle"] .welcome-profile > *,
 body[data-anim="subtle"] .lesson-preview { animation: language-fade-in 220ms ease both; }
 
+/* ── Dark mode: primary actions go porcelain ─────────────────────────────
+   White is the loudest thing you can put on midnight. Every primary action
+   becomes a warm-white plate with ink text and a soft white halo; tonal and
+   ghost buttons stay quiet beneath it, and color remains with the brand
+   mark, skill accents, and the art. */
+body.dark .btn.primary,
+body.dark .welcome-form .btn {
+  background: linear-gradient(180deg, #FFFFFF 0%, #E8ECF3 100%);
+  color: #0C0D11;
+  box-shadow: inset 0 1px 0 #FFFFFF,
+              0 1px 2px rgba(0, 0, 0, .5),
+              0 8px 28px rgba(255, 255, 255, .10);
+}
+body.dark .btn.primary:hover,
+body.dark .welcome-form .btn:hover {
+  background: linear-gradient(180deg, #FFFFFF 0%, #F2F5FA 100%);
+  color: #0C0D11;
+  box-shadow: inset 0 1px 0 #FFFFFF,
+              0 1px 2px rgba(0, 0, 0, .5),
+              0 10px 36px rgba(255, 255, 255, .16);
+  transform: translateY(-1px);
+}
+body.dark .btn.primary:active,
+body.dark .welcome-form .btn:active {
+  background: linear-gradient(180deg, #EDF0F6 0%, #E0E5EE 100%);
+  transform: translateY(1px) scale(.99);
+}
+/* The always-dark welcome panel earns the white CTA in light mode too */
+.welcome-form .btn {
+  background: linear-gradient(180deg, #FFFFFF 0%, #E8ECF3 100%);
+  color: #0C0D11;
+  box-shadow: inset 0 1px 0 #FFFFFF, 0 1px 2px rgba(0, 0, 0, .35),
+              0 8px 28px rgba(255, 255, 255, .10);
+}
+.welcome-form .btn:hover {
+  background: linear-gradient(180deg, #FFFFFF 0%, #F2F5FA 100%);
+  color: #0C0D11;
+  box-shadow: inset 0 1px 0 #FFFFFF, 0 1px 2px rgba(0, 0, 0, .35),
+              0 10px 36px rgba(255, 255, 255, .16);
+}
+
+/* Footer support CTA follows the primary treatment */
+body.dark .footer-support-btn {
+  background: linear-gradient(180deg, #FFFFFF 0%, #E8ECF3 100%);
+  color: #0C0D11 !important;
+  box-shadow: inset 0 1px 0 #FFFFFF, 0 1px 2px rgba(0, 0, 0, .5),
+              0 8px 28px rgba(255, 255, 255, .10);
+}
+body.dark .footer-support-btn:hover {
+  background: linear-gradient(180deg, #FFFFFF 0%, #F2F5FA 100%);
+  box-shadow: inset 0 1px 0 #FFFFFF, 0 1px 2px rgba(0, 0, 0, .5),
+              0 10px 36px rgba(255, 255, 255, .16);
+}
+
+/* Active nav pill: a crisp white chip with ink text */
+body.dark .nav a.active,
+body.dark .nav-sect-btn.active {
+  background: #F2F4F8;
+  color: #0C0D11;
+  box-shadow: 0 2px 12px rgba(255, 255, 255, .10);
+}
+
+/* Step + path numerals: white coins with ink digits */
+body.dark .today-step:first-child .today-num,
+body.dark .path-node.unlocked .num {
+  background: linear-gradient(180deg, #FFFFFF 0%, #E8ECF3 100%);
+  color: #0C0D11;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .5), 0 4px 16px rgba(255, 255, 255, .12);
+}
+
 /* ── Finishing details ──────────────────────────────────────────────────── */
 .spotlight .eyebrow { color: color-mix(in srgb, var(--accent, var(--cobalt)) 78%, var(--ink)); }
 .panel-overline { color: color-mix(in srgb, var(--accent, var(--cobalt)) 80%, var(--ink)); }
@@ -1657,11 +1727,15 @@ body[data-anim="subtle"] .lesson-preview { animation: language-fade-in 220ms eas
 .grammar-box { border-left: 3px solid color-mix(in srgb, var(--accent, var(--cobalt)) 55%, transparent); }
 /* Mobile drawer — active item pops, groups readable in dark */
 @media (max-width: 900px) {
-  .nav a.active,
-  body.dark .nav a.active {
+  .nav a.active {
     background: var(--grad-brand);
     color: #fff;
     box-shadow: 0 4px 14px color-mix(in srgb, var(--accent-fill) 30%, transparent);
+  }
+  body.dark .nav a.active {
+    background: linear-gradient(180deg, #FFFFFF 0%, #E8ECF3 100%);
+    color: #0C0D11;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, .5), 0 4px 16px rgba(255, 255, 255, .12);
   }
   /* Landing pages carry a static inline nav (aria-label="Primary"), not the
      app drawer — keep it a simple horizontal row instead of inheriting the
