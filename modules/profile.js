@@ -59,7 +59,10 @@ window.ProfileModule = (function () {
         </section>
 
         <section class="lesson-preview" aria-label="Example French lesson">
-          <div class="preview-meta">A taste of your first lesson</div>
+          <div>
+            <div class="preview-meta">A taste of your first lesson</div>
+            <div class="preview-wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          </div>
           <div>
             <p class="preview-phrase" lang="fr">Je voudrais prendre rendez-vous.</p>
             <p class="preview-translation">I would like to make an appointment.</p>
@@ -119,7 +122,7 @@ window.ProfileModule = (function () {
       <section class="hero">
         <div class="flag-stripes"></div>
         <p class="eyebrow-h">Profile</p>
-        <h1>👤 ${escapeHTML(cur || 'Guest')}</h1>
+        <h1>${escapeHTML(cur || 'Guest')}</h1>
         <p style="margin-top:var(--sp-4)">${lessonsDone} of ${LESSON_PATH.length} milestones complete · ${pct}%</p>
       </section>
 
@@ -139,7 +142,7 @@ window.ProfileModule = (function () {
       </div>
 
       <div class="grammar-box">
-        <h3>🔊 Sound</h3>
+        <h3>Sound</h3>
         <p style="color:var(--ink-2);font-size:var(--fs-14);margin-bottom:var(--sp-3)">Learning feedback is on by default. Routine interface sounds are optional.</p>
         <div class="toggle-row">
           <div class="info">
@@ -230,7 +233,7 @@ window.ProfileModule = (function () {
       </div>
 
       <div class="grammar-box" style="border-left-color:var(--good)">
-        <h3>💾 Backup &amp; restore</h3>
+        <h3>Backup &amp; restore</h3>
         <p style="color:var(--ink-2)">Your progress lives only in this browser — clearing browser data erases it. Download a backup file to keep it safe, or restore one here (works across devices and usernames).</p>
         <div class="spacer"></div>
         <div class="row" style="gap:var(--sp-2);flex-wrap:wrap">
@@ -248,7 +251,7 @@ window.ProfileModule = (function () {
       </div>
 
       <div class="grammar-box" style="border-left-color:var(--bad)">
-        <h3>🗑️ Delete my profile</h3>
+        <h3>Delete my profile</h3>
         <p style="color:var(--ink-2)">Removes username <b>${escapeHTML(cur)}</b> and all its data from this browser. Cannot be undone.</p>
         <div class="spacer"></div>
         <button class="btn danger" id="delete">Delete this profile</button>

@@ -501,7 +501,7 @@ window.App = (function () {
         <section class="alive-hero" aria-labelledby="alive-home-title">
           <div class="alive-copy">
             <p class="alive-kicker">Today's French</p>
-            <h1 id="alive-home-title">Ready for today's French?</h1>
+            <h1 id="alive-home-title">Ready for <em>today's French</em>?</h1>
             <p class="alive-lede">A little practice, every day.</p>
             <div class="alive-actions">
               <button class="btn primary big" onclick="${heroAction.onclick}">${escapeHTML(heroAction.label)}<span class="arr">→</span></button>

@@ -28,6 +28,7 @@
   --gray-900: #071630;
   --cobalt: #1457E6;
   --cobalt-deep: #0C43C7;
+  --violet: #6D3FD4;
   --sky: #A9D8FF;
   --coral: #FF735F;
   --butter: #FFC94E;
@@ -40,21 +41,28 @@
   --accent: var(--cobalt);
   --accent-2: var(--cobalt-deep);
   --accent-fill: var(--cobalt);
-  --good: #24705A;
+  --good: #1E7A5A;
   --good-2: #1C5947;
-  --good-fill: #24705A;
+  --good-fill: #1E7A5A;
   --warn: #8B5A16;
   --warn-fill: #80500E;
   --bad: #A9363E;
   --bad-2: #822A31;
   --bad-fill: #A9363E;
   --info: #2146C7;
-  --sk-found: #2146C7;
-  --sk-listen: #236DA5;
-  --sk-speak: #6A4B8E;
-  --sk-read: #24705A;
-  --sk-write: #8B5A16;
-  --sk-exam: #596174;
+  --sk-found: #2E52DE;
+  --sk-listen: #0E76B4;
+  --sk-speak: #7443BE;
+  --sk-read: #0E7E62;
+  --sk-write: #A05E00;
+  --sk-exam: #58627A;
+  /* Gradient system — one brand sweep, reused everywhere an accent needs
+     life (CTA fills, hero em, progress fills). Text-bearing fills stay on
+     the darker half so white labels keep AA. */
+  --grad-brand: linear-gradient(135deg, #1F5BE8 0%, #4438C9 100%);
+  --grad-brand-hover: linear-gradient(135deg, #2E6BF5 0%, #5346DB 100%);
+  --grad-text: linear-gradient(105deg, #1457E6 10%, #6D3FD4 58%, #C2453C 105%);
+  --grad-track: linear-gradient(90deg, #1457E6, #6D3FD4);
   --r-sm: 6px;
   --r-md: 10px;
   --r-lg: 14px;
@@ -88,58 +96,74 @@
 }
 
 body.dark {
-  --bg: #111722;
-  --surface: #181F2B;
-  --surface-2: #222A37;
-  --surface-3: #2C3543;
-  --ink: #F8FAFF;
-  --ink-2: #C9D2E3;
-  --mute: #9CA8BC;
-  --line: #303A49;
-  --line-2: #465163;
-  --gray-50: #111722;
-  --gray-100: #181F2B;
-  --gray-150: #222A37;
-  --gray-200: #2C3543;
-  --gray-300: #465163;
-  --gray-400: #687489;
-  --gray-500: #9B9CA2;
-  --gray-600: #C9C5BC;
-  --gray-700: #DDD8CF;
-  --gray-800: #F0ECE4;
-  --gray-900: #FFFDF8;
-  --cobalt: #6F95FF;
-  --cobalt-deep: #88A8FF;
+  /* Premium dark: a deep blue-black stage with a real elevation ladder.
+     Each surface step is visibly lighter and slightly warmer; color comes
+     from the ambient glows + luminous accents, not from grey. */
+  --bg: #0A0E19;
+  --surface: #121828;
+  --surface-2: #1A2336;
+  --surface-3: #242F46;
+  --ink: #F4F7FF;
+  --ink-2: #C7D2E8;
+  --mute: #94A1BC;
+  --line: #273147;
+  --line-2: #3A4762;
+  --gray-50: #0A0E19;
+  --gray-100: #121828;
+  --gray-150: #1A2336;
+  --gray-200: #242F46;
+  --gray-300: #3A4762;
+  --gray-400: #5A6884;
+  --gray-500: #94A1BC;
+  --gray-600: #C0C4CE;
+  --gray-700: #D8DBE3;
+  --gray-800: #EEF0F6;
+  --gray-900: #FFFFFF;
+  --cobalt: #7C9CFF;
+  --cobalt-deep: #9AB4FF;
+  --violet: #B39DF5;
   --sky: #72BFF5;
-  --coral: #FF8D7D;
-  --butter: #F3C661;
-  --lavender: #B9A7E8;
-  --mint: #80CDB3;
-  --peach: #F0A264;
+  --coral: #FF9587;
+  --butter: #FFD070;
+  --lavender: #C2B0F2;
+  --mint: #7EDCBB;
+  --peach: #F5AC70;
   --bleu: var(--cobalt);
   --bleu-2: var(--cobalt-deep);
   --rouge: var(--coral);
   --accent: var(--cobalt);
   --accent-2: var(--cobalt-deep);
-  --accent-fill: #3559D5;
-  --good: #72B99E;
-  --good-2: #89CAB0;
-  --good-fill: #276B57;
-  --warn: #D1A45F;
-  --warn-fill: #765018;
-  --bad: #E5878D;
-  --bad-2: #EE9EA3;
-  --bad-fill: #9D3941;
+  --accent-fill: #3D5CE0;
+  --good: #6FD3A8;
+  --good-2: #8BE0BD;
+  --good-fill: #1F7A52;
+  --warn: #E8BC72;
+  --warn-fill: #7A5210;
+  --bad: #F2929A;
+  --bad-2: #F7AAB0;
+  --bad-fill: #B03A44;
   --info: #8CA7FF;
-  --e1: 0 1px 2px rgba(0, 0, 0, .18);
-  --e2: 0 10px 28px rgba(0, 0, 0, .22);
-  --e3: 0 20px 52px rgba(0, 0, 0, .30);
-  --e4: 0 30px 80px rgba(0, 0, 0, .38);
-  --ring: 0 0 0 4px rgba(111, 149, 255, .26);
-  --glass-fill: rgba(29, 36, 52, .58);
-  --glass-fill-strong: rgba(29, 36, 52, .78);
-  --glass-line: rgba(255, 255, 255, .14);
-  --glass-shadow: 0 20px 52px rgba(0, 0, 0, .34), inset 0 1px 0 rgba(255, 255, 255, .13);
+  --sk-found: #8AA4FF;
+  --sk-listen: #58B2F0;
+  --sk-speak: #BB99F0;
+  --sk-read: #4FC9A6;
+  --sk-write: #E8B366;
+  --sk-exam: #9AA8C4;
+  --e1: 0 1px 2px rgba(0, 0, 0, .28);
+  --e2: 0 10px 28px rgba(0, 0, 0, .34);
+  --e3: 0 20px 52px rgba(0, 0, 0, .42);
+  --e4: 0 30px 80px rgba(0, 0, 0, .52);
+  --ring: 0 0 0 4px rgba(124, 156, 255, .30);
+  --glass-fill: rgba(20, 27, 44, .62);
+  --glass-fill-strong: rgba(20, 27, 44, .82);
+  --glass-line: rgba(255, 255, 255, .12);
+  --glass-shadow: 0 20px 52px rgba(0, 0, 0, .40), inset 0 1px 0 rgba(255, 255, 255, .10);
+  --grad-brand: linear-gradient(135deg, #4568EC 0%, #5B48D8 100%);
+  --grad-brand-hover: linear-gradient(135deg, #5578F5 0%, #6B58E8 100%);
+  --grad-text: linear-gradient(105deg, #8CA8FF 5%, #C0A6FF 55%, #FF9587 105%);
+  --grad-track: linear-gradient(90deg, #6F95FF, #B39DF5);
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, .22), 0 14px 38px rgba(0, 0, 0, .26);
+  --shadow-glass: 0 24px 64px rgba(0, 0, 0, .40), inset 0 1px 0 rgba(255, 255, 255, .10);
 }
 
 html {
@@ -161,7 +185,6 @@ em, i,
 [style*="font-style:italic"],
 [style*="font-style: italic"] { font-style: normal !important; }
 
-body::before,
 body::after,
 .topbar::before,
 .hero::before,
@@ -299,9 +322,15 @@ body[data-anim="full"] .path-list > * { animation: none; }
 .nav-sect-btn:hover { background: var(--surface); color: var(--ink); text-decoration: none; }
 .nav a.active,
 body.dark .nav a.active {
-  background: color-mix(in srgb, var(--cobalt) 11%, var(--glass-fill-strong));
-  color: var(--cobalt-deep);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--cobalt) 18%, transparent);
+  background: color-mix(in srgb, var(--accent, var(--cobalt)) 14%, var(--glass-fill-strong));
+  color: color-mix(in srgb, var(--accent, var(--cobalt)) 82%, var(--ink));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent, var(--cobalt)) 26%, transparent);
+}
+.nav-sect-btn.active,
+body.dark .nav-sect-btn.active {
+  background: color-mix(in srgb, var(--accent, var(--cobalt)) 14%, var(--glass-fill-strong));
+  color: color-mix(in srgb, var(--accent, var(--cobalt)) 82%, var(--ink));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent, var(--cobalt)) 26%, transparent);
 }
 .nav-menu {
   margin-top: 10px;
@@ -441,8 +470,22 @@ main {
   transition: transform 120ms ease, background 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
 }
 .btn:hover { background: color-mix(in srgb, var(--ink) 88%, var(--bg)); box-shadow: var(--e1); }
-.btn.primary { background: var(--accent-fill); color: #fff; }
-.btn.primary:hover { background: color-mix(in srgb, var(--accent-fill) 88%, #000); }
+.btn.primary,
+body.dark .btn.primary {
+  background: var(--grad-brand);
+  color: #fff;
+  box-shadow: 0 1px 2px rgba(7, 22, 48, .14),
+              0 8px 22px color-mix(in srgb, var(--accent-fill) 30%, transparent);
+}
+.btn.primary:hover,
+body.dark .btn.primary:hover {
+  background: var(--grad-brand-hover);
+  box-shadow: 0 1px 2px rgba(7, 22, 48, .14),
+              0 10px 28px color-mix(in srgb, var(--accent-fill) 42%, transparent);
+  transform: translateY(-1px);
+}
+.btn.primary:active,
+body.dark .btn.primary:active { transform: translateY(1px) scale(.99); }
 .btn.secondary { background: var(--surface-2); color: var(--ink); border: 1px solid transparent; }
 .btn.secondary:hover { background: var(--surface-3); }
 .btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line-2); }
@@ -469,16 +512,35 @@ main {
   border-color: var(--line-2);
   box-shadow: none;
 }
-.option:hover { background: var(--surface-2); border-color: var(--ink-2); box-shadow: none; }
+.option:hover {
+  background: color-mix(in srgb, var(--accent, var(--cobalt)) 4%, var(--surface));
+  border-color: color-mix(in srgb, var(--accent, var(--cobalt)) 45%, var(--line-2));
+  box-shadow: none;
+}
 
-.ring circle.bg { stroke: var(--line); }
-.ring circle.fg { stroke: var(--bleu); filter: none; }
+.ring circle.bg { stroke: color-mix(in srgb, var(--ink) 11%, transparent); }
+.ring circle.fg {
+  stroke: var(--accent, var(--bleu));
+  filter: drop-shadow(0 0 5px color-mix(in srgb, var(--accent, var(--bleu)) 40%, transparent));
+}
 .card .meter > div,
 .lesson .progress > div,
 .phase-chip .meter > div,
 body.dark .card .meter > div,
 body.dark .lesson .progress > div,
-body.dark .phase-chip .meter > div { background: var(--bleu); }
+body.dark .phase-chip .meter > div {
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--accent, var(--bleu)) 72%, var(--violet)),
+    var(--accent, var(--bleu)));
+}
+.phase-chip.done .meter > div,
+body.dark .phase-chip.done .meter > div { background: var(--good); }
+.path-node.unlocked .num,
+body.dark .path-node.unlocked .num {
+  background: var(--grad-brand);
+  color: #fff;
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--accent-fill) 38%, transparent);
+}
 
 /* First-time welcome */
 .welcome-shell { display: grid; gap: 28px; }
@@ -512,29 +574,48 @@ body.dark .phase-chip .meter > div { background: var(--bleu); }
 }
 .welcome-kicker,
 .home-kicker {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   margin-bottom: 24px;
-  color: var(--rouge);
+  padding: 7px 14px;
+  border-radius: var(--r-pill);
+  background: color-mix(in srgb, var(--coral) 10%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--coral) 22%, transparent);
+  color: color-mix(in srgb, var(--coral) 68%, var(--ink));
   font-size: 11px;
   font-weight: 680;
   letter-spacing: .1em;
   text-transform: uppercase;
+  width: fit-content;
 }
 .welcome-kicker::before,
-.home-kicker::before { content: ''; width: 30px; height: 1px; background: currentColor; }
+.home-kicker::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--coral);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--coral) 22%, transparent);
+}
 .welcome-copy h1 {
   position: relative;
   z-index: 1;
   max-width: 680px;
   font-family: var(--display);
   font-size: clamp(50px, 6.3vw, 82px);
-  font-weight: 520;
-  line-height: .94;
-  letter-spacing: -.052em;
+  font-weight: 560;
+  line-height: .96;
+  letter-spacing: -.05em;
 }
-.welcome-copy h1 em { color: var(--bleu); font-weight: inherit; }
+.welcome-copy h1 em {
+  font-weight: inherit;
+  background: var(--grad-text);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
 .welcome-lede {
   position: relative;
   z-index: 1;
@@ -549,20 +630,52 @@ body.dark .phase-chip .meter > div { background: var(--bleu); }
   z-index: 1;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 18px;
-  margin-top: 46px;
-  padding-top: 24px;
-  border-top: 1px solid var(--line);
+  gap: 12px;
+  margin-top: 44px;
 }
-.welcome-proof strong { display: block; font-family: var(--display); font-size: 25px; font-weight: 600; }
-.welcome-proof span { display: block; margin-top: 3px; color: var(--mute); font-size: 12px; line-height: 1.35; }
+.welcome-proof > div {
+  padding: 14px 16px;
+  border-radius: var(--r-lg);
+  background: color-mix(in srgb, var(--proof-c, var(--cobalt)) 7%, var(--surface));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--proof-c, var(--cobalt)) 16%, transparent);
+}
+.welcome-proof > div:nth-child(1) { --proof-c: var(--cobalt); }
+.welcome-proof > div:nth-child(2) { --proof-c: var(--coral); }
+.welcome-proof > div:nth-child(3) { --proof-c: var(--sk-read); }
+.welcome-proof strong {
+  display: block;
+  font-family: var(--display);
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -.02em;
+  color: color-mix(in srgb, var(--proof-c, var(--cobalt)) 80%, var(--ink));
+  font-variant-numeric: tabular-nums;
+}
+.welcome-proof span { display: block; margin-top: 3px; color: var(--ink-2); font-size: 12px; line-height: 1.35; }
 .welcome-profile {
+  position: relative;
+  overflow: hidden;
   padding: clamp(34px, 4.5vw, 56px);
   display: flex;
   flex-direction: column;
   justify-content: center;
-  background: var(--ink);
+  background:
+    radial-gradient(120% 90% at 85% -10%, rgba(70, 100, 236, .38), transparent 58%),
+    radial-gradient(90% 70% at -10% 110%, rgba(194, 69, 60, .20), transparent 55%),
+    linear-gradient(165deg, #131C33 0%, #0B1226 100%);
   color: #F8F4EC;
+}
+/* Tricolore hairline — a quiet nod to the flag across the panel's top edge */
+.welcome-profile::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg,
+    #3D5CE0 0 33.4%, #F4F0E8 33.4% 66.7%, #E06058 66.7% 100%);
+  opacity: .9;
 }
 .welcome-step { color: #AEB7CA; font-size: 11px; font-weight: 650; letter-spacing: .1em; text-transform: uppercase; }
 .welcome-profile h2 {
@@ -586,8 +699,20 @@ body.dark .phase-chip .meter > div { background: var(--bleu); }
 }
 .welcome-form .input::placeholder { color: #8993A6; }
 .welcome-form .input:focus { border-color: #9EB0FF; box-shadow: 0 0 0 4px rgba(127, 155, 255, .22); }
-.welcome-form .btn { width: 100%; margin-top: 12px; background: #F7F2E9; color: #172033; }
-.welcome-form .btn:hover { background: #FFFDF8; }
+.welcome-form .btn,
+body.dark .welcome-form .btn {
+  width: 100%;
+  margin-top: 12px;
+  background: var(--grad-brand);
+  color: #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .25), 0 10px 26px rgba(61, 92, 224, .38);
+}
+.welcome-form .btn:hover,
+body.dark .welcome-form .btn:hover {
+  background: var(--grad-brand-hover);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .25), 0 14px 32px rgba(61, 92, 224, .5);
+  transform: translateY(-1px);
+}
 .welcome-private { display: flex; gap: 8px; margin-top: 18px; color: #9DA7B9; font-size: 12px; line-height: 1.45; }
 .welcome-private::before { content: '●'; color: #72B99E; font-size: 9px; margin-top: 3px; }
 .welcome-existing,
@@ -604,10 +729,47 @@ body.dark .phase-chip .meter > div { background: var(--bleu); }
   gap: 28px;
 }
 .preview-meta { color: var(--mute); font-size: 11px; font-weight: 650; letter-spacing: .08em; text-transform: uppercase; }
-.preview-phrase { font-family: var(--display); font-size: clamp(24px, 3vw, 36px); font-weight: 520; letter-spacing: -.03em; }
+.preview-phrase { font-family: var(--display); font-size: clamp(24px, 3vw, 36px); font-weight: 560; letter-spacing: -.03em; }
 .preview-translation { margin-top: 4px; color: var(--mute); font-size: 13px; }
-.preview-flow { display: flex; align-items: center; gap: 8px; color: var(--ink-2); font-size: 12px; font-weight: 600; }
-.preview-flow i { width: 28px; height: 1px; background: var(--line-2); }
+.preview-flow { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 650; }
+.preview-flow span {
+  padding: 6px 12px;
+  border-radius: var(--r-pill);
+  background: color-mix(in srgb, var(--flow-c, var(--cobalt)) 9%, var(--surface));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--flow-c, var(--cobalt)) 20%, transparent);
+  color: color-mix(in srgb, var(--flow-c, var(--cobalt)) 80%, var(--ink));
+}
+.preview-flow span:nth-of-type(1) { --flow-c: var(--sk-listen); }
+.preview-flow span:nth-of-type(2) { --flow-c: var(--sk-speak); }
+.preview-flow span:nth-of-type(3) { --flow-c: var(--sk-read); }
+.preview-flow i { width: 16px; height: 1px; background: var(--line-2); }
+/* Decorative audio bars — the lesson preview hums before you even start */
+.preview-wave { display: flex; align-items: flex-end; gap: 4px; height: 26px; margin-top: 12px; }
+.preview-wave i {
+  width: 4px;
+  border-radius: 99px;
+  background: var(--grad-track);
+  height: 30%;
+  opacity: .85;
+}
+.preview-wave i:nth-child(1) { height: 35%; }
+.preview-wave i:nth-child(2) { height: 70%; }
+.preview-wave i:nth-child(3) { height: 45%; }
+.preview-wave i:nth-child(4) { height: 95%; }
+.preview-wave i:nth-child(5) { height: 55%; }
+.preview-wave i:nth-child(6) { height: 80%; }
+.preview-wave i:nth-child(7) { height: 40%; }
+body[data-anim="full"] .preview-wave i {
+  animation: preview-wave 1.5s var(--ease-premium) infinite alternate;
+  animation-delay: calc(var(--wi, 0) * 120ms);
+}
+body[data-anim="full"] .preview-wave i:nth-child(2) { --wi: 1; }
+body[data-anim="full"] .preview-wave i:nth-child(3) { --wi: 2; }
+body[data-anim="full"] .preview-wave i:nth-child(4) { --wi: 3; }
+body[data-anim="full"] .preview-wave i:nth-child(5) { --wi: 4; }
+body[data-anim="full"] .preview-wave i:nth-child(6) { --wi: 5; }
+body[data-anim="full"] .preview-wave i:nth-child(7) { --wi: 6; }
+@keyframes preview-wave { from { transform: scaleY(.6); } to { transform: scaleY(1.15); } }
 .welcome-trust { text-align: center; color: var(--mute); font-size: 12px; letter-spacing: .01em; }
 
 /* Home — Language in Motion */
@@ -812,10 +974,21 @@ body[data-anim="full"] .language-canvas.is-speaking .language-block[data-shape="
   display: grid;
   place-items: center;
   border-radius: 50%;
-  background: color-mix(in srgb, var(--sky) 54%, var(--surface));
-  color: var(--cobalt-deep);
+  background: color-mix(in srgb, var(--step-c, var(--cobalt)) 13%, var(--surface));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--step-c, var(--cobalt)) 24%, transparent);
+  color: color-mix(in srgb, var(--step-c, var(--cobalt)) 80%, var(--ink));
   font-size: 15px;
   font-weight: 700;
+}
+/* Each step keeps its own hue. The list is dynamic (2 or 3 steps), but the
+   last step is always the speaking rep — keep it on the speak violet. */
+.today-step:nth-child(1) { --step-c: var(--cobalt); }
+.today-step:nth-child(2) { --step-c: var(--sk-found); }
+.today-step:last-child:not(:first-child) { --step-c: var(--sk-speak); }
+.today-step:first-child .today-num {
+  background: var(--grad-brand);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--accent-fill) 35%, transparent);
+  color: #fff;
 }
 .today-step-info h3 { font-size: 16px; font-weight: 680; line-height: 1.25; }
 .today-step-info p { margin-top: 6px; color: var(--mute); font-size: 14px; line-height: 1.45; }
@@ -829,13 +1002,22 @@ body[data-anim="full"] .language-canvas.is-speaking .language-block[data-shape="
   margin: 26px -30px 0;
   padding: 22px 30px 24px;
   border-top: 1px solid var(--line);
-  background: color-mix(in srgb, var(--surface) 86%, var(--sky));
+  background: linear-gradient(105deg,
+    color-mix(in srgb, var(--cobalt) 7%, var(--surface)),
+    color-mix(in srgb, var(--violet) 6%, var(--surface)) 60%,
+    color-mix(in srgb, var(--coral) 5%, var(--surface)));
 }
 .home-progress h3 { font-size: 18px; font-weight: 680; letter-spacing: -.02em; }
-.home-progress-track { position: relative; height: 7px; overflow: visible; border-radius: 99px; background: var(--surface-2); }
-.home-progress-track > span { display: block; height: 100%; border-radius: inherit; background: var(--cobalt); }
-.home-progress-track > i { position: absolute; top: 50%; width: 14px; height: 14px; border: 2px solid var(--surface); border-radius: 50%; background: var(--coral); transform: translate(-50%, -50%); box-shadow: 0 2px 8px rgba(255, 115, 95, .28); }
-.home-progress-meta { color: var(--ink-2); font-size: 13px; white-space: nowrap; }
+.home-progress-track { position: relative; height: 8px; overflow: visible; border-radius: 99px; background: color-mix(in srgb, var(--ink) 9%, transparent); }
+.home-progress-track > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--grad-track);
+  box-shadow: 0 1px 6px color-mix(in srgb, var(--cobalt) 35%, transparent);
+}
+.home-progress-track > i { position: absolute; top: 50%; width: 15px; height: 15px; border: 2.5px solid var(--surface); border-radius: 50%; background: var(--coral); transform: translate(-50%, -50%); box-shadow: 0 2px 10px rgba(255, 115, 95, .45); }
+.home-progress-meta { color: var(--ink-2); font-size: 13px; white-space: nowrap; font-variant-numeric: tabular-nums; }
 
 .home-feature-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
 .home-recommendation,
@@ -844,16 +1026,46 @@ body[data-anim="full"] .language-canvas.is-speaking .language-block[data-shape="
 .home-feature h3 { margin-top: 8px; font-size: 28px; font-weight: 740; line-height: 1.08; letter-spacing: -.035em; }
 .home-recommendation p,
 .home-feature p { max-width: 560px; margin-top: 8px; color: var(--ink-2); font-size: 14px; }
-.home-recommendation { border-color: color-mix(in srgb, var(--cobalt) 28%, var(--line)); }
-.feature-index { color: var(--line-2); font-size: 50px; font-weight: 720; }
+.home-recommendation {
+  border-color: color-mix(in srgb, var(--cobalt) 30%, var(--line));
+  background:
+    radial-gradient(90% 120% at 100% 0%, color-mix(in srgb, var(--cobalt) 8%, transparent), transparent 55%),
+    var(--surface);
+}
+.home-feature { position: relative; overflow: hidden; transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease; }
+.home-feature:nth-child(1) { --feat-c: var(--sk-speak); }
+.home-feature:nth-child(2) { --feat-c: var(--coral); }
+.home-feature::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--feat-c, var(--cobalt)), transparent 70%);
+  opacity: .75;
+}
+.home-feature:hover {
+  border-color: color-mix(in srgb, var(--feat-c, var(--cobalt)) 34%, var(--line));
+  box-shadow: 0 14px 38px color-mix(in srgb, var(--feat-c, var(--cobalt)) 12%, transparent);
+  transform: translateY(-2px);
+}
+.home-feature .panel-overline { color: color-mix(in srgb, var(--feat-c, var(--cobalt)) 80%, var(--ink)); }
+.feature-index {
+  font-size: 50px;
+  font-weight: 720;
+  background: linear-gradient(160deg, color-mix(in srgb, var(--feat-c, var(--cobalt)) 55%, var(--line-2)), var(--line-2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
 
 .phase-strip { gap: 12px; padding-bottom: 8px; }
 .phase-chip { min-width: 238px; padding: 18px; border-radius: var(--r-xl); box-shadow: none; }
 .phase-chip:hover { transform: translateY(-2px); box-shadow: var(--e2); }
 .phase-chip h4 { font-size: 15px; }
-.phase-glyph { color: var(--cobalt); }
-.card-group-h { margin-top: 40px; font-size: 11px; color: var(--mute); }
-.card-group-h::before { width: 20px; height: 1px; border-radius: 0; }
+.phase-chip.done { border-color: color-mix(in srgb, var(--good) 34%, var(--line)); background: color-mix(in srgb, var(--good) 5%, var(--surface)); }
+.phase-glyph { color: var(--accent, var(--cobalt)); }
+.card-group-h { margin-top: 44px; font-size: 12px; color: var(--ink-2); letter-spacing: .09em; }
+.card-group-h::before { width: 7px; height: 17px; border-radius: 99px; background: var(--cat, var(--cobalt)); box-shadow: 0 0 8px color-mix(in srgb, var(--cat, var(--cobalt)) 45%, transparent); }
 .grid[data-cat] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 
 /* Cheer Squad — CSS-built characters, no image/runtime dependency */
@@ -1193,17 +1405,277 @@ body[data-anim="full"] .cheer-pose-confetti .cheer-spark { animation: cheer-spar
 .footer-links a { padding: 9px 13px; min-height: 40px; font-size: 13px; }
 
 /* Dark-mode corrections */
-body.dark .welcome-profile,
-body.dark .evidence-panel { background: #0D121C; }
-body.dark .welcome-copy::after { color: rgba(226, 118, 126, .06); }
-body.dark .hero.accent { background: #0D121C; }
+body.dark .evidence-panel { background: #0E1526; }
+body.dark .welcome-profile {
+  background:
+    radial-gradient(120% 90% at 85% -10%, rgba(80, 110, 245, .30), transparent 58%),
+    radial-gradient(90% 70% at -10% 110%, rgba(224, 96, 88, .16), transparent 55%),
+    linear-gradient(165deg, #10182C 0%, #080D1C 100%);
+}
+body.dark .welcome-copy::after { color: rgba(226, 118, 126, .07); }
+body.dark .hero.accent { background: #0E1526; }
+/* Surfaces catch the ambient key light — a faint top glow separates every
+   raised card from the stage without resorting to heavy borders. */
 body.dark .card,
 body.dark .path-node:not(.locked),
 body.dark .phase-chip:not(.locked),
 body.dark .grammar-box,
-body.dark .spotlight { background-image: none; }
+body.dark .spotlight,
+body.dark .home-plan,
+body.dark .home-feature,
+body.dark .home-recommendation,
+body.dark .lesson {
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, .045), rgba(255, 255, 255, 0) 46%);
+}
 body.dark .option,
 body.dark .token { background: var(--surface-2); }
+
+/* ==========================================================================
+   V6 — CHROMATIC PREMIUM
+   Color as meaning: every skill family keeps its hue from nav to lesson,
+   the stage glows softly behind the paper, and dark mode becomes a deep
+   navy theatre instead of a grey void. Paint-only — no new blur layers.
+   ========================================================================= */
+
+/* ── Ambient stage — fixed washes behind everything ─────────────────────── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: -20%;
+  z-index: -1;
+  pointer-events: none;
+}
+body:not(.dark)::before {
+  background:
+    radial-gradient(56vw 56vw at 10% -4%, rgba(20, 87, 230, .09), transparent 62%),
+    radial-gradient(50vw 50vw at 94% 12%, rgba(109, 63, 212, .06), transparent 64%),
+    radial-gradient(56vw 44vw at 52% 108%, rgba(255, 115, 95, .07), transparent 60%);
+}
+body.dark::before {
+  background:
+    radial-gradient(64vw 56vw at 12% -6%, rgba(70, 100, 236, .16), transparent 60%),
+    radial-gradient(52vw 48vw at 96% 14%, rgba(150, 110, 250, .11), transparent 62%),
+    radial-gradient(70vw 50vw at 50% 112%, rgba(255, 115, 95, .07), transparent 60%);
+}
+
+/* ── Route accents survive dark mode ────────────────────────────────────
+   editorial's body.dark { --accent } re-set was silently overriding the
+   per-route tints from styles.css. Restore them at higher specificity so
+   Practice/Exam sections keep their identity in both themes. */
+body.dark[data-route="listen"], body.dark[data-route="listenmastery"],
+body.dark[data-route="dialogue"], body.dark[data-route="phonics"] { --accent: var(--sk-listen); }
+body.dark[data-route="speak"], body.dark[data-route="speaktasks"],
+body.dark[data-route="scenario"], body.dark[data-route="connectormastery"],
+body.dark[data-route="games"] { --accent: var(--sk-speak); }
+body.dark[data-route="read"] { --accent: var(--sk-read); }
+body.dark[data-route="write"], body.dark[data-route="writetask3"] { --accent: var(--sk-write); }
+body.dark[data-route="vocab"] { --accent: var(--sk-found); }
+body.dark[data-route="mock"], body.dark[data-route="gate"],
+body.dark[data-route="diagnostic"], body.dark[data-route="mistakes"] { --accent: var(--sk-exam); }
+
+/* ── Practice grid — the card wall becomes a color-coded library ────────── */
+.grid[data-cat] .card { position: relative; }
+.grid[data-cat] .card:hover {
+  border-color: color-mix(in srgb, var(--cat, var(--cobalt)) 36%, var(--line));
+  box-shadow: inset 3px 0 0 color-mix(in srgb, var(--cat, var(--cobalt)) 80%, transparent),
+              0 14px 38px color-mix(in srgb, var(--cat, var(--cobalt)) 14%, transparent);
+}
+.grid[data-cat] .card .icon {
+  background: color-mix(in srgb, var(--cat, var(--cobalt)) 12%, var(--surface));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--cat, var(--cobalt)) 14%, transparent);
+  color: var(--cat, var(--cobalt));
+  transition: transform 200ms var(--ease-premium);
+}
+.grid[data-cat] .card:hover .icon { transform: scale(1.06) rotate(-3deg); }
+.card .tag {
+  background: color-mix(in srgb, var(--cat, var(--accent)) 12%, transparent);
+  color: color-mix(in srgb, var(--cat, var(--accent)) 82%, var(--ink));
+}
+
+/* ── Section headings — gradient tick, tighter rhythm ───────────────────── */
+.section-h::before {
+  content: '';
+  display: inline-block;
+  width: 7px;
+  height: .72em;
+  margin-right: 14px;
+  border-radius: 99px;
+  background: var(--grad-track);
+  vertical-align: -2px;
+}
+
+/* ── Topbar — living details ────────────────────────────────────────────── */
+.stats .stat:first-child {
+  color: color-mix(in srgb, var(--cobalt) 78%, var(--ink));
+  border-color: color-mix(in srgb, var(--cobalt) 24%, var(--line));
+  background: color-mix(in srgb, var(--cobalt) 7%, transparent);
+  font-variant-numeric: tabular-nums;
+}
+.brand-name em,
+.brand-name { font-style: normal; }
+.brand-mark { display: grid; background: var(--grad-brand); color: #fff; }
+/* The period glyph overflowed below the badge (line-height metrics); the
+   coral accent arc above the B carries the charm on its own. */
+.brand-mark span { display: none; }
+
+/* ── Hero (inner pages) — quiet color, real presence ────────────────────── */
+.hero {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(110% 130% at 100% -20%, color-mix(in srgb, var(--accent, var(--cobalt)) 9%, transparent), transparent 52%),
+    var(--surface);
+}
+.eyebrow-h,
+.hero p.eyebrow-h,
+.lesson p.eyebrow-h {
+  color: color-mix(in srgb, var(--accent, var(--cobalt)) 82%, var(--ink));
+  font-size: 11px;
+  font-weight: 680;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+/* ── Home hero copy — one luminous word ─────────────────────────────────── */
+.alive-copy h1 em {
+  font-style: normal;
+  background: var(--grad-text);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+.alive-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px;
+  border-radius: var(--r-pill);
+  background: color-mix(in srgb, var(--cobalt) 9%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--cobalt) 22%, transparent);
+  width: fit-content;
+}
+.alive-kicker::before {
+  content: '';
+  display: block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--cobalt);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--cobalt) 20%, transparent);
+}
+
+/* ── Home plan header — colored overline + soft wash ────────────────────── */
+.home-plan {
+  background:
+    radial-gradient(80% 90% at 0% 0%, color-mix(in srgb, var(--cobalt) 5%, transparent), transparent 46%),
+    var(--surface);
+}
+
+/* ── Footer — warm sign-off, gradient CTA ───────────────────────────────── */
+.footer-support-card {
+  background:
+    radial-gradient(120% 140% at 0% 0%, color-mix(in srgb, var(--cobalt) 7%, transparent), transparent 55%),
+    radial-gradient(110% 130% at 100% 100%, color-mix(in srgb, var(--coral) 6%, transparent), transparent 55%),
+    var(--surface);
+  border: 1px solid color-mix(in srgb, var(--cobalt) 14%, var(--line));
+}
+.footer-support-icon { background: var(--grad-brand); color: #fff; }
+.footer-support-btn {
+  background: var(--grad-brand);
+  color: #fff !important;
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--accent-fill) 30%, transparent);
+  transition: box-shadow 160ms ease, transform 160ms ease;
+}
+.footer-support-btn:hover {
+  background: var(--grad-brand-hover);
+  box-shadow: 0 10px 26px color-mix(in srgb, var(--accent-fill) 42%, transparent);
+  transform: translateY(-1px);
+}
+
+/* ── Dark chrome — navy glass, not grey ─────────────────────────────────── */
+body.dark .nav-menu { background: #131A2C; border-color: var(--line-2); }
+body.dark .topbar {
+  background: rgba(15, 21, 36, .78);
+  border-color: rgba(255, 255, 255, .09);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .35), inset 0 1px 0 rgba(255, 255, 255, .07);
+}
+body.dark .topbar.scrolled {
+  background: rgba(15, 21, 36, .88);
+  box-shadow: 0 14px 38px rgba(0, 0, 0, .48), inset 0 1px 0 rgba(255, 255, 255, .07);
+}
+body.dark .footer-support-icon,
+body.dark .btn:not(.primary):not(.secondary):not(.ghost) { box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .06); }
+body.dark .input { background: var(--surface-2); border-color: var(--line-2); }
+body.dark .input:focus { border-color: var(--cobalt); }
+
+/* ── Entrance — welcome + home settle in with a soft stagger ────────────── */
+body[data-anim="full"] .welcome-copy > *,
+body[data-anim="full"] .welcome-profile > * {
+  animation: v6-rise 560ms var(--ease-premium) both;
+}
+body[data-anim="full"] .welcome-copy > *:nth-child(2) { animation-delay: 60ms; }
+body[data-anim="full"] .welcome-copy > *:nth-child(3) { animation-delay: 120ms; }
+body[data-anim="full"] .welcome-copy > *:nth-child(4) { animation-delay: 180ms; }
+body[data-anim="full"] .welcome-profile > *:nth-child(2) { animation-delay: 80ms; }
+body[data-anim="full"] .welcome-profile > *:nth-child(3) { animation-delay: 140ms; }
+body[data-anim="full"] .welcome-profile > *:nth-child(4) { animation-delay: 200ms; }
+body[data-anim="full"] .welcome-profile > *:nth-child(5) { animation-delay: 260ms; }
+body[data-anim="full"] .lesson-preview { animation: v6-rise 620ms var(--ease-premium) 260ms both; }
+@keyframes v6-rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Respect the user's motion tier — subtle gets a plain fade */
+body[data-anim="subtle"] .welcome-copy > *,
+body[data-anim="subtle"] .welcome-profile > *,
+body[data-anim="subtle"] .lesson-preview { animation: language-fade-in 220ms ease both; }
+
+/* ── Finishing details ──────────────────────────────────────────────────── */
+.spotlight .eyebrow { color: color-mix(in srgb, var(--accent, var(--cobalt)) 78%, var(--ink)); }
+.panel-overline { color: color-mix(in srgb, var(--accent, var(--cobalt)) 80%, var(--ink)); }
+.alive-duration svg { color: var(--cobalt); }
+/* Existing-learner shortcuts read as people, not grey buttons */
+.welcome-existing .btn.secondary {
+  border: 1px solid color-mix(in srgb, var(--cobalt) 22%, var(--line));
+  background: color-mix(in srgb, var(--cobalt) 6%, var(--surface));
+  color: color-mix(in srgb, var(--cobalt) 70%, var(--ink));
+}
+.welcome-existing .btn.secondary:hover {
+  background: color-mix(in srgb, var(--cobalt) 12%, var(--surface));
+}
+/* Grammar boxes carry the route hue on their spine */
+.grammar-box { border-left: 3px solid color-mix(in srgb, var(--accent, var(--cobalt)) 55%, transparent); }
+/* Mobile drawer — active item pops, groups readable in dark */
+@media (max-width: 900px) {
+  .nav a.active,
+  body.dark .nav a.active {
+    background: var(--grad-brand);
+    color: #fff;
+    box-shadow: 0 4px 14px color-mix(in srgb, var(--accent-fill) 30%, transparent);
+  }
+  /* Landing pages carry a static inline nav (aria-label="Primary"), not the
+     app drawer — keep it a simple horizontal row instead of inheriting the
+     drawer's column layout and border. */
+  .topbar .nav[aria-label="Primary"] {
+    position: static;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 2px;
+    width: auto;
+    max-width: none;
+    padding: 0;
+    margin-left: auto;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    transform: none;
+  }
+  .topbar .nav[aria-label="Primary"] a { width: auto; }
+}
 
 /* Responsive */
 @media (max-width: 1100px) {
@@ -1219,6 +1691,16 @@ body.dark .token { background: var(--surface-2); }
 
 @media (max-width: 900px) {
   :root { --header-h: 62px; }
+  /* No blur on the mobile topbar: backdrop-filter turns the header into the
+     containing block for the fixed-position nav drawer (Chromium), trapping
+     the drawer inside the pill — it peeked 13px at the screen edge closed
+     and opened clipped to header height. Solid fill keeps the look. */
+  .topbar,
+  .topbar.scrolled {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: color-mix(in srgb, var(--surface) 96%, transparent);
+  }
   .topbar { width: calc(100% - 24px); margin-top: 8px; top: 8px; gap: 10px; }
   .brand-mark { width: 34px; height: 34px; border-radius: 9px; font-size: 21px; }
   .brand-name { font-size: 20px; }
@@ -1341,4 +1823,12 @@ body.dark .token { background: var(--surface-2); }
 @media (forced-colors: active) {
   .brand-mark, .welcome-profile, .evidence-panel, .hero.accent,
   .phrase-display, .cheer-board, .cheer-popover { border: 1px solid CanvasText; }
+  /* Gradient-clipped text paints transparent glyphs — restore system ink */
+  .welcome-copy h1 em,
+  .alive-copy h1 em,
+  .feature-index {
+    background: none;
+    color: CanvasText;
+    -webkit-text-fill-color: CanvasText;
+  }
 }
