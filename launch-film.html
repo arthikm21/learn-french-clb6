@@ -40,7 +40,7 @@
       width: 100%;
       height: 100%;
       margin: 0;
-      overflow: hidden;
+      overflow: clip;
       background: #030405;
     }
 
@@ -70,7 +70,9 @@
       width: min(100vw, calc(100svh * 16 / 9));
       height: min(100svh, calc(100vw * 9 / 16));
       aspect-ratio: 16 / 9;
-      overflow: hidden;
+      /* `clip` prevents focused timeline controls from programmatically
+         scrolling the self-contained film stage during frame-accurate seeks. */
+      overflow: clip;
       background: var(--midnight);
       box-shadow: 0 28px 100px rgba(0, 0, 0, .52);
       outline: 1px solid rgba(255, 255, 255, .035);
@@ -101,8 +103,38 @@
       z-index: 3;
       pointer-events: none;
       opacity: .025;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.92' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.75'/%3E%3C/svg%3E");
+      background-image:
+        radial-gradient(circle at 20% 30%, rgba(255, 255, 255, .8) 0 .45px, transparent .6px),
+        radial-gradient(circle at 74% 62%, rgba(255, 255, 255, .7) 0 .4px, transparent .58px);
+      background-size: 3px 3px, 5px 5px;
       transform: rotate(4deg);
+    }
+
+    .transition-flash,
+    .motion-rule {
+      position: absolute;
+      z-index: 3;
+      pointer-events: none;
+      opacity: 0;
+      will-change: opacity, transform;
+    }
+
+    .transition-flash {
+      inset: 0;
+      background:
+        radial-gradient(circle at 50% 50%, rgba(169, 216, 255, .72), rgba(20, 87, 230, .18) 38%, transparent 70%);
+      mix-blend-mode: screen;
+    }
+
+    .motion-rule {
+      top: -12%;
+      bottom: -12%;
+      left: 50%;
+      width: clamp(28px, 4vw, 90px);
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .58), rgba(169, 216, 255, .12), transparent);
+      filter: blur(5px);
+      transform: translate3d(-900%, 0, 0) skewX(-13deg);
+      mix-blend-mode: screen;
     }
 
     .copy-layer {
@@ -136,6 +168,15 @@
       bottom: auto;
     }
 
+    .copy-block[data-align="top-center"] {
+      left: 50%;
+      top: calc(var(--safe) * .72);
+      bottom: auto;
+      width: min(78%, 1500px);
+      text-align: center;
+      transform: translate3d(-50%, 20px, 0);
+    }
+
     .copy-block[data-theme="paper"] { color: var(--ink); }
     .copy-block[data-theme="night"] { color: white; }
 
@@ -161,6 +202,7 @@
     }
 
     .copy-block[data-align="center"] .film-title { max-width: none; }
+    .copy-block[data-align="top-center"] .film-title { max-width: none; }
 
     .film-subtitle {
       max-width: 48ch;
@@ -174,7 +216,82 @@
     }
 
     .copy-block[data-align="center"] .film-subtitle { margin-inline: auto; }
+    .copy-block[data-align="top-center"] .film-subtitle { margin-inline: auto; }
     .copy-block[data-theme="paper"] .film-subtitle { color: rgba(7, 22, 48, .65); }
+
+    .copy-block[data-scene="path"] {
+      bottom: calc(var(--safe) * .78);
+      width: min(39%, 760px);
+    }
+
+    .copy-block[data-scene="path"] .film-title,
+    .copy-block[data-scene="scenarios"] .film-title {
+      font-size: clamp(34px, 4.25vw, 108px);
+      line-height: .96;
+    }
+
+    .copy-block[data-scene="path"] .proof-row,
+    .copy-block[data-scene="scenarios"] .proof-row {
+      margin-top: clamp(12px, 1.55vw, 28px);
+    }
+
+    .copy-block[data-scene="listen"],
+    .copy-block[data-scene="repeat"],
+    .copy-block[data-scene="speak"] {
+      width: min(34%, 660px);
+    }
+
+    .copy-block[data-scene="listen"] .film-title,
+    .copy-block[data-scene="repeat"] .film-title,
+    .copy-block[data-scene="speak"] .film-title {
+      font-size: clamp(42px, 5vw, 122px);
+    }
+
+    .copy-block[data-scene="scenarios"] {
+      bottom: calc(var(--safe) * .7);
+      width: min(43%, 820px);
+    }
+
+    .copy-block[data-scene="skills"] .film-title {
+      font-size: clamp(38px, 4.6vw, 116px);
+    }
+
+    .copy-block[data-scene="skills"] .film-subtitle {
+      margin-top: clamp(8px, .9vw, 18px);
+    }
+
+    .copy-block[data-scene="steps"] .film-title {
+      font-size: clamp(38px, 4.6vw, 116px);
+    }
+
+    .copy-block[data-scene="steps"] .film-subtitle {
+      margin-top: clamp(8px, .9vw, 18px);
+    }
+
+    .copy-block[data-scene="next"],
+    .copy-block[data-scene="daily"],
+    .copy-block[data-scene="retention"],
+    .copy-block[data-scene="record"],
+    .copy-block[data-scene="return"],
+    .copy-block[data-scene="privacy"] {
+      width: min(42%, 780px);
+    }
+
+    .copy-block[data-scene="next"] .film-title,
+    .copy-block[data-scene="daily"] .film-title,
+    .copy-block[data-scene="retention"] .film-title,
+    .copy-block[data-scene="record"] .film-title,
+    .copy-block[data-scene="return"] .film-title,
+    .copy-block[data-scene="privacy"] .film-title {
+      font-size: clamp(38px, 5.25vw, 132px);
+    }
+
+    .copy-block[data-scene="target"] .film-title,
+    .copy-block[data-scene="listen-proof"] .film-title,
+    .copy-block[data-scene="evidence"] .film-title,
+    .copy-block[data-scene="proof"] .film-title {
+      font-size: clamp(36px, 4.55vw, 114px);
+    }
 
     .proof-row {
       display: flex;
@@ -274,6 +391,14 @@
       font-size: clamp(18px, 1.7vw, 36px);
       font-weight: 570;
       letter-spacing: -.025em;
+    }
+
+    .end-target {
+      margin: clamp(10px, 1vw, 20px) 0 0;
+      color: var(--cobalt);
+      font-size: clamp(13px, 1.05vw, 23px);
+      font-weight: 720;
+      letter-spacing: -.012em;
     }
 
     .end-promise {
@@ -562,6 +687,45 @@
       .quality-badge { top: 8px; right: 8px; }
     }
 
+    /* In portrait windows the 16:9 film is letterboxed and therefore short.
+       Scale the complete player chrome to the stage, keeping the poster CTA
+       and scene copy visible instead of allowing the clipped stage to scroll. */
+    @media (max-aspect-ratio: 1 / 1) {
+      :root { --safe: 12px; }
+      .poster-inner { width: 92%; }
+      .poster-mark { width: 32px; border-radius: 9px; box-shadow: 0 8px 24px rgba(20, 87, 230, .24); }
+      .poster-eyebrow { margin-top: 4px; font-size: 6px; }
+      .poster h1 { margin-top: 3px; font-size: 28px; line-height: .9; }
+      .poster-copy { margin-top: 5px; max-width: 52ch; font-size: 8px; line-height: 1.3; }
+      .watch-button { min-height: 30px; margin-top: 8px; padding: 0 11px; gap: 6px; font-size: 9px; }
+      .watch-button .play-glyph { width: 18px; height: 18px; font-size: 7px; }
+      .poster-status { display: none; }
+
+      .film-kicker { margin-bottom: 4px; font-size: 6px; }
+      .film-title,
+      .copy-block[data-scene] .film-title { font-size: 24px; line-height: .94; }
+      .film-subtitle { margin-top: 5px; max-width: 44ch; font-size: 8px; line-height: 1.3; }
+      .proof-row { margin-top: 7px !important; gap: 4px; }
+      .proof { padding: 5px 7px; border-radius: 8px; }
+      .proof b { font-size: 18px; }
+      .proof span { margin-top: 2px; font-size: 6px; }
+      .caption-card { bottom: 41px; padding: 5px 8px; border-radius: 8px; }
+      .caption-card b { font-size: 8px; }
+      .caption-card span { margin-top: 2px; font-size: 6px; }
+
+      .end-card { width: 47%; }
+      .end-brand { font-size: 31px; }
+      .end-deck { margin-top: 5px; font-size: 10px; }
+      .end-target { margin-top: 4px; font-size: 7px; }
+      .end-promise { margin-top: 10px; font-size: 6px; }
+      .end-url { margin-top: 4px; font-size: 12px; }
+
+      .controls { bottom: 4px; min-height: 30px; gap: 4px; padding: 3px 4px; border-radius: 10px; }
+      .control-button, .quality-select { height: 24px; min-width: 24px; padding-inline: 5px; border-radius: 7px; font-size: 9px; }
+      .quality-select { min-width: 42px; }
+      .quality-badge { top: 4px; right: 4px; padding: 3px 5px; font-size: 6px; }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
       .grain { display: none; }
@@ -576,6 +740,8 @@
       <canvas id="film-canvas" aria-hidden="true"></canvas>
       <div class="vignette" aria-hidden="true"></div>
       <div class="grain" aria-hidden="true"></div>
+      <div class="transition-flash" id="transition-flash" aria-hidden="true"></div>
+      <div class="motion-rule" id="motion-rule" aria-hidden="true"></div>
 
       <div class="copy-layer" aria-hidden="true">
         <div class="copy-block" id="copy-block" data-align="left" data-theme="night">
@@ -593,6 +759,7 @@
         <div class="end-card" id="end-card">
           <p class="end-brand">Bonjour!</p>
           <p class="end-deck">French practice for Canada.</p>
+          <p class="end-target">Structured practice toward NCLC 6 / CLB 6.</p>
           <p class="end-promise">Free · No signup · No tracking</p>
           <span class="end-url">frenchclb6.ca</span>
         </div>
@@ -603,7 +770,7 @@
           <img class="poster-mark" src="icon-512.png" alt="Bonjour B. logo" width="150" height="150">
           <p class="poster-eyebrow">A 45-second launch film</p>
           <h1>French,<br>in motion.</h1>
-          <p class="poster-copy">A cinematic look at one clear path toward NCLC 6—built for the conversations and exam moments that matter in Canada.</p>
+          <p class="poster-copy">One focused system for the French skills, weak-spot practice, and test-day rehearsal behind an NCLC 6 target.</p>
           <button class="watch-button" id="start-button" type="button" disabled>
             <span class="play-glyph" aria-hidden="true">▶</span>
             <span id="start-label">Preparing film</span>
@@ -650,15 +817,22 @@
     <section class="sr-only" aria-label="Film transcript">
       <ol>
         <li>Bonjour! French practice for Canada.</li>
-        <li>Ready for today’s French? A little practice, every day.</li>
-        <li>A clear path toward NCLC 6. Eight phases. Ninety-two milestones.</li>
+        <li>One clear next step. Today, about fifteen minutes.</li>
+        <li>Review. Continue. Speak. A practical plan for today.</li>
+        <li>A guided path toward NCLC 6 / CLB 6. Eight phases. Ninety-two milestones.</li>
+        <li>Mistakes feed back into review. Spaced practice brings hard items back.</li>
         <li lang="fr-CA">Bonjour, je voudrais ouvrir un compte chèque.</li>
         <li>Hello, I would like to open a chequing account.</li>
-        <li>Listen. Repeat. Speak it.</li>
-        <li>French for real life in Canada. Fifty real-life scenarios.</li>
-        <li>Rehearse all four skills: listening, speaking, reading, and writing.</li>
-        <li>Eight phases. Fifty scenarios. One hundred and twenty listening clips.</li>
-        <li>Bonjour! French practice for Canada. Free. No signup. No tracking. frenchclb6.ca.</li>
+        <li>One hundred and twenty focused listening clips. Four speeds. Five drill types.</li>
+        <li>Record. Listen back. Self-rate. Speaking recordings stay on this device.</li>
+        <li>Practise the conversations you will actually have. Fifty real-life Canadian scenarios.</li>
+        <li>One situation. Seven focused steps. Listen, understand, repeat, speak.</li>
+        <li>Hard items come back. Review until they stick.</li>
+        <li>Rehearse all four TCF Canada skills. Approximately two hours forty-seven minutes; thirty-nine listening; thirty-nine reading; three speaking tasks; three writing tasks.</li>
+        <li>See what to strengthen next. Practice evidence—not a certified score.</li>
+        <li>Focused. Measurable. Honest. Eight phases, ninety-two milestones, fifty scenarios, and one hundred and twenty listening clips.</li>
+        <li>No account. No tracking. Progress and speaking recordings stay on this device.</li>
+        <li>Bonjour! Structured practice toward NCLC 6 / CLB 6. Free. No signup. No tracking. frenchclb6.ca.</li>
       </ol>
     </section>
   </main>
@@ -677,6 +851,22 @@
     const DURATION = 45;
     const DESIGN_ASPECT = 16 / 9;
     const SCREEN_ASPECT = 2560 / 1500;
+    const VOICE_AT = 11.05;
+    const SHOTS = Object.freeze({
+      logo: { a: 0, b: 1.72 },
+      device: { a: 1.18, b: 6.18 },
+      target: { a: 5.72, b: 8.68, returnA: 33.28, returnB: 36.35 },
+      plan: { a: 8.28, b: 11.12, returnA: 26.72, returnB: 29.62 },
+      listen: { a: 10.72, b: 18.18 },
+      record: { a: 17.68, b: 20.78 },
+      scenarios: { a: 20.18, b: 24.22 },
+      steps: { a: 23.68, b: 27.22 },
+      skills: { a: 29.18, b: 33.82 },
+      stats: { a: 35.72, b: 38.78 },
+      end: { a: 38.38, settle: 40.35, b: 45 }
+    });
+    const CUTS = Object.freeze([1.5, 3.5, 6, 8.5, 11, 15.5, 18, 20.5, 24, 27, 29.5, 33.5, 36, 38.5, 41]);
+    const CAPTURE_MODE = new URLSearchParams(location.search).has('capture');
     const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     const $ = id => document.getElementById(id);
@@ -701,6 +891,8 @@
     const proofRow = $('proof-row');
     const captionCard = $('caption-card');
     const endCard = $('end-card');
+    const transitionFlash = $('transition-flash');
+    const motionRule = $('motion-rule');
     const fallback = $('fallback');
     const fallbackMessage = $('fallback-message');
 
@@ -720,6 +912,7 @@
     let audioContext = null;
     let audioGain = null;
     let audioSource = null;
+    let audioAnchor = null;
     let soundtrackBuffer = null;
     let voiceEnvelope = null;
     let initialized = false;
@@ -744,12 +937,13 @@
         return publicApi.state();
       },
       state() {
+        const bufferSize = renderer ? renderer.getDrawingBufferSize(new THREE.Vector2()) : null;
         return {
           playhead: Number(playhead.toFixed(3)),
           playing,
           muted,
           quality: currentQuality,
-          drawingBuffer: renderer ? [renderer.domElement.width, renderer.domElement.height] : [0, 0],
+          drawingBuffer: bufferSize ? [bufferSize.x, bufferSize.y] : [0, 0],
           scene: activeSceneName,
           duration: DURATION
         };
@@ -765,6 +959,8 @@
       return x * x * x * (x * (x * 6 - 15) + 10);
     };
     const ease = (t, a, b) => smooth(span(t, a, b));
+    const easeOutQuint = x => 1 - Math.pow(1 - clamp(x), 5);
+    const fastEase = (t, a, b) => easeOutQuint(span(t, a, b));
     const fadeRange = (t, a, b, edge = .35) => smooth(span(t, a, a + edge)) * (1 - smooth(span(t, b - edge, b)));
     const mixColor = (a, b, t) => new THREE.Color(a).lerp(new THREE.Color(b), clamp(t));
 
@@ -1171,6 +1367,8 @@
     function setGroupOpacity(group, opacity) {
       const o = clamp(opacity);
       group.visible = o > .001;
+      if (Math.abs((group.userData.lastOpacity ?? -1) - o) < .0001) return;
+      group.userData.lastOpacity = o;
       const materials = group.userData.materials || [];
       materials.forEach(material => {
         material.transparent = true;
@@ -1253,13 +1451,15 @@
         const material = basicTextureMaterial(texture, 0);
         material.depthWrite = false;
         const screen = new THREE.Mesh(new THREE.PlaneGeometry(11.73, 6.84), material);
-        screen.position.z = .185 + i * .002;
+        // Sit decisively in front of the bevelled bezel. A tiny offset here
+        // is not enough once the bezel bevel is included in its front face.
+        screen.position.z = .225 + i * .002;
         screenAssembly.add(screen);
         screenLayers[name] = screen;
       });
 
       const cameraDot = new THREE.Mesh(new THREE.CircleGeometry(.055, 20), new THREE.MeshBasicMaterial({ color: '#161A21' }));
-      cameraDot.position.set(0, 3.56, .192);
+      cameraDot.position.set(0, 3.56, .232);
       screenAssembly.add(cameraDot);
 
       if (ogTexture) {
@@ -1285,7 +1485,7 @@
       group.add(body);
       if (iconTexture) {
         const face = new THREE.Mesh(new THREE.PlaneGeometry(3.03, 3.03), basicTextureMaterial(iconTexture));
-        face.position.z = .276;
+        face.position.z = .385;
         group.add(face);
       }
       addSoftGlow(group, '#1457E6', 6.5, new THREE.Vector3(0, 0, -1.2));
@@ -1296,9 +1496,9 @@
     function createPlanGroup() {
       const group = new THREE.Group();
       const cards = [
-        { eyebrow: '01 · Continue', title: 'Six basic vowels', subtitle: 'Pure French vowels. No glide.', color: '#1457E6' },
-        { eyebrow: '02 · Speak', title: 'One speaking rep', subtitle: 'Hear it. Repeat it aloud. Self-rate honestly.', color: '#6D3FD4' },
-        { eyebrow: '03 · Review', title: 'Keep what you learn', subtitle: 'Mistakes and hard lines return at the right time.', color: '#FF735F' }
+        { eyebrow: '01 · Notice', title: 'Find the weak spot', subtitle: 'Every mistake becomes a useful next action.', color: '#1457E6' },
+        { eyebrow: '02 · Return', title: 'Bring it back', subtitle: 'Spaced review returns what did not stick.', color: '#6D3FD4' },
+        { eyebrow: '03 · Prove', title: 'Try it again', subtitle: 'Checks keep progress honest and specific.', color: '#FF735F' }
       ].map(item => paintCard(item));
       group.userData.cards = cards.map((texture, i) => {
         const mat = physicalMaterial(i === 0 ? '#F7F9FF' : '#FFFEFC', { roughness: .18, clearcoat: .8 });
@@ -1320,6 +1520,52 @@
         markers.push(marker);
       }
       group.userData.markers = markers;
+      cacheMaterials(group);
+      return group;
+    }
+
+    function createTargetGroup() {
+      const group = new THREE.Group();
+      const coreTexture = paintCard({
+        eyebrow: 'One focused outcome',
+        title: 'NCLC 6',
+        subtitle: 'Listening · Speaking · Reading · Writing',
+        color: '#A9D8FF',
+        dark: true
+      });
+      const core = createPanel(4.45, 2.65, .3, physicalMaterial('#071630', { roughness: .12, clearcoat: 1 }), coreTexture, .34);
+      core.position.z = .75;
+      group.add(core);
+
+      const ringColors = ['#1457E6', '#6D3FD4', '#A9D8FF'];
+      const rings = ringColors.map((color, i) => {
+        const ring = new THREE.Mesh(
+          new THREE.TorusGeometry(2.8 + i * .55, .045 + i * .012, 18, 160),
+          physicalMaterial(color, { metalness: .12, roughness: .2, clearcoat: 1, opacity: .72 - i * .14 })
+        );
+        ring.position.z = -.15 - i * .12;
+        group.add(ring);
+        return ring;
+      });
+
+      const benefits = [
+        ['Focused scope', 'No literary detours', '#1457E6'],
+        ['Weak spots', 'Hard items return', '#6D3FD4'],
+        ['Test format', 'Rehearse under the clock', '#FF735F']
+      ];
+      const targets = [[-4.25, .75], [4.25, .75], [0, -2.75]];
+      const cards = benefits.map((item, i) => {
+        const texture = paintCard({ eyebrow: item[0], title: item[1], subtitle: i === 2 ? 'Four skills. Real timing.' : 'Practice with a purpose.', color: item[2] });
+        const card = createPanel(3.25, 1.65, .17, physicalMaterial('#FFFEFC', { roughness: .16, clearcoat: .95 }), texture, .24);
+        card.position.set(targets[i][0], targets[i][1], .25);
+        group.add(card);
+        return card;
+      });
+
+      group.userData.core = core;
+      group.userData.rings = rings;
+      group.userData.cards = cards;
+      addSoftGlow(group, '#1457E6', 12, new THREE.Vector3(0, .2, -3));
       cacheMaterials(group);
       return group;
     }
@@ -1346,7 +1592,17 @@
         group.add(bar);
         bars.push(bar);
       }
+      const drillLabels = ['Choose', 'Fill', 'Reorder', 'Intent', 'Summary'];
+      const tokens = drillLabels.map((label, i) => {
+        const texture = paintCard({ eyebrow: `Drill 0${i + 1}`, title: label, subtitle: i === 4 ? 'Find the main idea.' : 'Train one listening move.', color: ['#1457E6', '#6D3FD4', '#FF735F', '#00796B', '#1457E6'][i] });
+        const token = createPanel(1.8, 1.08, .13, physicalMaterial('#FFFEFC', { roughness: .18, clearcoat: .9 }), texture, .2);
+        token.position.set((i - 2) * 2.05, -2.55, .75);
+        group.add(token);
+        cacheMaterials(token);
+        return token;
+      });
       group.userData.bars = bars;
+      group.userData.tokens = tokens;
       addSoftGlow(group, '#6D3FD4', 10, new THREE.Vector3(-3.4, .5, -2));
       addSoftGlow(group, '#1457E6', 12, new THREE.Vector3(3.4, -.2, -2.4));
       cacheMaterials(group);
@@ -1415,10 +1671,10 @@
     function createSkillsGroup() {
       const group = new THREE.Group();
       const data = [
-        ['Listening', '39 questions', 'Canadian-French audio', '#1457E6'],
-        ['Speaking', '3 tasks', 'Rehearse aloud', '#6D3FD4'],
-        ['Reading', '39 questions', 'Progressive texts', '#00796B'],
-        ['Writing', '3 tasks', 'Plan, draft, review', '#FF735F']
+        ['Listening', '39 questions · 35 min', 'Single-play practice', '#1457E6'],
+        ['Speaking', '3 tasks · 12 min', 'Record and review', '#6D3FD4'],
+        ['Reading', '39 questions · 60 min', 'Progressive texts', '#00796B'],
+        ['Writing', '3 tasks · 60 min', 'Plan, draft, review', '#FF735F']
       ];
       group.userData.cards = data.map((item, i) => {
         const texture = paintCard({ eyebrow: 'TCF Canada practice', title: item[0], subtitle: `${item[1]} · ${item[2]}`, color: item[3], dark: i === 1 });
@@ -1430,7 +1686,7 @@
         return panel;
       });
 
-      const centerTexture = paintCard({ eyebrow: 'Full rehearsal', title: '2h47', subtitle: 'All four skills together.', color: '#A9D8FF', dark: true });
+      const centerTexture = paintCard({ eyebrow: 'Full-duration rehearsal', title: '≈2h47', subtitle: 'All four skills together.', color: '#A9D8FF', dark: true });
       const center = createPanel(3.2, 1.85, .22, physicalMaterial('#071630', { roughness: .12, clearcoat: 1 }), centerTexture, .25);
       center.position.z = 1.2;
       center.scale.setScalar(.76);
@@ -1453,12 +1709,13 @@
       const group = new THREE.Group();
       const items = [
         ['8', 'phases', '#1457E6'],
-        ['50', 'scenarios', '#6D3FD4'],
+        ['92', 'milestones', '#6D3FD4'],
+        ['50', 'scenarios', '#00796B'],
         ['120', 'listening clips', '#FF735F']
       ];
       group.userData.cards = items.map((item, i) => {
-        const panel = createPanel(4.2, 3.2, .24, physicalMaterial(item[2], { roughness: .15, clearcoat: 1 }), paintStat(...item), .38);
-        panel.position.set((i - 1) * 4.65, 0, 0);
+        const panel = createPanel(3.25, 2.8, .22, physicalMaterial(item[2], { roughness: .15, clearcoat: 1 }), paintStat(...item), .34);
+        panel.position.set((i - 1.5) * 3.55, 0, 0);
         group.add(panel);
         return panel;
       });
@@ -1566,6 +1823,9 @@
       world.device = createDevice(uiTextures, ogTexture);
       scene.add(world.device);
 
+      world.target = createTargetGroup();
+      scene.add(world.target);
+
       world.plan = createPlanGroup();
       scene.add(world.plan);
 
@@ -1597,19 +1857,32 @@
 
     const cameraKeys = [
       { t: 0, p: [1.08, .08, 3.1], target: [.18, .02, 0], fov: 18 },
-      { t: 2.5, p: [4.8, 1.8, 9.5], target: [0, -.2, 0], fov: 24 },
-      { t: 5, p: [8.7, 4.1, 16.7], target: [0, -.45, 1.1], fov: 31 },
-      { t: 9.8, p: [.4, .7, 16.5], target: [0, -.2, .6], fov: 31 },
-      { t: 14.8, p: [0, .45, 15], target: [0, -.25, .5], fov: 30 },
-      { t: 15.2, p: [0, .1, 13.5], target: [0, -.15, 0], fov: 31 },
-      { t: 20, p: [0, .05, 12.9], target: [0, -.3, 0], fov: 30 },
-      { t: 22.5, p: [0, .7, 14.6], target: [0, -.35, 0], fov: 32 },
-      { t: 27.5, p: [0, .1, 14.2], target: [0, 0, 0], fov: 31 },
-      { t: 30, p: [4.2, 1.2, 14.5], target: [0, 0, 0], fov: 32 },
-      { t: 32.5, p: [0, .2, 16.5], target: [0, 0, 0], fov: 32 },
-      { t: 37.5, p: [0, .4, 18.2], target: [0, 0, 0], fov: 32 },
-      { t: 40, p: [0, .1, 15.7], target: [0, 0, 0], fov: 31 },
-      { t: 45, p: [0, .1, 15.2], target: [0, 0, 0], fov: 30 }
+      { t: 1.5, p: [5.5, 2.4, 13], target: [0, .42, .9], fov: 25 },
+      { t: 2.18, p: [8.2, 4.1, 23], target: [0, .58, 1.9], fov: 31 },
+      { t: 5.68, p: [8.2, 4.1, 23], target: [0, .58, 1.9], fov: 31 },
+      { t: 6.12, p: [0, .4, 15.8], target: [0, -.18, 0], fov: 31 },
+      { t: 8.28, p: [0, .4, 15.8], target: [0, -.18, 0], fov: 31 },
+      { t: 8.7, p: [0, 1.45, 23.5], target: [.7, .52, 1.4], fov: 30 },
+      { t: 10.72, p: [0, 1.45, 23.5], target: [.7, .52, 1.4], fov: 30 },
+      { t: 11.16, p: [0, .35, 15.6], target: [1.1, -.1, 0], fov: 31 },
+      { t: 17.68, p: [0, .28, 15.35], target: [1.05, -.12, 0], fov: 30.5 },
+      { t: 18.12, p: [0, .7, 16.1], target: [1.05, -.12, 0], fov: 32 },
+      { t: 20.3, p: [0, .7, 16.1], target: [1.05, -.12, 0], fov: 32 },
+      { t: 20.7, p: [4.2, 1.2, 17], target: [.35, .25, 0], fov: 32 },
+      { t: 23.72, p: [4.2, 1.2, 17], target: [.35, .25, 0], fov: 32 },
+      { t: 24.14, p: [0, .4, 15.6], target: [0, 0, 0], fov: 31 },
+      { t: 26.78, p: [0, .4, 15.6], target: [0, 0, 0], fov: 31 },
+      { t: 27.16, p: [0, 1, 17], target: [.8, .2, 0], fov: 31 },
+      { t: 29.32, p: [0, 1, 17], target: [.8, .2, 0], fov: 31 },
+      { t: 29.68, p: [0, .35, 18], target: [0, .05, 0], fov: 32 },
+      { t: 33.32, p: [0, .35, 18], target: [0, .05, 0], fov: 32 },
+      { t: 33.7, p: [0, .4, 16.8], target: [0, -.05, 0], fov: 31 },
+      { t: 35.78, p: [0, .4, 16.8], target: [0, -.05, 0], fov: 31 },
+      { t: 36.16, p: [0, .4, 19.2], target: [0, -.1, 0], fov: 32 },
+      { t: 38.36, p: [0, .4, 19.2], target: [0, -.1, 0], fov: 32 },
+      { t: 38.72, p: [0, .1, 17], target: [0, 0, 0], fov: 31 },
+      { t: 40.35, p: [0, .1, 15.7], target: [0, 0, 0], fov: 30 },
+      { t: 45, p: [0, .1, 15.7], target: [0, 0, 0], fov: 30 }
     ];
 
     function updateCamera(t) {
@@ -1627,10 +1900,21 @@
       const pb = new THREE.Vector3(...b.p);
       const ta = new THREE.Vector3(...a.target);
       const tb = new THREE.Vector3(...b.target);
-      camera.position.lerpVectors(pa, pb, reducedMotion ? clamp(u * .45 + .275) : u);
-      camera.fov = lerp(a.fov, b.fov, u);
+      const animatedPosition = pa.lerp(pb, u);
+      const animatedTarget = ta.lerp(tb, u);
+      const animatedFov = lerp(a.fov, b.fov, u);
+      if (reducedMotion) {
+        // Preserve every composition while reducing total camera travel by
+        // blending the continuous path toward one stable, neutral viewpoint.
+        camera.position.set(0, .45, 18).lerp(animatedPosition, .55);
+        camera.fov = lerp(30, animatedFov, .55);
+        camera.lookAt(new THREE.Vector3(0, 0, .4).lerp(animatedTarget, .55));
+      } else {
+        camera.position.copy(animatedPosition);
+        camera.fov = animatedFov;
+        camera.lookAt(animatedTarget);
+      }
       camera.updateProjectionMatrix();
-      camera.lookAt(ta.lerp(tb, u));
     }
 
     function setScreenOpacity(name, opacity) {
@@ -1647,125 +1931,194 @@
     }
 
     function updateWorld(t) {
-      const logoO = fadeRange(t, 0, 3.2, .45);
+      const logoO = fadeRange(t, SHOTS.logo.a, SHOTS.logo.b, .2);
       setGroupOpacity(world.logo, logoO);
-      world.logo.scale.setScalar(lerp(1.34, .86, ease(t, 0, 3.2)));
-      world.logo.rotation.y = lerp(-.16, .9, ease(t, 0, 3.2));
-      world.logo.rotation.x = lerp(.04, -.12, ease(t, 0, 3.2));
-      world.logo.position.set(lerp(.2, -2.4, ease(t, 1.5, 3.2)), lerp(0, 1.2, ease(t, 1.5, 3.2)), 0);
+      world.logo.scale.setScalar(lerp(1.34, .78, fastEase(t, 0, 1.55)));
+      world.logo.rotation.y = lerp(-.16, .82, fastEase(t, 0, 1.55));
+      world.logo.rotation.x = lerp(.04, -.1, fastEase(t, 0, 1.55));
+      world.logo.position.set(lerp(.2, -2.3, fastEase(t, 1.08, 1.68)), lerp(0, .9, fastEase(t, 1.08, 1.68)), 0);
 
-      const deviceO = fadeRange(t, 2.25, 15.35, .65);
+      const deviceO = fadeRange(t, SHOTS.device.a, SHOTS.device.b, .24);
       setGroupOpacity(world.device, deviceO);
-      world.device.rotation.y = lerp(1.46, .03, ease(t, 2.25, 7.2));
-      world.device.rotation.z = lerp(-.06, 0, ease(t, 3.3, 6.4));
-      world.device.position.y = lerp(-.25, .2, ease(t, 2.4, 5.5));
-      world.device.userData.screenPivot.rotation.x = lerp(1.46, -.075, ease(t, 2.35, 5.05));
-      setScreenOpacity('home', fadeRange(t, 4.55, 10.15, .55));
-      setScreenOpacity('plan', fadeRange(t, 9.75, 15.2, .4));
+      world.device.rotation.y = lerp(1.46, .03, fastEase(t, 1.18, 2.2));
+      world.device.rotation.z = lerp(-.06, 0, fastEase(t, 1.45, 2.4));
+      world.device.position.x = lerp(0, 2.5, fastEase(t, 3.05, 3.62));
+      world.device.position.y = lerp(-.25, .2, fastEase(t, 1.25, 2.18));
+      world.device.userData.screenPivot.rotation.x = lerp(1.46, -.075, fastEase(t, 1.18, 2.16));
+      setScreenOpacity('home', fadeRange(t, 1.55, 6.12, .22));
+      setScreenOpacity('plan', 0);
       setScreenOpacity('shadow', 0);
       setScreenOpacity('exam', 0);
 
-      const planO = fadeRange(t, 9.9, 15.15, .5);
+      const targetFirstO = fadeRange(t, SHOTS.target.a, SHOTS.target.b, .24);
+      const targetReturnO = fadeRange(t, SHOTS.target.returnA, SHOTS.target.returnB, .24);
+      const targetO = Math.max(targetFirstO, targetReturnO);
+      setGroupOpacity(world.target, targetO);
+      if (targetO > .001) {
+        const entryAt = targetReturnO > targetFirstO ? SHOTS.target.returnA : SHOTS.target.a;
+        const targetU = fastEase(t, entryAt, entryAt + .62);
+        world.target.position.set(0, -.35, lerp(-1.8, .15, targetU));
+        world.target.scale.setScalar(lerp(.55, .9, targetU));
+        world.target.rotation.y = lerp(-.22, .02, targetU) + Math.sin(t * .55) * .012;
+        world.target.userData.rings.forEach((ring, i) => {
+          ring.rotation.z = (i % 2 ? -1 : 1) * (t - entryAt) * (.16 + i * .035);
+          ring.scale.setScalar(lerp(.2, 1, fastEase(t, entryAt + i * .06, entryAt + .55 + i * .06)));
+        });
+        const cardTargets = [[-4.25, .75], [4.25, .75], [0, -2.75]];
+        world.target.userData.cards.forEach((card, i) => {
+          const u = fastEase(t, entryAt + .16 + i * .08, entryAt + .72 + i * .08);
+          card.position.x = lerp(cardTargets[i][0] * 1.7, cardTargets[i][0], u);
+          card.position.y = lerp(cardTargets[i][1] + (i === 2 ? -2 : 1.6), cardTargets[i][1], u);
+          card.position.z = lerp(-2.2, .25, u);
+          card.rotation.z = lerp((i - 1) * .16, 0, u);
+        });
+      }
+
+      const planFirstO = fadeRange(t, SHOTS.plan.a, SHOTS.plan.b, .22);
+      const planReturnO = fadeRange(t, SHOTS.plan.returnA, SHOTS.plan.returnB, .22);
+      const planO = Math.max(planFirstO, planReturnO);
       setGroupOpacity(world.plan, planO);
-      world.plan.position.set(0, .1, lerp(-1.4, 2.35, ease(t, 10, 12.2)));
-      world.plan.rotation.x = lerp(.12, -.02, ease(t, 10, 13));
-      world.plan.userData.cards.forEach((card, i) => {
-        const stagger = ease(t, 10.15 + i * .23, 11.8 + i * .23);
-        card.position.z = lerp(-1.2, .5 + (1 - Math.abs(i - 1)) * .45, stagger);
-        card.position.y = lerp(-.7, .35 - Math.abs(i - 1) * .42, stagger);
-        card.rotation.y = (i - 1) * -.08 * stagger;
-      });
-      world.plan.userData.markers.forEach((marker, i) => {
-        const u = ease(t, 11.2 + i * .11, 12.4 + i * .11);
-        marker.scale.setScalar(lerp(.01, 1, u));
-      });
+      if (planO > .001) {
+        const entryAt = planReturnO > planFirstO ? SHOTS.plan.returnA : SHOTS.plan.a;
+        const planU = fastEase(t, entryAt, entryAt + .58);
+        world.plan.position.set(2.45, .35, lerp(-1.4, 2.35, planU));
+        world.plan.scale.setScalar(.72);
+        world.plan.rotation.x = lerp(.12, -.02, planU);
+        world.plan.rotation.z = planReturnO > planFirstO ? Math.sin((t - entryAt) * 3.2) * .018 : 0;
+        world.plan.userData.cards.forEach((card, i) => {
+          const stagger = fastEase(t, entryAt + .08 + i * .075, entryAt + .62 + i * .075);
+          card.position.z = lerp(-1.6, .5 + (1 - Math.abs(i - 1)) * .45, stagger);
+          card.position.x = lerp((i - 1) * 5.4, (i - 1) * 3.75, stagger);
+          card.position.y = lerp(-1.4, .3 - Math.abs(i - 1) * .38, stagger);
+          card.rotation.y = (i - 1) * -.08 * stagger;
+        });
+        world.plan.userData.markers.forEach((marker, i) => {
+          const u = fastEase(t, entryAt + .52 + i * .045, entryAt + .82 + i * .045);
+          marker.scale.setScalar(lerp(.01, 1, u));
+        });
+      }
 
-      const audioO = fadeRange(t, 14.72, 20.45, .42);
+      const audioO = fadeRange(t, SHOTS.listen.a, SHOTS.listen.b, .24);
       setGroupOpacity(world.audio, audioO);
-      world.audio.scale.setScalar(lerp(.83, 1, ease(t, 14.72, 15.45)));
-      world.audio.rotation.y = lerp(-.16, .03, ease(t, 14.72, 16.4));
-      world.audio.userData.bars.forEach((bar, i) => {
-        const level = voiceLevelAt(t - 15.15, i);
-        const height = .15 + level * 5.8;
-        bar.scale.y = height;
-        bar.position.y = -2.6 + height * .5;
-      });
+      if (audioO > .001) {
+        const audioIn = fastEase(t, SHOTS.listen.a, SHOTS.listen.a + .52);
+        const proofU = fastEase(t, 15.46, 16.05);
+        world.audio.position.set(lerp(1.65, .25, proofU), lerp(-.2, .35, proofU), 0);
+        world.audio.scale.setScalar(lerp(lerp(.6, .76, audioIn), .64, proofU));
+        world.audio.rotation.y = lerp(-.16, .025, audioIn);
+        world.audio.userData.bars.forEach((bar, i) => {
+          const level = voiceLevelAt(t - VOICE_AT, i);
+          const height = .15 + level * 2.65;
+          bar.scale.y = height;
+          bar.position.y = -2.5 + height * .5;
+        });
+        world.audio.userData.tokens.forEach((token, i) => {
+          const tokenU = fastEase(t, 15.45 + i * .065, 15.95 + i * .065);
+          setGroupOpacity(token, audioO * tokenU);
+          token.position.y = lerp(-3.65, -2.55, tokenU);
+          token.position.z = lerp(-1.5, .75, tokenU);
+          token.rotation.z = lerp((i - 2) * .08, 0, tokenU);
+        });
+      }
 
-      const stepsO = fadeRange(t, 19.75, 23.7, .35);
+      const stepsO = fadeRange(t, SHOTS.steps.a, SHOTS.steps.b, .22);
       setGroupOpacity(world.steps, stepsO);
-      world.steps.userData.cards.forEach((card, i) => {
-        const u = ease(t, 19.85 + i * .08, 21.15 + i * .08);
-        const angle = (i / 6 - .5) * 1.25;
-        card.position.set(Math.sin(angle) * 6.2, -1.25 + Math.cos(angle) * 1.6, lerp(3.2, .3, u));
-        card.rotation.y = -angle * .28;
-        card.rotation.x = lerp(-1.15, 0, u);
-        card.scale.setScalar(lerp(.05, .72, u));
-      });
+      if (stepsO > .001) {
+        world.steps.userData.cards.forEach((card, i) => {
+          const u = fastEase(t, SHOTS.steps.a + .1 + i * .065, SHOTS.steps.a + .64 + i * .065);
+          const angle = (i / 6 - .5) * 1.25;
+          card.position.set(Math.sin(angle) * 8.2, -1.25 + Math.cos(angle) * 1.6, lerp(3.2, .3, u));
+          card.rotation.y = -angle * .28;
+          card.rotation.x = lerp(-1.15, 0, u);
+          card.scale.setScalar(lerp(.05, .68, u));
+        });
+      }
 
-      const shadowO = fadeRange(t, 22.2, 27.72, .5);
+      const shadowO = fadeRange(t, SHOTS.record.a, SHOTS.record.b, .22);
       setGroupOpacity(world.shadow, shadowO);
-      world.shadow.position.z = lerp(-1.2, .2, ease(t, 22.2, 23.3));
-      world.shadow.rotation.y = lerp(.22, -.03, ease(t, 22.2, 24));
-      const ringU = ease(t, 24.35, 25.15);
-      world.shadow.userData.ring.scale.setScalar(lerp(.02, 1 + Math.sin(t * 5.5) * .045, ringU));
-      world.shadow.userData.chip.scale.setScalar(lerp(.01, .66, ease(t, 25, 25.8)));
+      if (shadowO > .001) {
+        const shadowU = fastEase(t, SHOTS.record.a, SHOTS.record.a + .58);
+        world.shadow.position.set(2.15, -.28, lerp(-1.8, .2, shadowU));
+        world.shadow.scale.setScalar(.74);
+        world.shadow.rotation.y = lerp(.22, -.03, shadowU);
+        const ringU = fastEase(t, 18.1, 18.72);
+        world.shadow.userData.ring.scale.setScalar(lerp(.02, 1 + Math.sin(t * 6.2) * .045, ringU));
+        world.shadow.userData.chip.scale.setScalar(lerp(.01, .66, fastEase(t, 19.05, 19.62)));
+      }
 
-      const scenarioO = fadeRange(t, 27.2, 32.8, .46);
+      const scenarioO = fadeRange(t, SHOTS.scenarios.a, SHOTS.scenarios.b, .22);
       setGroupOpacity(world.scenarios, scenarioO);
-      const scenarioU = ease(t, 27.4, 32.5);
-      world.scenarios.userData.cards.forEach((card, i) => {
-        const x = (i - 2) * 3.65 - (scenarioU - .5) * 7.2;
-        card.position.x = x;
-        card.position.y = (i % 2 ? -1.3 : 1.35) + Math.sin(scenarioU * Math.PI * 2 + i) * .22;
-        card.position.z = -Math.abs(x) * .13 + .65;
-        card.rotation.y = clamp(-x * .028, -.24, .24);
-        card.rotation.z = (i % 2 ? -.025 : .025);
-      });
+      if (scenarioO > .001) {
+        world.scenarios.position.y = 2.3;
+        world.scenarios.scale.setScalar(.7);
+        const scenarioU = ease(t, SHOTS.scenarios.a + .12, SHOTS.scenarios.b - .12);
+        world.scenarios.userData.cards.forEach((card, i) => {
+          const x = (i - 2) * 3.65 - (scenarioU - .5) * 7.9;
+          card.position.x = x;
+          card.position.y = (i % 2 ? -1.3 : 1.35) + Math.sin(scenarioU * Math.PI * 2.5 + i) * .22;
+          card.position.z = -Math.abs(x) * .13 + .65;
+          card.rotation.y = clamp(-x * .028, -.24, .24);
+          card.rotation.z = (i % 2 ? -.025 : .025);
+        });
+      }
 
-      const skillsO = fadeRange(t, 32.15, 37.82, .48);
+      const skillsO = fadeRange(t, SHOTS.skills.a, SHOTS.skills.b, .22);
       setGroupOpacity(world.skills, skillsO);
-      world.skills.userData.cards.forEach((card, i) => {
-        const u = ease(t, 32.3 + i * .13, 33.65 + i * .13);
-        const targetX = i % 2 === 0 ? -2.55 : 2.55;
-        const targetY = i < 2 ? 1.65 : -1.65;
-        card.position.x = lerp((i - 1.5) * 7.5, targetX, u);
-        card.position.y = lerp((i % 2 ? -1 : 1) * 5.5, targetY, u);
-        card.position.z = lerp(-2.5, 0, u);
-        card.rotation.z = lerp((i - 1.5) * .16, 0, u);
-      });
-      world.skills.userData.center.scale.setScalar(lerp(.01, .76, ease(t, 34.2, 35.1)));
-      world.skills.userData.ring.scale.setScalar(lerp(.15, 1, ease(t, 34.3, 36.8)));
-      world.skills.userData.ring.rotation.z = lerp(-Math.PI, 0, ease(t, 34.3, 36.8));
+      if (skillsO > .001) {
+        world.skills.position.y = -.72;
+        world.skills.scale.setScalar(.78);
+        world.skills.userData.cards.forEach((card, i) => {
+          const u = fastEase(t, SHOTS.skills.a + .08 + i * .075, SHOTS.skills.a + .62 + i * .075);
+          const targetX = i % 2 === 0 ? -2.55 : 2.55;
+          const targetY = i < 2 ? 1.65 : -1.65;
+          card.position.x = lerp((i - 1.5) * 7.5, targetX, u);
+          card.position.y = lerp((i % 2 ? -1 : 1) * 5.5, targetY, u);
+          card.position.z = lerp(-2.5, 0, u);
+          card.rotation.z = lerp((i - 1.5) * .16, 0, u);
+          const focus = smooth(span(t, 32.25 + i * .28, 32.72 + i * .28));
+          card.scale.setScalar(1 + Math.sin(focus * Math.PI) * .035);
+        });
+        world.skills.userData.center.scale.setScalar(lerp(.01, .76, fastEase(t, 29.92, 30.55)));
+        world.skills.userData.ring.scale.setScalar(lerp(.15, 1, fastEase(t, 30.02, 30.68)));
+        world.skills.userData.ring.rotation.z = lerp(-Math.PI, 0, fastEase(t, 30.02, 30.78));
+      }
 
-      const statsO = fadeRange(t, 37.25, 40.4, .35);
+      const statsO = fadeRange(t, SHOTS.stats.a, SHOTS.stats.b, .22);
       setGroupOpacity(world.stats, statsO);
-      world.stats.userData.cards.forEach((card, i) => {
-        const u = ease(t, 37.35 + i * .14, 38.45 + i * .14);
-        card.position.y = lerp(-5.5 - i, 0, u);
-        card.position.z = lerp(-3, 0, u);
-        card.rotation.y = lerp((i - 1) * .42, (i - 1) * -.05, u);
-        card.scale.setScalar(lerp(.15, 1, u));
-      });
+      if (statsO > .001) {
+        world.stats.position.y = -.35;
+        world.stats.scale.setScalar(.86);
+        world.stats.userData.cards.forEach((card, i) => {
+          const u = fastEase(t, SHOTS.stats.a + .06 + i * .08, SHOTS.stats.a + .55 + i * .08);
+          card.position.y = lerp(-5.5 - i, 0, u);
+          card.position.z = lerp(-3, 0, u);
+          card.rotation.y = lerp((i - 1.5) * .42, (i - 1.5) * -.045, u);
+          card.scale.setScalar(lerp(.15, 1, u));
+        });
+      }
 
-      const endO = smooth(span(t, 39.7, 40.8));
+      const endO = fastEase(t, SHOTS.end.a, 39.32);
       setGroupOpacity(world.end, endO);
       world.end.position.set(3.55, .05, 0);
       world.end.scale.setScalar(lerp(.3, 1, endO));
-      world.end.rotation.y = lerp(-.6, -.05, ease(t, 39.7, 42));
-      world.end.userData.blocks.forEach((block, i) => {
-        const u = ease(t, 39.85 + i * .08, 41.1 + i * .08);
-        block.position.z = lerp(3 + i * .5, -.35, u);
-        block.rotation.z = lerp((i - 2) * .6, 0, u);
-      });
+      world.end.rotation.y = lerp(-.6, -.05, fastEase(t, SHOTS.end.a, 39.72));
+      if (endO > .001) {
+        world.end.userData.blocks.forEach((block, i) => {
+          const u = fastEase(t, 38.48 + i * .07, 39.22 + i * .07);
+          block.position.z = lerp(3 + i * .5, -.35, u);
+          block.rotation.z = lerp((i - 2) * .6, 0, u);
+        });
+      }
 
-      const endTransition = smooth(span(t, 39.6, 41.1));
+      const endTransition = smooth(span(t, 38.42, 39.62));
       renderer.setClearColor(mixColor('#07080B', '#FBF8F3', endTransition), 1);
+      scene.fog.color.copy(mixColor('#07080B', '#FBF8F3', endTransition));
       world.floor.material.opacity = lerp(.28, .08, endTransition);
       world.lights.key.intensity = lerp(4.3, 5.5, endTransition);
       world.lights.hemi.intensity = lerp(1.7, 2.4, endTransition);
       world.lights.cobalt.intensity = lerp(36, 15, endTransition);
       world.lights.coral.intensity = lerp(25, 9, endTransition);
-      world.particles.visible = t < 39.8 && !reducedMotion;
+      world.particles.visible = t < 38.55 && !reducedMotion;
       if (world.particles.visible) {
         world.particles.rotation.y = t * .004;
         world.particles.position.y = Math.sin(t * .12) * .15;
@@ -1773,23 +2126,54 @@
     }
 
     const copyScenes = [
-      { key: 'path', a: 10.15, b: 14.78, align: 'left', theme: 'night', kicker: 'Your guided path', title: 'A clear path toward NCLC 6.', subtitle: 'One next step. Every day.', proofs: [['8', 'phases'], ['92', 'milestones']] },
-      { key: 'listen', a: 15.08, b: 19.8, align: 'top-left', theme: 'night', kicker: 'Canadian French audio', title: 'Listen.', subtitle: '', proofs: [] },
-      { key: 'repeat', a: 22.55, b: 24.38, align: 'top-left', theme: 'night', kicker: 'Shadowing', title: 'Repeat.', subtitle: 'Hear the line. Say it aloud.', proofs: [] },
-      { key: 'speak', a: 24.45, b: 27.2, align: 'top-left', theme: 'night', kicker: 'Build confidence', title: 'Speak it.', subtitle: 'No invented score. Just accountable practice.', proofs: [] },
-      { key: 'scenarios', a: 27.55, b: 32.24, align: 'left', theme: 'night', kicker: 'Real-life scenarios', title: 'French for real life in Canada.', subtitle: 'From calling a landlord to opening a bank account.', proofs: [['50', 'real-life scenarios']] },
-      { key: 'skills', a: 32.62, b: 37.25, align: 'center', theme: 'night', kicker: 'TCF Canada practice', title: 'Rehearse all four skills.', subtitle: 'Listening. Speaking. Reading. Writing.', proofs: [] },
-      { key: 'proof', a: 37.54, b: 39.75, align: 'center', theme: 'night', kicker: 'Built with depth', title: 'One serious place to practise.', subtitle: '', proofs: [['8', 'phases'], ['50', 'scenarios'], ['120', 'listening clips']] }
+      { key: 'next', a: 1.5, b: 3.42, align: 'top-left', theme: 'night', kicker: 'Today · About 15 minutes', title: 'One clear next step.', subtitle: '', proofs: [] },
+      { key: 'daily', a: 3.55, b: 5.88, align: 'top-left', theme: 'night', kicker: 'A practical plan for today', title: 'Review. Continue. Speak.', subtitle: 'A little practice, with a reason for every step.', proofs: [] },
+      { key: 'target', a: 6.05, b: 8.38, align: 'top-center', theme: 'night', kicker: 'One focused outcome', title: 'A guided path toward NCLC 6 / CLB 6.', subtitle: '8 phases · 92 milestones', proofs: [] },
+      { key: 'retention', a: 8.55, b: 10.9, align: 'left', theme: 'night', kicker: 'Weak-spot review', title: 'Mistakes feed back into review.', subtitle: 'Spaced practice brings hard items back.', proofs: [] },
+      { key: 'listen', a: 11.08, b: 15.42, align: 'top-left', theme: 'night', kicker: 'Canadian French audio', title: 'Hear Canadian French.', subtitle: '', proofs: [] },
+      { key: 'listen-proof', a: 15.58, b: 17.88, align: 'top-center', theme: 'night', kicker: 'Listening mastery', title: '120 focused clips. Four speeds. Five drill types.', subtitle: 'Choose. Fill. Reorder. Identify intent. Find the main idea.', proofs: [] },
+      { key: 'record', a: 18.05, b: 20.38, align: 'top-left', theme: 'night', kicker: 'Honest speaking practice', title: 'Record. Listen back. Self-rate.', subtitle: 'Speaking recordings stay on this device.', proofs: [] },
+      { key: 'scenarios', a: 20.58, b: 23.88, align: 'left', theme: 'night', kicker: '50 real-life Canadian scenarios', title: 'Practise the conversations you’ll actually have.', subtitle: 'Housing. Banking. Healthcare. Work. Winter.', proofs: [] },
+      { key: 'steps', a: 24.08, b: 26.88, align: 'top-center', theme: 'night', kicker: 'One guided exchange', title: 'One situation. Seven focused steps.', subtitle: 'Listen → understand → repeat → speak', proofs: [] },
+      { key: 'return', a: 27.05, b: 29.38, align: 'left', theme: 'night', kicker: 'Spaced review', title: 'Hard items come back.', subtitle: 'Review until they stick.', proofs: [] },
+      { key: 'skills', a: 29.58, b: 33.38, align: 'top-center', theme: 'night', kicker: 'TCF Canada counts and timing', title: 'Rehearse all four skills.', subtitle: '≈2h47 · 39 listening · 39 reading · 3 speaking · 3 writing', proofs: [] },
+      { key: 'evidence', a: 33.55, b: 35.88, align: 'top-center', theme: 'night', kicker: 'A useful next priority', title: 'See what to strengthen next.', subtitle: 'Practice evidence—not a certified score.', proofs: [] },
+      { key: 'proof', a: 36.05, b: 38.38, align: 'top-center', theme: 'night', kicker: 'Built with depth', title: 'Focused. Measurable. Honest.', subtitle: '', proofs: [] },
+      { key: 'privacy', a: 39.25, b: 40.88, align: 'left', theme: 'paper', kicker: 'Private by design', title: 'No account. No tracking.', subtitle: 'Progress and speaking recordings stay on this device.', proofs: [] }
     ];
+
+    function updateTransitions(t) {
+      if (reducedMotion) {
+        transitionFlash.style.opacity = '0';
+        motionRule.style.opacity = '0';
+        return;
+      }
+      let strength = 0;
+      let progress = 0;
+      for (const cut of CUTS) {
+        if (t < cut - .12 || t > cut + .18) continue;
+        const u = span(t, cut - .12, cut + .18);
+        const s = Math.sin(u * Math.PI);
+        if (s > strength) {
+          strength = s;
+          progress = u;
+        }
+      }
+      transitionFlash.style.opacity = (strength * .16).toFixed(3);
+      motionRule.style.opacity = (strength * .48).toFixed(3);
+      motionRule.style.transform = `translate3d(${lerp(-920, 920, progress)}%, 0, 0) skewX(-13deg)`;
+    }
 
     function updateCopy(t) {
       const sceneDef = copyScenes.find(item => t >= item.a && t <= item.b);
       if (!sceneDef) {
         copyBlock.style.opacity = '0';
+        delete copyBlock.dataset.scene;
         currentCopyKey = '';
       } else {
         if (currentCopyKey !== sceneDef.key) {
           currentCopyKey = sceneDef.key;
+          copyBlock.dataset.scene = sceneDef.key;
           copyBlock.dataset.align = sceneDef.align;
           copyBlock.dataset.theme = sceneDef.theme;
           filmKicker.textContent = sceneDef.kicker;
@@ -1806,35 +2190,42 @@
             return item;
           }));
         }
-        const opacity = fadeRange(t, sceneDef.a, sceneDef.b, Math.min(.38, (sceneDef.b - sceneDef.a) * .25));
+        const opacity = fadeRange(t, sceneDef.a, sceneDef.b, Math.min(.2, (sceneDef.b - sceneDef.a) * .2));
         copyBlock.style.opacity = opacity.toFixed(3);
         if (sceneDef.align === 'center') {
           copyBlock.style.transform = `translate3d(-50%, calc(-50% + ${(1 - opacity) * 22}px), 0)`;
+        } else if (sceneDef.align === 'top-center') {
+          copyBlock.style.transform = `translate3d(-50%, ${(1 - opacity) * 22}px, 0)`;
         } else {
           copyBlock.style.transform = `translate3d(0, ${(1 - opacity) * 22}px, 0)`;
         }
       }
 
-      const capO = fadeRange(t, 15.05, 19.85, .28);
+      const capO = fadeRange(t, 11.02, 15.52, .2);
       captionCard.style.opacity = capO.toFixed(3);
       captionCard.style.transform = `translate3d(-50%, ${(1 - capO) * 16}px, 0)`;
 
-      const endO = smooth(span(t, 40.05, 41.25));
+      const endO = smooth(span(t, 40.88, 41.35));
       endCard.style.opacity = endO.toFixed(3);
       endCard.style.transform = `translate3d(0, calc(-50% + ${(1 - endO) * 24}px), 0)`;
     }
 
     function sceneNameAt(t) {
-      if (t < 2.5) return 'logo-reveal';
-      if (t < 5) return 'device-reveal';
-      if (t < 10) return 'homepage';
-      if (t < 15) return 'guided-path';
-      if (t < 20) return 'listen';
-      if (t < 22.5) return 'seven-steps';
-      if (t < 27.5) return 'repeat-and-speak';
-      if (t < 32.5) return 'real-life-scenarios';
-      if (t < 37.5) return 'four-skills';
-      if (t < 40) return 'proof-points';
+      if (t < 1.5) return 'logo-reveal';
+      if (t < 3.5) return 'one-next-step';
+      if (t < 6) return 'daily-plan';
+      if (t < 8.5) return 'nclc-target';
+      if (t < 11) return 'weak-spot-review';
+      if (t < 15.5) return 'canadian-french-audio';
+      if (t < 18) return 'listening-mastery';
+      if (t < 20.5) return 'record-review-self-rate';
+      if (t < 24) return 'real-life-scenarios';
+      if (t < 27) return 'seven-steps';
+      if (t < 29.5) return 'spaced-return';
+      if (t < 33.5) return 'four-skill-rehearsal';
+      if (t < 36) return 'practice-evidence';
+      if (t < 38.5) return 'proof-points';
+      if (t < 41) return 'privacy';
       return 'end-card';
     }
 
@@ -1845,6 +2236,7 @@
       updateCamera(t);
       updateWorld(t);
       updateCopy(t);
+      updateTransitions(t);
       renderer.render(scene, camera);
       scrubber.value = t.toFixed(3);
       timecode.textContent = `${formatTime(t)} / 0:45`;
@@ -1857,9 +2249,16 @@
       return `${Math.floor(whole / 60)}:${String(whole % 60).padStart(2, '0')}`;
     }
 
+    function currentPlaybackTime(now = performance.now()) {
+      if (audioAnchor && audioContext?.state === 'running') {
+        return audioAnchor.offset + Math.max(0, audioContext.currentTime - audioAnchor.contextTime);
+      }
+      return baseOffset + (now - clockStart) / 1000;
+    }
+
     function frame(now) {
       if (!playing) return;
-      playhead = baseOffset + (now - clockStart) / 1000;
+      playhead = currentPlaybackTime(now);
       if (playhead >= DURATION) {
         playhead = DURATION;
         playing = false;
@@ -1886,7 +2285,7 @@
     }
 
     function pause() {
-      if (playing) playhead = clamp(baseOffset + (performance.now() - clockStart) / 1000, 0, DURATION);
+      if (playing) playhead = clamp(currentPlaybackTime(), 0, DURATION);
       playing = false;
       cancelAnimationFrame(rafId);
       stopAudio();
@@ -1916,6 +2315,7 @@
         audioSource.disconnect();
         audioSource = null;
       }
+      audioAnchor = null;
     }
 
     function startAudioAt(offset) {
@@ -1924,8 +2324,10 @@
       const source = audioContext.createBufferSource();
       source.buffer = soundtrackBuffer;
       source.connect(audioGain);
-      source.start(0, offset);
+      const startAt = audioContext.currentTime + .025;
+      source.start(startAt, offset);
       audioSource = source;
+      audioAnchor = { contextTime: startAt, offset };
     }
 
     function addTone(ctx, bus, start, duration, frequency, gain = .05, type = 'sine') {
@@ -1968,6 +2370,27 @@
       source.start(start, 0, duration);
     }
 
+    function addPluck(ctx, bus, start, frequency, gain = .045) {
+      addTone(ctx, bus, start, .24, frequency, gain, 'triangle');
+      addTone(ctx, bus, start + .012, .34, frequency * 2, gain * .28, 'sine');
+    }
+
+    function addWhoosh(ctx, bus, noiseBuffer, start, gain = .035) {
+      const source = ctx.createBufferSource();
+      source.buffer = noiseBuffer;
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.Q.value = .72;
+      filter.frequency.setValueAtTime(420, start);
+      filter.frequency.exponentialRampToValueAtTime(4200, start + .32);
+      const env = ctx.createGain();
+      env.gain.setValueAtTime(.0001, start);
+      env.gain.exponentialRampToValueAtTime(gain, start + .17);
+      env.gain.exponentialRampToValueAtTime(.0001, start + .46);
+      source.connect(filter).connect(env).connect(bus);
+      source.start(start, 0, .48);
+    }
+
     async function buildSoundtrack() {
       const Offline = window.OfflineAudioContext || window.webkitOfflineAudioContext;
       if (!Offline) return null;
@@ -1977,46 +2400,58 @@
       const music = ctx.createGain();
       const sfx = ctx.createGain();
       const voiceBus = ctx.createGain();
-      master.gain.value = .68;
-      music.gain.setValueAtTime(.72, 0);
-      music.gain.setValueAtTime(.72, 14.8);
-      music.gain.linearRampToValueAtTime(.18, 15.15);
-      music.gain.setValueAtTime(.18, 19.45);
-      music.gain.linearRampToValueAtTime(.72, 19.95);
-      music.gain.setValueAtTime(.72, 39.55);
-      music.gain.exponentialRampToValueAtTime(.0001, 40.35);
-      voiceBus.gain.value = 1.08;
+      const limiter = ctx.createDynamicsCompressor();
+      master.gain.value = .86;
+      music.gain.setValueAtTime(.9, 0);
+      music.gain.setValueAtTime(.9, 10.78);
+      music.gain.linearRampToValueAtTime(.32, VOICE_AT);
+      music.gain.setValueAtTime(.32, 15.45);
+      music.gain.linearRampToValueAtTime(.9, 15.78);
+      music.gain.setValueAtTime(.9, 44.65);
+      music.gain.exponentialRampToValueAtTime(.0001, 44.98);
+      voiceBus.gain.value = 1;
+      limiter.threshold.value = -10;
+      limiter.knee.value = 8;
+      limiter.ratio.value = 4;
+      limiter.attack.value = .004;
+      limiter.release.value = .18;
       music.connect(master);
       sfx.connect(master);
       voiceBus.connect(master);
-      master.connect(ctx.destination);
+      master.connect(limiter).connect(ctx.destination);
 
       const random = seededRandom(99012);
       const noiseBuffer = ctx.createBuffer(1, sampleRate, sampleRate);
       const noiseData = noiseBuffer.getChannelData(0);
       for (let i = 0; i < noiseData.length; i++) noiseData[i] = random() * 2 - 1;
 
-      const chordTimes = [2.45, 5, 10, 15, 20, 22.5, 27.5, 32.5, 37.5];
+      const chordTimes = [0, 3.5, 6, 8.5, 11, 15.5, 18, 20.5, 24, 27, 29.5, 33.5, 36, 38.5, 41];
       const chords = [
         [110, 164.81, 220], [130.81, 196, 261.63], [146.83, 220, 293.66],
         [110, 174.61, 261.63], [123.47, 185, 246.94], [130.81, 196, 293.66]
       ];
       chordTimes.forEach((at, i) => {
-        chords[i % chords.length].forEach((freq, j) => addTone(ctx, music, at, 5.2, freq, .018 - j * .002, j === 0 ? 'sine' : 'triangle'));
+        const duration = i === chordTimes.length - 1 ? 3.85 : Math.min(3.2, (chordTimes[i + 1] || 45) - at + .4);
+        chords[i % chords.length].forEach((freq, j) => addTone(ctx, music, at, duration, freq, .044 - j * .006, j === 0 ? 'sine' : 'triangle'));
       });
 
-      for (let at = 5; at < 39.6; at += .625) {
-        const beat = Math.round((at - 5) / .625);
-        if (beat % 2 === 0) addKick(ctx, music, at, beat % 8 === 0 ? .095 : .06);
-        if (beat % 4 === 2) addNoise(ctx, music, noiseBuffer, at, .11, .012, 1250);
+      const bassRoots = [55, 65.41, 73.42, 61.74];
+      for (let at = 1.5; at < 40.6; at += .5) {
+        const beat = Math.round((at - 1.5) / .5);
+        if (beat % 2 === 0) {
+          addKick(ctx, music, at, beat % 8 === 0 ? .14 : .09);
+          addTone(ctx, music, at, .46, bassRoots[Math.floor(beat / 8) % bassRoots.length], .036, 'triangle');
+        } else {
+          addNoise(ctx, music, noiseBuffer, at, .09, .018, 1500);
+        }
       }
 
-      [0.35, 2.5, 10, 20, 22.5, 27.5, 32.5, 37.5, 42.3].forEach((at, i) => {
-        const base = [740, 920, 660, 1040, 880, 720, 990, 820, 620][i];
-        addTone(ctx, sfx, at, .65, base, .033, 'sine');
-        addTone(ctx, sfx, at + .04, .8, base * 1.5, .016, 'sine');
+      [1.5, 6, 20.5, 29.5, 38.5, 42].forEach((at, motifIndex) => {
+        const root = [440, 392, 440, 523.25, 392, 523.25][motifIndex];
+        [1, 1.25, 1.5, 2].forEach((ratio, i) => addPluck(ctx, sfx, at + i * .125, root * ratio, .052 - i * .006));
       });
-      [2.15, 9.7, 14.65, 19.6, 27.1, 32.1, 37.15, 39.45].forEach(at => addNoise(ctx, sfx, noiseBuffer, at, .7, .025, 2600));
+      CUTS.slice(1, -1).forEach((at, i) => addWhoosh(ctx, sfx, noiseBuffer, at - .1, i % 3 === 0 ? .042 : .032));
+      [130.81, 196, 261.63, 392].forEach((freq, i) => addTone(ctx, music, 40.05 + i * .035, 4.75 - i * .05, freq, .052 - i * .006, i < 2 ? 'sine' : 'triangle'));
 
       let voice = null;
       try {
@@ -2026,7 +2461,7 @@
         const source = ctx.createBufferSource();
         source.buffer = voice;
         source.connect(voiceBus);
-        source.start(15.15);
+        source.start(VOICE_AT);
 
         const data = voice.getChannelData(0);
         const frames = Math.ceil(voice.duration * 60);
@@ -2050,48 +2485,74 @@
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
         if (!AudioCtx) return;
         audioContext = new AudioCtx();
+        audioContext.addEventListener('statechange', handleAudioStateChange);
         audioGain = audioContext.createGain();
         audioGain.gain.value = muted ? 0 : 1;
         audioGain.connect(audioContext.destination);
       }
-      if (audioContext.state === 'suspended') await audioContext.resume();
+      if (audioContext.state === 'suspended' || audioContext.state === 'interrupted') await audioContext.resume();
+    }
+
+    function handleAudioStateChange() {
+      if (!playing || audioContext?.state !== 'running' || !soundtrackBuffer) return;
+      const now = performance.now();
+      const wallTime = clamp(baseOffset + (now - clockStart) / 1000, 0, DURATION);
+      const anchoredTime = audioAnchor
+        ? audioAnchor.offset + Math.max(0, audioContext.currentTime - audioAnchor.contextTime)
+        : wallTime;
+      if (Math.abs(wallTime - anchoredTime) < .08) return;
+      playhead = wallTime;
+      baseOffset = wallTime;
+      clockStart = now;
+      startAudioAt(playhead);
     }
 
     function setQuality(mode) {
       if (!renderer) return false;
       const gl = renderer.getContext();
-      const maxRenderbuffer = gl.getParameter(gl.MAX_RENDERBUFFER_SIZE) || 4096;
+      const viewport = gl.getParameter(gl.MAX_VIEWPORT_DIMS) || [4096, 4096];
+      const maxDimension = Math.max(1, Math.min(
+        gl.getParameter(gl.MAX_RENDERBUFFER_SIZE) || 4096,
+        gl.getParameter(gl.MAX_TEXTURE_SIZE) || 4096,
+        viewport[0] || 4096,
+        viewport[1] || 4096
+      ));
       const rect = stage.getBoundingClientRect();
       let width;
       let height;
       let actual = mode;
       if (mode === '4k') {
-        if (maxRenderbuffer >= 3840) {
+        if (maxDimension >= 3840) {
           width = 3840;
           height = 2160;
-        } else {
+        } else if (maxDimension >= 2560) {
           width = 2560;
           height = 1440;
           actual = '2k';
+        } else {
+          width = maxDimension;
+          height = Math.max(1, Math.round(width / DESIGN_ASPECT));
+          actual = 'auto';
         }
       } else if (mode === '2k') {
-        width = 2560;
-        height = 1440;
+        width = Math.min(2560, maxDimension);
+        height = Math.max(1, Math.round(width / DESIGN_ASPECT));
+        if (width < 2560) actual = 'auto';
       } else {
         const dpr = Math.min(devicePixelRatio || 1, 2);
         width = Math.max(1280, Math.round(rect.width * dpr));
-        width = Math.min(width, 2560, maxRenderbuffer);
-        height = Math.round(width / DESIGN_ASPECT);
+        width = Math.min(width, 2560, maxDimension);
+        height = Math.max(1, Math.round(width / DESIGN_ASPECT));
         actual = 'auto';
       }
       try {
         renderer.setPixelRatio(1);
         renderer.setSize(width, height, false);
       } catch {
-        renderer.setSize(2560, 1440, false);
-        width = 2560;
-        height = 1440;
-        actual = '2k';
+        width = Math.min(1280, maxDimension);
+        height = Math.max(1, Math.round(width / DESIGN_ASPECT));
+        renderer.setSize(width, height, false);
+        actual = 'auto';
       }
       currentQuality = actual;
       qualitySelect.value = actual === 'auto' ? 'auto' : actual;
@@ -2130,7 +2591,7 @@
           antialias: true,
           alpha: false,
           powerPreference: 'high-performance',
-          preserveDrawingBuffer: true
+          preserveDrawingBuffer: CAPTURE_MODE
         });
       } catch {
         showFallback('This browser could not create a WebGL scene. The accessible film transcript and the course link remain available.');
@@ -2141,8 +2602,14 @@
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
       renderer.toneMappingExposure = 1.08;
       renderer.shadowMap.enabled = true;
-      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      renderer.shadowMap.type = THREE.PCFShadowMap;
       renderer.setClearColor('#07080B', 1);
+
+      renderer.domElement.addEventListener('webglcontextlost', event => {
+        event.preventDefault();
+        pause();
+        showFallback('The graphics context was interrupted. Reload the page to restart the 3D film.');
+      });
 
       scene = new THREE.Scene();
       scene.fog = new THREE.FogExp2('#07080B', .014);
@@ -2157,9 +2624,10 @@
       initialized = true;
       renderAt(0);
 
+      const qualityLabel = currentQuality === '4k' ? '4K' : currentQuality === '2k' ? '2K' : 'Auto';
       posterStatus.textContent = reducedMotion
         ? 'Ready · reduced-motion preference detected'
-        : `Ready · ${currentQuality === '4k' ? '4K' : '2K'} master · sound on`;
+        : `Ready · ${qualityLabel} render · sound on`;
       startLabel.textContent = 'Watch film';
       startButton.disabled = false;
 
@@ -2193,22 +2661,38 @@
     });
     scrubber.addEventListener('input', () => {
       playhead = Number(scrubber.value);
+      // Keyboard changes do not emit pointer events. Rebase both clocks here
+      // so arrow-key scrubbing cannot snap back or drift from the soundtrack.
+      if (playing && !scrubWasPlaying) {
+        baseOffset = playhead;
+        clockStart = performance.now();
+        startAudioAt(playhead);
+      }
       renderAt(playhead);
     });
     scrubber.addEventListener('pointerup', () => {
-      if (scrubWasPlaying) play();
+      const shouldResume = scrubWasPlaying;
       scrubWasPlaying = false;
+      if (shouldResume) play();
     });
     scrubber.addEventListener('change', () => {
       if (!scrubWasPlaying) {
         playhead = Number(scrubber.value);
+        if (playing) {
+          baseOffset = playhead;
+          clockStart = performance.now();
+          startAudioAt(playhead);
+        }
         renderAt(playhead);
       }
     });
 
     muteButton.addEventListener('click', () => {
       muted = !muted;
-      if (audioGain) audioGain.gain.value = muted ? 0 : 1;
+      if (audioGain && audioContext) {
+        audioGain.gain.cancelScheduledValues(audioContext.currentTime);
+        audioGain.gain.setTargetAtTime(muted ? 0 : 1, audioContext.currentTime, .012);
+      }
       muteButton.textContent = muted ? '×' : '♪';
       muteButton.setAttribute('aria-label', muted ? 'Unmute film' : 'Mute film');
       muteButton.setAttribute('aria-pressed', String(muted));
@@ -2263,12 +2747,6 @@
 
     window.addEventListener('resize', () => {
       if (currentQuality === 'auto') setQuality('auto');
-    });
-
-    renderer?.domElement?.addEventListener('webglcontextlost', event => {
-      event.preventDefault();
-      pause();
-      showFallback('The graphics context was interrupted. Reload the page to restart the 3D film.');
     });
 
     init().catch(() => {

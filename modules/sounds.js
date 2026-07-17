@@ -14,10 +14,13 @@
 //   tickCountdown subtle metronome — countdown tick on Wait/Next
 //   warn          soft warning blip — error / load failure
 //
-// Style options for the primary click (Settings.getClickStyle()):
-//   'soft'       — original thin tick (legacy)
-//   'default'    — layered clack with low-end thump + crisp top (new default)
-//   'mechanical' — brighter, ringier, faster attack — MX-blue-ish
+// The primary tap sounds (click / option / back / nav) play pre-designed
+// samples from audio/ui/*.wav — a warm "pop" with a defined contact transient —
+// falling back to the synth voices below only until the buffers decode. Style
+// options (Settings.getClickStyle()) select the sample pack:
+//   'soft'       — gentle, airy, lower
+//   'default'    — the balanced pop (ships as default)
+//   'mechanical' — crisper contact, brighter, still warm
 //
 // Master volume + per-category throttling. Ducks to 25% while TTS is speaking.
 // Respects Settings.isClickSoundOn() AND Settings.isCelebrationsOn() flags.
@@ -185,9 +188,101 @@ window.Sounds = (function () {
     return 'default';
   }
 
+  // ─────────────────── PREMIUM SAMPLE LAYER ───────────────────
+  // The primary tap sounds play short, pre-designed samples (audio/ui/*.wav,
+  // rendered by scripts/gen_ui_sounds.py) instead of raw oscillators — a warm
+  // "pop" with a defined contact transient. Everything still routes through
+  // `master`, so master volume, TTS ducking, and the mobile mix all apply. If a
+  // sample isn't decoded yet (very first tap, offline before first fetch, or a
+  // decode error) the caller falls back to the synth voice below — sound is
+  // never lost, it just upgrades to the sample once the buffer is ready.
+  const SAMPLE_PACKS = ['soft', 'default', 'mechanical'];
+  const CLICK_VARIANTS = 4;      // round-robin so fast taps don't machine-gun
+  const SAMPLE_GAIN = 0.6;       // brings normalized samples in line with synth
+  const ASSET_VERSION = (() => {
+    try {
+      const s = document.querySelector('script[src*="modules/sounds.js"]');
+      const m = s && s.src.match(/[?&]v=([^&]+)/);
+      return m ? m[1] : '';
+    } catch { return ''; }
+  })();
+  function sampleUrl(name) {
+    return 'audio/ui/' + name + '.wav' + (ASSET_VERSION ? '?v=' + ASSET_VERSION : '');
+  }
+  function packFiles(pack) {
+    const files = [];
+    for (let i = 1; i <= CLICK_VARIANTS; i++) files.push(pack + '-click-' + i);
+    files.push(pack + '-nav');
+    return files;
+  }
+  const rawCache = new Map();    // name -> ArrayBuffer (fetched, not yet decoded)
+  const bufCache = new Map();    // name -> AudioBuffer (decoded, ready)
+  const decoding = new Set();
+  const rrIndex = {};            // pack -> last round-robin click index
+
+  function fetchPackRaw(pack) {
+    if (typeof fetch !== 'function') return;
+    for (const name of packFiles(pack)) {
+      if (rawCache.has(name)) continue;   // fetched or in-flight (null sentinel)
+      rawCache.set(name, null);
+      fetch(sampleUrl(name))
+        .then(r => (r.ok ? r.arrayBuffer() : Promise.reject()))
+        .then(buf => { rawCache.set(name, buf); decodeIfReady(name); })
+        .catch(() => { rawCache.delete(name); });
+    }
+  }
+  function decodeIfReady(name) {
+    if (!ctx || bufCache.has(name) || decoding.has(name)) return;
+    const raw = rawCache.get(name);
+    if (!raw) return;
+    decoding.add(name);
+    // decodeAudioData detaches the buffer, so decode a copy — a failed decode
+    // then can't strand the only reference and block a retry.
+    ctx.decodeAudioData(
+      raw.slice(0),
+      (buf) => { bufCache.set(name, buf); decoding.delete(name); },
+      () => { decoding.delete(name); }
+    );
+  }
+  function currentPack() {
+    const s = getClickStyle();
+    return SAMPLE_PACKS.indexOf(s) >= 0 ? s : 'default';
+  }
+  function warmSamples() {
+    // Only spin up audio if tap sounds are actually enabled.
+    if (window.Settings && typeof Settings.isClickSoundOn === 'function' && !Settings.isClickSoundOn()) return;
+    const pack = currentPack();
+    fetchPackRaw(pack);
+    if (ensureCtx()) for (const name of packFiles(pack)) decodeIfReady(name);
+  }
+  function playSample(name, rate, gain) {
+    if (!ensureCtx()) return false;
+    const buf = bufCache.get(name);
+    if (!buf) { decodeIfReady(name); return false; }  // not ready → synth fallback
+    maybeResume();
+    try {
+      const src = ctx.createBufferSource();
+      src.buffer = buf;
+      src.playbackRate.value = rate || 1;
+      const g = ctx.createGain();
+      g.gain.value = (gain == null ? 1 : gain) * currentGainMult();
+      src.connect(g).connect(master);
+      src.start();
+      return true;
+    } catch { return false; }
+  }
+  // Play the next round-robin click variant of the current pack. Advancing by
+  // one each call guarantees no two consecutive taps use the same sample.
+  function playClickVariant(rate, gain) {
+    const pack = currentPack();
+    const i = (rrIndex[pack] = ((rrIndex[pack] || 0) % CLICK_VARIANTS) + 1);
+    return playSample(pack + '-click-' + i, rate, gain);
+  }
+
   function playClick() {
     if (!allowed('click') || !ensureCtx()) return;
     maybeResume();
+    if (playClickVariant(1.0, SAMPLE_GAIN)) return;   // premium sample
     const style = getClickStyle();
     if (style === 'soft') {
       // Legacy thin tick
@@ -209,7 +304,9 @@ window.Sounds = (function () {
   function playClickBack() {
     if (!allowed('clickBack') || !ensureCtx()) return;
     maybeResume();
-    // Softer, woodier — for back / icon / hamburger
+    // Same premium pop, pitched down + softer — reads as "back / lighter".
+    if (playClickVariant(0.82, SAMPLE_GAIN * 0.85)) return;
+    // Softer, woodier synth fallback — for back / icon / hamburger
     tone({ type: 'sine', f0: 1400, f1: 600, dur: 0.050, gain: 0.10, attack: 0.004 });
     tone({ type: 'sine', f0: 95,   f1: 70,  dur: 0.025, gain: 0.10 });
   }
@@ -217,7 +314,9 @@ window.Sounds = (function () {
   function playClickOption() {
     if (!allowed('clickOption') || !ensureCtx()) return;
     maybeResume();
-    // Slightly higher-pitched click to distinguish from primary
+    // Same premium pop, pitched up a touch — distinguishes an MCQ pick.
+    if (playClickVariant(1.10, SAMPLE_GAIN * 0.92)) return;
+    // Slightly higher-pitched synth fallback
     tone({ type: 'sine', f0: 2400, f1: 1200, dur: 0.040, gain: 0.12, attack: 0.001 });
     tone({ type: 'sine', f0: 130,  f1: 100,  dur: 0.022, gain: 0.14 });
     noiseBurst({ dur: 0.005, gain: 0.07, hp: 4000 });
@@ -335,6 +434,10 @@ window.Sounds = (function () {
   function playNav(opts) {
     if (!allowed('nav') || !ensureCtx()) return;
     maybeResume();
+    // Premium arrival sample (pop + soft bell). Only the default, bell-less nav
+    // uses it; the per-tab xylophone variant (opts.bell) keeps the synth so each
+    // nav button can ring its own note.
+    if (!(opts && opts.bell) && playSample(currentPack() + '-nav', 1.0, SAMPLE_GAIN)) return;
     const bell = (opts && opts.bell) || 660; // default = E5
     noiseBurst({ dur: 0.005, gain: 0.08, hp: 3500 });
     tone({ type: 'sine',     f0: 330,    f1: 220, dur: 0.05, gain: 0.13, attack: 0.001 });
@@ -615,6 +718,9 @@ window.Sounds = (function () {
       if (e.button != null && e.button !== 0) return;
       const name = shouldTick(e.target);
       if (!name) return;
+      // Warm the sample buffers on press so they're decoded by the time the
+      // release actually plays the sound — the first real tap sounds premium.
+      warmSamples();
       pending = { name, x: e.clientX, y: e.clientY, target: e.target };
     }, true);
 
@@ -639,7 +745,20 @@ window.Sounds = (function () {
     // <select> change events emit selectChange even when opened via keyboard.
     document.addEventListener('change', (e) => {
       const sel = e.target && e.target.closest && e.target.closest('select');
-      if (sel) play('selectChange');
+      if (!sel) return;
+      // Picking a click style previews it: warm the new pack, then play a click
+      // once its buffer decodes so the learner hears the change immediately.
+      if (sel.id === 'set-click-style') {
+        warmSamples();
+        let tries = 0;
+        const preview = () => {
+          if (playClickVariant(1.0, SAMPLE_GAIN)) return;
+          if (++tries < 25) setTimeout(preview, 40);
+        };
+        setTimeout(preview, 60);
+        return;
+      }
+      play('selectChange');
     }, true);
   }
 
@@ -649,6 +768,15 @@ window.Sounds = (function () {
     } else {
       setup();
     }
+    // Pre-fetch the current pack's sample bytes once idle, so even the very
+    // first tap has raw data ready to decode. No AudioContext is created here
+    // (that waits for a real gesture) — this only warms the network cache.
+    const preload = () => {
+      if (window.Settings && typeof Settings.isClickSoundOn === 'function' && !Settings.isClickSoundOn()) return;
+      fetchPackRaw(currentPack());
+    };
+    if (typeof requestIdleCallback === 'function') requestIdleCallback(preload, { timeout: 3000 });
+    else if (typeof setTimeout === 'function') setTimeout(preload, 2000);
   }
 
   // Back-compat: keep old API surface so any external callers don't break.

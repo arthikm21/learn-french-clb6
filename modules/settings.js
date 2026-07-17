@@ -101,9 +101,10 @@ window.Settings = (function () {
 
   return {
     // Click sound (master enable)
-    // Premium default: meaningful learning feedback stays on, but routine UI
-    // taps are silent unless the learner explicitly opts in.
-    isClickSoundOn()  { return readBool(KEY_CLICK_SOUND, false); },
+    // On by default: buttons play a premium sample-based "pop" (see
+    // modules/sounds.js) so the app feels alive on first use. The toggle lets
+    // anyone who prefers silence turn all routine tap feedback off.
+    isClickSoundOn()  { return readBool(KEY_CLICK_SOUND, true); },
     setClickSound(on) { writeBool(KEY_CLICK_SOUND, !!on); },
 
     // Tap-to-pronounce on French words

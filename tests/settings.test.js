@@ -2,11 +2,13 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const { createLocalStorage, loadBrowserModule } = require('./helpers');
 
-test('routine UI sounds are opt-in and default volume is restrained', () => {
+test('premium click sound is on by default and default volume is restrained', () => {
   const localStorage = createLocalStorage();
   const context = loadBrowserModule('modules/settings.js', { localStorage });
   const Settings = context.window.Settings;
-  assert.equal(Settings.isClickSoundOn(), false);
+  // Buttons play a sample-based tap out of the box (see modules/sounds.js);
+  // the toggle can still silence all routine tap feedback.
+  assert.equal(Settings.isClickSoundOn(), true);
   assert.equal(Settings.getMasterVolume(), 0.5);
 
   Settings.setClickSound(true);

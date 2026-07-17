@@ -5,6 +5,7 @@ const fs = require('node:fs');
 const trustFiles = [
   'app.js',
   'index.html',
+  'launch-film.html',
   'how-to-score-clb6.html',
   'clb6-french-course.html',
   'free-french-course-canada.html',

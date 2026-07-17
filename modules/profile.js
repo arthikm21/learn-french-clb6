@@ -143,23 +143,23 @@ window.ProfileModule = (function () {
 
       <div class="grammar-box">
         <h3>Sound</h3>
-        <p style="color:var(--ink-2);font-size:var(--fs-14);margin-bottom:var(--sp-3)">Learning feedback is on by default. Routine interface sounds are optional.</p>
+        <p style="color:var(--ink-2);font-size:var(--fs-14);margin-bottom:var(--sp-3)">Buttons play a premium tap sound. Turn it off any time.</p>
         <div class="toggle-row">
           <div class="info">
-            <h4>Extra interface sounds</h4>
-            <p>Optional taps for navigation, buttons, options, and controls. Blank space is always silent.</p>
+            <h4>Click sounds</h4>
+            <p>A soft, tactile pop on buttons, options, and navigation. Blank space is always silent.</p>
           </div>
-          <input type="checkbox" class="toggle" id="set-clicks" ${Settings.isClickSoundOn() ? 'checked' : ''} aria-label="Extra interface sounds"/>
+          <input type="checkbox" class="toggle" id="set-clicks" ${Settings.isClickSoundOn() ? 'checked' : ''} aria-label="Click sounds"/>
         </div>
         <div class="toggle-row">
           <div class="info">
-            <h4>Click style</h4>
-            <p>Soft = thin, Default = layered clack, Mechanical = MX-blue-style.</p>
+            <h4>Click character</h4>
+            <p>Pick the tone — Soft is gentle and airy, Pop is balanced, Tactile is crisper. Changing it plays a preview.</p>
           </div>
-          <select class="input" id="set-click-style" aria-label="Click style" style="max-width:160px">
+          <select class="input" id="set-click-style" aria-label="Click character" style="max-width:160px">
             <option value="soft"${Settings.getClickStyle() === 'soft' ? ' selected' : ''}>Soft</option>
-            <option value="default"${Settings.getClickStyle() === 'default' ? ' selected' : ''}>Default</option>
-            <option value="mechanical"${Settings.getClickStyle() === 'mechanical' ? ' selected' : ''}>Mechanical</option>
+            <option value="default"${Settings.getClickStyle() === 'default' ? ' selected' : ''}>Pop</option>
+            <option value="mechanical"${Settings.getClickStyle() === 'mechanical' ? ' selected' : ''}>Tactile</option>
           </select>
         </div>
         <div class="toggle-row">
