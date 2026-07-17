@@ -105,13 +105,18 @@ window.MockModule = (function () {
     // finishing or aborting, stop the section timer. Otherwise it keeps counting
     // down in the background and forcibly yanks them back into the test when it
     // hits zero.
-    const onHashAway = () => {
-      if (!location.hash.startsWith('#mock')) {
-        if (timerInterval) clearInterval(timerInterval);
-        window.removeEventListener('hashchange', onHashAway);
-      }
+    // Also stop on app:navigate — a same-hash re-render (clicking "Practice
+    // simulation" in the nav mid-section) repaints the menu without any
+    // hashchange, and the orphaned timer would later force-finish a section
+    // whose DOM no longer exists.
+    const onHashAway = (e) => {
+      if (e && e.type === 'hashchange' && location.hash.startsWith('#mock')) return;
+      if (timerInterval) clearInterval(timerInterval);
+      window.removeEventListener('hashchange', onHashAway);
+      window.removeEventListener('app:navigate', onHashAway);
     };
     window.addEventListener('hashchange', onHashAway);
+    window.addEventListener('app:navigate', onHashAway);
 
     let sectionFinished = false;
     function finishSection(timeExpired = false) {
@@ -122,6 +127,7 @@ window.MockModule = (function () {
       sectionFinished = true;
       if (timerInterval) clearInterval(timerInterval);
       window.removeEventListener('hashchange', onHashAway);
+      window.removeEventListener('app:navigate', onHashAway);
       const result = sectionData.collect ? sectionData.collect() : { score: 0 };
       result.timeSpent = Math.floor((Date.now() - sectionStart) / 1000);
       session.results[sec.id] = result;

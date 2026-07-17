@@ -113,8 +113,19 @@ window.TTS = (function () {
     speechSynthesis.onvoiceschanged = pickFallbackVoice;
   }
 
+  // True when speaking French aloud is possible: either a French voice is
+  // installed, or the voice list hasn't loaded yet (Chrome populates it
+  // async — trust the lang hint in that window). If the list is loaded and
+  // has NO French voice, the browser would read French text with its default
+  // (usually English) voice — teaching wrong sounds. Silence is better.
+  function canSpeakFrench() {
+    if (fallbackVoice || pickFallbackVoice()) return true;
+    return speechSynthesis.getVoices().length === 0;
+  }
+
   function fallbackSpeak(text, rate) {
     if (!('speechSynthesis' in window)) return;
+    if (!canSpeakFrench()) return;
     speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
     u.lang = 'fr-CA';
@@ -219,9 +230,11 @@ window.TTS = (function () {
       }
     }
     if (myEpoch !== epoch) return;
-    // Fallback: SpeechSynthesis with different voice
-    if (!('speechSynthesis' in window)) { done(); return; }
-    const u = new SpeechSynthesisUtterance(text);
+    // Fallback: SpeechSynthesis with different voice. Speak the normalized
+    // key (not the raw display text) so scaffolding like [slots] and
+    // (glosses) is never read literally; and only with a French voice.
+    if (!('speechSynthesis' in window) || !canSpeakFrench()) { done(); return; }
+    const u = new SpeechSynthesisUtterance(key);
     u.lang = 'fr-CA';
     if (voice === 'fr-CA-JeanNeural') {
       u.pitch = 0.7; // male-ish

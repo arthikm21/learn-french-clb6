@@ -13,11 +13,29 @@ Outputs:
 The TTS module looks up non-default voices first via "VOICE|text", then falls
 back to "text" — so adding voice variants is purely additive.
 """
-import asyncio, edge_tts, hashlib, json, os, sys, time
+import asyncio, edge_tts, hashlib, json, os, re, sys, time
 
 DEFAULT_VOICE = "fr-CA-SylvieNeural"   # Canadian female neural — matches CLB target
 RATE  = "-5%"                          # slightly slower for learners
 CONCURRENCY = 6
+
+def spoken_form(text: str) -> str:
+    """What the voice is actually asked to say.
+
+    Bare fragments ("les chats", "avec") make the neural voice code-switch to
+    English — it literally said "less chats". Framing the fragment as a
+    sentence (leading capital + final period) locks French prosody. Strings
+    that already end in sentence punctuation (incl. inside closing quotes)
+    pass through untouched, so their cached clips stay valid.
+    """
+    t = text.strip()
+    if not t:
+        return t
+    core = re.sub(r'[»«"\'\s)\]]+$', '', t)
+    if core and core[-1] in '.!?…':
+        return t
+    t = re.sub(r'[,;:\s]+$', '', t)
+    return t[0].upper() + t[1:] + '.'
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT  = os.path.join(ROOT, "audio")
@@ -29,7 +47,10 @@ def hash_name(text: str, voice: str) -> str:
     return f"{h}.mp3"
 
 async def gen_one(sem, text, voice, manifest_key, manifest, stats):
-    fn = hash_name(text, voice)
+    # Hash the SPOKEN form: sentence-framing a fragment changes what the voice
+    # says, so it must also change the filename or the stale clip stays cached.
+    speak = spoken_form(text)
+    fn = hash_name(speak, voice)
     path = os.path.join(OUT, fn)
     manifest[manifest_key] = f"audio/{fn}"
     if os.path.exists(path) and os.path.getsize(path) > 200:
@@ -38,7 +59,7 @@ async def gen_one(sem, text, voice, manifest_key, manifest, stats):
     async with sem:
         for attempt in range(3):
             try:
-                c = edge_tts.Communicate(text, voice, rate=RATE)
+                c = edge_tts.Communicate(speak, voice, rate=RATE)
                 await c.save(path)
                 stats["generated"] += 1
                 done = stats["generated"] + stats["cached"]

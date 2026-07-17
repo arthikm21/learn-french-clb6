@@ -143,7 +143,7 @@ window.PathModule = (function () {
         node.setAttribute('aria-disabled', String(locked));
         if (isNext) node.style.boxShadow = '0 0 0 2px var(--accent), var(--e2)';
 
-        const nextTag = isNext ? '<span class="tag" style="background:var(--accent);color:white">Next</span>' : '';
+        const nextTag = isNext ? '<span class="tag" style="background:var(--accent-fill, var(--accent));color:#fff">Next</span>' : '';
         const evidenceTag = evidence && typeof evidence.best === 'number'
           ? `<span class="tag" style="background:${evidence.status === 'mastered' ? 'color-mix(in srgb, var(--good) 14%, transparent)' : 'color-mix(in srgb, var(--warn) 16%, transparent)'};color:${evidence.status === 'mastered' ? 'var(--good)' : 'var(--warn)'}">${evidence.status === 'mastered' ? 'Mastered' : 'Building'} · best ${evidence.best}%</span>`
           : evidence && evidence.status === 'practiced'

@@ -9,8 +9,18 @@ window.ConnectorsModule = (function () {
     let timeLeft = 30;
     let aborted = false;
 
-    const onHash = () => { if (!location.hash.startsWith('#connectors')) { aborted = true; clearInterval(timer); window.removeEventListener('hashchange', onHash); } };
+    // Tear down on hashchange away from the drill, and ALWAYS on a same-hash
+    // re-render (app:navigate) — otherwise the old drill's timer keeps ticking
+    // over the fresh one.
+    const onHash = (e) => {
+      if (e && e.type === 'hashchange' && location.hash.startsWith('#connectors')) return;
+      aborted = true;
+      clearInterval(timer);
+      window.removeEventListener('hashchange', onHash);
+      window.removeEventListener('app:navigate', onHash);
+    };
     window.addEventListener('hashchange', onHash);
+    window.addEventListener('app:navigate', onHash);
 
     function show() {
       if (aborted) return;

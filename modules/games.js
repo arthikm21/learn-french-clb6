@@ -161,8 +161,10 @@ window.GamesModule = (function () {
       aborted = true;
       clearInterval(timer);
       window.removeEventListener('hashchange', onHash);
+      window.removeEventListener('app:navigate', onHash);
     };
     window.addEventListener('hashchange', onHash);
+    window.addEventListener('app:navigate', onHash);
 
     function tick() {
       if (aborted) return;
@@ -563,8 +565,9 @@ window.GamesModule = (function () {
     if (pool.length === 0) { container.innerHTML = '<div class="lesson"><p>No sentences available.</p></div>'; return; }
     let queue = pool.sort(() => Math.random() - 0.5).slice(0, 10);
     let i = 0, correct = 0, time = 120, timer = null, aborted = false;
-    const onHash = () => { aborted = true; clearInterval(timer); window.removeEventListener('hashchange', onHash); };
+    const onHash = () => { aborted = true; clearInterval(timer); window.removeEventListener('hashchange', onHash); window.removeEventListener('app:navigate', onHash); };
     window.addEventListener('hashchange', onHash);
+    window.addEventListener('app:navigate', onHash);
 
     function tick() {
       if (aborted) return;

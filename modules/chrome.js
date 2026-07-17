@@ -280,6 +280,7 @@ window.Chrome = (function () {
       clearInterval(timer);
       document.removeEventListener('keydown', onKey);
       window.removeEventListener('hashchange', destroy);
+      window.removeEventListener('app:navigate', destroy);
       if (advance._destroy === destroy) advance._destroy = null;
       onNext();
     }
@@ -291,6 +292,7 @@ window.Chrome = (function () {
       clearInterval(timer);
       document.removeEventListener('keydown', onKey);
       window.removeEventListener('hashchange', destroy);
+      window.removeEventListener('app:navigate', destroy);
       if (advance._destroy === destroy) advance._destroy = null;
     }
 
@@ -320,6 +322,9 @@ window.Chrome = (function () {
     if (auto) timer = setInterval(tick, 1000);
     document.addEventListener('keydown', onKey);
     window.addEventListener('hashchange', destroy);
+    // Same-hash re-renders repaint without a hashchange; tear down then too so
+    // the countdown and document-level key handler never outlive their row.
+    window.addEventListener('app:navigate', destroy);
 
     advance._destroy = destroy;
     return destroy;

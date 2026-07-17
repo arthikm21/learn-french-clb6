@@ -169,8 +169,15 @@ window.App = (function () {
   function go(route, params) {
     const hash = Router.build(route, params);
     // If hash didn't change, force re-render (hashchange event won't fire).
-    if (location.hash === hash) renderActive();
-    else location.hash = hash;
+    // Modules with running timers tear down on hashchange; a same-hash
+    // re-render would leave those timers alive to clobber the fresh view,
+    // so give them an equivalent teardown signal first.
+    if (location.hash === hash) {
+      window.dispatchEvent(new CustomEvent('app:navigate'));
+      renderActive();
+    } else {
+      location.hash = hash;
+    }
   }
 
   function renderActive() {

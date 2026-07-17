@@ -74,6 +74,36 @@ test('writing evidence cannot be completed without a full draft', () => {
   assert.match(source, /doneBtn\.disabled = n < g\.words\[0\] \|\| !boxes\.every/);
 });
 
+test('same-hash re-renders broadcast a teardown signal and timer modules honour it', () => {
+  const app = fs.readFileSync('app.js', 'utf8');
+  // go() must announce a same-hash repaint before rendering, because no
+  // hashchange event will fire to tear down running lesson/game timers.
+  assert.match(app, /dispatchEvent\(new CustomEvent\('app:navigate'\)\);\s*\n\s*renderActive\(\)/);
+
+  // Every module that arms a view-owning countdown must subscribe its
+  // hashchange teardown to app:navigate too, and unsubscribe both.
+  for (const file of ['modules/games.js', 'modules/connectors.js', 'modules/mock.js', 'modules/chrome.js']) {
+    const source = fs.readFileSync(file, 'utf8');
+    const adds = source.match(/addEventListener\('app:navigate'/g) || [];
+    const removes = source.match(/removeEventListener\('app:navigate'/g) || [];
+    assert.ok(adds.length > 0, `${file} must listen for app:navigate`);
+    assert.ok(removes.length >= adds.length, `${file} must remove every app:navigate listener`);
+  }
+});
+
+test('filled accent/warn surfaces use -fill tokens so dark-mode pastels never carry white text', () => {
+  // Dark mode maps --accent/--warn to pastels (#7C9CFF / #E8BC72). White text
+  // on those fails WCAG; filled surfaces must use the -fill variants instead.
+  // Scoped to module inline styles — stylesheet rules can be (and are)
+  // re-themed by editorial.css, but inline styles always win the cascade.
+  const sources = fs.readdirSync('modules').filter(f => f.endsWith('.js')).map(f => `modules/${f}`).concat(['app.js']);
+  for (const file of sources) {
+    const text = fs.readFileSync(file, 'utf8');
+    assert.doesNotMatch(text, /background:\s*var\(--accent\)\s*;\s*color:\s*(?:white|#fff)/i, `${file}: white text on raw --accent`);
+    assert.doesNotMatch(text, /background:\s*var\(--warn\)\s*;\s*color:\s*(?:white|#fff|var\(--gray-900\))/i, `${file}: unreadable text on raw --warn`);
+  }
+});
+
 test('profile creation rejects rather than silently rewrites invalid names', () => {
   const source = fs.readFileSync('modules/profile.js', 'utf8');
   assert.match(source, /if \(name !== raw\)/);

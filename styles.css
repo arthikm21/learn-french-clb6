@@ -735,7 +735,8 @@ main {
   font-weight: var(--fw-bold);
   font-size: var(--fs-14);
   color: #fff;
-  background: var(--bleu);
+  /* -fill variant: dark mode's pastel --bleu can't carry white text */
+  background: var(--accent-fill, var(--bleu));
   padding: 6px 12px;
   border-radius: var(--r-pill);
   font-variant-numeric: tabular-nums;
@@ -1516,7 +1517,8 @@ textarea.input { min-height: 140px; resize: vertical; line-height: var(--lh-base
 .mic-btn {
   width: 96px; height: 96px;
   border-radius: 50%;
-  background: var(--accent);
+  /* -fill variant: dark mode's pastel --accent can't carry the white glyph */
+  background: var(--accent-fill, var(--accent));
   border: none;
   color: white;
   font-size: 36px;

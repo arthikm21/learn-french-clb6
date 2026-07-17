@@ -156,7 +156,7 @@ window.ProfileModule = (function () {
             <h4>Click style</h4>
             <p>Soft = thin, Default = layered clack, Mechanical = MX-blue-style.</p>
           </div>
-          <select class="input" id="set-click-style" style="max-width:160px">
+          <select class="input" id="set-click-style" aria-label="Click style" style="max-width:160px">
             <option value="soft"${Settings.getClickStyle() === 'soft' ? ' selected' : ''}>Soft</option>
             <option value="default"${Settings.getClickStyle() === 'default' ? ' selected' : ''}>Default</option>
             <option value="mechanical"${Settings.getClickStyle() === 'mechanical' ? ' selected' : ''}>Mechanical</option>
@@ -200,7 +200,7 @@ window.ProfileModule = (function () {
             <h4>Animation level</h4>
             <p>Off = instant. Subtle = fades only. Full = springs + sparkles. Auto-detects "Reduce motion" in your OS.</p>
           </div>
-          <select class="input" id="set-anim-level" style="max-width:160px">
+          <select class="input" id="set-anim-level" aria-label="Animation level" style="max-width:160px">
             <option value="off"${Settings.getAnimLevel() === 'off' ? ' selected' : ''}>Off</option>
             <option value="subtle"${Settings.getAnimLevel() === 'subtle' ? ' selected' : ''}>Subtle</option>
             <option value="full"${Settings.getAnimLevel() === 'full' ? ' selected' : ''}>Full</option>
@@ -247,7 +247,7 @@ window.ProfileModule = (function () {
         <h3>⚠️ Reset my progress</h3>
         <p style="color:var(--ink-2)">Wipes all lessons, SRS, weak spots, and writing drafts. Username stays. Cannot be undone.</p>
         <div class="spacer"></div>
-        <button class="btn" id="reset" style="background:var(--warn);color:var(--gray-900)">Reset progress</button>
+        <button class="btn" id="reset" style="background:var(--warn-fill, var(--warn));color:#fff">Reset progress</button>
       </div>
 
       <div class="grammar-box" style="border-left-color:var(--bad)">
