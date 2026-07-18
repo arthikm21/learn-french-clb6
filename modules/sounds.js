@@ -1,9 +1,10 @@
-// UI sound effects. Zero asset bytes — every sound synthesized via Web Audio.
+// UI sound effects. Routine interaction sounds use tiny, locally stored samples;
+// learning feedback and celebrations are synthesized with Web Audio.
 //
 // Palette (call via Sounds.play('<name>')):
-//   click         layered clack — main button/option/card press
-//   clickBack     softer woody tap — Back / icon / hamburger / drawer close
-//   clickOption   slightly higher-pitched click — distinguish MCQ selection
+//   click         compact haptic tap — main button/option/card press
+//   clickBack     quieter, lower haptic tap — Back / icon / drawer close
+//   clickOption   lightly lifted haptic tap — distinguish MCQ selection
 //   correct       3-note major arpeggio (C-E-G) — right answer
 //   wrong         soft descending bonk — wrong answer (not harsh)
 //   complete      5-note fanfare — lesson done
@@ -14,13 +15,13 @@
 //   tickCountdown subtle metronome — countdown tick on Wait/Next
 //   warn          soft warning blip — error / load failure
 //
-// The primary tap sounds (click / option / back / nav) play pre-designed
-// samples from audio/ui/*.wav — a warm "pop" with a defined contact transient —
-// falling back to the synth voices below only until the buffers decode. Style
+// The primary tap sounds play pre-designed samples from audio/ui/*.wav — a
+// short, low haptic pulse with tightly controlled high frequencies —
+// falling back to a quiet synth voice only until the buffers decode. Style
 // options (Settings.getClickStyle()) select the sample pack:
-//   'soft'       — gentle, airy, lower
-//   'default'    — the balanced pop (ships as default)
-//   'mechanical' — crisper contact, brighter, still warm
+//   'soft'       — soft haptic: lightest and most muted
+//   'default'    — haptic: the selected balanced pulse (ships as default)
+//   'mechanical' — firm haptic: more definition, still rounded
 //
 // Master volume + per-category throttling. Ducks to 25% while TTS is speaking.
 // Respects Settings.isClickSoundOn() AND Settings.isCelebrationsOn() flags.
@@ -60,7 +61,7 @@ window.Sounds = (function () {
     } catch {}
     return (navigator && navigator.maxTouchPoints || 0) > 0;
   }
-  const MOBILE_VOL = 0.6; // master volume multiplier on touch devices
+  const MOBILE_VOL = 0.52; // extra restraint on devices commonly held close
   function effectiveVolume(v) { return isTouchPrimary() ? v * MOBILE_VOL : v; }
   // Extra spacing (ms floor) for the chatty navigation/transition sounds on
   // touch — rapid section-hopping by thumb shouldn't machine-gun.
@@ -157,28 +158,6 @@ window.Sounds = (function () {
     osc.stop(t0 + delay + dur + 0.02);
   }
 
-  // Filtered noise burst — adds attack texture / "tactile" feel to clicks.
-  function noiseBurst(opts) {
-    const c = ctx; if (!c) return;
-    const t0 = c.currentTime;
-    const { dur = 0.012, gain = 0.1, hp = 1800, delay = 0 } = opts || {};
-    const buf = c.createBuffer(1, Math.max(1, Math.ceil(c.sampleRate * dur)), c.sampleRate);
-    const data = buf.getChannelData(0);
-    for (let i = 0; i < data.length; i++) {
-      // Linear decay shapes the burst — sharp attack, quick fade
-      data[i] = (Math.random() * 2 - 1) * (1 - i / data.length);
-    }
-    const ns = c.createBufferSource();
-    ns.buffer = buf;
-    const filter = c.createBiquadFilter();
-    filter.type = 'highpass';
-    filter.frequency.value = hp;
-    const g = c.createGain();
-    g.gain.value = gain * currentGainMult();
-    ns.connect(filter).connect(g).connect(master);
-    ns.start(t0 + delay);
-  }
-
   // ───────────────────────────── SOUNDS ─────────────────────────────
 
   function getClickStyle() {
@@ -190,15 +169,16 @@ window.Sounds = (function () {
 
   // ─────────────────── PREMIUM SAMPLE LAYER ───────────────────
   // The primary tap sounds play short, pre-designed samples (audio/ui/*.wav,
-  // rendered by scripts/gen_ui_sounds.py) instead of raw oscillators — a warm
-  // "pop" with a defined contact transient. Everything still routes through
+  // rendered by scripts/gen_ui_sounds.py) instead of raw oscillators — a short
+  // padded impact with no notification-like melody. Everything still routes through
   // `master`, so master volume, TTS ducking, and the mobile mix all apply. If a
   // sample isn't decoded yet (very first tap, offline before first fetch, or a
   // decode error) the caller falls back to the synth voice below — sound is
   // never lost, it just upgrades to the sample once the buffer is ready.
   const SAMPLE_PACKS = ['soft', 'default', 'mechanical'];
   const CLICK_VARIANTS = 4;      // round-robin so fast taps don't machine-gun
-  const SAMPLE_GAIN = 0.6;       // brings normalized samples in line with synth
+  const SAMPLE_GAIN = 0.28;      // audible as feedback, never a foreground cue
+  const NAV_SAMPLE_GAIN = 0.23;  // navigation should never announce itself
   const ASSET_VERSION = (() => {
     try {
       const s = document.querySelector('script[src*="modules/sounds.js"]');
@@ -279,47 +259,36 @@ window.Sounds = (function () {
     return playSample(pack + '-click-' + i, rate, gain);
   }
 
+  function playNavSample(rate, gain) {
+    return playSample(currentPack() + '-nav', rate, gain);
+  }
+
+  // First-interaction fallback while a sample is still decoding. It mirrors
+  // the selected Haptic range without any high-passed noise or bright sweep.
+  function playHapticFallback(rate = 1, gain = 1) {
+    tone({ type: 'sine', f0: 175 * rate, dur: 0.030, gain: 0.026 * gain, attack: 0.003 });
+    tone({ type: 'sine', f0: 310 * rate, dur: 0.021, gain: 0.011 * gain, attack: 0.003 });
+  }
+
   function playClick() {
     if (!allowed('click') || !ensureCtx()) return;
     maybeResume();
-    if (playClickVariant(1.0, SAMPLE_GAIN)) return;   // premium sample
-    const style = getClickStyle();
-    if (style === 'soft') {
-      // Legacy thin tick
-      tone({ type: 'sine', f0: 2200, f1: 900, dur: 0.045, gain: 0.12 });
-      noiseBurst({ dur: 0.008, gain: 0.04, hp: 1800 });
-    } else if (style === 'mechanical') {
-      // Brighter body + bigger noise — MX-blue-ish
-      tone({ type: 'square', f0: 2400, f1: 1100, dur: 0.028, gain: 0.10, attack: 0.001 });
-      tone({ type: 'sine',   f0: 120,  f1: 90,   dur: 0.025, gain: 0.20, attack: 0.001 });
-      noiseBurst({ dur: 0.010, gain: 0.18, hp: 4000 });
-    } else {
-      // Default — layered clack: body + low thump + bright noise
-      tone({ type: 'sine',   f0: 1800, f1: 700, dur: 0.032, gain: 0.13, attack: 0.001 });
-      tone({ type: 'sine',   f0: 110,  f1: 80,  dur: 0.020, gain: 0.18, attack: 0.001 });
-      noiseBurst({ dur: 0.006, gain: 0.10, hp: 3500 });
-    }
+    if (playClickVariant(1.0, SAMPLE_GAIN)) return;
+    playHapticFallback();
   }
 
   function playClickBack() {
     if (!allowed('clickBack') || !ensureCtx()) return;
     maybeResume();
-    // Same premium pop, pitched down + softer — reads as "back / lighter".
-    if (playClickVariant(0.82, SAMPLE_GAIN * 0.85)) return;
-    // Softer, woodier synth fallback — for back / icon / hamburger
-    tone({ type: 'sine', f0: 1400, f1: 600, dur: 0.050, gain: 0.10, attack: 0.004 });
-    tone({ type: 'sine', f0: 95,   f1: 70,  dur: 0.025, gain: 0.10 });
+    if (playClickVariant(0.92, SAMPLE_GAIN * 0.76)) return;
+    playHapticFallback(0.92, 0.72);
   }
 
   function playClickOption() {
     if (!allowed('clickOption') || !ensureCtx()) return;
     maybeResume();
-    // Same premium pop, pitched up a touch — distinguishes an MCQ pick.
-    if (playClickVariant(1.10, SAMPLE_GAIN * 0.92)) return;
-    // Slightly higher-pitched synth fallback
-    tone({ type: 'sine', f0: 2400, f1: 1200, dur: 0.040, gain: 0.12, attack: 0.001 });
-    tone({ type: 'sine', f0: 130,  f1: 100,  dur: 0.022, gain: 0.14 });
-    noiseBurst({ dur: 0.005, gain: 0.07, hp: 4000 });
+    if (playClickVariant(1.035, SAMPLE_GAIN * 0.92)) return;
+    playHapticFallback(1.035, 0.88);
   }
 
   function playCorrect() {
@@ -382,33 +351,15 @@ window.Sounds = (function () {
   function playSwoosh() {
     if (!allowed('swoosh') || !ensureCtx()) return;
     maybeResume();
-    // Filtered noise sweep — soft wind
-    const c = ctx;
-    const t0 = c.currentTime;
-    const dur = 0.18;
-    const buf = c.createBuffer(1, Math.ceil(c.sampleRate * dur), c.sampleRate);
-    const data = buf.getChannelData(0);
-    for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * 0.6;
-    const ns = c.createBufferSource();
-    ns.buffer = buf;
-    const bp = c.createBiquadFilter();
-    bp.type = 'bandpass';
-    bp.Q.value = 1.2;
-    bp.frequency.setValueAtTime(400, t0);
-    bp.frequency.exponentialRampToValueAtTime(2200, t0 + dur);
-    const g = c.createGain();
-    g.gain.value = 0;
-    g.gain.linearRampToValueAtTime(0.06 * currentGainMult(), t0 + 0.02);
-    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
-    ns.connect(bp).connect(g).connect(master);
-    ns.start(t0);
+    if (playNavSample(0.95, NAV_SAMPLE_GAIN * 0.72)) return;
+    playHapticFallback(0.95, 0.62);
   }
 
   function playPop() {
     if (!allowed('pop') || !ensureCtx()) return;
     maybeResume();
-    tone({ type: 'sine', f0: 1200, f1: 600, dur: 0.10, gain: 0.13, attack: 0.002 });
-    tone({ type: 'sine', f0: 200,  dur: 0.08, gain: 0.10 });
+    if (playClickVariant(0.98, SAMPLE_GAIN * 0.82)) return;
+    playHapticFallback(0.98, 0.74);
   }
 
   function playTickCountdown() {
@@ -426,155 +377,97 @@ window.Sounds = (function () {
 
   // ─────────────────── E4 — PER-SURFACE SOUND PALETTE ───────────────────
 
-  // Navigation tap — going somewhere new (route change, card → page).
-  // Layered arrival chime: noise click + mid tap + sub thump + bell + harmonic.
-  // Total ~160ms so it reads as ONE event. The bell pitch is parameterised
-  // so the per-tab variant (playNavTab) can play a different note per top-nav
-  // button — turning the row of nav links into a small xylophone.
-  function playNav(opts) {
+  // Navigation is the same Haptic material with a quiet release pulse. Keeping
+  // it non-musical makes repeated movement feel calm instead of gamified.
+  function playNav() {
     if (!allowed('nav') || !ensureCtx()) return;
     maybeResume();
-    // Premium arrival sample (pop + soft bell). Only the default, bell-less nav
-    // uses it; the per-tab xylophone variant (opts.bell) keeps the synth so each
-    // nav button can ring its own note.
-    if (!(opts && opts.bell) && playSample(currentPack() + '-nav', 1.0, SAMPLE_GAIN)) return;
-    const bell = (opts && opts.bell) || 660; // default = E5
-    noiseBurst({ dur: 0.005, gain: 0.08, hp: 3500 });
-    tone({ type: 'sine',     f0: 330,    f1: 220, dur: 0.05, gain: 0.13, attack: 0.001 });
-    tone({ type: 'sine',     f0: 110,    f1: 80,  dur: 0.03, gain: 0.14, attack: 0.001 });
-    tone({ type: 'triangle', f0: bell,            dur: 0.16, gain: 0.10, attack: 0.003, delay: 0.02 });
-    tone({ type: 'sine',     f0: bell * 2,        dur: 0.12, gain: 0.04, delay: 0.03 });
+    if (playNavSample(1.0, NAV_SAMPLE_GAIN)) return;
+    playHapticFallback(0.98, 0.76);
   }
 
-  // C-major scale that climbs through the top nav. 12 notes covers C5 → G6,
-  // matching the current 12 top-nav buttons; longer nav bars just wrap.
-  const NAV_SCALE = [523, 587, 659, 698, 783, 880, 988, 1046, 1175, 1318, 1397, 1568];
-  function playNavTab(index) {
-    const i = ((index % NAV_SCALE.length) + NAV_SCALE.length) % NAV_SCALE.length;
-    playNav({ bell: NAV_SCALE[i] });
-  }
-
-  // Path step — forward progression through the curriculum.
-  // Tap + a hint of upward bell — feels like "next lesson loading".
+  // Path step — the quiet navigation gesture, with barely more presence.
   function playPathStep() {
     if (!allowed('pathStep') || !ensureCtx()) return;
     maybeResume();
-    tone({ type: 'sine',     f0: 392,  dur: 0.045, gain: 0.13, attack: 0.001 }); // G4 tap
-    tone({ type: 'sine',     f0: 120,  dur: 0.020, gain: 0.14 });                 // thump
-    tone({ type: 'triangle', f0: 988,  dur: 0.10,  gain: 0.06, delay: 0.05 });   // upward bell hint
+    if (playNavSample(1.015, NAV_SAMPLE_GAIN * 1.04)) return;
+    playHapticFallback(1.015, 0.80);
   }
 
   // Locked — clicking a node you can't open. Muted thud, dead-end.
   function playLocked() {
     if (!allowed('locked') || !ensureCtx()) return;
     maybeResume();
-    // Low square, low-passed — feels heavy and blocked.
-    tone({ type: 'square', f0: 110, f1: 70, dur: 0.08, gain: 0.08, attack: 0.002 });
-    tone({ type: 'sine',   f0: 80,  dur: 0.06, gain: 0.06 });
+    if (playClickVariant(0.72, SAMPLE_GAIN * 0.64)) return;
+    playHapticFallback(0.72, 0.55);
   }
 
   // Tab swap — lateral move between sibling tabs / phases / categories.
   function playTabSwap() {
     if (!allowed('tabSwap') || !ensureCtx()) return;
     maybeResume();
-    const c = ctx;
-    const t0 = c.currentTime;
-    const dur = 0.09;
-    const buf = c.createBuffer(1, Math.ceil(c.sampleRate * dur), c.sampleRate);
-    const data = buf.getChannelData(0);
-    for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * 0.5;
-    const ns = c.createBufferSource();
-    ns.buffer = buf;
-    const bp = c.createBiquadFilter();
-    bp.type = 'bandpass';
-    bp.Q.value = 1.6;
-    bp.frequency.setValueAtTime(800, t0);
-    bp.frequency.exponentialRampToValueAtTime(1800, t0 + dur);
-    const g = c.createGain();
-    g.gain.value = 0;
-    g.gain.linearRampToValueAtTime(0.05 * currentGainMult(), t0 + 0.01);
-    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
-    ns.connect(bp).connect(g).connect(master);
-    ns.start(t0);
-    // tiny tick after the swipe
-    tone({ type: 'sine', f0: 1400, dur: 0.025, gain: 0.06, delay: dur });
+    if (playClickVariant(0.98, SAMPLE_GAIN * 0.76)) return;
+    playHapticFallback(0.98, 0.68);
   }
 
-  // Toggle ON — rising confirmation sweep.
+  // Toggle ON/OFF use tiny rate changes, not attention-grabbing sweeps.
   function playToggleOn() {
     if (!allowed('toggleOn') || !ensureCtx()) return;
     maybeResume();
-    tone({ type: 'triangle', f0: 800, f1: 1400, dur: 0.10, gain: 0.13, attack: 0.002 });
+    if (playClickVariant(1.045, SAMPLE_GAIN * 0.74)) return;
+    playHapticFallback(1.045, 0.66);
   }
 
-  // Toggle OFF — falling confirmation sweep.
   function playToggleOff() {
     if (!allowed('toggleOff') || !ensureCtx()) return;
     maybeResume();
-    tone({ type: 'triangle', f0: 1400, f1: 700, dur: 0.10, gain: 0.13, attack: 0.002 });
+    if (playClickVariant(0.90, SAMPLE_GAIN * 0.68)) return;
+    playHapticFallback(0.90, 0.60);
   }
 
-  // Select change — dropdown / radio pick. Soft confirm pop.
+  // Select change — soft confirmation press.
   function playSelectChange() {
     if (!allowed('selectChange') || !ensureCtx()) return;
     maybeResume();
-    tone({ type: 'sine', f0: 1100, f1: 880, dur: 0.060, gain: 0.10, attack: 0.001 });
-    tone({ type: 'sine', f0: 1500, dur: 0.030, gain: 0.05, delay: 0.04 });
+    if (playClickVariant(1.0, SAMPLE_GAIN * 0.72)) return;
+    playHapticFallback(1.0, 0.64);
   }
 
-  // Speed selector — pitch matches the speed metaphor.
-  function playSpeedSlow()   { if (!allowed('speedSlow')   || !ensureCtx()) return; maybeResume(); tone({ type: 'sine', f0: 480,  dur: 0.060, gain: 0.13, attack: 0.001 }); }
-  function playSpeedNormal() { if (!allowed('speedNormal') || !ensureCtx()) return; maybeResume(); tone({ type: 'sine', f0: 820,  dur: 0.050, gain: 0.13, attack: 0.001 }); }
-  function playSpeedFast()   { if (!allowed('speedFast')   || !ensureCtx()) return; maybeResume(); tone({ type: 'sine', f0: 1280, dur: 0.040, gain: 0.13, attack: 0.001 }); }
+  // Speed selector — small, bounded rate shifts share one material.
+  function playSpeedSlow()   { if (!allowed('speedSlow')   || !ensureCtx()) return; maybeResume(); if (!playClickVariant(0.90, SAMPLE_GAIN * 0.70)) playHapticFallback(0.90, 0.62); }
+  function playSpeedNormal() { if (!allowed('speedNormal') || !ensureCtx()) return; maybeResume(); if (!playClickVariant(1.00, SAMPLE_GAIN * 0.70)) playHapticFallback(1.00, 0.62); }
+  function playSpeedFast()   { if (!allowed('speedFast')   || !ensureCtx()) return; maybeResume(); if (!playClickVariant(1.08, SAMPLE_GAIN * 0.70)) playHapticFallback(1.08, 0.62); }
 
-  // Mascot chirp — clicking the 🐓 logo. Playful two-note rise.
+  // Mascot/logo taps stay in the same restrained family as navigation.
   function playMascotChirp() {
     if (!allowed('mascotChirp') || !ensureCtx()) return;
     maybeResume();
-    tone({ type: 'triangle', f0: 1800, dur: 0.055, gain: 0.13, attack: 0.001 });
-    tone({ type: 'triangle', f0: 2500, dur: 0.060, gain: 0.13, attack: 0.001, delay: 0.05 });
+    if (playNavSample(1.04, NAV_SAMPLE_GAIN * 0.82)) return;
+    playHapticFallback(1.04, 0.68);
   }
 
-  // Theme flip — light/dark toggle. Bell + soft wind underneath.
+  // Theme flip — quiet release gesture while the visual transition leads.
   function playThemeFlip() {
     if (!allowed('themeFlip') || !ensureCtx()) return;
     maybeResume();
-    tone({ type: 'sine',     f0: 800,  dur: 0.18, gain: 0.12, attack: 0.003 });
-    tone({ type: 'triangle', f0: 1600, dur: 0.16, gain: 0.06, delay: 0.02 });
-    // Quiet noise wash for the transition feel
-    const c = ctx;
-    const t0 = c.currentTime;
-    const dur = 0.20;
-    const buf = c.createBuffer(1, Math.ceil(c.sampleRate * dur), c.sampleRate);
-    const data = buf.getChannelData(0);
-    for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * 0.4;
-    const ns = c.createBufferSource();
-    ns.buffer = buf;
-    const bp = c.createBiquadFilter();
-    bp.type = 'bandpass';
-    bp.frequency.value = 1200;
-    bp.Q.value = 0.7;
-    const g = c.createGain();
-    g.gain.value = 0;
-    g.gain.linearRampToValueAtTime(0.03 * currentGainMult(), t0 + 0.02);
-    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
-    ns.connect(bp).connect(g).connect(master);
-    ns.start(t0);
+    if (playNavSample(0.98, NAV_SAMPLE_GAIN * 0.76)) return;
+    playHapticFallback(0.98, 0.62);
   }
 
   // Danger arm — clicking a destructive button. Warning, not alarm.
   function playDangerArm() {
     if (!allowed('dangerArm') || !ensureCtx()) return;
     maybeResume();
-    tone({ type: 'triangle', f0: 600, f1: 480, dur: 0.18, gain: 0.16, attack: 0.003 });
-    tone({ type: 'sine',     f0: 300, dur: 0.18, gain: 0.10 });
+    if (playClickVariant(0.76, SAMPLE_GAIN * 0.76)) return;
+    playHapticFallback(0.76, 0.64);
   }
 
   // Play audio — pre-roll tick before TTS / clip plays. Very quiet.
   function playPlayAudio() {
     if (!allowed('playAudio') || !ensureCtx()) return;
     maybeResume();
-    tone({ type: 'sine', f0: 1500, dur: 0.018, gain: 0.04, attack: 0.001 });
+    if (playClickVariant(1.02, SAMPLE_GAIN * 0.54)) return;
+    playHapticFallback(1.02, 0.44);
   }
 
   // Single dispatch entrypoint — modules call Sounds.play('correct') etc.
@@ -617,8 +510,16 @@ window.Sounds = (function () {
 
   function shouldTick(target) {
     if (!target || target.nodeType !== 1) return null;
-    // Always skip: form inputs (typing has its own keyboard sound) + explicit opt-outs.
-    if (target.closest('input, textarea, [data-no-tick]')) return null;
+    // Explicit opt-outs and text entry are silent. Toggle switches are handled
+    // before the general form-control exclusions so they receive one soft tap.
+    if (target.closest('textarea, [data-no-tick]')) return null;
+
+    const toggle = target.closest('input.toggle[type="checkbox"]');
+    if (toggle) {
+      // The checked state flips after pointerdown; predict the intended state.
+      return toggle.checked ? 'toggleOff' : 'toggleOn';
+    }
+    if (target.closest('input')) return null;
 
     // Mic and playback controls are silent: the recording/audio itself is the
     // feedback, and an extra synthetic tick only competes with it.
@@ -634,30 +535,23 @@ window.Sounds = (function () {
       return null;
     }
 
-    // Destructive buttons get a warning tone.
+    // Destructive buttons get the lowest, quietest variation.
     if (target.closest('#reset, #delete, .btn.danger')) return 'dangerArm';
 
     // Theme toggle is special — light/dark flip sound.
     if (target.closest('#theme-toggle')) return 'themeFlip';
 
-    // Mascot 🐓 chirp on the brand logo.
+    // The brand logo stays within the same restrained tap family.
     if (target.closest('.logo')) return 'mascotChirp';
 
-    // Drawer chrome — swoosh in / swoosh out feel.
+    // Drawer chrome uses the soft navigation gesture.
     if (target.closest('.hamburger, #nav-close')) return 'swoosh';
-
-    // Profile toggles (checkbox switches) — on/off based on current state.
-    if (target.closest('input.toggle[type="checkbox"]')) {
-      const box = target.closest('input.toggle[type="checkbox"]');
-      // The DOM state flips AFTER the pointerdown; predict by inverting.
-      return box.checked ? 'toggleOff' : 'toggleOn';
-    }
 
     // Selects sound only after their value actually changes (see setup()).
     // Playing here as well caused a double sound for one interaction.
     if (target.closest('select.input, select')) return null;
 
-    // Back / icon / modal-close → woody tap (clickBack).
+    // Back / icon / modal-close → the quieter tap variation.
     if (target.closest('.chrome-back, .icon-btn, .credit-modal-close')) return 'clickBack';
 
     // Path nodes — forward progression. Locked ones get the muted thud.
@@ -688,7 +582,7 @@ window.Sounds = (function () {
     if (target.closest('[data-route], #user-chip, #credit-link, .footer a')) return 'nav';
     if (target.closest('.nav a')) return 'nav';
 
-    // Generic primary tap surfaces — fall through to the main clack.
+    // Generic primary tap surfaces — fall through to the Haptic pulse.
     if (target.closest('.btn, .token, .mem-card, [data-ph], [data-q], [data-switch], [data-u], [data-filter], [data-sig]')) {
       return 'click';
     }
@@ -708,8 +602,6 @@ window.Sounds = (function () {
 
     function dispatch(p) {
       const name = p.name;
-      // Navigation uses one restrained sound. The previous per-position
-      // xylophone made ordinary movement through the app unnecessarily chatty.
       play(name);
     }
 
@@ -759,7 +651,7 @@ window.Sounds = (function () {
         return;
       }
       play('selectChange');
-    }, true);
+    });
   }
 
   if (typeof window !== 'undefined') {

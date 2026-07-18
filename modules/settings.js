@@ -101,7 +101,7 @@ window.Settings = (function () {
 
   return {
     // Click sound (master enable)
-    // On by default: buttons play a premium sample-based "pop" (see
+    // On by default: buttons play the selected sample-based Haptic pulse (see
     // modules/sounds.js) so the app feels alive on first use. The toggle lets
     // anyone who prefers silence turn all routine tap feedback off.
     isClickSoundOn()  { return readBool(KEY_CLICK_SOUND, true); },
@@ -130,7 +130,7 @@ window.Settings = (function () {
     isConfettiOn()    { return readBool(KEY_CONFETTI, true); },
     setConfetti(on)   { writeBool(KEY_CONFETTI, !!on); },
 
-    // Click style: 'soft' | 'default' | 'mechanical'
+    // Click character: stable values preserve existing device preferences.
     getClickStyle()   { return readEnum(KEY_CLICK_STYLE, ['soft', 'default', 'mechanical'], 'default'); },
     setClickStyle(s)  { writeStr(KEY_CLICK_STYLE, ['soft', 'default', 'mechanical'].includes(s) ? s : 'default'); },
 
