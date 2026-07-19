@@ -4,6 +4,111 @@ window.App = (function () {
     lessons: {}, // { 'vocab:greetings': true, ... }
   };
 
+  // Most course content is route-specific and can be large (the scenario bank
+  // alone is almost 300 KB). Keep the app shell small, then load each route's
+  // data + renderer the first time it is opened. The version is inherited from
+  // app.js so the existing release cache-buster still invalidates every lazy
+  // asset without maintaining dozens of duplicate version strings.
+  const ASSET_VERSION = (() => {
+    try {
+      const script = document.currentScript || document.querySelector('script[src*="app.js"]');
+      const match = script && script.src.match(/[?&]v=([^&]+)/);
+      return match ? match[1] : '';
+    } catch { return ''; }
+  })();
+  const ROUTE_ASSETS = {
+    path: ['modules/path.js'],
+    progress: ['modules/progress.js'],
+    gate: ['data/gates.js', 'modules/phasegate.js'],
+    deepdive: [
+      'data/grammar.js', 'data/grammar_extra.js', 'data/grammar_more.js',
+      'data/grammar_deepdive.js', 'modules/deepdive.js',
+    ],
+    scenario: ['data/scenarios.js', 'modules/scenario.js'],
+    listenmastery: ['data/listening_mastery.js', 'modules/listenmastery.js'],
+    connectormastery: ['data/connectors_mastery.js', 'modules/connectormastery.js'],
+    phonics: ['data/phonics.js', 'data/minpairs.js', 'modules/phonics.js'],
+    vocab: [
+      'data/vocab_extra.js', 'data/vocab_more.js', 'data/vocab_tcf.js',
+      'data/vocab_falsefriends.js', 'modules/vocab.js',
+    ],
+    grammar: [
+      'data/grammar.js', 'data/grammar_extra.js', 'data/grammar_more.js',
+      'data/grammar_deepdive.js', 'modules/grammar.js',
+    ],
+    listen: [
+      'data/listening.js', 'data/listening_extra.js', 'data/listening_more.js',
+      'data/listening_tcf.js', 'modules/listen.js',
+    ],
+    dialogue: ['data/dialogues.js', 'modules/dialogue.js'],
+    speak: ['modules/speak.js'],
+    speaktasks: ['data/speaktasks.js', 'modules/speaktasks.js'],
+    writetask3: ['data/writetask3.js', 'modules/grammarcheck.js', 'modules/writetask3.js'],
+    speaktask2: ['data/speaktask2.js', 'modules/speaktask2.js'],
+    speaktask3: ['data/speaktask3.js', 'modules/speaktask3.js'],
+    connectors: ['data/connectors.js', 'modules/connectors.js'],
+    mock: [
+      'data/listening.js', 'data/listening_tcf.js', 'data/dialogues.js',
+      'data/reading.js', 'data/reading_tcf.js', 'data/writing.js',
+      'data/writetask3.js', 'data/speaktasks.js', 'data/speaktask2.js',
+      'data/speaktask3.js', 'data/mock.js', 'modules/grammarcheck.js',
+      'modules/mock.js',
+    ],
+    tcfguide: ['modules/tcfguide.js'],
+    pcvsimp: ['data/pcvsimp.js', 'modules/pcvsimp.js'],
+    diagnostic: ['data/diagnostic.js', 'modules/diagnostic.js'],
+    read: [
+      'data/reading.js', 'data/reading_extra.js', 'data/reading_more.js',
+      'data/reading_tcf.js', 'modules/read.js',
+    ],
+    write: [
+      'data/writing.js', 'data/writing_samples.js', 'modules/grammarcheck.js',
+      'modules/write.js',
+    ],
+    games: [
+      'data/vocab_extra.js', 'data/vocab_more.js', 'data/vocab_tcf.js',
+      'data/vocab_falsefriends.js', 'data/listening.js',
+      'data/listening_extra.js', 'data/listening_more.js',
+      'data/listening_tcf.js', 'modules/games.js',
+    ],
+  };
+  const assetLoads = new Map();
+  const loadedAssets = new Set();
+  let routeRenderToken = 0;
+
+  function versionedAsset(path) {
+    return '/' + path + (ASSET_VERSION ? '?v=' + encodeURIComponent(ASSET_VERSION) : '');
+  }
+
+  function loadAsset(path) {
+    if (loadedAssets.has(path)) return Promise.resolve();
+    if (assetLoads.has(path)) return assetLoads.get(path);
+    const promise = new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = versionedAsset(path);
+      script.async = false;
+      script.dataset.routeAsset = path;
+      script.onload = () => { loadedAssets.add(path); resolve(); };
+      script.onerror = () => reject(new Error(`Could not load ${path}`));
+      document.head.appendChild(script);
+    });
+    assetLoads.set(path, promise);
+    return promise;
+  }
+
+  function routeAssetsReady(route) {
+    const assets = ROUTE_ASSETS[route] || [];
+    return assets.every(path => loadedAssets.has(path));
+  }
+
+  function loadRouteAssets(route) {
+    const assets = ROUTE_ASSETS[route] || [];
+    // Setting async=false before ordered insertion preserves execution order
+    // for data files that extend earlier globals, while inserting the whole
+    // list now lets the browser download independent files concurrently.
+    return Promise.all(assets.map(loadAsset));
+  }
+
   // -------- Icon system --------
   // One coherent 24×24 stroke set (Lucide/Feather geometry, MIT), inherits
   // currentColor so each card tints its icon to the section accent. Replaces
@@ -181,6 +286,7 @@ window.App = (function () {
   }
 
   function renderActive() {
+    const renderToken = ++routeRenderToken;
     // Stop any audio from the page we're leaving — TTS clips, sequenced
     // dialogues, and scheduled auto-plays — so nothing keeps playing in the
     // background after navigation. Safe to call even if nothing is playing.
@@ -210,23 +316,41 @@ window.App = (function () {
     container.scrollTop = 0;
     window.scrollTo(0, 0);
     const fn = routes[route];
-    const paint = () => paintRoute(fn, route, params, container);
-    // Native page transition (crossfade + slide, defined in styles.css) when
-    // the browser supports it and animations are at full tier. The DOM update
-    // itself is identical either way.
-    if (document.startViewTransition && document.body.dataset.anim === 'full') {
-      const transition = document.startViewTransition(paint);
-      // Rapid navigation legitimately skips an in-flight transition. Its
-      // lifecycle promises can reject with AbortError; consume those expected
-      // rejections so normal navigation never pollutes the console.
-      if (transition) {
-        if (transition.ready) transition.ready.catch(() => {});
-        if (transition.updateCallbackDone) transition.updateCallbackDone.catch(() => {});
-        if (transition.finished) transition.finished.catch(() => {});
-      }
-    } else {
-      paint();
+    // First visit to a feature: give immediate visual feedback while its
+    // renderer and course bank load. Repeat visits paint synchronously from
+    // memory. A navigation token prevents a late download from repainting a
+    // route the learner has already left.
+    if (!routeAssetsReady(route)) {
+      renderRouteLoading(container, route);
+      loadRouteAssets(route).then(() => {
+        if (renderToken !== routeRenderToken) return;
+        paintRoute(fn, route, params, container);
+      }).catch(err => {
+        if (renderToken !== routeRenderToken) return;
+        paintRoute(() => { throw err; }, route, params, container);
+      });
+      return;
     }
+
+    // Full-document View Transitions snapshot the entire old and new page.
+    // On the 92-item Path this duplicated a 12,000px document and delayed the
+    // feeling of a click. Route DOM now swaps directly; component-level motion
+    // and the user's animation setting still apply where they add feedback.
+    paintRoute(fn, route, params, container);
+  }
+
+  function renderRouteLoading(container, route) {
+    const label = ({
+      path: 'learning path', progress: 'progress', gate: 'knowledge check',
+      scenario: 'scenarios', listenmastery: 'listening practice',
+      connectormastery: 'connector practice', vocab: 'vocabulary',
+      grammar: 'grammar', mock: 'practice simulation',
+    })[route] || 'lesson';
+    container.innerHTML = `
+      <div class="route-loading" role="status" aria-live="polite">
+        <span class="route-loading-dot" aria-hidden="true"></span>
+        <span>Opening ${label}…</span>
+      </div>`;
   }
 
   function paintRoute(fn, route, params, container) {

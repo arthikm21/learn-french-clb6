@@ -1,0 +1,960 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#071630">
+  <title>Bonjour! — Vertical Campaign V2</title>
+  <meta name="description" content="A 29.5-second 9:16 campaign film for Bonjour! French practice in Canada.">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <style>
+    @font-face {
+      font-family: "InterFilm";
+      src: url("fonts/inter-latin.woff2") format("woff2");
+      font-style: normal;
+      font-weight: 100 900;
+      font-display: swap;
+    }
+
+    :root {
+      color-scheme: light dark;
+      --paper: #fbf8f3;
+      --surface: #fffefc;
+      --surface-2: #f0ebe4;
+      --navy: #071630;
+      --navy-2: #101d38;
+      --ink: #071630;
+      --ink-2: #42516a;
+      --muted: #68748a;
+      --line: #e1d9cf;
+      --cobalt: #1457e6;
+      --cobalt-deep: #0c43c7;
+      --violet: #6d3fd4;
+      --coral: #ff735f;
+      --butter: #ffc94e;
+      --mint: #a8e3cc;
+      --sky: #a9d8ff;
+      font-family: "InterFilm", Inter, ui-sans-serif, system-ui, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { min-height: 100%; margin: 0; background: #030711; }
+    body {
+      min-height: 100svh;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+    }
+    button, input { font: inherit; }
+
+    .ad-frame {
+      position: relative;
+      width: min(100vw, calc(100svh * 9 / 16));
+      max-height: 100svh;
+      aspect-ratio: 9 / 16;
+      overflow: hidden;
+      isolation: isolate;
+      container-type: inline-size;
+      color: var(--ink);
+      background: var(--paper);
+      box-shadow: 0 0 0 1px rgba(255,255,255,.09), 0 4rem 9rem rgba(0,0,0,.62);
+    }
+
+    .scene,
+    .film-grain,
+    .edge-shade,
+    .cut-flash { position: absolute; inset: 0; }
+
+    .scene {
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 15cqw 7.2cqw 18cqw;
+      opacity: 0;
+      overflow: hidden;
+      transform-origin: 50% 50%;
+      will-change: opacity, transform;
+    }
+
+    .scene::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -3;
+      background: var(--scene-bg, var(--paper));
+    }
+
+    .scene::after {
+      content: "";
+      position: absolute;
+      z-index: -2;
+      width: 66cqw;
+      aspect-ratio: 1;
+      top: 12cqw;
+      right: -29cqw;
+      border-radius: 50%;
+      background: var(--scene-orb, rgba(20,87,230,.1));
+      filter: blur(.8cqw);
+    }
+
+    .scene--moment {
+      --scene-bg:
+        linear-gradient(145deg, rgba(20,87,230,.15), transparent 36%),
+        linear-gradient(165deg, #101d38 0%, #071630 64%, #090d1c 100%);
+      --scene-orb: rgba(255,115,95,.18);
+      color: #fff;
+    }
+    .scene--answer { --scene-bg: linear-gradient(158deg, #fbf8f3 0%, #f4f0ea 100%); --scene-orb: rgba(109,63,212,.11); }
+    .scene--path { --scene-bg: linear-gradient(155deg, #fffefc 0%, #f6f1ea 72%); --scene-orb: rgba(20,87,230,.1); }
+    .scene--voice {
+      --scene-bg:
+        radial-gradient(circle at 17% 15%, rgba(169,216,255,.18), transparent 30%),
+        linear-gradient(150deg, #0b2b71 0%, #071630 60%, #15102f 100%);
+      --scene-orb: rgba(109,63,212,.24);
+      color: #fff;
+    }
+    .scene--scenarios { --scene-bg: linear-gradient(155deg, #fbf8f3 0%, #f2ede6 100%); --scene-orb: rgba(255,201,78,.18); }
+    .scene--review { --scene-bg: linear-gradient(150deg, #fffefc 0%, #f5f0e9 100%); --scene-orb: rgba(255,115,95,.12); }
+    .scene--tcf {
+      --scene-bg:
+        radial-gradient(circle at 86% 22%, rgba(109,63,212,.22), transparent 34%),
+        linear-gradient(155deg, #101d38 0%, #071630 70%);
+      --scene-orb: rgba(20,87,230,.18);
+      color: #fff;
+    }
+    .scene--trust { --scene-bg: linear-gradient(148deg, #fbf8f3 0%, #f0ebe4 100%); --scene-orb: rgba(168,227,204,.32); }
+    .scene--cta {
+      --scene-bg:
+        radial-gradient(circle at 20% 12%, rgba(169,216,255,.3), transparent 34%),
+        linear-gradient(145deg, #1457e6 0%, #433cc8 53%, #8e3e82 100%);
+      --scene-orb: rgba(255,115,95,.33);
+      color: #fff;
+    }
+
+    .film-grain {
+      z-index: 35;
+      pointer-events: none;
+      opacity: .06;
+      background:
+        radial-gradient(circle at 17% 31%, rgba(255,255,255,.8) 0 .05cqw, transparent .075cqw),
+        radial-gradient(circle at 73% 68%, rgba(255,255,255,.68) 0 .045cqw, transparent .07cqw);
+      background-size: 3.9cqw 3.9cqw, 5.1cqw 5.1cqw;
+      mix-blend-mode: soft-light;
+    }
+
+    .edge-shade {
+      z-index: 34;
+      pointer-events: none;
+      box-shadow: inset 0 0 18cqw rgba(3,7,17,.2);
+    }
+
+    .brand-bug {
+      position: absolute;
+      z-index: 31;
+      top: max(4.2cqw, env(safe-area-inset-top));
+      left: 5cqw;
+      display: flex;
+      align-items: center;
+      gap: 2cqw;
+      color: currentColor;
+      pointer-events: none;
+      transition: color .12s linear;
+    }
+    .brand-bug img {
+      display: block;
+      width: 7cqw;
+      height: auto;
+      aspect-ratio: 1;
+      object-fit: contain;
+      border-radius: 1.8cqw;
+      box-shadow: 0 1cqw 3cqw rgba(0,0,0,.13);
+    }
+    .brand-bug span { font-size: 3.1cqw; font-weight: 860; letter-spacing: -.045em; }
+    .brand-bug.is-light { color: #fff; }
+    .brand-bug.is-dark { color: var(--navy); }
+
+    .kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 2cqw;
+      width: fit-content;
+      margin-bottom: 4cqw;
+      color: var(--cobalt);
+      font-size: 2.65cqw;
+      line-height: 1;
+      font-weight: 840;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+    }
+    .kicker::before {
+      content: "";
+      width: 2.2cqw;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: var(--coral);
+      box-shadow: 0 0 3.6cqw rgba(255,115,95,.42);
+      flex: none;
+    }
+    .scene--moment .kicker,
+    .scene--voice .kicker,
+    .scene--tcf .kicker { color: var(--sky); }
+    .scene--moment .kicker::before,
+    .scene--voice .kicker::before,
+    .scene--tcf .kicker::before { background: var(--butter); box-shadow: 0 0 3.6cqw rgba(255,201,78,.36); }
+
+    h1, h2, h3, p { margin: 0; }
+    h1, h2 {
+      text-wrap: balance;
+      letter-spacing: -.058em;
+      font-weight: 860;
+    }
+    h1 { font-size: 11.6cqw; line-height: .94; }
+    h2 { font-size: 9.2cqw; line-height: .98; }
+    .cobalt { color: var(--cobalt); }
+    .violet { color: var(--violet); }
+    .coral { color: var(--coral); }
+    .butter { color: var(--butter); }
+    .mint { color: var(--mint); }
+    .sky { color: var(--sky); }
+    .subhead {
+      margin-top: 4cqw;
+      color: var(--ink-2);
+      font-size: 4cqw;
+      line-height: 1.38;
+      letter-spacing: -.02em;
+      font-weight: 540;
+      max-width: 82cqw;
+    }
+    .scene--moment .subhead,
+    .scene--voice .subhead,
+    .scene--tcf .subhead { color: rgba(255,255,255,.7); }
+    [data-reveal] { will-change: opacity, transform; }
+
+    .moment-strip {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 2.3cqw;
+      margin-top: 8cqw;
+    }
+    .moment-chip {
+      display: flex;
+      align-items: center;
+      gap: 2.2cqw;
+      min-height: 12cqw;
+      padding: 2.5cqw 3.1cqw;
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 3.8cqw;
+      color: rgba(255,255,255,.86);
+      background: rgba(255,255,255,.065);
+      font-size: 3cqw;
+      font-weight: 700;
+    }
+    .moment-chip__dot { width: 2.4cqw; aspect-ratio: 1; border-radius: 50%; background: var(--chip); box-shadow: 0 0 3cqw color-mix(in srgb, var(--chip) 55%, transparent); }
+
+    .answer-line {
+      display: flex;
+      align-items: center;
+      gap: 3cqw;
+      margin-top: 9cqw;
+      padding: 4.3cqw;
+      border: 1px solid var(--line);
+      border-radius: 5.5cqw;
+      background: var(--surface);
+      box-shadow: 0 5cqw 14cqw rgba(7,22,48,.09);
+    }
+    .answer-line__number {
+      display: grid;
+      place-items: center;
+      width: 12cqw;
+      aspect-ratio: 1;
+      border-radius: 3.7cqw;
+      color: #fff;
+      background: linear-gradient(135deg, var(--cobalt), var(--violet));
+      font-size: 4cqw;
+      font-weight: 880;
+      flex: none;
+    }
+    .answer-line strong { display: block; font-size: 4cqw; letter-spacing: -.025em; }
+    .answer-line p { margin-top: .9cqw; color: var(--muted); font-size: 2.8cqw; line-height: 1.35; }
+    .brand-proof {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2cqw;
+      margin-top: 3cqw;
+    }
+    .brand-proof div {
+      padding: 2.8cqw 2.2cqw;
+      border-radius: 3.3cqw;
+      text-align: center;
+      color: var(--navy);
+      background: var(--proof-bg);
+      font-size: 2.6cqw;
+      line-height: 1.25;
+      font-weight: 770;
+    }
+
+    .path-card {
+      margin-top: 7cqw;
+      border: 1px solid var(--line);
+      border-radius: 6cqw;
+      background: var(--surface);
+      box-shadow: 0 7cqw 20cqw rgba(7,22,48,.11);
+      overflow: hidden;
+    }
+    .path-metrics {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border-bottom: 1px solid var(--line);
+    }
+    .path-metric { padding: 4.5cqw 5cqw; }
+    .path-metric + .path-metric { border-left: 1px solid var(--line); }
+    .path-metric strong { display: block; color: var(--cobalt); font-size: 7.4cqw; line-height: 1; letter-spacing: -.06em; }
+    .path-metric span { display: block; margin-top: 1cqw; color: var(--muted); font-size: 2.65cqw; font-weight: 680; }
+    .today-card { padding: 4.5cqw; }
+    .today-top { display: flex; align-items: center; justify-content: space-between; }
+    .today-top span:first-child { color: var(--navy); font-size: 2.7cqw; font-weight: 830; letter-spacing: .09em; text-transform: uppercase; }
+    .today-time { padding: 1.4cqw 2.3cqw; border-radius: 999px; color: var(--cobalt); background: rgba(20,87,230,.09); font-size: 2.7cqw; font-weight: 800; }
+    .today-step {
+      display: grid;
+      grid-template-columns: 9cqw 1fr auto;
+      align-items: center;
+      gap: 3cqw;
+      margin-top: 3cqw;
+      padding: 3.5cqw;
+      border-radius: 4cqw;
+      color: #fff;
+      background: linear-gradient(135deg, var(--cobalt), #433cc8);
+    }
+    .today-step__index { display: grid; place-items: center; width: 9cqw; aspect-ratio: 1; border-radius: 2.8cqw; color: var(--navy); background: var(--butter); font-size: 3cqw; font-weight: 900; }
+    .today-step strong { display: block; font-size: 3.65cqw; }
+    .today-step small { display: block; margin-top: .6cqw; color: rgba(255,255,255,.7); font-size: 2.45cqw; }
+    .today-step__arrow { font-size: 4.5cqw; }
+
+    .voice-card {
+      margin-top: 7cqw;
+      padding: 5cqw;
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: 6cqw;
+      background: rgba(5,17,43,.66);
+      box-shadow: 0 7cqw 20cqw rgba(0,0,0,.25);
+    }
+    .voice-meta { display: flex; align-items: center; justify-content: space-between; color: var(--sky); font-size: 2.5cqw; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+    .voice-duration { padding: 1.3cqw 2.1cqw; border-radius: 999px; color: var(--butter); background: rgba(255,201,78,.11); font-variant-numeric: tabular-nums; letter-spacing: 0; }
+    .voice-phrase { margin-top: 3.2cqw; font-size: 5.4cqw; line-height: 1.2; letter-spacing: -.035em; font-weight: 780; }
+    .voice-translation { margin-top: 1.7cqw; color: rgba(255,255,255,.62); font-size: 3cqw; }
+    .waveform { display: flex; align-items: center; justify-content: center; gap: 1cqw; height: 19cqw; margin-top: 3.5cqw; }
+    .waveform span { width: 1.55cqw; height: var(--h); max-height: 16cqw; border-radius: 999px; background: linear-gradient(180deg, var(--sky), #fff); transform-origin: center; }
+    .voice-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2cqw; margin-top: 2.5cqw; padding-top: 3cqw; border-top: 1px solid rgba(255,255,255,.12); }
+    .voice-action { text-align: center; color: rgba(255,255,255,.72); font-size: 2.6cqw; font-weight: 680; }
+    .voice-action strong { display: block; margin-bottom: .7cqw; color: #fff; font-size: 3cqw; }
+
+    .scenario-card {
+      margin-top: 7cqw;
+      border: 1px solid var(--line);
+      border-radius: 6cqw;
+      background: var(--surface);
+      box-shadow: 0 6cqw 18cqw rgba(7,22,48,.1);
+      overflow: hidden;
+    }
+    .scenario-nav { display: flex; gap: 1.7cqw; padding: 3.7cqw 4cqw; overflow: hidden; border-bottom: 1px solid var(--line); }
+    .scenario-pill { flex: none; padding: 1.5cqw 2.3cqw; border-radius: 999px; color: var(--ink-2); background: var(--surface-2); font-size: 2.45cqw; font-weight: 720; }
+    .scenario-pill.is-active { color: #fff; background: var(--cobalt); }
+    .scenario-body { padding: 4.4cqw; }
+    .scenario-label { color: var(--coral); font-size: 2.5cqw; font-weight: 830; letter-spacing: .11em; text-transform: uppercase; }
+    .scenario-title { margin-top: 1.7cqw; font-size: 4.3cqw; letter-spacing: -.03em; font-weight: 820; }
+    .scenario-bubble { margin-top: 3cqw; padding: 3.6cqw 4cqw; border-radius: 3.8cqw 3.8cqw 1cqw 3.8cqw; color: #fff; background: linear-gradient(135deg, var(--cobalt), var(--violet)); font-size: 3.25cqw; line-height: 1.35; font-weight: 650; }
+    .scenario-response { margin-top: 2cqw; padding: 3.2cqw 3.7cqw; border-radius: 3.5cqw 3.5cqw 3.5cqw 1cqw; color: var(--ink-2); background: var(--surface-2); font-size: 3cqw; line-height: 1.35; }
+
+    .review-card { display: grid; gap: 2.6cqw; margin-top: 7cqw; }
+    .review-row {
+      display: grid;
+      grid-template-columns: 10cqw 1fr auto;
+      align-items: center;
+      gap: 3cqw;
+      min-height: 17cqw;
+      padding: 3.8cqw;
+      border: 1px solid var(--line);
+      border-radius: 4.6cqw;
+      background: var(--surface);
+      box-shadow: 0 3cqw 10cqw rgba(7,22,48,.05);
+    }
+    .review-row__mark { display: grid; place-items: center; width: 10cqw; aspect-ratio: 1; border-radius: 3cqw; color: var(--mark-color); background: var(--mark-bg); font-size: 3.2cqw; font-weight: 900; }
+    .review-row strong { display: block; font-size: 3.65cqw; }
+    .review-row span { display: block; margin-top: .7cqw; color: var(--muted); font-size: 2.7cqw; }
+    .review-row__when { padding: 1.5cqw 2.1cqw; border-radius: 999px; color: var(--cobalt); background: rgba(20,87,230,.08); font-size: 2.5cqw; font-weight: 780; }
+
+    .tcf-card {
+      margin-top: 7cqw;
+      padding: 4cqw;
+      border: 1px solid rgba(255,255,255,.13);
+      border-radius: 6cqw;
+      background: rgba(255,255,255,.065);
+      box-shadow: 0 6cqw 18cqw rgba(0,0,0,.2);
+    }
+    .tcf-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2cqw; }
+    .tcf-skill { min-height: 19cqw; padding: 3.4cqw; border-radius: 3.8cqw; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.08); }
+    .tcf-skill__top { display: flex; align-items: center; justify-content: space-between; }
+    .tcf-skill__letter { display: grid; place-items: center; width: 6.8cqw; aspect-ratio: 1; border-radius: 2cqw; color: var(--skill-color); background: var(--skill-bg); font-size: 2.7cqw; font-weight: 900; }
+    .tcf-skill__count { color: var(--sky); font-size: 2.5cqw; font-weight: 800; }
+    .tcf-skill strong { display: block; margin-top: 2.5cqw; font-size: 3.2cqw; }
+    .tcf-total { display: flex; justify-content: space-between; align-items: center; margin-top: 2.5cqw; padding: 3.2cqw 3.7cqw; border-radius: 3.5cqw; color: var(--navy); background: var(--butter); font-size: 2.7cqw; font-weight: 840; }
+
+    .trust-grid { display: grid; gap: 3cqw; margin-top: 8cqw; }
+    .trust-item { display: grid; grid-template-columns: 10cqw 1fr; align-items: center; gap: 3.5cqw; padding: 3.8cqw 4cqw; border: 1px solid var(--line); border-radius: 4.5cqw; background: var(--surface); }
+    .trust-mark { display: grid; place-items: center; width: 10cqw; aspect-ratio: 1; border-radius: 3cqw; color: var(--navy); background: var(--trust-color); font-size: 3.8cqw; font-weight: 900; }
+    .trust-item strong { display: block; font-size: 3.9cqw; }
+    .trust-item p { margin-top: .7cqw; color: var(--muted); font-size: 2.75cqw; line-height: 1.3; }
+
+    .cta-lockup { text-align: center; }
+    .cta-lockup img { display: block; width: 21cqw; height: auto; aspect-ratio: 1; object-fit: contain; margin: 0 auto 6cqw; border-radius: 5.5cqw; box-shadow: 0 6cqw 18cqw rgba(3,7,17,.3); }
+    .cta-lockup h2 { font-size: 10.6cqw; }
+    .cta-lockup .cta-sub { margin-top: 3.7cqw; color: rgba(255,255,255,.76); font-size: 4cqw; line-height: 1.34; }
+    .cta-button { display: flex; align-items: center; justify-content: center; width: 79cqw; min-height: 14cqw; margin: 7cqw auto 0; border-radius: 999px; color: var(--navy); background: var(--butter); box-shadow: 0 4cqw 14cqw rgba(3,7,17,.21); font-size: 3.9cqw; font-weight: 870; letter-spacing: -.02em; }
+    .cta-url { margin-top: 3.6cqw; color: #fff; font-size: 3.7cqw; font-weight: 800; }
+    .cta-target { margin-top: 4cqw; color: rgba(255,255,255,.64); font-size: 2.6cqw; line-height: 1.35; }
+
+    .cut-flash { z-index: 32; pointer-events: none; background: #fff; opacity: 0; mix-blend-mode: screen; }
+
+    .poster {
+      position: absolute;
+      z-index: 70;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 13cqw 7cqw 11cqw;
+      color: #fff;
+      background:
+        linear-gradient(180deg, transparent 23%, rgba(7,22,48,.32) 48%, rgba(7,22,48,.98) 100%),
+        radial-gradient(circle at 20% 18%, rgba(169,216,255,.26), transparent 32%),
+        linear-gradient(145deg, #1457e6, #433cc8 55%, #8e3e82);
+    }
+    .poster[hidden] { display: none; }
+    .poster__label { color: var(--butter); font-size: 2.9cqw; font-weight: 840; text-transform: uppercase; letter-spacing: .12em; }
+    .poster h3 { margin-top: 3cqw; font-size: 10.2cqw; line-height: .97; letter-spacing: -.06em; }
+    .poster p { margin-top: 3cqw; color: rgba(255,255,255,.7); font-size: 3.4cqw; line-height: 1.4; }
+    .poster button { display: flex; align-items: center; justify-content: center; gap: 2cqw; width: 100%; min-height: 14cqw; margin-top: 6cqw; border: 0; border-radius: 999px; color: var(--navy); background: var(--butter); cursor: pointer; box-shadow: 0 4cqw 14cqw rgba(3,7,17,.24); font-size: 3.7cqw; font-weight: 860; }
+
+    .player-controls {
+      position: absolute;
+      z-index: 60;
+      left: 4cqw;
+      right: 4cqw;
+      bottom: max(3.3cqw, env(safe-area-inset-bottom));
+      display: grid;
+      grid-template-columns: 9cqw 1fr 9cqw;
+      align-items: center;
+      gap: 2.2cqw;
+      padding: 2cqw 2.3cqw;
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: 999px;
+      color: #fff;
+      background: rgba(3,7,17,.72);
+      backdrop-filter: blur(1.8cqw);
+      opacity: 0;
+      transform: translate3d(0, 3cqw, 0);
+      transition: opacity .18s ease, transform .18s ease;
+    }
+    .ad-frame:hover .player-controls,
+    .ad-frame:focus-within .player-controls,
+    .player-controls.is-visible { opacity: 1; transform: translate3d(0,0,0); }
+    .control-button { display: grid; place-items: center; width: 9cqw; aspect-ratio: 1; padding: 0; border: 0; border-radius: 50%; color: #fff; background: rgba(255,255,255,.1); cursor: pointer; font-size: 3cqw; }
+    .scrub-wrap { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 2cqw; }
+    .scrub-wrap output { min-width: 8cqw; color: rgba(255,255,255,.68); font-size: 2.25cqw; font-variant-numeric: tabular-nums; }
+    input[type="range"] { width: 100%; accent-color: var(--butter); }
+
+    .capture .poster,
+    .capture .player-controls { display: none !important; }
+    .capture .brand-bug { top: 5cqw; }
+
+    .sr-only {
+      position: absolute !important;
+      width: 1px !important;
+      height: 1px !important;
+      padding: 0 !important;
+      margin: -1px !important;
+      overflow: hidden !important;
+      clip: rect(0,0,0,0) !important;
+      white-space: nowrap !important;
+      border: 0 !important;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .player-controls { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="ad-frame" id="adFrame" aria-label="Bonjour! vertical campaign film version two">
+    <div class="brand-bug is-light" id="brandBug" aria-hidden="true"><img src="icon-512.png" alt=""><span>Bonjour!</span></div>
+
+    <section class="scene scene--moment" data-scene="moment" data-tone="light" aria-label="Hook: your next French conversation is coming">
+      <div class="kicker" data-reveal>Life won't wait for perfect French</div>
+      <h1 data-reveal>Your next French conversation is <span class="coral">already coming.</span></h1>
+      <div class="moment-strip">
+        <div class="moment-chip" data-reveal><span class="moment-chip__dot" style="--chip:var(--sky)"></span>At the bank</div>
+        <div class="moment-chip" data-reveal><span class="moment-chip__dot" style="--chip:var(--coral)"></span>At work</div>
+        <div class="moment-chip" data-reveal><span class="moment-chip__dot" style="--chip:var(--mint)"></span>At the clinic</div>
+        <div class="moment-chip" data-reveal><span class="moment-chip__dot" style="--chip:var(--butter)"></span>At the TCF</div>
+      </div>
+    </section>
+
+    <section class="scene scene--answer" data-scene="answer" data-tone="dark" aria-label="Practise the conversation before it happens">
+      <div class="kicker" data-reveal>Meet Bonjour!</div>
+      <h2 data-reveal>Practise the moment <span class="cobalt">before it happens.</span></h2>
+      <p class="subhead" data-reveal>Focused French practice for everyday Canada and TCF Canada.</p>
+      <div class="answer-line" data-reveal>
+        <div class="answer-line__number">B.</div>
+        <div><strong>Open. Practise. Use it.</strong><p>No generic lesson maze—just the next useful step.</p></div>
+      </div>
+      <div class="brand-proof" data-reveal>
+        <div style="--proof-bg:var(--sky)">Canadian<br>French audio</div>
+        <div style="--proof-bg:var(--mint)">Real-life<br>scenarios</div>
+        <div style="--proof-bg:#eadfff">TCF Canada<br>rehearsal</div>
+      </div>
+    </section>
+
+    <section class="scene scene--path" data-scene="path" data-tone="dark" aria-label="A guided path with 8 phases and 92 milestones">
+      <div class="kicker" data-reveal>A complete guided path</div>
+      <h2 data-reveal><span class="cobalt">8 phases.</span> 92 milestones. One clear next step.</h2>
+      <div class="path-card" data-reveal>
+        <div class="path-metrics">
+          <div class="path-metric"><strong>08</strong><span>guided phases</span></div>
+          <div class="path-metric"><strong>92</strong><span>clear milestones</span></div>
+        </div>
+        <div class="today-card">
+          <div class="today-top"><span>Today</span><span class="today-time">About 15 min</span></div>
+          <div class="today-step" data-reveal><div class="today-step__index">01</div><div><strong>Continue your path</strong><small>Vocabulary → listening → speaking</small></div><div class="today-step__arrow">›</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="scene scene--voice" data-scene="voice" data-tone="light" aria-label="Hear Canadian French and record yourself">
+      <div class="kicker" data-reveal>Hear it in Canadian French</div>
+      <h2 data-reveal>Listen. Shadow. <span class="butter">Record yourself.</span></h2>
+      <div class="voice-card" data-reveal>
+        <div class="voice-meta"><span>Banking · Speak</span><span class="voice-duration">4.39 sec</span></div>
+        <div class="voice-phrase">« Bonjour, je voudrais ouvrir un compte chèque. »</div>
+        <div class="voice-translation">Hello, I'd like to open a chequing account.</div>
+        <div class="waveform" aria-hidden="true">
+          <span style="--h:6cqw"></span><span style="--h:12cqw"></span><span style="--h:8cqw"></span><span style="--h:15cqw"></span><span style="--h:10cqw"></span><span style="--h:16cqw"></span><span style="--h:7cqw"></span><span style="--h:13cqw"></span><span style="--h:9cqw"></span><span style="--h:15cqw"></span><span style="--h:11cqw"></span><span style="--h:6cqw"></span><span style="--h:12cqw"></span><span style="--h:7cqw"></span><span style="--h:10cqw"></span>
+        </div>
+        <div class="voice-actions"><div class="voice-action"><strong>01</strong>Listen</div><div class="voice-action"><strong>02</strong>Shadow</div><div class="voice-action"><strong>03</strong>Replay</div></div>
+      </div>
+    </section>
+
+    <section class="scene scene--scenarios" data-scene="scenarios" data-tone="dark" aria-label="50 Canadian real-life scenarios">
+      <div class="kicker" data-reveal>50 Canadian scenarios</div>
+      <h2 data-reveal>Rehearse real life—not random phrases.</h2>
+      <div class="scenario-card" data-reveal>
+        <div class="scenario-nav"><span class="scenario-pill is-active">Banking</span><span class="scenario-pill">Housing</span><span class="scenario-pill">Healthcare</span><span class="scenario-pill">Work</span></div>
+        <div class="scenario-body">
+          <div class="scenario-label">Opening a bank account</div>
+          <div class="scenario-title">You walk in knowing what to say.</div>
+          <div class="scenario-bubble" data-reveal>Bonjour, je voudrais ouvrir un compte chèque.</div>
+          <div class="scenario-response" data-reveal>Bien sûr. Avez-vous deux pièces d'identité?</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="scene scene--review" data-scene="review" data-tone="dark" aria-label="Smart review returns difficult items">
+      <div class="kicker" data-reveal>Review that follows your memory</div>
+      <h2 data-reveal>What feels hard <span class="coral">comes back.</span></h2>
+      <p class="subhead" data-reveal>Miss it once. Meet it again before it disappears.</p>
+      <div class="review-card">
+        <div class="review-row" data-reveal><div class="review-row__mark" style="--mark-color:var(--cobalt);--mark-bg:rgba(20,87,230,.1)">01</div><div><strong>Recall the phrase</strong><span>Without looking first</span></div><div class="review-row__when">Now</div></div>
+        <div class="review-row" data-reveal><div class="review-row__mark" style="--mark-color:var(--violet);--mark-bg:rgba(109,63,212,.1)">02</div><div><strong>Use it in context</strong><span>Inside the bank scenario</span></div><div class="review-row__when">Next</div></div>
+        <div class="review-row" data-reveal><div class="review-row__mark" style="--mark-color:#13795b;--mark-bg:var(--mint)">✓</div><div><strong>Keep what sticks</strong><span>Progress stays on this device</span></div><div class="review-row__when">Later</div></div>
+      </div>
+    </section>
+
+    <section class="scene scene--tcf" data-scene="tcf" data-tone="light" aria-label="Complete TCF Canada four-skill rehearsal">
+      <div class="kicker" data-reveal>When your TCF date gets real</div>
+      <h2 data-reveal>Rehearse the <span class="sky">complete four-skill test.</span></h2>
+      <div class="tcf-card" data-reveal>
+        <div class="tcf-grid">
+          <div class="tcf-skill" data-reveal><div class="tcf-skill__top"><div class="tcf-skill__letter" style="--skill-color:var(--sky);--skill-bg:rgba(169,216,255,.13)">L</div><span class="tcf-skill__count">39 Q</span></div><strong>Listening</strong></div>
+          <div class="tcf-skill" data-reveal><div class="tcf-skill__top"><div class="tcf-skill__letter" style="--skill-color:var(--mint);--skill-bg:rgba(168,227,204,.13)">R</div><span class="tcf-skill__count">39 Q</span></div><strong>Reading</strong></div>
+          <div class="tcf-skill" data-reveal><div class="tcf-skill__top"><div class="tcf-skill__letter" style="--skill-color:#d4c5ff;--skill-bg:rgba(109,63,212,.18)">S</div><span class="tcf-skill__count">3 tasks</span></div><strong>Speaking</strong></div>
+          <div class="tcf-skill" data-reveal><div class="tcf-skill__top"><div class="tcf-skill__letter" style="--skill-color:var(--butter);--skill-bg:rgba(255,201,78,.13)">W</div><span class="tcf-skill__count">3 tasks</span></div><strong>Writing</strong></div>
+        </div>
+        <div class="tcf-total" data-reveal><span>Full simulation</span><span>≈ 2 h 47 min</span></div>
+      </div>
+    </section>
+
+    <section class="scene scene--trust" data-scene="trust" data-tone="dark" aria-label="Free no signup and no tracking">
+      <div class="kicker" data-reveal>Serious practice. Zero friction.</div>
+      <h2 data-reveal><span class="cobalt">Free.</span> No signup. No tracking.</h2>
+      <div class="trust-grid">
+        <div class="trust-item" data-reveal><div class="trust-mark" style="--trust-color:var(--sky)">$0</div><div><strong>Open and start</strong><p>No trial clock or paywall.</p></div></div>
+        <div class="trust-item" data-reveal><div class="trust-mark" style="--trust-color:var(--mint)">✓</div><div><strong>Private by design</strong><p>Progress and recordings stay on this device.</p></div></div>
+        <div class="trust-item" data-reveal><div class="trust-mark" style="--trust-color:#eadfff">B.</div><div><strong>Built toward NCLC 6</strong><p>Structured CLB 6 / TCF Canada practice.</p></div></div>
+      </div>
+    </section>
+
+    <section class="scene scene--cta" data-scene="cta" data-tone="light" aria-label="Start practising with Bonjour">
+      <div class="cta-lockup">
+        <img src="icon-512.png" alt="Bonjour! app icon" data-reveal>
+        <h2 data-reveal>Don't wait for French to <span class="butter">get real.</span></h2>
+        <p class="cta-sub" data-reveal>Practise the moment before it happens.</p>
+        <div class="cta-button" data-reveal>Start practising free&nbsp; →</div>
+        <div class="cta-url" data-reveal>frenchclb6.ca</div>
+        <div class="cta-target" data-reveal>Bonjour! · Free French practice for Canada<br>No signup · No tracking</div>
+      </div>
+    </section>
+
+    <div class="cut-flash" id="cutFlash" aria-hidden="true"></div>
+    <div class="film-grain" aria-hidden="true"></div>
+    <div class="edge-shade" aria-hidden="true"></div>
+
+    <div class="poster" id="poster">
+      <div class="poster__label">Vertical campaign V2 · 29.5 seconds</div>
+      <h3>Your next French conversation is coming.</h3>
+      <p>Stronger product story. Original Bonjour! colours. Complete audio.</p>
+      <button type="button" id="posterPlay"><span aria-hidden="true">▶</span> Play rebuilt ad</button>
+    </div>
+
+    <div class="player-controls" id="playerControls" aria-label="Film controls">
+      <button class="control-button" id="playPause" type="button" aria-label="Play">▶</button>
+      <div class="scrub-wrap">
+        <label class="sr-only" for="scrubber">Film position</label>
+        <input id="scrubber" type="range" min="0" max="29.5" value="0" step="0.01">
+        <output id="timecode" for="scrubber">0:00</output>
+      </div>
+      <button class="control-button" id="mute" type="button" aria-label="Mute">♫</button>
+    </div>
+
+    <div class="sr-only" aria-live="polite" id="liveStatus"></div>
+    <audio id="voiceSample" preload="auto" src="audio/5311184f258e06aa.mp3"></audio>
+  </main>
+
+  <details class="sr-only">
+    <summary>Film transcript</summary>
+    <p>Your next French conversation is already coming—at the bank, at work, at a clinic, or at the TCF. Bonjour lets you practise the moment before it happens, with Canadian French audio, real-life scenarios, and TCF Canada rehearsal. Follow eight phases and ninety-two milestones, with one clear daily step. Listen, shadow, and record yourself. Practise fifty Canadian scenarios. Difficult material returns for review. Rehearse the complete four-skill TCF Canada test. Bonjour is free, needs no signup, and has no tracking. Start practising free at frenchclb6.ca.</p>
+  </details>
+
+  <script data-vertical-v2-runtime>
+  (() => {
+    "use strict";
+
+    const DURATION = 29.5;
+    const VOICE_START = 7.7;
+    const VOICE_DURATION = 4.392;
+    const VOICE_END = VOICE_START + VOICE_DURATION;
+    const SCENE_DATA = [
+      { name: "moment", start: 0, end: 2.35 },
+      { name: "answer", start: 2.17, end: 4.72 },
+      { name: "path", start: 4.54, end: 7.78 },
+      { name: "voice", start: 7.58, end: 12.3 },
+      { name: "scenarios", start: 12.1, end: 16.03 },
+      { name: "review", start: 15.83, end: 18.88 },
+      { name: "tcf", start: 18.68, end: 22.72 },
+      { name: "trust", start: 22.52, end: 25.5 },
+      { name: "cta", start: 25.3, end: 29.5 }
+    ];
+    const CUTS = SCENE_DATA.slice(1).map(scene => scene.start + .1);
+
+    const frame = document.getElementById("adFrame");
+    const brandBug = document.getElementById("brandBug");
+    const poster = document.getElementById("poster");
+    const posterPlay = document.getElementById("posterPlay");
+    const playPause = document.getElementById("playPause");
+    const muteButton = document.getElementById("mute");
+    const scrubber = document.getElementById("scrubber");
+    const timecode = document.getElementById("timecode");
+    const controls = document.getElementById("playerControls");
+    const liveStatus = document.getElementById("liveStatus");
+    const voiceSample = document.getElementById("voiceSample");
+    const cutFlash = document.getElementById("cutFlash");
+    const scenes = new Map([...document.querySelectorAll("[data-scene]")].map(element => [element.dataset.scene, element]));
+    const waveBars = [...document.querySelectorAll(".waveform span")];
+
+    let time = 0;
+    let playing = false;
+    let muted = false;
+    let raf = 0;
+    let playStartedAt = 0;
+    let audioContext = null;
+    let musicBuffer = null;
+    let musicSource = null;
+    let musicGain = null;
+    let controlsTimer = 0;
+
+    const clamp = (value, min = 0, max = 1) => Math.min(max, Math.max(min, value));
+    const easeOut = value => 1 - Math.pow(1 - clamp(value), 3);
+    const smooth = value => {
+      const safe = clamp(value);
+      return safe * safe * (3 - 2 * safe);
+    };
+
+    function formatTime(value) {
+      const safe = clamp(value, 0, DURATION);
+      return `${Math.floor(safe / 60)}:${String(Math.floor(safe % 60)).padStart(2, "0")}`;
+    }
+
+    function sceneOpacity(value, scene, index) {
+      const intro = index === 0 ? 1 : smooth((value - scene.start) / .16);
+      const outro = scene.name === "cta" ? 1 : smooth((scene.end - value) / .16);
+      return Math.min(intro, outro);
+    }
+
+    function voiceMix(value) {
+      const fadeIn = smooth((value - VOICE_START) / .13);
+      const fadeOut = smooth((VOICE_END - value) / .28);
+      return Math.min(fadeIn, fadeOut);
+    }
+
+    function renderAt(nextTime) {
+      time = clamp(Number(nextTime) || 0, 0, DURATION);
+      let dominantScene = SCENE_DATA[0];
+      let dominantOpacity = 0;
+
+      SCENE_DATA.forEach((scene, sceneIndex) => {
+        const element = scenes.get(scene.name);
+        const opacity = sceneOpacity(time, scene, sceneIndex);
+        if (opacity > dominantOpacity) {
+          dominantOpacity = opacity;
+          dominantScene = scene;
+        }
+        const revealBase = clamp((time - scene.start) / .42);
+        const drift = (1 - smooth(clamp((time - scene.start) / Math.max(.1, scene.end - scene.start)))) * 1.45;
+        const scale = .992 + easeOut(revealBase) * .008;
+        element.style.opacity = opacity.toFixed(4);
+        element.style.zIndex = String(2 + sceneIndex);
+        element.style.pointerEvents = opacity > .55 ? "auto" : "none";
+        element.style.transform = `translate3d(0, ${drift.toFixed(3)}cqw, 0) scale(${scale.toFixed(4)})`;
+
+        [...element.querySelectorAll("[data-reveal]")].forEach((item, itemIndex) => {
+          const reveal = easeOut(clamp((time - scene.start - .035 - itemIndex * .042) / .27));
+          item.style.opacity = reveal.toFixed(4);
+          item.style.transform = `translate3d(0, ${((1 - reveal) * 3).toFixed(3)}cqw, 0) scale(${(.978 + reveal * .022).toFixed(4)})`;
+        });
+      });
+
+      brandBug.classList.toggle("is-light", dominantScene.name === "moment" || dominantScene.name === "voice" || dominantScene.name === "tcf" || dominantScene.name === "cta");
+      brandBug.classList.toggle("is-dark", !(dominantScene.name === "moment" || dominantScene.name === "voice" || dominantScene.name === "tcf" || dominantScene.name === "cta"));
+
+      const flash = CUTS.reduce((strongest, cut) => {
+        const distance = Math.abs(time - cut);
+        return Math.max(strongest, distance < .05 ? (1 - distance / .05) * .22 : 0);
+      }, 0);
+      cutFlash.style.opacity = flash.toFixed(3);
+
+      const energy = voiceMix(time);
+      waveBars.forEach((bar, index) => {
+        const pulse = .78 + Math.sin(time * 10.4 + index * .72) * .18 + Math.sin(time * 4.1 + index) * .04;
+        bar.style.transform = `scale(${Math.max(.2, pulse * (.22 + energy * .78)).toFixed(3)})`;
+      });
+      if (musicGain && audioContext) {
+        const target = muted ? 0 : .7 - energy * .36;
+        musicGain.gain.setTargetAtTime(target, audioContext.currentTime, .035);
+      }
+
+      scrubber.value = String(time);
+      timecode.value = formatTime(time);
+      timecode.textContent = formatTime(time);
+      syncVoice();
+      return time;
+    }
+
+    function createScoreBuffer() {
+      if (!audioContext || musicBuffer) return musicBuffer;
+      const sampleRate = 24000;
+      const length = Math.ceil(DURATION * sampleRate);
+      musicBuffer = audioContext.createBuffer(2, length, sampleRate);
+      const notes = [130.81, 164.81, 196, 146.83, 130.81, 220, 196, 164.81];
+      let seed = 8219;
+      const random = () => {
+        seed = (seed * 1664525 + 1013904223) >>> 0;
+        return seed / 4294967296;
+      };
+
+      for (let channel = 0; channel < 2; channel += 1) {
+        const data = musicBuffer.getChannelData(channel);
+        for (let index = 0; index < length; index += 1) {
+          const seconds = index / sampleRate;
+          const beatPhase = (seconds / .5) % 1;
+          const eighthPhase = (seconds / .25) % 1;
+          const note = notes[Math.floor(seconds / .5) % notes.length];
+          const bassEnvelope = Math.exp(-beatPhase * 5.4);
+          const kickEnvelope = Math.exp(-beatPhase * 22);
+          const hatEnvelope = Math.exp(-eighthPhase * 36);
+          const bass = Math.sin(seconds * Math.PI * 2 * note) * .068 * bassEnvelope;
+          const upper = Math.sin(seconds * Math.PI * 2 * note * 2.005 + channel * .27) * .022 * bassEnvelope;
+          const kick = Math.sin(seconds * Math.PI * 2 * (50 + 34 * kickEnvelope)) * .14 * kickEnvelope;
+          const hat = (random() * 2 - 1) * .023 * hatEnvelope;
+          const campaignLift = seconds > 18.6 ? 1.13 : seconds > 12 ? 1.04 : .92;
+          const fadeOut = smooth((DURATION - seconds) / 1.45);
+          data[index] = (bass + upper + kick + hat) * campaignLift * fadeOut;
+        }
+      }
+      return musicBuffer;
+    }
+
+    function ensureAudio() {
+      if (!audioContext) {
+        const Context = window.AudioContext || window.webkitAudioContext;
+        if (!Context) return false;
+        audioContext = new Context();
+        musicGain = audioContext.createGain();
+        musicGain.gain.value = muted ? 0 : .7;
+        musicGain.connect(audioContext.destination);
+        createScoreBuffer();
+      }
+      if (audioContext.state === "suspended") audioContext.resume();
+      return true;
+    }
+
+    function startScore(offset) {
+      if (!ensureAudio()) return;
+      stopScore();
+      musicSource = audioContext.createBufferSource();
+      musicSource.buffer = musicBuffer;
+      musicSource.connect(musicGain);
+      musicSource.start(0, clamp(offset, 0, DURATION - .001));
+    }
+
+    function stopScore() {
+      if (!musicSource) return;
+      try { musicSource.stop(); } catch (_) {}
+      musicSource.disconnect();
+      musicSource = null;
+    }
+
+    function syncVoice() {
+      if (!playing || muted || time < VOICE_START) {
+        if (!voiceSample.paused) voiceSample.pause();
+        return;
+      }
+      // Once the scheduled phrase has reached its end, let the media element
+      // finish naturally. Pausing on the exact timeline boundary can trim the
+      // decoder's final packet even when the visible scene still has headroom.
+      if (time >= VOICE_END) return;
+      const wanted = clamp(time - VOICE_START, 0, VOICE_DURATION);
+      if (Math.abs(voiceSample.currentTime - wanted) > .16) voiceSample.currentTime = wanted;
+      voiceSample.volume = .88;
+      if (voiceSample.paused) voiceSample.play().catch(() => {});
+    }
+
+    function showControls() {
+      controls.classList.add("is-visible");
+      clearTimeout(controlsTimer);
+      controlsTimer = window.setTimeout(() => controls.classList.remove("is-visible"), 1600);
+    }
+
+    function updateButtons() {
+      playPause.textContent = playing ? "Ⅱ" : (time >= DURATION - .02 ? "↺" : "▶");
+      playPause.setAttribute("aria-label", playing ? "Pause" : (time >= DURATION - .02 ? "Replay" : "Play"));
+      muteButton.textContent = muted ? "×" : "♫";
+      muteButton.setAttribute("aria-label", muted ? "Unmute" : "Mute");
+    }
+
+    function tick(now) {
+      if (!playing) return;
+      const next = (now - playStartedAt) / 1000;
+      if (next >= DURATION) {
+        renderAt(DURATION);
+        pause(false);
+        liveStatus.textContent = "Film complete";
+        showControls();
+        return;
+      }
+      renderAt(next);
+      raf = requestAnimationFrame(tick);
+    }
+
+    function play() {
+      if (playing) return;
+      if (time >= DURATION - .02) renderAt(0);
+      poster.hidden = true;
+      playing = true;
+      playStartedAt = performance.now() - time * 1000;
+      startScore(time);
+      syncVoice();
+      updateButtons();
+      liveStatus.textContent = "Film playing";
+      raf = requestAnimationFrame(tick);
+      showControls();
+    }
+
+    function pause(announce = true) {
+      if (!playing && announce) return;
+      playing = false;
+      cancelAnimationFrame(raf);
+      stopScore();
+      voiceSample.pause();
+      updateButtons();
+      if (announce) liveStatus.textContent = "Film paused";
+      showControls();
+    }
+
+    function seek(value) {
+      const resume = playing;
+      if (resume) pause(false);
+      renderAt(value);
+      if (resume) play();
+      return time;
+    }
+
+    function replay() {
+      pause(false);
+      renderAt(0);
+      return play();
+    }
+
+    function setMuted(nextMuted) {
+      muted = Boolean(nextMuted);
+      voiceSample.muted = muted;
+      if (musicGain && audioContext) musicGain.gain.setTargetAtTime(muted ? 0 : .7 - voiceMix(time) * .36, audioContext.currentTime, .025);
+      syncVoice();
+      updateButtons();
+      return muted;
+    }
+
+    function captureTimeFromLocation() {
+      const params = new URLSearchParams(location.search);
+      const hashMatch = location.hash.match(/(?:^#|&)t=([0-9.]+)/);
+      const raw = hashMatch ? hashMatch[1] : params.get("t");
+      return raw == null ? 0 : Number(raw);
+    }
+
+    function setCaptureMode() {
+      const params = new URLSearchParams(location.search);
+      if (params.get("capture") !== "1") return false;
+      document.documentElement.classList.add("capture");
+      pause(false);
+      poster.hidden = true;
+      renderAt(captureTimeFromLocation());
+      return true;
+    }
+
+    posterPlay.addEventListener("click", play);
+    playPause.addEventListener("click", () => playing ? pause() : play());
+    muteButton.addEventListener("click", () => setMuted(!muted));
+    scrubber.addEventListener("input", event => seek(Number(event.target.value)));
+    frame.addEventListener("pointermove", showControls);
+    window.addEventListener("hashchange", () => {
+      if (document.documentElement.classList.contains("capture")) renderAt(captureTimeFromLocation());
+    });
+
+    renderAt(0);
+    setCaptureMode();
+    updateButtons();
+
+    window.__BONJOUR_VERTICAL_AD_V2__ = Object.freeze({
+      ready: Promise.resolve(true),
+      duration: DURATION,
+      voice: Object.freeze({ start: VOICE_START, duration: VOICE_DURATION, end: VOICE_END }),
+      seek,
+      play,
+      pause,
+      replay,
+      renderFrame: renderAt,
+      setMuted,
+      state: () => ({ time, playing, muted, voicePlaying: !voiceSample.paused, aspectRatio: "9:16" })
+    });
+  })();
+  </script>
+</body>
+</html>

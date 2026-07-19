@@ -1,0 +1,1181 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#071514">
+  <title>Bonjour! — 28s Vertical Campaign Film</title>
+  <meta name="description" content="A 28-second 9:16 campaign film for Bonjour! French practice in Canada.">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <style>
+    @font-face {
+      font-family: "InterFilm";
+      src: url("fonts/inter-latin.woff2") format("woff2");
+      font-style: normal;
+      font-weight: 100 900;
+      font-display: swap;
+    }
+
+    :root {
+      color-scheme: dark;
+      --ink: #f7fbf8;
+      --muted: rgba(232, 243, 238, .68);
+      --line: rgba(220, 255, 239, .13);
+      --mint: #53e3a6;
+      --mint-soft: #b9f7d9;
+      --orange: #ff9a62;
+      --blue: #76a9ff;
+      --night: #071514;
+      --night-2: #0b211e;
+      --panel: rgba(15, 38, 34, .9);
+      font-family: "InterFilm", Inter, ui-sans-serif, system-ui, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; background: #020807; }
+    body {
+      min-height: 100svh;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      color: var(--ink);
+    }
+
+    button, input { font: inherit; }
+    button { color: inherit; }
+
+    .ad-frame {
+      position: relative;
+      width: min(100vw, calc(100svh * 9 / 16));
+      aspect-ratio: 9 / 16;
+      max-height: 100svh;
+      overflow: hidden;
+      isolation: isolate;
+      container-type: inline-size;
+      background: var(--night);
+      box-shadow: 0 0 0 1px rgba(255,255,255,.08), 0 3rem 8rem rgba(0,0,0,.6);
+    }
+
+    .atmosphere,
+    .noise,
+    .vignette,
+    .scene,
+    .cut-flash {
+      position: absolute;
+      inset: 0;
+    }
+
+    .atmosphere {
+      z-index: 0;
+      background:
+        radial-gradient(circle at 18% 17%, rgba(83,227,166,.2), transparent 32%),
+        radial-gradient(circle at 88% 76%, rgba(255,154,98,.15), transparent 31%),
+        linear-gradient(155deg, #0a211d 0%, #061311 52%, #071715 100%);
+    }
+
+    .noise {
+      z-index: 30;
+      pointer-events: none;
+      opacity: .08;
+      background:
+        radial-gradient(circle at 15% 24%, rgba(255,255,255,.5) 0 .05cqw, transparent .07cqw),
+        radial-gradient(circle at 68% 73%, rgba(255,255,255,.42) 0 .04cqw, transparent .06cqw);
+      background-size: 3.7cqw 3.7cqw, 4.9cqw 4.9cqw;
+      mix-blend-mode: soft-light;
+    }
+
+    .vignette {
+      z-index: 29;
+      pointer-events: none;
+      box-shadow: inset 0 0 19cqw rgba(0,0,0,.42);
+    }
+
+    .safe-guide {
+      position: absolute;
+      z-index: 28;
+      inset: 5cqw 4.8cqw 10cqw;
+      border: 1px solid rgba(255,255,255,.05);
+      border-radius: 4cqw;
+      pointer-events: none;
+      opacity: 0;
+    }
+
+    .scene {
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 15cqw 7.4cqw 18cqw;
+      opacity: 0;
+      will-change: opacity, transform;
+      transform-origin: 50% 50%;
+      overflow: hidden;
+    }
+
+    .scene::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -2;
+      background: var(--scene-bg, rgba(7,21,20,.98));
+    }
+
+    .scene::after {
+      content: "";
+      position: absolute;
+      width: 65cqw;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      right: -26cqw;
+      top: 16cqw;
+      z-index: -1;
+      background: var(--orb, rgba(83,227,166,.14));
+      filter: blur(1cqw);
+    }
+
+    .scene--hook { --scene-bg: linear-gradient(155deg, #0a211e, #061311 58%, #102019); --orb: rgba(255,154,98,.17); }
+    .scene--brand { --scene-bg: linear-gradient(165deg, #173c33, #071815 62%); --orb: rgba(83,227,166,.2); }
+    .scene--plan { --scene-bg: linear-gradient(155deg, #071614, #0c211d 63%, #1b2a22); --orb: rgba(118,169,255,.12); }
+    .scene--speak { --scene-bg: linear-gradient(145deg, #071718, #0b2421 55%, #09201c); --orb: rgba(83,227,166,.18); }
+    .scene--scenario { --scene-bg: linear-gradient(160deg, #0d1b24, #071412 72%); --orb: rgba(118,169,255,.15); }
+    .scene--review { --scene-bg: linear-gradient(155deg, #161c16, #091613 68%); --orb: rgba(255,154,98,.15); }
+    .scene--exam { --scene-bg: linear-gradient(155deg, #0b1a20, #061311 72%); --orb: rgba(118,169,255,.14); }
+    .scene--trust { --scene-bg: linear-gradient(150deg, #12372e, #071613 65%); --orb: rgba(83,227,166,.22); }
+    .scene--cta { --scene-bg: linear-gradient(148deg, #153f35 0%, #081916 52%, #071210 100%); --orb: rgba(255,154,98,.17); }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 2cqw;
+      width: fit-content;
+      margin-bottom: 4.2cqw;
+      color: var(--mint-soft);
+      font-size: 2.65cqw;
+      line-height: 1;
+      font-weight: 800;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 2.2cqw;
+      aspect-ratio: 1;
+      border-radius: 999px;
+      background: var(--mint);
+      box-shadow: 0 0 4cqw rgba(83,227,166,.7);
+      flex: none;
+    }
+
+    h1, h2, p { margin: 0; }
+    h1, h2 {
+      text-wrap: balance;
+      letter-spacing: -.055em;
+      font-weight: 830;
+    }
+
+    h1 { font-size: 11.6cqw; line-height: .96; }
+    h2 { font-size: 9.3cqw; line-height: .98; }
+    .accent { color: var(--mint); }
+    .warm { color: var(--orange); }
+    .blue { color: var(--blue); }
+
+    .subhead {
+      margin-top: 4.2cqw;
+      max-width: 78cqw;
+      color: var(--muted);
+      font-size: 4.25cqw;
+      line-height: 1.38;
+      font-weight: 540;
+      letter-spacing: -.02em;
+    }
+
+    [data-reveal] { will-change: opacity, transform; }
+
+    .hook-card {
+      margin-top: 9cqw;
+      padding: 5.2cqw;
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 6cqw;
+      background: rgba(7,18,17,.72);
+      box-shadow: 0 5cqw 14cqw rgba(0,0,0,.28);
+    }
+
+    .hook-card__prompt {
+      color: rgba(255,255,255,.48);
+      font-size: 2.7cqw;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+      font-weight: 750;
+    }
+
+    .hook-card__phrase {
+      margin-top: 2.7cqw;
+      font-size: 5.7cqw;
+      line-height: 1.18;
+      font-weight: 760;
+      letter-spacing: -.035em;
+    }
+
+    .freeze-line {
+      display: flex;
+      align-items: center;
+      gap: 2.3cqw;
+      margin-top: 4.2cqw;
+      color: var(--orange);
+      font-size: 3cqw;
+      font-weight: 760;
+    }
+
+    .freeze-line span:first-child {
+      display: grid;
+      place-items: center;
+      width: 7cqw;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: rgba(255,154,98,.12);
+      border: 1px solid rgba(255,154,98,.32);
+      font-size: 3.2cqw;
+    }
+
+    .brand-lockup {
+      display: flex;
+      align-items: center;
+      gap: 4.2cqw;
+      margin-bottom: 10cqw;
+    }
+
+    .brand-lockup img {
+      display: block;
+      width: 15cqw;
+      height: auto;
+      aspect-ratio: 1;
+      object-fit: contain;
+      border-radius: 4cqw;
+      box-shadow: 0 4cqw 12cqw rgba(0,0,0,.3);
+    }
+
+    .brand-lockup__name {
+      font-size: 7.2cqw;
+      line-height: 1;
+      font-weight: 850;
+      letter-spacing: -.055em;
+    }
+
+    .brand-lockup__tag {
+      margin-top: 1.5cqw;
+      color: var(--mint-soft);
+      font-size: 2.9cqw;
+      font-weight: 660;
+    }
+
+    .country-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 2cqw;
+      margin-top: 7cqw;
+      padding: 2.8cqw 3.4cqw;
+      width: fit-content;
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 999px;
+      color: rgba(255,255,255,.78);
+      background: rgba(255,255,255,.055);
+      font-size: 3.1cqw;
+      font-weight: 650;
+    }
+
+    .maple {
+      color: #ff776c;
+      font-size: 4.2cqw;
+      line-height: 1;
+    }
+
+    .product-card {
+      margin-top: 8cqw;
+      border: 1px solid rgba(255,255,255,.13);
+      border-radius: 6.5cqw;
+      background: rgba(12,31,28,.9);
+      box-shadow: 0 8cqw 22cqw rgba(0,0,0,.31);
+      overflow: hidden;
+    }
+
+    .product-card__top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4.7cqw 5cqw 3.4cqw;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .product-card__label {
+      color: var(--mint-soft);
+      font-size: 2.5cqw;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      font-weight: 780;
+    }
+
+    .time-pill {
+      padding: 1.5cqw 2.3cqw;
+      border-radius: 999px;
+      background: rgba(83,227,166,.12);
+      color: var(--mint);
+      font-size: 3cqw;
+      font-variant-numeric: tabular-nums;
+      font-weight: 800;
+    }
+
+    .task-list { display: grid; gap: 2.2cqw; padding: 4cqw; }
+    .task {
+      display: grid;
+      grid-template-columns: 8cqw 1fr auto;
+      align-items: center;
+      gap: 3cqw;
+      padding: 3.2cqw 3.6cqw;
+      min-height: 15cqw;
+      border-radius: 4.5cqw;
+      background: rgba(255,255,255,.048);
+      border: 1px solid rgba(255,255,255,.07);
+    }
+
+    .task__icon {
+      display: grid;
+      place-items: center;
+      width: 8cqw;
+      aspect-ratio: 1;
+      border-radius: 2.5cqw;
+      color: #082018;
+      background: var(--mint);
+      font-weight: 900;
+      font-size: 3.1cqw;
+    }
+
+    .task__title { font-size: 3.6cqw; font-weight: 730; }
+    .task__meta { margin-top: .8cqw; color: rgba(255,255,255,.48); font-size: 2.6cqw; }
+    .task__arrow { color: rgba(255,255,255,.46); font-size: 4.4cqw; }
+
+    .speak-panel { padding: 5cqw; }
+    .phrase-label {
+      color: rgba(255,255,255,.45);
+      font-size: 2.55cqw;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      font-weight: 760;
+    }
+    .phrase {
+      margin-top: 2.7cqw;
+      font-size: 5.15cqw;
+      line-height: 1.22;
+      letter-spacing: -.03em;
+      font-weight: 760;
+    }
+    .translation { margin-top: 1.8cqw; color: var(--muted); font-size: 3.15cqw; }
+
+    .waveform {
+      height: 18cqw;
+      margin-top: 5cqw;
+      display: flex;
+      gap: 1.15cqw;
+      align-items: center;
+      justify-content: center;
+    }
+    .waveform span {
+      display: block;
+      width: 1.65cqw;
+      height: var(--h);
+      max-height: 16cqw;
+      border-radius: 999px;
+      background: linear-gradient(180deg, var(--mint-soft), var(--mint));
+      transform-origin: center;
+      opacity: .88;
+    }
+    .record-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 4cqw;
+      padding-top: 3.5cqw;
+      border-top: 1px solid var(--line);
+    }
+    .record-status { color: var(--muted); font-size: 2.9cqw; font-weight: 600; }
+    .record-button {
+      display: grid;
+      place-items: center;
+      width: 10cqw;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      border: 2px solid rgba(83,227,166,.36);
+      background: rgba(83,227,166,.1);
+    }
+    .record-button::after {
+      content: "";
+      width: 3.7cqw;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: var(--mint);
+      box-shadow: 0 0 4cqw rgba(83,227,166,.6);
+    }
+
+    .dialogue { display: grid; gap: 4.2cqw; margin-top: 9cqw; }
+    .bubble {
+      max-width: 80cqw;
+      padding: 4.7cqw 5cqw;
+      border-radius: 5cqw;
+      font-size: 3.75cqw;
+      line-height: 1.35;
+      letter-spacing: -.015em;
+      box-shadow: 0 4cqw 11cqw rgba(0,0,0,.16);
+    }
+    .bubble--other {
+      justify-self: start;
+      border-bottom-left-radius: 1.3cqw;
+      background: rgba(255,255,255,.09);
+      border: 1px solid rgba(255,255,255,.1);
+    }
+    .bubble--you {
+      justify-self: end;
+      border-bottom-right-radius: 1.3cqw;
+      background: var(--mint);
+      color: #062019;
+      font-weight: 730;
+    }
+    .speaker {
+      display: block;
+      margin-bottom: 1.4cqw;
+      color: rgba(255,255,255,.42);
+      font-size: 2.4cqw;
+      font-weight: 760;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .bubble--you .speaker { color: rgba(6,32,25,.55); }
+
+    .scenario-count {
+      display: flex;
+      align-items: baseline;
+      gap: 2cqw;
+      margin-top: 6.5cqw;
+      color: var(--blue);
+    }
+    .scenario-count strong { font-size: 8cqw; line-height: 1; letter-spacing: -.06em; }
+    .scenario-count span { font-size: 3.1cqw; font-weight: 700; }
+
+    .review-stack { display: grid; gap: 3cqw; margin-top: 9cqw; }
+    .review-step {
+      position: relative;
+      display: grid;
+      grid-template-columns: 9cqw 1fr;
+      align-items: center;
+      gap: 3.5cqw;
+      padding: 4cqw;
+      min-height: 17cqw;
+      border-radius: 4.8cqw;
+      background: rgba(255,255,255,.055);
+      border: 1px solid rgba(255,255,255,.09);
+    }
+    .review-step__num {
+      display: grid;
+      place-items: center;
+      width: 9cqw;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: rgba(255,154,98,.14);
+      color: var(--orange);
+      font-size: 3cqw;
+      font-weight: 850;
+    }
+    .review-step strong { display: block; font-size: 3.65cqw; }
+    .review-step span:last-child { display: block; margin-top: .8cqw; color: var(--muted); font-size: 2.7cqw; }
+    .review-step--active { border-color: rgba(255,154,98,.35); background: rgba(255,154,98,.085); }
+
+    .exam-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2.5cqw;
+      margin-top: 8cqw;
+    }
+    .exam-skill {
+      min-height: 24cqw;
+      padding: 4cqw;
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 4.6cqw;
+      background: rgba(255,255,255,.05);
+    }
+    .exam-skill__icon {
+      display: grid;
+      place-items: center;
+      width: 7cqw;
+      aspect-ratio: 1;
+      border-radius: 2.2cqw;
+      background: rgba(118,169,255,.14);
+      color: var(--blue);
+      font-size: 3cqw;
+      font-weight: 860;
+    }
+    .exam-skill strong { display: block; margin-top: 3cqw; font-size: 3.25cqw; }
+    .exam-skill span { display: block; margin-top: 1cqw; color: var(--muted); font-size: 2.55cqw; }
+    .exam-total {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 3cqw;
+      padding: 3.3cqw 4cqw;
+      border-radius: 3.8cqw;
+      color: var(--mint-soft);
+      background: rgba(83,227,166,.09);
+      border: 1px solid rgba(83,227,166,.18);
+      font-size: 2.85cqw;
+      font-weight: 720;
+    }
+
+    .trust-list { display: grid; gap: 4cqw; margin-top: 9cqw; }
+    .trust-item {
+      display: grid;
+      grid-template-columns: 10cqw 1fr;
+      align-items: center;
+      gap: 4cqw;
+      padding: 4.2cqw;
+      border-radius: 4.8cqw;
+      border: 1px solid rgba(255,255,255,.1);
+      background: rgba(255,255,255,.055);
+    }
+    .trust-item__mark {
+      display: grid;
+      place-items: center;
+      width: 10cqw;
+      aspect-ratio: 1;
+      border-radius: 3cqw;
+      background: var(--mint);
+      color: #062019;
+      font-size: 4cqw;
+      font-weight: 900;
+    }
+    .trust-item strong { font-size: 4.2cqw; letter-spacing: -.025em; }
+    .trust-item p { margin-top: .7cqw; color: var(--muted); font-size: 2.75cqw; }
+
+    .cta-lockup { text-align: center; }
+    .cta-lockup img {
+      display: block;
+      width: 21cqw;
+      height: auto;
+      aspect-ratio: 1;
+      object-fit: contain;
+      margin: 0 auto 6cqw;
+      border-radius: 5.5cqw;
+      box-shadow: 0 6cqw 18cqw rgba(0,0,0,.35);
+    }
+    .cta-lockup .brand-name { font-size: 12.2cqw; line-height: .96; font-weight: 880; letter-spacing: -.07em; }
+    .cta-lockup .final-line { margin-top: 4cqw; color: var(--muted); font-size: 4.2cqw; line-height: 1.35; }
+    .cta-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 14cqw;
+      margin: 8cqw auto 0;
+      padding: 0 6cqw;
+      border-radius: 999px;
+      width: 77cqw;
+      color: #062019;
+      background: var(--mint);
+      box-shadow: 0 4cqw 13cqw rgba(83,227,166,.26);
+      font-size: 4cqw;
+      font-weight: 830;
+      letter-spacing: -.02em;
+    }
+    .url {
+      margin-top: 4cqw;
+      color: var(--mint-soft);
+      font-size: 3.6cqw;
+      font-weight: 720;
+      letter-spacing: .01em;
+    }
+    .target-line {
+      margin-top: 5cqw;
+      color: rgba(255,255,255,.48);
+      font-size: 2.65cqw;
+      line-height: 1.4;
+    }
+
+    .campaign-bug {
+      position: absolute;
+      z-index: 26;
+      top: max(4.2cqw, env(safe-area-inset-top));
+      left: 5cqw;
+      display: flex;
+      align-items: center;
+      gap: 2cqw;
+      pointer-events: none;
+    }
+    .campaign-bug img {
+      display: block;
+      width: 6.5cqw;
+      height: auto;
+      aspect-ratio: 1;
+      object-fit: contain;
+      border-radius: 1.8cqw;
+    }
+    .campaign-bug span {
+      font-size: 3cqw;
+      font-weight: 820;
+      letter-spacing: -.04em;
+    }
+
+    .cut-flash {
+      z-index: 27;
+      pointer-events: none;
+      background: rgba(185,247,217,.7);
+      opacity: 0;
+      mix-blend-mode: screen;
+    }
+
+    .poster {
+      position: absolute;
+      z-index: 60;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: stretch;
+      padding: 14cqw 7cqw 11cqw;
+      background:
+        linear-gradient(180deg, transparent 25%, rgba(2,9,8,.35) 52%, rgba(2,9,8,.97) 100%),
+        radial-gradient(circle at 24% 22%, rgba(83,227,166,.24), transparent 34%);
+      transition: opacity .25s ease, visibility .25s ease;
+    }
+    .poster[hidden] { display: none; }
+    .poster__label { color: var(--mint); font-size: 3cqw; font-weight: 800; text-transform: uppercase; letter-spacing: .13em; }
+    .poster h3 { margin: 3cqw 0 0; font-size: 10cqw; line-height: .98; letter-spacing: -.055em; }
+    .poster p { margin-top: 3cqw; color: var(--muted); font-size: 3.5cqw; line-height: 1.4; }
+    .poster button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2.5cqw;
+      width: 100%;
+      min-height: 14cqw;
+      margin-top: 6cqw;
+      border: 0;
+      border-radius: 999px;
+      color: #062019;
+      background: var(--mint);
+      box-shadow: 0 4cqw 13cqw rgba(83,227,166,.24);
+      cursor: pointer;
+      font-size: 3.7cqw;
+      font-weight: 830;
+    }
+    .poster button span { font-size: 4.4cqw; }
+
+    .player-controls {
+      position: absolute;
+      z-index: 50;
+      left: 4cqw;
+      right: 4cqw;
+      bottom: max(3.3cqw, env(safe-area-inset-bottom));
+      display: grid;
+      grid-template-columns: 9cqw 1fr 9cqw;
+      align-items: center;
+      gap: 2.2cqw;
+      padding: 2cqw 2.3cqw;
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 999px;
+      background: rgba(2,11,10,.68);
+      backdrop-filter: blur(1.8cqw);
+      opacity: 0;
+      transform: translate3d(0, 3cqw, 0);
+      transition: opacity .2s ease, transform .2s ease;
+    }
+    .ad-frame:hover .player-controls,
+    .ad-frame:focus-within .player-controls,
+    .player-controls.is-visible { opacity: 1; transform: translate3d(0, 0, 0); }
+    .control-button {
+      display: grid;
+      place-items: center;
+      width: 9cqw;
+      aspect-ratio: 1;
+      padding: 0;
+      border: 0;
+      border-radius: 50%;
+      background: rgba(255,255,255,.09);
+      cursor: pointer;
+      font-size: 3.1cqw;
+    }
+    .scrub-wrap { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 2cqw; }
+    .scrub-wrap output { min-width: 8cqw; color: rgba(255,255,255,.68); font-size: 2.25cqw; font-variant-numeric: tabular-nums; }
+    input[type="range"] { width: 100%; accent-color: var(--mint); }
+
+    .capture .poster,
+    .capture .player-controls,
+    .capture .safe-guide { display: none !important; }
+    .capture .campaign-bug { top: 5cqw; }
+
+    .sr-only {
+      position: absolute !important;
+      width: 1px !important;
+      height: 1px !important;
+      padding: 0 !important;
+      margin: -1px !important;
+      overflow: hidden !important;
+      clip: rect(0,0,0,0) !important;
+      white-space: nowrap !important;
+      border: 0 !important;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .poster, .player-controls { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="ad-frame" id="adFrame" aria-label="Bonjour! vertical campaign film">
+    <div class="atmosphere" aria-hidden="true"></div>
+
+    <div class="campaign-bug" aria-hidden="true">
+      <img src="icon-512.png" alt="">
+      <span>Bonjour!</span>
+    </div>
+
+    <section class="scene scene--hook" data-scene="hook" aria-label="Hook: freezing in real French conversations">
+      <div class="eyebrow" data-reveal>Real life moves fast</div>
+      <h1 data-reveal>Still <span class="warm">freezing</span> when French gets real?</h1>
+      <div class="hook-card" data-reveal>
+        <div class="hook-card__prompt">At the bank</div>
+        <div class="hook-card__phrase">« Quel type de compte voulez-vous ouvrir? »</div>
+        <div class="freeze-line"><span>···</span><span>Your mind, right now.</span></div>
+      </div>
+    </section>
+
+    <section class="scene scene--brand" data-scene="brand" aria-label="Introducing Bonjour">
+      <div class="brand-lockup" data-reveal>
+        <img src="icon-512.png" alt="Bonjour! app icon">
+        <div>
+          <div class="brand-lockup__name">Bonjour!</div>
+          <div class="brand-lockup__tag">French that leaves the textbook.</div>
+        </div>
+      </div>
+      <h2 data-reveal>Practise for the life you're building <span class="accent">in Canada.</span></h2>
+      <div class="country-pill" data-reveal><span class="maple">✦</span><span>Built around real Canadian moments</span></div>
+    </section>
+
+    <section class="scene scene--plan" data-scene="plan" aria-label="A focused daily practice plan">
+      <div class="eyebrow" data-reveal>Know what to do next</div>
+      <h2 data-reveal>One clear <span class="accent">15-minute</span> plan.</h2>
+      <div class="product-card" data-reveal>
+        <div class="product-card__top">
+          <div class="product-card__label">Today's practice</div>
+          <div class="time-pill">15:00</div>
+        </div>
+        <div class="task-list">
+          <div class="task" data-reveal><div class="task__icon">01</div><div><div class="task__title">Review</div><div class="task__meta">Bring back tricky words</div></div><div class="task__arrow">›</div></div>
+          <div class="task" data-reveal><div class="task__icon">02</div><div><div class="task__title">Continue</div><div class="task__meta">Pick up where you left off</div></div><div class="task__arrow">›</div></div>
+          <div class="task" data-reveal><div class="task__icon">03</div><div><div class="task__title">Speak</div><div class="task__meta">Say it out loud</div></div><div class="task__arrow">›</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="scene scene--speak" data-scene="speak" aria-label="Listening and speaking practice">
+      <div class="eyebrow" data-reveal>Train your ear and voice</div>
+      <h2 data-reveal>Hear it. Say it. <span class="accent">Keep it.</span></h2>
+      <div class="product-card speak-panel" data-reveal>
+        <div class="phrase-label">Listen, then record</div>
+        <div class="phrase">« J'aimerais prendre rendez-vous. »</div>
+        <div class="translation">I'd like to make an appointment.</div>
+        <div class="waveform" aria-hidden="true">
+          <span style="--h:5cqw"></span><span style="--h:10cqw"></span><span style="--h:15cqw"></span><span style="--h:8cqw"></span><span style="--h:13cqw"></span><span style="--h:6cqw"></span><span style="--h:11cqw"></span><span style="--h:16cqw"></span><span style="--h:9cqw"></span><span style="--h:13cqw"></span><span style="--h:7cqw"></span><span style="--h:11cqw"></span><span style="--h:5cqw"></span>
+        </div>
+        <div class="record-row"><div class="record-status">Private practice · replay anytime</div><div class="record-button" aria-hidden="true"></div></div>
+      </div>
+    </section>
+
+    <section class="scene scene--scenario" data-scene="scenario" aria-label="Canadian scenario practice">
+      <div class="eyebrow" data-reveal>Practise the moment first</div>
+      <h2 data-reveal>French for <span class="blue">real Canadian scenarios.</span></h2>
+      <div class="dialogue">
+        <div class="bubble bubble--other" data-reveal><span class="speaker">Bank advisor</span>Quel type de compte voulez-vous ouvrir?</div>
+        <div class="bubble bubble--you" data-reveal><span class="speaker">You</span>Un compte chèques, s'il vous plaît.</div>
+      </div>
+      <div class="scenario-count" data-reveal><strong>50</strong><span>everyday scenarios to explore</span></div>
+    </section>
+
+    <section class="scene scene--review" data-scene="review" aria-label="Smart review keeps difficult items coming back">
+      <div class="eyebrow" data-reveal>Make progress stick</div>
+      <h2 data-reveal>Hard items <span class="warm">come back.</span></h2>
+      <p class="subhead" data-reveal>Review turns hesitation into something you can reach for.</p>
+      <div class="review-stack">
+        <div class="review-step" data-reveal><div class="review-step__num">1</div><div><strong>Meet it</strong><span>Inside a useful phrase</span></div></div>
+        <div class="review-step review-step--active" data-reveal><div class="review-step__num">2</div><div><strong>Recall it</strong><span>Before it fades</span></div></div>
+        <div class="review-step" data-reveal><div class="review-step__num">3</div><div><strong>Use it</strong><span>In a real scenario</span></div></div>
+      </div>
+    </section>
+
+    <section class="scene scene--exam" data-scene="exam" aria-label="TCF Canada rehearsal">
+      <div class="eyebrow" data-reveal>When the test matters too</div>
+      <h2 data-reveal>Rehearse all <span class="blue">four TCF skills.</span></h2>
+      <div class="exam-grid">
+        <div class="exam-skill" data-reveal><div class="exam-skill__icon">L</div><strong>Listening</strong><span>39 questions</span></div>
+        <div class="exam-skill" data-reveal><div class="exam-skill__icon">R</div><strong>Reading</strong><span>39 questions</span></div>
+        <div class="exam-skill" data-reveal><div class="exam-skill__icon">S</div><strong>Speaking</strong><span>3 tasks</span></div>
+        <div class="exam-skill" data-reveal><div class="exam-skill__icon">W</div><strong>Writing</strong><span>3 tasks</span></div>
+      </div>
+      <div class="exam-total" data-reveal><span>Full simulation</span><span>≈ 2 h 47 min</span></div>
+    </section>
+
+    <section class="scene scene--trust" data-scene="trust" aria-label="Free private practice without signup">
+      <div class="eyebrow" data-reveal>Start without friction</div>
+      <h2 data-reveal>Nothing between you and <span class="accent">practice.</span></h2>
+      <div class="trust-list">
+        <div class="trust-item" data-reveal><div class="trust-item__mark">✓</div><div><strong>Free</strong><p>Open it and begin.</p></div></div>
+        <div class="trust-item" data-reveal><div class="trust-item__mark">✓</div><div><strong>Private</strong><p>Your practice stays on your device.</p></div></div>
+        <div class="trust-item" data-reveal><div class="trust-item__mark">✓</div><div><strong>No signup</strong><p>No account wall.</p></div></div>
+      </div>
+    </section>
+
+    <section class="scene scene--cta" data-scene="cta" aria-label="Call to action">
+      <div class="cta-lockup">
+        <img src="icon-512.png" alt="Bonjour! app icon" data-reveal>
+        <div class="brand-name" data-reveal>Bonjour!</div>
+        <div class="final-line" data-reveal>Make your next French moment<br><span class="accent">feel familiar.</span></div>
+        <div class="cta-button" data-reveal>Start practising today&nbsp; →</div>
+        <div class="url" data-reveal>frenchclb6.ca</div>
+        <div class="target-line" data-reveal>Structured practice toward NCLC 6 / CLB 6.</div>
+      </div>
+    </section>
+
+    <div class="cut-flash" id="cutFlash" aria-hidden="true"></div>
+    <div class="noise" aria-hidden="true"></div>
+    <div class="vignette" aria-hidden="true"></div>
+    <div class="safe-guide" aria-hidden="true"></div>
+
+    <div class="poster" id="poster">
+      <div class="poster__label">9:16 campaign cut · 28 seconds</div>
+      <h3>French gets real.<br>Get ready.</h3>
+      <p>Fast vertical cut with original sound. Headphones on.</p>
+      <button type="button" id="posterPlay"><span aria-hidden="true">▶</span> Play vertical ad</button>
+    </div>
+
+    <div class="player-controls" id="playerControls" aria-label="Film controls">
+      <button class="control-button" id="playPause" type="button" aria-label="Play">▶</button>
+      <div class="scrub-wrap">
+        <label class="sr-only" for="scrubber">Film position</label>
+        <input id="scrubber" type="range" min="0" max="28" value="0" step="0.01">
+        <output id="timecode" for="scrubber">0:00</output>
+      </div>
+      <button class="control-button" id="mute" type="button" aria-label="Mute">♫</button>
+    </div>
+
+    <div class="sr-only" aria-live="polite" id="liveStatus"></div>
+    <audio id="voiceSample" preload="auto" src="audio/5311184f258e06aa.mp3"></audio>
+  </main>
+
+  <details class="sr-only">
+    <summary>Film transcript</summary>
+    <p>Still freezing when French gets real? Bonjour helps you practise for the life you're building in Canada. Follow one clear fifteen-minute plan. Hear useful French, say it, and retain it. Practise fifty Canadian scenarios, bring difficult items back for review, and rehearse all four TCF Canada skills. Bonjour is free, private, and needs no signup. Start practising today at frenchclb6.ca. Structured practice toward NCLC 6 or CLB 6.</p>
+  </details>
+
+  <script data-vertical-runtime>
+  (() => {
+    "use strict";
+
+    const DURATION = 28;
+    const SCENE_DATA = [
+      { name: "hook", start: 0, end: 2.25 },
+      { name: "brand", start: 2.05, end: 4.45 },
+      { name: "plan", start: 4.25, end: 7.25 },
+      { name: "speak", start: 7.05, end: 10.65 },
+      { name: "scenario", start: 10.45, end: 13.85 },
+      { name: "review", start: 13.65, end: 16.75 },
+      { name: "exam", start: 16.55, end: 20.35 },
+      { name: "trust", start: 20.15, end: 23.55 },
+      { name: "cta", start: 23.35, end: 28 }
+    ];
+    const CUTS = SCENE_DATA.slice(1).map(scene => scene.start + .1);
+
+    const frame = document.getElementById("adFrame");
+    const poster = document.getElementById("poster");
+    const posterPlay = document.getElementById("posterPlay");
+    const playPause = document.getElementById("playPause");
+    const muteButton = document.getElementById("mute");
+    const scrubber = document.getElementById("scrubber");
+    const timecode = document.getElementById("timecode");
+    const controls = document.getElementById("playerControls");
+    const liveStatus = document.getElementById("liveStatus");
+    const voiceSample = document.getElementById("voiceSample");
+    const cutFlash = document.getElementById("cutFlash");
+    const scenes = new Map([...document.querySelectorAll("[data-scene]")].map(element => [element.dataset.scene, element]));
+    const waveBars = [...document.querySelectorAll(".waveform span")];
+
+    let time = 0;
+    let playing = false;
+    let muted = false;
+    let raf = 0;
+    let playStartedAt = 0;
+    let audioContext = null;
+    let musicBuffer = null;
+    let musicSource = null;
+    let masterGain = null;
+    let controlsTimer = 0;
+
+    const clamp = (value, min = 0, max = 1) => Math.min(max, Math.max(min, value));
+    const easeOut = value => 1 - Math.pow(1 - clamp(value), 3);
+    const easeInOut = value => value < .5 ? 4 * value * value * value : 1 - Math.pow(-2 * value + 2, 3) / 2;
+
+    function formatTime(value) {
+      const safe = Math.max(0, Math.min(DURATION, value));
+      return `${Math.floor(safe / 60)}:${String(Math.floor(safe % 60)).padStart(2, "0")}`;
+    }
+
+    function sceneOpacity(value, scene, index) {
+      const inDuration = index === 0 ? .02 : .18;
+      const outDuration = scene.name === "cta" ? .02 : .18;
+      const fadeIn = clamp((value - scene.start) / inDuration);
+      const fadeOut = clamp((scene.end - value) / outDuration);
+      return Math.min(fadeIn, fadeOut);
+    }
+
+    function renderAt(nextTime) {
+      time = clamp(Number(nextTime) || 0, 0, DURATION);
+      SCENE_DATA.forEach((scene, sceneIndex) => {
+        const element = scenes.get(scene.name);
+        const opacity = sceneOpacity(time, scene, sceneIndex);
+        const local = clamp((time - scene.start) / Math.max(.01, scene.end - scene.start));
+        const travel = (1 - easeInOut(local)) * 1.8;
+        const scale = .992 + easeOut(clamp((time - scene.start) / .42)) * .008;
+        element.style.opacity = opacity.toFixed(4);
+        element.style.zIndex = String(2 + sceneIndex);
+        element.style.pointerEvents = opacity > .5 ? "auto" : "none";
+        element.style.transform = `translate3d(0, ${travel.toFixed(3)}cqw, 0) scale(${scale.toFixed(4)})`;
+
+        [...element.querySelectorAll("[data-reveal]")].forEach((item, itemIndex) => {
+          const reveal = easeOut(clamp((time - scene.start - .04 - itemIndex * .045) / .3));
+          item.style.opacity = reveal.toFixed(4);
+          item.style.transform = `translate3d(0, ${((1 - reveal) * 3.2).toFixed(3)}cqw, 0) scale(${(.975 + reveal * .025).toFixed(4)})`;
+        });
+      });
+
+      const flash = CUTS.reduce((strongest, cut) => {
+        const distance = Math.abs(time - cut);
+        return Math.max(strongest, distance < .055 ? (1 - distance / .055) * .28 : 0);
+      }, 0);
+      cutFlash.style.opacity = flash.toFixed(3);
+
+      const speakEnergy = time >= 7.15 && time <= 10.35 ? 1 : .18;
+      waveBars.forEach((bar, index) => {
+        const pulse = .72 + Math.sin(time * 9.7 + index * .82) * .22 + Math.sin(time * 4.2 + index) * .06;
+        const scale = Math.max(.22, pulse * speakEnergy);
+        bar.style.transform = `scale(${scale.toFixed(3)})`;
+      });
+
+      scrubber.value = String(time);
+      timecode.value = formatTime(time);
+      timecode.textContent = formatTime(time);
+      syncVoice();
+      return time;
+    }
+
+    function createScoreBuffer() {
+      if (!audioContext || musicBuffer) return musicBuffer;
+      const sampleRate = 24000;
+      const length = Math.ceil(DURATION * sampleRate);
+      musicBuffer = audioContext.createBuffer(2, length, sampleRate);
+      const notes = [110, 146.83, 164.81, 130.81, 110, 196, 164.81, 146.83];
+      let seed = 4731;
+      const random = () => {
+        seed = (seed * 1664525 + 1013904223) >>> 0;
+        return seed / 4294967296;
+      };
+
+      for (let channel = 0; channel < 2; channel += 1) {
+        const data = musicBuffer.getChannelData(channel);
+        for (let i = 0; i < length; i += 1) {
+          const seconds = i / sampleRate;
+          const beat = seconds / .5;
+          const beatPhase = beat % 1;
+          const halfPhase = (seconds / .25) % 1;
+          const note = notes[Math.floor(beat) % notes.length];
+          const bassEnv = Math.exp(-beatPhase * 5.8);
+          const kickEnv = Math.exp(-beatPhase * 22);
+          const hatEnv = Math.exp(-halfPhase * 37);
+          const phrase = Math.sin(seconds * Math.PI * 2 * note) * .075 * bassEnv;
+          const harmonic = Math.sin(seconds * Math.PI * 2 * note * 2.01 + channel * .35) * .025 * bassEnv;
+          const kick = Math.sin(seconds * Math.PI * 2 * (52 + 30 * kickEnv)) * .16 * kickEnv;
+          const hat = (random() * 2 - 1) * .026 * hatEnv;
+          const lift = seconds > 20 ? 1.12 : seconds > 10 ? 1 : .88;
+          const endFade = clamp((DURATION - seconds) / .65);
+          data[i] = (phrase + harmonic + kick + hat) * lift * endFade;
+        }
+      }
+      return musicBuffer;
+    }
+
+    function ensureAudio() {
+      if (!audioContext) {
+        const Context = window.AudioContext || window.webkitAudioContext;
+        if (!Context) return false;
+        audioContext = new Context();
+        masterGain = audioContext.createGain();
+        masterGain.gain.value = muted ? 0 : .7;
+        masterGain.connect(audioContext.destination);
+        createScoreBuffer();
+      }
+      if (audioContext.state === "suspended") audioContext.resume();
+      return true;
+    }
+
+    function startScore(offset) {
+      if (!ensureAudio()) return;
+      if (musicSource) {
+        try { musicSource.stop(); } catch (_) {}
+      }
+      musicSource = audioContext.createBufferSource();
+      musicSource.buffer = musicBuffer;
+      musicSource.connect(masterGain);
+      musicSource.start(0, clamp(offset, 0, DURATION - .001));
+    }
+
+    function stopScore() {
+      if (!musicSource) return;
+      try { musicSource.stop(); } catch (_) {}
+      musicSource.disconnect();
+      musicSource = null;
+    }
+
+    function syncVoice() {
+      const voiceStart = 7.48;
+      const voiceEnd = 9.9;
+      if (!playing || muted || time < voiceStart || time > voiceEnd) {
+        if (!voiceSample.paused) voiceSample.pause();
+        return;
+      }
+      const wanted = Math.max(0, time - voiceStart);
+      if (Math.abs(voiceSample.currentTime - wanted) > .18) voiceSample.currentTime = wanted;
+      voiceSample.volume = .82;
+      if (voiceSample.paused) voiceSample.play().catch(() => {});
+    }
+
+    function showControls() {
+      controls.classList.add("is-visible");
+      clearTimeout(controlsTimer);
+      controlsTimer = window.setTimeout(() => controls.classList.remove("is-visible"), 1600);
+    }
+
+    function updateButtons() {
+      playPause.textContent = playing ? "Ⅱ" : (time >= DURATION - .02 ? "↺" : "▶");
+      playPause.setAttribute("aria-label", playing ? "Pause" : (time >= DURATION - .02 ? "Replay" : "Play"));
+      muteButton.textContent = muted ? "×" : "♫";
+      muteButton.setAttribute("aria-label", muted ? "Unmute" : "Mute");
+    }
+
+    function tick(now) {
+      if (!playing) return;
+      const next = (now - playStartedAt) / 1000;
+      if (next >= DURATION) {
+        renderAt(DURATION);
+        pause(false);
+        liveStatus.textContent = "Film complete";
+        showControls();
+        return;
+      }
+      renderAt(next);
+      raf = requestAnimationFrame(tick);
+    }
+
+    function play() {
+      if (playing) return;
+      if (time >= DURATION - .02) renderAt(0);
+      poster.hidden = true;
+      playing = true;
+      playStartedAt = performance.now() - time * 1000;
+      startScore(time);
+      syncVoice();
+      updateButtons();
+      liveStatus.textContent = "Film playing";
+      raf = requestAnimationFrame(tick);
+      showControls();
+    }
+
+    function pause(announce = true) {
+      if (!playing && announce) return;
+      playing = false;
+      cancelAnimationFrame(raf);
+      stopScore();
+      voiceSample.pause();
+      updateButtons();
+      if (announce) liveStatus.textContent = "Film paused";
+      showControls();
+    }
+
+    function seek(value) {
+      const resume = playing;
+      if (resume) pause(false);
+      renderAt(value);
+      if (resume) play();
+      return time;
+    }
+
+    function replay() {
+      pause(false);
+      renderAt(0);
+      return play();
+    }
+
+    function setMuted(nextMuted) {
+      muted = Boolean(nextMuted);
+      voiceSample.muted = muted;
+      if (masterGain && audioContext) {
+        masterGain.gain.setTargetAtTime(muted ? 0 : .7, audioContext.currentTime, .025);
+      }
+      syncVoice();
+      updateButtons();
+      return muted;
+    }
+
+    function captureTimeFromLocation() {
+      const params = new URLSearchParams(location.search);
+      const hashMatch = location.hash.match(/(?:^#|&)t=([0-9.]+)/);
+      const raw = hashMatch ? hashMatch[1] : params.get("t");
+      return raw == null ? 0 : Number(raw);
+    }
+
+    function setCaptureMode() {
+      const params = new URLSearchParams(location.search);
+      if (params.get("capture") !== "1") return false;
+      document.documentElement.classList.add("capture");
+      pause(false);
+      poster.hidden = true;
+      renderAt(captureTimeFromLocation());
+      return true;
+    }
+
+    posterPlay.addEventListener("click", play);
+    playPause.addEventListener("click", () => playing ? pause() : play());
+    muteButton.addEventListener("click", () => setMuted(!muted));
+    scrubber.addEventListener("input", event => seek(Number(event.target.value)));
+    frame.addEventListener("pointermove", showControls);
+    frame.addEventListener("keydown", event => {
+      if (event.code === "Space" && event.target.tagName !== "BUTTON") {
+        event.preventDefault();
+        playing ? pause() : play();
+      }
+    });
+    window.addEventListener("hashchange", () => {
+      if (document.documentElement.classList.contains("capture")) renderAt(captureTimeFromLocation());
+    });
+
+    renderAt(0);
+    setCaptureMode();
+    updateButtons();
+
+    window.__BONJOUR_VERTICAL_AD__ = Object.freeze({
+      ready: Promise.resolve(true),
+      duration: DURATION,
+      seek,
+      play,
+      pause,
+      replay,
+      renderFrame: renderAt,
+      setMuted,
+      state: () => ({ time, playing, muted, aspectRatio: "9:16" })
+    });
+  })();
+  </script>
+</body>
+</html>

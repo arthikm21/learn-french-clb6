@@ -3240,25 +3240,6 @@ body { transition: background var(--t-base) var(--ease-in-out), color var(--t-ba
   transition-timing-function: var(--ease-in-out);
 }
 
-/* ── Native page transitions (View Transitions API) ────────────────────── */
-@supports (view-transition-name: root) {
-  /* Chrome that never changes shouldn't ghost during the swap */
-  .topbar      { view-transition-name: liquid-topbar; }
-  .footer      { view-transition-name: liquid-footer; }
-  .seo-content { view-transition-name: liquid-seo; }
-  ::view-transition-old(root) { animation: vt-out 190ms var(--ease-in-out) both; }
-  ::view-transition-new(root) { animation: vt-in 340ms 50ms var(--ease-out) both; }
-  /* VT drives the page swap at full tier — drop the old main slide so the
-     two motions don't stack. (Subtle tier never starts a VT; keeps its fade.) */
-  body[data-anim="full"] main > * { animation-name: none; }
-}
-@keyframes vt-out {
-  to { opacity: 0; transform: translateY(-10px) scale(.992); }
-}
-@keyframes vt-in {
-  from { opacity: 0; transform: translateY(12px) scale(.992); }
-}
-
 /* ── The next step breathes — attention without a single word ──────────── */
 .path-node { position: relative; }
 body[data-anim="full"] .path-node.unlocked::after {

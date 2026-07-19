@@ -46,20 +46,28 @@ window.Sounds = (function () {
     mascotChirp: 200, themeFlip: 300, dangerArm: 150, playAudio: 50,
   };
   const lastAt = {};
+  const CLICK_CATS = new Set([
+    'click', 'clickBack', 'clickOption', 'tickCountdown', 'pop', 'swoosh',
+    'nav', 'pathStep', 'locked', 'tabSwap', 'toggleOn', 'toggleOff',
+    'selectChange', 'speedSlow', 'speedNormal', 'speedFast', 'mascotChirp',
+    'themeFlip', 'dangerArm', 'playAudio',
+  ]);
+  const CELEBRATION_CATS = new Set(['correct', 'wrong', 'complete', 'gate', 'streak', 'warn']);
+  const NAV_SAMPLE_CATS = new Set(['swoosh', 'nav', 'pathStep', 'mascotChirp', 'themeFlip']);
 
   // ── Mobile mix ──────────────────────────────────────────────────────────
   // Touch-primary devices (phones/tablets) get a quieter, sparser mix. The
   // same palette that feels crisp and tactile on a desktop is fatiguing on a
   // phone held to the ear, where the thumb also fires many more taps. Computed
-  // live (not cached) so hybrid/convertible devices and dev-tools emulation
-  // stay correct.
+  // from live MediaQueryList objects so hybrid/convertible changes remain
+  // correct without allocating two new queries on every sound.
+  const coarsePointer = window.matchMedia ? window.matchMedia('(pointer: coarse)') : null;
+  const noHover = window.matchMedia ? window.matchMedia('(hover: none)') : null;
   function isTouchPrimary() {
     try {
-      if (window.matchMedia &&
-          (window.matchMedia('(pointer: coarse)').matches ||
-           window.matchMedia('(hover: none)').matches)) return true;
+      if ((coarsePointer && coarsePointer.matches) || (noHover && noHover.matches)) return true;
     } catch {}
-    return (navigator && navigator.maxTouchPoints || 0) > 0;
+    return (typeof navigator !== 'undefined' && navigator.maxTouchPoints || 0) > 0;
   }
   const MOBILE_VOL = 0.52; // extra restraint on devices commonly held close
   function effectiveVolume(v) { return isTouchPrimary() ? v * MOBILE_VOL : v; }
@@ -114,16 +122,7 @@ window.Sounds = (function () {
   function allowed(category) {
     if (window.Settings) {
       // Every UI tap-feedback sound is gated by isClickSoundOn.
-      const CLICK_CATS = new Set([
-        'click', 'clickBack', 'clickOption', 'tickCountdown', 'pop', 'swoosh',
-        // E4 per-surface palette — all click-gated since they're tap responses
-        'nav', 'pathStep', 'locked', 'tabSwap',
-        'toggleOn', 'toggleOff', 'selectChange',
-        'speedSlow', 'speedNormal', 'speedFast',
-        'mascotChirp', 'themeFlip', 'dangerArm', 'playAudio',
-      ]);
       if (CLICK_CATS.has(category) && !Settings.isClickSoundOn()) return false;
-      const CELEBRATION_CATS = new Set(['correct', 'wrong', 'complete', 'gate', 'streak', 'warn']);
       if (CELEBRATION_CATS.has(category) && typeof Settings.isCelebrationsOn === 'function' && !Settings.isCelebrationsOn()) return false;
     }
     if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return false;
@@ -207,7 +206,7 @@ window.Sounds = (function () {
       rawCache.set(name, null);
       fetch(sampleUrl(name))
         .then(r => (r.ok ? r.arrayBuffer() : Promise.reject()))
-        .then(buf => { rawCache.set(name, buf); decodeIfReady(name); })
+        .then(buf => { rawCache.set(name, buf); })
         .catch(() => { rawCache.delete(name); });
     }
   }
@@ -228,12 +227,19 @@ window.Sounds = (function () {
     const s = getClickStyle();
     return SAMPLE_PACKS.indexOf(s) >= 0 ? s : 'default';
   }
-  function warmSamples() {
+  function warmSamples(category) {
     // Only spin up audio if tap sounds are actually enabled.
     if (window.Settings && typeof Settings.isClickSoundOn === 'function' && !Settings.isClickSoundOn()) return;
     const pack = currentPack();
     fetchPackRaw(pack);
-    if (ensureCtx()) for (const name of packFiles(pack)) decodeIfReady(name);
+    if (!ensureCtx()) return;
+    const navSample = NAV_SAMPLE_CATS.has(category);
+    const name = navSample
+      ? pack + '-nav'
+      : pack + '-click-' + (((rrIndex[pack] || 0) % CLICK_VARIANTS) + 1);
+    // Decode only the sample this interaction is about to use. Decoding all
+    // five buffers on the first route click competed with that route's render.
+    decodeIfReady(name);
   }
   function playSample(name, rate, gain) {
     if (!ensureCtx()) return false;
@@ -605,32 +611,35 @@ window.Sounds = (function () {
       play(name);
     }
 
-    document.addEventListener('pointerdown', (e) => {
+    function clearPending() {
       pending = null;
-      if (e.button != null && e.button !== 0) return;
-      const name = shouldTick(e.target);
-      if (!name) return;
-      // Warm the sample buffers on press so they're decoded by the time the
-      // release actually plays the sound — the first real tap sounds premium.
-      warmSamples();
-      pending = { name, x: e.clientX, y: e.clientY, target: e.target };
-    }, true);
+      document.removeEventListener('pointermove', trackPointer, true);
+    }
 
-    document.addEventListener('pointermove', (e) => {
+    function trackPointer(e) {
       if (!pending) return;
       // Finger/cursor drifted too far → this is a scroll or drag, not a tap.
       if (Math.abs(e.clientX - pending.x) > MOVE_TOL ||
-          Math.abs(e.clientY - pending.y) > MOVE_TOL) {
-        pending = null;
-      }
+          Math.abs(e.clientY - pending.y) > MOVE_TOL) clearPending();
+    }
+
+    document.addEventListener('pointerdown', (e) => {
+      clearPending();
+      if (e.button != null && e.button !== 0) return;
+      const name = shouldTick(e.target);
+      if (!name) return;
+      // Warm only the sample this tap is likely to use.
+      warmSamples(name);
+      pending = { name, x: e.clientX, y: e.clientY, target: e.target };
+      document.addEventListener('pointermove', trackPointer, true);
     }, true);
 
     // Browser took over the gesture for scrolling → never a tap.
-    document.addEventListener('pointercancel', () => { pending = null; }, true);
+    document.addEventListener('pointercancel', clearPending, true);
 
     document.addEventListener('pointerup', () => {
       const p = pending;
-      pending = null;
+      clearPending();
       if (p) dispatch(p);
     }, true);
 
@@ -641,13 +650,8 @@ window.Sounds = (function () {
       // Picking a click style previews it: warm the new pack, then play a click
       // once its buffer decodes so the learner hears the change immediately.
       if (sel.id === 'set-click-style') {
-        warmSamples();
-        let tries = 0;
-        const preview = () => {
-          if (playClickVariant(1.0, SAMPLE_GAIN)) return;
-          if (++tries < 25) setTimeout(preview, 40);
-        };
-        setTimeout(preview, 60);
+        warmSamples('click');
+        setTimeout(() => play('click'), 60);
         return;
       }
       play('selectChange');

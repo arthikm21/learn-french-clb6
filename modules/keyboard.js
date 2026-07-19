@@ -168,8 +168,9 @@ window.Keyboard = (function () {
     });
   }
 
-  function scanForOptions() {
-    document.querySelectorAll('.options').forEach(enhanceOptions);
+  function scanForOptions(root) {
+    if (root.matches && root.matches('.options')) enhanceOptions(root);
+    root.querySelectorAll('.options').forEach(enhanceOptions);
   }
 
   // Legacy modules render navigation cards as divs with inline onclick. Give
@@ -188,24 +189,33 @@ window.Keyboard = (function () {
     });
   }
 
-  function scanForClickableSurfaces() {
+  function scanForClickableSurfaces(root) {
     // Many modules bind `element.onclick = …` after inserting their cards.
     // That creates a function property, not an `[onclick]` attribute, so an
     // attribute-only selector silently missed a large share of the app.
-    document.querySelectorAll('.card, .spotlight').forEach(el => {
+    const candidates = [];
+    if (root.matches && root.matches('.card, .spotlight')) candidates.push(root);
+    root.querySelectorAll('.card, .spotlight').forEach(el => candidates.push(el));
+    candidates.forEach(el => {
       if (typeof el.onclick === 'function') enhanceClickableSurface(el);
     });
   }
 
-  function scan() {
-    scanForOptions();
-    scanForClickableSurfaces();
+  function scan(root) {
+    if (!root || (root.nodeType !== 1 && root.nodeType !== 11)) return;
+    scanForOptions(root);
+    scanForClickableSurfaces(root);
   }
 
   function init() {
-    scan();
     const root = document.getElementById('app') || document.body;
-    const mo = new MutationObserver(scan);
+    scan(root);
+    const mo = new MutationObserver(records => {
+      // Observe only what was inserted. The old callback queried the entire
+      // app after every feedback/option mutation, which made long lessons and
+      // the Path progressively more expensive to interact with.
+      records.forEach(record => record.addedNodes.forEach(node => scan(node)));
+    });
     mo.observe(root, { childList: true, subtree: true });
   }
 

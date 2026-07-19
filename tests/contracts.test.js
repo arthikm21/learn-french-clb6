@@ -18,11 +18,45 @@ test('index local assets resolve and persistence loads before profile UI', () =>
   assert.ok(html.indexOf('modules/storage.js') < html.indexOf('modules/profile.js'));
   assert.ok(html.indexOf('modules/storage.js') < html.indexOf('modules/mastery.js'));
   assert.ok(html.indexOf('modules/cheersquad.js') < html.indexOf('modules/chrome.js'));
-  assert.ok(html.indexOf('modules/mastery.js') < html.indexOf('app.js'));
-  assert.ok(html.indexOf('modules/router.js') < html.indexOf('app.js'));
+  assert.ok(html.indexOf('src="modules/mastery.js') < html.indexOf('src="app.js'));
+  assert.ok(html.indexOf('src="modules/router.js') < html.indexOf('src="app.js'));
   assert.match(html, /class="skip-link" href="#app"/);
   assert.match(html, /<button class="brand"[^>]+data-route="home"/);
   assert.match(html, /<button class="stat" id="user-chip"/);
+});
+
+test('the initial app shell stays small and route assets remain lazy', () => {
+  const html = fs.readFileSync('index.html', 'utf8');
+  const app = fs.readFileSync('app.js', 'utf8');
+  const scripts = [...html.matchAll(/<script\b[^>]*\bsrc=["']([^"']+)["']/g)]
+    .map(match => match[1].replace(/^\//, '').replace(/\?.*$/, ''));
+  const initialBytes = scripts.reduce((sum, file) => sum + fs.statSync(file).size, 0);
+
+  assert.ok(scripts.length <= 25, `initial shell has ${scripts.length} scripts; budget is 25`);
+  assert.ok(initialBytes <= 350 * 1024, `initial JS is ${Math.ceil(initialBytes / 1024)} KiB; budget is 350 KiB`);
+
+  const manifestStart = app.indexOf('const ROUTE_ASSETS = {');
+  const manifestEnd = app.indexOf('const assetLoads', manifestStart);
+  const manifest = app.slice(manifestStart, manifestEnd);
+  const lazyAssets = [...manifest.matchAll(/["']((?:data|modules)\/[^"']+\.js)["']/g)]
+    .map(match => match[1]);
+  assert.ok(lazyAssets.length >= 40, 'route manifest should contain the feature banks and renderers');
+  assert.deepEqual([...new Set(lazyAssets)].filter(file => !fs.existsSync(file)), []);
+  assert.match(app, /script\.dataset\.routeAsset = path/);
+  assert.doesNotMatch(app, /startViewTransition/);
+});
+
+test('dynamic DOM and Path rendering avoid whole-page rescans and eager phase construction', () => {
+  const keyboard = fs.readFileSync('modules/keyboard.js', 'utf8');
+  const path = fs.readFileSync('modules/path.js', 'utf8');
+
+  assert.match(keyboard, /new MutationObserver\(records =>/);
+  assert.match(keyboard, /record\.addedNodes\.forEach/);
+  assert.doesNotMatch(keyboard, /new MutationObserver\(scan\)/);
+
+  assert.match(path, /if \(isCurrent\) sec\.open = true/);
+  assert.match(path, /function populateItems\(\)/);
+  assert.match(path, /sec\.addEventListener\('toggle'/);
 });
 
 test('every sitemap URL has a local clean-URL target', () => {

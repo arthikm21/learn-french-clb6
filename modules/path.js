@@ -70,16 +70,16 @@ window.PathModule = (function () {
       const isCurrent = ph.id === currentPhaseId;
       const allDone = prog.done === prog.total;
 
-      // Auto-collapse fully-completed phases that are NOT current.
-      const collapsed = passed && !isCurrent;
-
       const statusGlyph = passed ? App.svgIcon('check') : !unlocked ? App.svgIcon('lock') : isCurrent ? App.svgIcon('play') : ph.id;
       const statusColor = passed ? 'var(--good)' : !unlocked ? 'var(--mute)' : isCurrent ? 'var(--accent)' : 'var(--ink-2)';
       const statusBg    = passed ? 'color-mix(in srgb, var(--good) 14%, transparent)' : !unlocked ? 'var(--surface-2)' : isCurrent ? 'color-mix(in srgb, var(--accent-fill) 14%, transparent)' : 'var(--surface-2)';
 
       const sec = document.createElement('details');
       sec.style.marginBottom = '12px';
-      if (!collapsed) sec.open = true;
+      // Keep one phase expanded. Rendering every locked phase made the Path
+      // more than 12,000px tall and eagerly created all 92 lesson rows even
+      // though most learners only need the current phase.
+      if (isCurrent) sec.open = true;
       sec.style.opacity = unlocked ? '1' : '.65';
 
       const mix = Path.skillMix(items);
@@ -131,7 +131,11 @@ window.PathModule = (function () {
 
       // Lessons
       const list = sec.querySelector('[data-list]');
-      items.forEach(n => {
+      let itemsPopulated = false;
+      function populateItems() {
+        if (itemsPopulated) return;
+        itemsPopulated = true;
+        items.forEach(n => {
         const done = Path.isItemDone(n);
         const locked = !unlocked;
         const isNext = !!(nextItem && nextItem.id === n.id);
@@ -163,37 +167,41 @@ window.PathModule = (function () {
             openItem(n);
           }
         };
-        list.appendChild(node);
-      });
+          list.appendChild(node);
+        });
 
-      // Gate card at the end of the phase
-      const gateHost = sec.querySelector('[data-gate-host]');
-      const gateLabel = passed
-        ? `<span class="tag" style="background:color-mix(in srgb, var(--good) 14%, transparent);color:var(--good)">✓ Gate passed</span>`
-        : eligible
-          ? `<span class="tag" style="background:color-mix(in srgb, var(--accent-fill) 14%, transparent);color:var(--accent-fill)">Ready to take</span>`
-          : `<span class="tag">Complete 80% of the phase</span>`;
+        // Gate card at the end of the phase
+        const gateHost = sec.querySelector('[data-gate-host]');
+        const gateLabel = passed
+          ? `<span class="tag" style="background:color-mix(in srgb, var(--good) 14%, transparent);color:var(--good)">✓ Gate passed</span>`
+          : eligible
+            ? `<span class="tag" style="background:color-mix(in srgb, var(--accent-fill) 14%, transparent);color:var(--accent-fill)">Ready to take</span>`
+            : `<span class="tag">Complete 80% of the phase</span>`;
 
-      const gateCard = document.createElement('div');
-      gateCard.className = 'card';
-      gateCard.style.marginTop = 'var(--sp-3)';
-      gateCard.style.cursor = unlocked ? 'pointer' : 'not-allowed';
-      gateCard.style.opacity = unlocked ? '1' : '.5';
-      gateCard.style.borderColor = passed ? 'var(--good)' : eligible ? 'var(--accent)' : 'var(--line)';
-      gateCard.innerHTML = `
-        <div class="row" style="justify-content:space-between;align-items:flex-start;gap:var(--sp-3)">
-          <div style="flex:1;min-width:0">
-            <p style="text-transform:uppercase;letter-spacing:var(--ls-wide);font-size:var(--fs-11);font-weight:var(--fw-semi);color:var(--mute);margin-bottom:6px">Phase ${ph.id} · ${ph.final ? 'Practice simulation' : 'Knowledge check'}</p>
-            <h3><span class="gate-glyph">${App.svgIcon(ph.final ? 'target' : 'shield')}</span>${escapeHTML(ph.gateTitle)}</h3>
-            <p style="margin-top:4px;color:var(--ink-2);font-size:var(--fs-14)">${escapeHTML(ph.gateDesc)}</p>
-          </div>
-          ${gateLabel}
-        </div>`;
-      gateCard.onclick = () => {
-        if (!unlocked) { Toast.info(`Pass Phase ${ph.id - 1}'s gate first.`); return; }
-        App.go('gate', { phase: String(ph.id) });
-      };
-      gateHost.appendChild(gateCard);
+        const gateCard = document.createElement('div');
+        gateCard.className = 'card';
+        gateCard.style.marginTop = 'var(--sp-3)';
+        gateCard.style.cursor = unlocked ? 'pointer' : 'not-allowed';
+        gateCard.style.opacity = unlocked ? '1' : '.5';
+        gateCard.style.borderColor = passed ? 'var(--good)' : eligible ? 'var(--accent)' : 'var(--line)';
+        gateCard.innerHTML = `
+          <div class="row" style="justify-content:space-between;align-items:flex-start;gap:var(--sp-3)">
+            <div style="flex:1;min-width:0">
+              <p style="text-transform:uppercase;letter-spacing:var(--ls-wide);font-size:var(--fs-11);font-weight:var(--fw-semi);color:var(--mute);margin-bottom:6px">Phase ${ph.id} · ${ph.final ? 'Practice simulation' : 'Knowledge check'}</p>
+              <h3><span class="gate-glyph">${App.svgIcon(ph.final ? 'target' : 'shield')}</span>${escapeHTML(ph.gateTitle)}</h3>
+              <p style="margin-top:4px;color:var(--ink-2);font-size:var(--fs-14)">${escapeHTML(ph.gateDesc)}</p>
+            </div>
+            ${gateLabel}
+          </div>`;
+        gateCard.onclick = () => {
+          if (!unlocked) { Toast.info(`Pass Phase ${ph.id - 1}'s gate first.`); return; }
+          App.go('gate', { phase: String(ph.id) });
+        };
+        gateHost.appendChild(gateCard);
+      }
+
+      if (sec.open) populateItems();
+      sec.addEventListener('toggle', () => { if (sec.open) populateItems(); });
 
       host.appendChild(sec);
     });

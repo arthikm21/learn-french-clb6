@@ -2,6 +2,11 @@
   "name": "bonjour-frenchclb6",
   "private": true,
   "scripts": {
+    "build:film": "node scripts/build-launch-film.js",
+    "build:film:vertical": "node scripts/build-launch-film-vertical.js",
+    "build:film:vertical:v2": "node scripts/build-launch-film-vertical-v2.js",
+    "build:film:vertical:v3": "node scripts/build-launch-film-vertical-v3.js",
+    "build:film:vertical:v3:video": "bash scripts/build-launch-film-vertical-v3-video.sh",
     "start": "node scripts/serve.js",
     "test": "node --test tests/*.test.js",
     "check:content": "node scripts/validate.js",

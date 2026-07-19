@@ -209,6 +209,9 @@ a:hover { text-decoration-thickness: 1px; }
 
 body[data-anim="full"] .grid > *,
 body[data-anim="full"] .path-list > * { animation: none; }
+/* Route changes must acknowledge the click immediately. Keep expressive
+   motion inside the page instead of sliding the entire document in. */
+body[data-anim="full"] main > * { animation: none; }
 
 /* App shell */
 .topbar {
@@ -218,16 +221,18 @@ body[data-anim="full"] .path-list > * { animation: none; }
   top: 12px;
   padding: 10px 24px;
   gap: 22px;
-  background: var(--glass-fill-strong);
+  /* A sticky backdrop-filter repaints a wide blur layer on every scroll frame.
+     This near-opaque fill keeps the same floating material without that cost. */
+  background: color-mix(in srgb, var(--surface) 96%, transparent);
   border: 1px solid var(--glass-line);
   border-radius: 24px;
   box-shadow: 0 10px 30px rgba(7, 22, 48, .06), inset 0 1px 0 rgba(255, 255, 255, .75);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 .topbar.scrolled {
-  background: color-mix(in srgb, var(--surface) 84%, transparent);
+  background: color-mix(in srgb, var(--surface) 98%, transparent);
   border-color: var(--glass-line);
   box-shadow: 0 14px 38px rgba(7, 22, 48, .10), inset 0 1px 0 rgba(255, 255, 255, .78);
 }
@@ -358,6 +363,25 @@ main {
   max-width: var(--content-max);
   padding: 52px 28px 88px;
 }
+
+.route-loading {
+  min-height: 52vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: var(--ink-2);
+  font-size: 14px;
+  font-weight: 600;
+}
+.route-loading-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--accent, var(--cobalt));
+}
+body[data-anim="full"] .route-loading-dot { animation: route-loading-pulse 720ms ease-in-out infinite alternate; }
+@keyframes route-loading-pulse { to { opacity: .35; transform: scale(.72); } }
 
 /* Shared editorial surfaces */
 .hero,
@@ -868,10 +892,10 @@ body[data-anim="full"] .preview-wave i:nth-child(7) { --wi: 6; }
   justify-content: center;
   border: 1px solid var(--glass-line);
   border-radius: var(--radius-glass);
-  background: var(--glass-fill-strong);
+  background: color-mix(in srgb, var(--surface) 94%, transparent);
   box-shadow: var(--shadow-glass);
-  backdrop-filter: blur(24px) saturate(125%);
-  -webkit-backdrop-filter: blur(24px) saturate(125%);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 .phrase-heading-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .phrase-label { color: var(--cobalt); font-size: 11px; font-weight: 780; letter-spacing: .14em; text-transform: uppercase; }
@@ -1213,8 +1237,8 @@ body[data-anim="full"] .language-canvas.is-speaking .language-block[data-shape="
   border-radius: 17px;
   background: var(--glass-fill-strong);
   box-shadow: 0 12px 28px rgba(7, 22, 48, .12), inset 0 1px 0 rgba(255, 255, 255, .84);
-  backdrop-filter: blur(14px) saturate(140%);
-  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   transform: translateX(-50%);
 }
 .cheer-board span { display: block; color: var(--ink); font-size: 13px; font-weight: 700; line-height: 1.15; letter-spacing: 0; text-align: center; }
@@ -1604,12 +1628,12 @@ body.dark .hero:not(.accent) {
 /* ── Dark chrome — navy glass, not grey ─────────────────────────────────── */
 body.dark .nav-menu { background: #131519; border-color: var(--line-2); }
 body.dark .topbar {
-  background: rgba(11, 12, 15, .80);
+  background: rgba(11, 12, 15, .96);
   border-color: rgba(255, 255, 255, .08);
   box-shadow: 0 10px 30px rgba(0, 0, 0, .35), inset 0 1px 0 rgba(255, 255, 255, .06);
 }
 body.dark .topbar.scrolled {
-  background: rgba(11, 12, 15, .90);
+  background: rgba(11, 12, 15, .98);
   box-shadow: 0 14px 38px rgba(0, 0, 0, .48), inset 0 1px 0 rgba(255, 255, 255, .06);
 }
 body.dark .footer-support-icon,

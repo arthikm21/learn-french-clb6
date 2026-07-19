@@ -1,0 +1,596 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#071630">
+  <title>Bonjour! — Story Cut V3</title>
+  <meta name="description" content="A 24-second story-led vertical campaign film for Bonjour!">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <style>
+    @font-face {
+      font-family: "InterFilm";
+      src: url("fonts/inter-latin.woff2") format("woff2");
+      font-style: normal;
+      font-weight: 100 900;
+      font-display: swap;
+    }
+
+    :root {
+      color-scheme: dark;
+      --paper: #fbf8f3;
+      --surface: #fffefc;
+      --navy: #071630;
+      --navy-2: #101d38;
+      --cobalt: #1457e6;
+      --violet: #6d3fd4;
+      --coral: #ff735f;
+      --butter: #ffc94e;
+      --mint: #a8e3cc;
+      --sky: #a9d8ff;
+      --muted: #667289;
+      font-family: "InterFilm", Inter, ui-sans-serif, system-ui, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { min-height: 100%; margin: 0; background: #02050c; }
+    body { min-height: 100svh; display: grid; place-items: center; overflow: hidden; }
+    button, input { font: inherit; }
+
+    .film {
+      position: relative;
+      width: min(100vw, calc(100svh * 9 / 16));
+      max-height: 100svh;
+      aspect-ratio: 9 / 16;
+      overflow: hidden;
+      isolation: isolate;
+      container-type: inline-size;
+      color: var(--navy);
+      background: var(--navy);
+      box-shadow: 0 0 0 1px rgba(255,255,255,.08), 0 4rem 9rem rgba(0,0,0,.65);
+    }
+
+    .scene { position: absolute; inset: 0; z-index: 2; opacity: 0; overflow: hidden; will-change: opacity; }
+    .scene__content { position: absolute; inset: 0; z-index: 3; display: flex; flex-direction: column; justify-content: center; padding: 15cqw 7.4cqw 18cqw; }
+    .scene--dark { color: #fff; background: var(--navy); }
+    .scene--paper { color: var(--navy); background: var(--paper); }
+
+    h1, h2, p { margin: 0; }
+    h1, h2 { text-wrap: balance; letter-spacing: -.058em; font-weight: 870; }
+    h1 { font-size: 11.5cqw; line-height: .95; }
+    h2 { font-size: 9.5cqw; line-height: .98; }
+    .coral { color: var(--coral); }
+    .cobalt { color: var(--cobalt); }
+    .butter { color: var(--butter); }
+    .sky { color: var(--sky); }
+
+    [data-reveal] { will-change: opacity, transform; }
+
+    .photo-plate {
+      position: absolute;
+      z-index: 0;
+      left: 0;
+      top: 50%;
+      display: block;
+      width: 100%;
+      height: auto;
+      min-width: 100%;
+      transform: translate3d(0, -50%, 0) scale(var(--photo-scale, 1));
+      transform-origin: 50% 52%;
+      will-change: transform;
+    }
+
+    .photo-shade {
+      position: absolute;
+      z-index: 1;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(7,22,48,.58) 0%, rgba(7,22,48,.08) 31%, rgba(7,22,48,.08) 54%, rgba(7,22,48,.88) 100%);
+    }
+
+    .hook-copy { justify-content: space-between; padding-top: 13cqw; padding-bottom: 18cqw; color: #fff; }
+    .question {
+      align-self: flex-start;
+      max-width: 82cqw;
+      padding: 2.7cqw 3.5cqw;
+      border: 1px solid rgba(255,255,255,.24);
+      border-radius: 999px;
+      background: rgba(7,22,48,.34);
+      backdrop-filter: blur(1.2cqw);
+      color: rgba(255,255,255,.92);
+      font-size: 3.35cqw;
+      line-height: 1.25;
+      font-weight: 670;
+    }
+    .hook-bottom p { margin-top: 2.6cqw; color: rgba(255,255,255,.7); font-size: 3.8cqw; line-height: 1.35; }
+
+    .promise-scene {
+      background:
+        radial-gradient(circle at 85% 16%, rgba(255,115,95,.22), transparent 31%),
+        linear-gradient(150deg, #101d38 0%, #071630 64%, #11102b 100%);
+    }
+    .promise-lockup { display: flex; align-items: center; gap: 3cqw; margin-bottom: 8cqw; }
+    .promise-lockup img { display: block; width: 13cqw; height: auto; aspect-ratio: 1; object-fit: contain; border-radius: 3.4cqw; box-shadow: 0 3cqw 9cqw rgba(0,0,0,.25); }
+    .promise-lockup span { font-size: 5cqw; font-weight: 880; letter-spacing: -.05em; }
+    .promise-rule { width: 22cqw; height: 1.1cqw; margin-top: 7cqw; border-radius: 999px; background: linear-gradient(90deg, var(--cobalt), var(--coral)); transform-origin: left center; }
+
+    .product-scene {
+      background:
+        radial-gradient(circle at 88% 13%, rgba(109,63,212,.1), transparent 26%),
+        var(--paper);
+    }
+    .product-title { position: absolute; z-index: 5; top: 11cqw; left: 7cqw; right: 7cqw; }
+    .product-title span { display: block; color: var(--cobalt); font-size: 2.7cqw; font-weight: 850; letter-spacing: .12em; text-transform: uppercase; }
+    .product-title h2 { margin-top: 1.7cqw; font-size: 7.8cqw; }
+    .product-window {
+      position: absolute;
+      z-index: 3;
+      left: 6cqw;
+      right: 6cqw;
+      top: 34cqw;
+      height: 129cqw;
+      overflow: hidden;
+      border: 1px solid rgba(7,22,48,.12);
+      border-radius: 5.8cqw;
+      background: #fff;
+      box-shadow: 0 8cqw 24cqw rgba(7,22,48,.14);
+    }
+    .product-window img { display: block; width: 100%; height: auto; object-fit: contain; }
+    .phrase-focus {
+      position: absolute;
+      z-index: 5;
+      left: 4.2cqw;
+      right: 4.2cqw;
+      top: 58cqw;
+      height: 15cqw;
+      border: .7cqw solid var(--cobalt);
+      border-radius: 3.2cqw;
+      box-shadow: 0 0 0 1cqw rgba(20,87,230,.09), 0 0 7cqw rgba(20,87,230,.24);
+      pointer-events: none;
+    }
+    .voice-badge {
+      position: absolute;
+      z-index: 6;
+      right: 9cqw;
+      bottom: 11cqw;
+      display: flex;
+      align-items: center;
+      gap: 2cqw;
+      padding: 2.6cqw 3.5cqw;
+      border-radius: 999px;
+      color: #fff;
+      background: var(--cobalt);
+      box-shadow: 0 2cqw 8cqw rgba(20,87,230,.28);
+      font-size: 2.8cqw;
+      font-weight: 790;
+    }
+    .voice-badge::before { content: ""; width: 2.2cqw; aspect-ratio: 1; border-radius: 50%; background: #fff; box-shadow: 0 0 0 1cqw rgba(255,255,255,.17); transform: scale(var(--voice-pulse, .7)); }
+
+    .proof-scene {
+      background:
+        radial-gradient(circle at 83% 20%, rgba(169,216,255,.16), transparent 28%),
+        linear-gradient(150deg, #101d38, #071630 70%);
+    }
+    .proof-number { color: var(--butter); font-size: 28cqw; line-height: .78; letter-spacing: -.09em; font-weight: 900; }
+    .proof-label { margin-top: 5cqw; max-width: 76cqw; font-size: 8.2cqw; line-height: 1; letter-spacing: -.05em; font-weight: 850; }
+    .proof-tags { display: flex; flex-wrap: wrap; gap: 2cqw; margin-top: 8cqw; }
+    .proof-tags span { padding: 2.3cqw 3.1cqw; border: 1px solid rgba(255,255,255,.14); border-radius: 999px; color: rgba(255,255,255,.76); background: rgba(255,255,255,.055); font-size: 2.85cqw; font-weight: 680; }
+
+    .tcf-scene {
+      background:
+        radial-gradient(circle at 84% 18%, rgba(255,201,78,.24), transparent 28%),
+        linear-gradient(155deg, #fbf8f3, #f0ebe4);
+    }
+    .tcf-kicker { color: var(--violet); font-size: 2.8cqw; font-weight: 850; letter-spacing: .12em; text-transform: uppercase; }
+    .skill-line { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2cqw; margin-top: 9cqw; }
+    .skill {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 19cqw;
+      border: 1px solid rgba(7,22,48,.11);
+      border-radius: 4cqw;
+      background: rgba(255,255,255,.7);
+    }
+    .skill strong { color: var(--cobalt); font-size: 4cqw; }
+    .skill span { margin-top: 1cqw; color: var(--muted); font-size: 2.25cqw; font-weight: 700; }
+    .tcf-note { margin-top: 5cqw; color: var(--muted); font-size: 3cqw; line-height: 1.4; }
+
+    .payoff-copy { justify-content: flex-end; padding-bottom: 19cqw; color: #fff; }
+    .payoff-copy .spoken { margin-bottom: 4cqw; color: var(--butter); font-size: 3.4cqw; line-height: 1.3; font-weight: 720; }
+    .payoff-copy h2 { font-size: 10.1cqw; }
+
+    .cta-scene {
+      color: #fff;
+      background:
+        radial-gradient(circle at 82% 18%, rgba(255,115,95,.44), transparent 31%),
+        linear-gradient(145deg, #1457e6 0%, #433cc8 58%, #743b9a 100%);
+    }
+    .cta-content { align-items: center; text-align: center; }
+    .cta-content img { display: block; width: 20cqw; height: auto; aspect-ratio: 1; object-fit: contain; margin-bottom: 6cqw; border-radius: 5cqw; box-shadow: 0 5cqw 16cqw rgba(7,22,48,.3); }
+    .cta-content h2 { font-size: 12cqw; }
+    .cta-line { margin-top: 3cqw; color: rgba(255,255,255,.78); font-size: 4cqw; line-height: 1.35; }
+    .cta-url { margin-top: 7cqw; padding: 3.4cqw 5.2cqw; border-radius: 999px; color: var(--navy); background: var(--butter); font-size: 4.2cqw; font-weight: 880; }
+    .cta-meta { margin-top: 3.5cqw; color: rgba(255,255,255,.68); font-size: 2.7cqw; font-weight: 650; }
+
+    .film-grain {
+      position: absolute;
+      z-index: 40;
+      inset: 0;
+      pointer-events: none;
+      opacity: .045;
+      background:
+        radial-gradient(circle at 17% 31%, rgba(255,255,255,.8) 0 .05cqw, transparent .075cqw),
+        radial-gradient(circle at 73% 68%, rgba(255,255,255,.68) 0 .045cqw, transparent .07cqw);
+      background-size: 4.1cqw 4.1cqw, 5.3cqw 5.3cqw;
+      mix-blend-mode: soft-light;
+    }
+    .film-edge { position: absolute; z-index: 39; inset: 0; pointer-events: none; box-shadow: inset 0 0 14cqw rgba(2,5,12,.2); }
+
+    .poster {
+      position: absolute;
+      z-index: 70;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 8cqw 7cqw 10cqw;
+      color: #fff;
+      background: linear-gradient(180deg, transparent 28%, rgba(7,22,48,.18) 51%, rgba(7,22,48,.95) 100%);
+    }
+    .poster[hidden] { display: none; }
+    .poster h3 { margin: 0; font-size: 9.5cqw; line-height: .98; letter-spacing: -.055em; }
+    .poster p { margin: 2.5cqw 0 0; color: rgba(255,255,255,.69); font-size: 3.2cqw; line-height: 1.4; }
+    .poster button { min-height: 13cqw; margin-top: 5cqw; border: 0; border-radius: 999px; color: var(--navy); background: var(--butter); cursor: pointer; font-size: 3.7cqw; font-weight: 860; }
+
+    .controls {
+      position: absolute;
+      z-index: 60;
+      left: 4cqw;
+      right: 4cqw;
+      bottom: max(3cqw, env(safe-area-inset-bottom));
+      display: grid;
+      grid-template-columns: 9cqw 1fr 9cqw;
+      gap: 2cqw;
+      align-items: center;
+      padding: 2cqw 2.3cqw;
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: 999px;
+      color: #fff;
+      background: rgba(2,5,12,.7);
+      backdrop-filter: blur(1.5cqw);
+      opacity: 0;
+      transform: translate3d(0, 3cqw, 0);
+      transition: opacity .18s ease, transform .18s ease;
+    }
+    .film:hover .controls,
+    .film:focus-within .controls,
+    .controls.is-visible { opacity: 1; transform: translate3d(0,0,0); }
+    .control-button { display: grid; place-items: center; width: 9cqw; aspect-ratio: 1; padding: 0; border: 0; border-radius: 50%; color: #fff; background: rgba(255,255,255,.1); cursor: pointer; font-size: 3cqw; }
+    .scrub { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 2cqw; }
+    .scrub output { min-width: 8cqw; color: rgba(255,255,255,.7); font-size: 2.2cqw; font-variant-numeric: tabular-nums; }
+    input[type="range"] { width: 100%; accent-color: var(--butter); }
+
+    .capture .poster,
+    .capture .controls { display: none !important; }
+    .sr-only { position: absolute !important; width: 1px !important; height: 1px !important; padding: 0 !important; margin: -1px !important; overflow: hidden !important; clip: rect(0,0,0,0) !important; white-space: nowrap !important; border: 0 !important; }
+  </style>
+</head>
+<body>
+  <main class="film" id="film" aria-label="Bonjour! story-led vertical campaign film">
+    <section class="scene scene--dark" data-scene="hook" aria-label="A learner hesitates during a bank conversation">
+      <img class="photo-plate" src="assets/film-v3/bank-hesitation.png" alt="A French learner listening carefully at a bank counter">
+      <div class="photo-shade"></div>
+      <div class="scene__content hook-copy">
+        <div class="question" data-reveal data-delay=".12">« Comment puis-je vous aider ? »</div>
+        <div class="hook-bottom">
+          <h1 data-reveal data-delay=".5">The question <span class="coral">comes.</span></h1>
+          <p data-reveal data-delay="1.05">Your French disappears.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="scene scene--dark promise-scene" data-scene="promise" aria-label="Bonjour lets you practise before the moment happens">
+      <div class="scene__content">
+        <div class="promise-lockup" data-reveal data-delay=".05"><img src="icon-512.png" alt="Bonjour! app icon"><span>Bonjour!</span></div>
+        <h2 data-reveal data-delay=".2">Practise the moment <span class="coral">before it happens.</span></h2>
+        <div class="promise-rule" data-reveal data-delay=".55" aria-hidden="true"></div>
+      </div>
+    </section>
+
+    <section class="scene scene--paper product-scene" data-scene="product" aria-label="The real Bonjour bank dialogue lesson">
+      <div class="product-title" data-reveal data-delay=".04"><span>The actual lesson</span><h2>Listen. Replay. Speak.</h2></div>
+      <div class="product-window" data-reveal data-delay=".16">
+        <img src="assets/film-v3/product-bank-dialogue-crop.png" alt="The Bonjour bank dialogue lesson showing Canadian French and English translations">
+        <div class="phrase-focus" aria-hidden="true"></div>
+      </div>
+      <div class="voice-badge" data-reveal data-delay=".38">Canadian French</div>
+    </section>
+
+    <section class="scene scene--dark proof-scene" data-scene="scenarios" aria-label="Fifty Canadian scenarios">
+      <div class="scene__content">
+        <div class="proof-number" data-reveal data-delay=".04">50</div>
+        <div class="proof-label" data-reveal data-delay=".18">real Canadian scenarios.</div>
+        <div class="proof-tags" data-reveal data-delay=".4"><span>Banking</span><span>Housing</span><span>Healthcare</span><span>Work</span></div>
+      </div>
+    </section>
+
+    <section class="scene scene--paper tcf-scene" data-scene="tcf" aria-label="Complete TCF Canada practice">
+      <div class="scene__content">
+        <div class="tcf-kicker" data-reveal data-delay=".05">And when the exam matters</div>
+        <h2 data-reveal data-delay=".18">Complete <span class="violet">TCF Canada</span> practice.</h2>
+        <div class="skill-line" data-reveal data-delay=".42">
+          <div class="skill"><strong>L</strong><span>Listen</span></div>
+          <div class="skill"><strong>R</strong><span>Read</span></div>
+          <div class="skill"><strong>S</strong><span>Speak</span></div>
+          <div class="skill"><strong>W</strong><span>Write</span></div>
+        </div>
+        <p class="tcf-note" data-reveal data-delay=".58">One complete four-skill rehearsal.</p>
+      </div>
+    </section>
+
+    <section class="scene scene--dark" data-scene="payoff" aria-label="The learner speaks confidently at the bank">
+      <img class="photo-plate" src="assets/film-v3/bank-confidence.png" alt="The same learner speaking calmly at the bank counter">
+      <div class="photo-shade"></div>
+      <div class="scene__content payoff-copy">
+        <p class="spoken" data-reveal data-delay=".08">« Bonjour, je voudrais ouvrir un compte chèque. »</p>
+        <h2 data-reveal data-delay=".32">Now the moment feels <span class="butter">familiar.</span></h2>
+      </div>
+    </section>
+
+    <section class="scene cta-scene" data-scene="cta" aria-label="Start practising with Bonjour">
+      <div class="scene__content cta-content">
+        <img src="icon-512.png" alt="Bonjour! app icon" data-reveal data-delay=".04">
+        <h2 data-reveal data-delay=".18">Bonjour!</h2>
+        <p class="cta-line" data-reveal data-delay=".31">Practise before it happens.</p>
+        <div class="cta-url" data-reveal data-delay=".48">frenchclb6.ca</div>
+        <div class="cta-meta" data-reveal data-delay=".62">Free · No signup · No tracking</div>
+      </div>
+    </section>
+
+    <div class="film-edge" aria-hidden="true"></div>
+    <div class="film-grain" aria-hidden="true"></div>
+
+    <div class="poster" id="poster">
+      <h3>The moment comes.<br>Be ready.</h3>
+      <p>24-second story cut · one real Canadian-French phrase · no synthetic soundtrack</p>
+      <button type="button" id="posterPlay">▶&nbsp;&nbsp;Play story cut</button>
+    </div>
+
+    <div class="controls" id="controls" aria-label="Film controls">
+      <button class="control-button" id="playPause" type="button" aria-label="Play">▶</button>
+      <div class="scrub">
+        <label class="sr-only" for="scrubber">Film position</label>
+        <input id="scrubber" type="range" min="0" max="24" value="0" step="0.01">
+        <output id="timecode" for="scrubber">0:00</output>
+      </div>
+      <button class="control-button" id="mute" type="button" aria-label="Mute">♫</button>
+    </div>
+    <div class="sr-only" aria-live="polite" id="liveStatus"></div>
+    <audio id="voice" preload="auto" src="audio/5311184f258e06aa.mp3"></audio>
+  </main>
+
+  <details class="sr-only">
+    <summary>Film transcript</summary>
+    <p>A bank employee asks, “How can I help you?” The learner hesitates. Bonjour lets learners practise the moment before it happens. In the real bank-account lesson, learners listen to Canadian French, replay each line, and speak. Bonjour includes fifty Canadian scenarios and complete four-skill TCF Canada practice. The learner returns to the bank and calmly says, “Hello, I would like to open a chequing account.” Start practising free at frenchclb6.ca. No signup and no tracking.</p>
+  </details>
+
+  <script data-vertical-v3-runtime>
+  (() => {
+    "use strict";
+
+    const DURATION = 24;
+    const VOICE_START = 6.35;
+    const VOICE_DURATION = 4.392;
+    const VOICE_END = VOICE_START + VOICE_DURATION;
+    const SCENE_DATA = [
+      { name: "hook", start: 0, end: 3.55 },
+      { name: "promise", start: 3.32, end: 5.9 },
+      { name: "product", start: 5.68, end: 11.35 },
+      { name: "scenarios", start: 11.12, end: 14.55 },
+      { name: "tcf", start: 14.32, end: 17.55 },
+      { name: "payoff", start: 17.32, end: 21.15 },
+      { name: "cta", start: 20.92, end: 24 }
+    ];
+
+    const film = document.getElementById("film");
+    const poster = document.getElementById("poster");
+    const posterPlay = document.getElementById("posterPlay");
+    const playPause = document.getElementById("playPause");
+    const muteButton = document.getElementById("mute");
+    const scrubber = document.getElementById("scrubber");
+    const timecode = document.getElementById("timecode");
+    const controls = document.getElementById("controls");
+    const liveStatus = document.getElementById("liveStatus");
+    const voice = document.getElementById("voice");
+    const scenes = new Map([...document.querySelectorAll("[data-scene]")].map(element => [element.dataset.scene, element]));
+
+    let time = 0;
+    let playing = false;
+    let muted = false;
+    let raf = 0;
+    let playStartedAt = 0;
+    let controlsTimer = 0;
+
+    const clamp = (value, min = 0, max = 1) => Math.min(max, Math.max(min, value));
+    const smooth = value => {
+      const safe = clamp(value);
+      return safe * safe * (3 - 2 * safe);
+    };
+    const easeOut = value => 1 - Math.pow(1 - clamp(value), 3);
+
+    function formatTime(value) {
+      const safe = clamp(value, 0, DURATION);
+      return `${Math.floor(safe / 60)}:${String(Math.floor(safe % 60)).padStart(2, "0")}`;
+    }
+
+    function sceneOpacity(value, scene, index) {
+      const fadeIn = index === 0 ? 1 : smooth((value - scene.start) / .2);
+      const fadeOut = scene.name === "cta" ? 1 : smooth((scene.end - value) / .2);
+      return Math.min(fadeIn, fadeOut);
+    }
+
+    function renderAt(nextTime) {
+      time = clamp(Number(nextTime) || 0, 0, DURATION);
+
+      SCENE_DATA.forEach((scene, index) => {
+        const element = scenes.get(scene.name);
+        const opacity = sceneOpacity(time, scene, index);
+        const localTime = Math.max(0, time - scene.start);
+        const localProgress = clamp(localTime / Math.max(.01, scene.end - scene.start));
+        element.style.opacity = opacity.toFixed(4);
+        element.style.zIndex = String(2 + index);
+        element.style.pointerEvents = opacity > .55 ? "auto" : "none";
+
+        const photo = element.querySelector(".photo-plate");
+        if (photo) photo.style.setProperty("--photo-scale", (1.005 + localProgress * .022).toFixed(4));
+
+        [...element.querySelectorAll("[data-reveal]")].forEach(item => {
+          const delay = Number(item.dataset.delay || 0);
+          const reveal = easeOut(clamp((localTime - delay) / .34));
+          item.style.opacity = reveal.toFixed(4);
+          item.style.transform = `translate3d(0, ${((1 - reveal) * 2.4).toFixed(3)}cqw, 0) scale(${(.985 + reveal * .015).toFixed(4)})`;
+        });
+      });
+
+      const voiceEnergy = Math.min(
+        smooth((time - VOICE_START) / .16),
+        smooth((VOICE_END - time) / .3)
+      );
+      film.style.setProperty("--voice-pulse", (.72 + voiceEnergy * (.16 + Math.sin(time * 9) * .12)).toFixed(3));
+
+      scrubber.value = String(time);
+      timecode.value = formatTime(time);
+      timecode.textContent = formatTime(time);
+      syncVoice();
+      return time;
+    }
+
+    function syncVoice() {
+      if (!playing || muted || time < VOICE_START) {
+        if (!voice.paused) voice.pause();
+        return;
+      }
+      if (time >= VOICE_END) return;
+      const wanted = clamp(time - VOICE_START, 0, VOICE_DURATION);
+      if (Math.abs(voice.currentTime - wanted) > .16) voice.currentTime = wanted;
+      voice.volume = 1;
+      if (voice.paused) voice.play().catch(() => {});
+    }
+
+    function showControls() {
+      controls.classList.add("is-visible");
+      clearTimeout(controlsTimer);
+      controlsTimer = window.setTimeout(() => controls.classList.remove("is-visible"), 1500);
+    }
+
+    function updateButtons() {
+      playPause.textContent = playing ? "Ⅱ" : (time >= DURATION - .02 ? "↺" : "▶");
+      playPause.setAttribute("aria-label", playing ? "Pause" : (time >= DURATION - .02 ? "Replay" : "Play"));
+      muteButton.textContent = muted ? "×" : "♫";
+      muteButton.setAttribute("aria-label", muted ? "Unmute" : "Mute");
+    }
+
+    function tick(now) {
+      if (!playing) return;
+      const next = (now - playStartedAt) / 1000;
+      if (next >= DURATION) {
+        renderAt(DURATION);
+        pause(false);
+        liveStatus.textContent = "Film complete";
+        return;
+      }
+      renderAt(next);
+      raf = requestAnimationFrame(tick);
+    }
+
+    function play() {
+      if (playing) return;
+      if (time >= DURATION - .02) renderAt(0);
+      poster.hidden = true;
+      playing = true;
+      playStartedAt = performance.now() - time * 1000;
+      syncVoice();
+      updateButtons();
+      liveStatus.textContent = "Film playing";
+      raf = requestAnimationFrame(tick);
+      showControls();
+    }
+
+    function pause(announce = true) {
+      if (!playing && announce) return;
+      playing = false;
+      cancelAnimationFrame(raf);
+      voice.pause();
+      updateButtons();
+      if (announce) liveStatus.textContent = "Film paused";
+      showControls();
+    }
+
+    function seek(value) {
+      const resume = playing;
+      if (resume) pause(false);
+      renderAt(value);
+      if (resume) play();
+      return time;
+    }
+
+    function replay() {
+      pause(false);
+      renderAt(0);
+      return play();
+    }
+
+    function setMuted(nextMuted) {
+      muted = Boolean(nextMuted);
+      voice.muted = muted;
+      syncVoice();
+      updateButtons();
+      return muted;
+    }
+
+    function captureTimeFromLocation() {
+      const params = new URLSearchParams(location.search);
+      const hashMatch = location.hash.match(/(?:^#|&)t=([0-9.]+)/);
+      const raw = hashMatch ? hashMatch[1] : params.get("t");
+      return raw == null ? 0 : Number(raw);
+    }
+
+    function setCaptureMode() {
+      if (new URLSearchParams(location.search).get("capture") !== "1") return false;
+      document.documentElement.classList.add("capture");
+      pause(false);
+      poster.hidden = true;
+      renderAt(captureTimeFromLocation());
+      return true;
+    }
+
+    posterPlay.addEventListener("click", play);
+    playPause.addEventListener("click", () => playing ? pause() : play());
+    muteButton.addEventListener("click", () => setMuted(!muted));
+    scrubber.addEventListener("input", event => seek(Number(event.target.value)));
+    film.addEventListener("pointermove", showControls);
+    window.addEventListener("hashchange", () => {
+      if (document.documentElement.classList.contains("capture")) renderAt(captureTimeFromLocation());
+    });
+
+    renderAt(0);
+    setCaptureMode();
+    updateButtons();
+
+    window.__BONJOUR_VERTICAL_AD_V3__ = Object.freeze({
+      ready: Promise.resolve(true),
+      duration: DURATION,
+      voice: Object.freeze({ start: VOICE_START, duration: VOICE_DURATION, end: VOICE_END }),
+      seek,
+      play,
+      pause,
+      replay,
+      renderFrame: renderAt,
+      setMuted,
+      state: () => ({ time, playing, muted, voicePlaying: !voice.paused, aspectRatio: "9:16" })
+    });
+  })();
+  </script>
+</body>
+</html>

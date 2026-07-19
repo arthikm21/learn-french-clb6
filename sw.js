@@ -15,7 +15,7 @@
 //
 // VERSION is stamped by scripts/bump_version.js on every release; activating
 // a new version deletes the previous shell cache (audio cache persists).
-const VERSION = '202607172345';
+const VERSION = '202607182006';
 const SHELL_CACHE = 'shell-' + VERSION;
 const AUDIO_CACHE = 'audio-v1';
 
@@ -38,7 +38,14 @@ async function precacheShell() {
       urls.add(url.pathname + url.search);
     }
   }
-  await Promise.allSettled(Array.from(urls, url => cache.add(url)));
+  // Keep install work from competing with the newly opened app. A release used
+  // to start every shell request at once; batching caps network, decode, and
+  // Cache API pressure while preserving the same offline shell guarantee.
+  const pending = Array.from(urls);
+  const BATCH_SIZE = 6;
+  for (let i = 0; i < pending.length; i += BATCH_SIZE) {
+    await Promise.allSettled(pending.slice(i, i + BATCH_SIZE).map(url => cache.add(url)));
+  }
 }
 
 self.addEventListener('install', (e) => {
