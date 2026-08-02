@@ -19,6 +19,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { execFileSync } = require('child_process');
 
 global.window = global;
 const ROOT = path.join(__dirname, '..');
@@ -26,7 +27,14 @@ const ROOT = path.join(__dirname, '..');
   .forEach(n => require(path.join(ROOT, 'data', n + '.js')));
 
 const SITE = 'https://frenchclb6.ca';
-const TODAY = new Date().toISOString().slice(0, 10);
+const TODAY = (() => {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Halifax', year: 'numeric', month: '2-digit', day: '2-digit',
+  }).formatToParts(new Date());
+  const value = Object.fromEntries(parts.map(part => [part.type, part.value]));
+  return `${value.year}-${value.month}-${value.day}`;
+})();
+const SEO_PUBLISHED = '2026-08-01';
 const indexSource = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
 const ASSET_VERSION = (indexSource.match(/styles\.css\?v=([0-9]+)/) || [])[1] || TODAY.replace(/-/g, '');
 
@@ -37,7 +45,11 @@ const LANDING = [
   ['/how-to-score-clb6', '0.9'],
   ['/clb6-french-course', '0.9'],
   ['/free-french-course-canada', '0.9'],
+  ['/tcf-canada', '0.9'],
   ['/tcf-canada-mock-test', '0.8'],
+  ['/tcf-canada-listening', '0.8'],
+  ['/tcf-canada-reading', '0.8'],
+  ['/tcf-canada-score-chart', '0.8'],
   ['/tef-vs-tcf-canada', '0.8'],
   ['/clb-6-vs-clb-7-french', '0.8'],
   ['/learn-french-express-entry', '0.8'],
@@ -45,7 +57,13 @@ const LANDING = [
   ['/tcf-canada-speaking', '0.8'],
   ['/tcf-canada-writing', '0.8'],
   ['/tef-canada', '0.8'],
+  ['/about', '0.5'],
 ];
+
+const OFFICIAL = {
+  tcf: 'https://www.france-education-international.fr/test/tcf-canada',
+  ircc: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/immigrate-canada/express-entry/documents/language-test.html',
+};
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 const esc = s => String(s == null ? '' : s)
@@ -81,6 +99,17 @@ function articleJson(title, description, urlPath) {
     image: SITE + '/og-image.jpg',
     mainEntityOfPage: SITE + urlPath,
     publisher: { '@type': 'Organization', name: 'Bonjour!', url: SITE + '/' },
+  };
+}
+
+function authoredArticleJson(title, description, urlPath, citations = []) {
+  return {
+    ...articleJson(title, description, urlPath),
+    '@id': SITE + urlPath + '#article',
+    author: { '@type': 'Person', name: 'Arthik Marasini', url: SITE + '/about' },
+    datePublished: SEO_PUBLISHED,
+    dateModified: SEO_PUBLISHED,
+    citation: citations,
   };
 }
 
@@ -168,7 +197,9 @@ ${bodyHtml}
       <a href="/clb6-french-course">The course</a>
       <a href="/scenarios/">Scenarios</a>
       <a href="/grammar/">Grammar</a>
+      <a href="/tcf-canada">TCF guide</a>
       <a href="/tcf-canada-mock-test">Mock test</a>
+      <a href="/about">About</a>
     </nav>
     <p class="footer-fine">Free CLB 6 / TCF Canada prep · No accounts · No tracking · Canadian French neural audio · <a href="/">frenchclb6.ca</a></p>
   </footer>
@@ -203,6 +234,26 @@ function backRow() {
   return `    <div class="center" style="margin-top:var(--sp-6)">
       <a class="btn big" href="/">← Back to Bonjour!</a>
     </div>`;
+}
+
+function tcfTopicNav(current) {
+  const links = [
+    ['/tcf-canada', 'Overview'],
+    ['/tcf-canada-listening', 'Listening'],
+    ['/tcf-canada-reading', 'Reading'],
+    ['/tcf-canada-speaking', 'Speaking'],
+    ['/tcf-canada-writing', 'Writing'],
+    ['/tcf-canada-score-chart', 'Score chart'],
+    ['/tcf-canada-mock-test', 'Mock test'],
+  ];
+  return `    <nav class="topic-nav" aria-label="TCF Canada preparation topics">
+      ${links.map(([href, label]) => `<a href="${href}"${href === current ? ' aria-current="page"' : ''}>${label}</a>`).join('\n      ')}
+    </nav>`;
+}
+
+function reviewBox(sources) {
+  return box(`      <p class="source-kicker">Reviewed against official sources · Updated August 1, 2026</p>
+      <p>Exam formats and immigration equivalencies can change. Verify before booking or submitting results: ${sources.map(source => `<a href="${source.href}" target="_blank" rel="noopener">${esc(source.label)}</a>`).join(' · ')}.</p>`, true);
 }
 
 // ── slugs ────────────────────────────────────────────────────────────────────
@@ -332,7 +383,10 @@ function grammarPage(unit, all) {
   const url = `/grammar/${slug}`;
   const grammarTitle = `${unit.title} — French Grammar`;
   const title = grammarTitle.length <= 49 ? `${grammarTitle} | Bonjour!` : truncate(grammarTitle, 60);
-  const description = truncate(stripTags(unit.intro) || `${unit.title}: a clear, example-first French grammar explanation for CLB 6 / B1 learners.`);
+  const intro = stripTerminal(stripTags(unit.intro));
+  const description = truncate(intro
+    ? `${intro}. Learn the rule with clear French examples and free CLB 6 / TCF Canada practice.`
+    : `${unit.title}: a clear, example-first French grammar explanation with free practice for CLB 6 / TCF Canada learners.`);
 
   const rules = unit.rules.map(r => {
     const table = (r.table && r.table.length)
@@ -448,20 +502,315 @@ function connectorsPage(all) {
   return shell({ urlPath: url, title, description, navExtra: '<a href="/grammar/">Grammar</a>', bodyHtml: body, graph });
 }
 
+// ── search-intent editorial pages ───────────────────────────────────────────
+// These pages turn the app's strongest interactive features into a coherent
+// TCF Canada topic cluster. Each page answers one distinct search intent and
+// points to the relevant free practice instead of duplicating generic copy.
+function tcfHubPage() {
+  const url = '/tcf-canada';
+  const title = 'TCF Canada Preparation — Free Course & Practice Guide';
+  const description = 'Prepare for TCF Canada free with the current four-part format, an NCLC score chart, skill-by-skill practice, a 12-week plan and a full mock test. No signup.';
+  const body = [
+    crumbsHtml([{ name: 'Home', href: '/' }, { name: 'TCF Canada', href: url }]),
+    hero('TCF Canada · Free preparation hub', 'TCF Canada preparation: start here',
+      'Understand the current test, choose your target NCLC level, practise each of the four abilities, and finish with a full-duration simulation—free, with no signup.'),
+    tcfTopicNav(url),
+    box(`      <h2>TCF Canada in one minute</h2>
+      <p>The <b>Test de connaissance du français pour le Canada</b> is an official French test accepted by Immigration, Refugees and Citizenship Canada (IRCC) for specified immigration and citizenship applications. The immigration version has <b>four mandatory tests</b>. France Éducation international reports a result for each ability; IRCC then maps each result to an <b>NCLC</b> level.</p>
+      <p style="margin-top:var(--sp-3)"><b>NCLC is the French scale.</b> CLB is the parallel English scale. People often search for “CLB 7 French,” but the official French-language term is NCLC 7.</p>`),
+    box(`      <h2>Current TCF Canada format</h2>
+      <table class="conj-table"><caption class="sr-only">Current TCF Canada format by ability</caption><thead><tr><th scope="col">Ability</th><th scope="col">Official format</th><th scope="col">Free practice</th></tr></thead><tbody>
+        <tr><th scope="row">Listening</th><td>39 multiple-choice questions · 35 minutes</td><td><a href="/tcf-canada-listening">Listening guide</a></td></tr>
+        <tr><th scope="row">Reading</th><td>39 multiple-choice questions · 60 minutes</td><td><a href="/tcf-canada-reading">Reading guide</a></td></tr>
+        <tr><th scope="row">Writing</th><td>3 tasks · 60 minutes</td><td><a href="/tcf-canada-writing">Writing guide</a></td></tr>
+        <tr><th scope="row">Speaking</th><td>3 tasks · 12 minutes, including 2 minutes of preparation</td><td><a href="/tcf-canada-speaking">Speaking guide</a></td></tr>
+      </tbody></table>
+      <p style="margin-top:var(--sp-3)">The four tests total approximately <b>2 hours 47 minutes</b>. Listening and reading become progressively harder. Speaking is face-to-face with an examiner; speaking and writing are assessed by trained raters.</p>`),
+    box(`      <h2>Choose the right target before you study</h2>
+      <p>Do not prepare toward a vague idea of “passing.” TCF Canada has no single pass mark: your required NCLC level depends on the immigration or citizenship pathway. For many Express Entry candidates, <b>NCLC 7 in all four abilities</b> is an important threshold, but it is not the requirement for every program.</p>
+      <p style="margin-top:var(--sp-3)">Use the <a href="/tcf-canada-score-chart">TCF Canada score chart</a> to turn your target NCLC level into four concrete score ranges. A strong ability does not compensate for another ability below a program's minimum.</p>`),
+    box(`      <h2>A preparation loop that produces useful evidence</h2>
+      <ol style="margin-left:20px;line-height:1.9;margin-top:6px">
+        <li><b>Diagnose:</b> take one timed listening and reading set; record one speaking response and write one timed task.</li>
+        <li><b>Classify errors:</b> separate language gaps from timing, misunderstood instructions, distractors, and incomplete task delivery.</li>
+        <li><b>Train the weakest ability:</b> spend half of each week on the lowest result and split the rest across the other three.</li>
+        <li><b>Re-test:</b> repeat a comparable task weekly and track raw accuracy, completion, and recurring errors.</li>
+        <li><b>Calibrate:</b> use official samples for format and qualified human feedback for speaking and writing.</li>
+      </ol>`),
+    box(`      <h2>A practical 12-week TCF Canada plan</h2>
+      <table class="conj-table"><caption class="sr-only">Twelve-week TCF Canada preparation plan</caption><thead><tr><th scope="col">Weeks</th><th scope="col">Focus</th><th scope="col">Evidence to keep</th></tr></thead><tbody>
+        <tr><th scope="row">1–2</th><td>Diagnostic, exam format, core grammar and sound gaps</td><td>Baseline by ability</td></tr>
+        <tr><th scope="row">3–6</th><td>Daily listening/reading plus two speaking and writing tasks weekly</td><td>Error log and timed samples</td></tr>
+        <tr><th scope="row">7–9</th><td>Task strategy, natural-speed audio, opinion structure and connectors</td><td>Weekly comparable results</td></tr>
+        <tr><th scope="row">10–12</th><td>Full sections, recovery work, then complete simulations</td><td>Stable results under time</td></tr>
+      </tbody></table>
+      <p style="margin-top:var(--sp-3)">Twelve weeks is a preparation cycle, not a promise to move from beginner to NCLC 7. Your starting level and access to feedback determine the real timeline.</p>`),
+    box(`      <h2>What is free on Bonjour!</h2>
+      <p>The course includes an eight-phase A1-to-B1 path, Canadian French neural audio, 120 focused listening clips, 60 graded reading texts, 50 real-life conversation scenarios, TCF speaking and writing task practice, connector drills, recording and self-review, and a <a href="/tcf-canada-mock-test">full-duration TCF-format simulation</a>. Practice results are evidence for planning; they are not official scores or certified NCLC levels.</p>`),
+    reviewBox([
+      { href: OFFICIAL.tcf, label: 'France Éducation international — TCF Canada' },
+      { href: OFFICIAL.ircc, label: 'IRCC — language test results and equivalencies' },
+    ]),
+    ctaSpotlight('Free · no signup', 'Start your TCF Canada preparation',
+      'Follow one ordered path, practise all four skills, and keep your progress privately in your browser.',
+      '/#path', 'Open the free learning path'),
+    backRow(),
+  ].join('\n\n');
+  const graph = [
+    breadcrumbJson([{ name: 'Home', href: '/' }, { name: 'TCF Canada', href: url }]),
+    authoredArticleJson(title, description, url, [OFFICIAL.tcf, OFFICIAL.ircc]),
+    {
+      '@type': 'ItemList',
+      name: 'TCF Canada preparation guides',
+      itemListElement: [
+        '/tcf-canada-listening', '/tcf-canada-reading', '/tcf-canada-speaking',
+        '/tcf-canada-writing', '/tcf-canada-score-chart', '/tcf-canada-mock-test',
+      ].map((item, i) => ({ '@type': 'ListItem', position: i + 1, url: SITE + item })),
+    },
+  ];
+  return shell({ urlPath: url, title, description, navExtra: '<a href="/tcf-canada-mock-test">Mock test</a>', bodyHtml: body, graph });
+}
+
+function tcfListeningPage() {
+  const url = '/tcf-canada-listening';
+  const title = 'TCF Canada Listening Practice — Free Guide & Mock Test';
+  const description = 'Free TCF Canada listening practice: learn the 39-question, 35-minute format, audio rules, NCLC 7 target, error-review method and open a timed mock test.';
+  const body = [
+    crumbsHtml([{ name: 'Home', href: '/' }, { name: 'TCF Canada', href: '/tcf-canada' }, { name: 'Listening', href: url }]),
+    hero('TCF Canada · Compréhension orale', 'TCF Canada listening practice',
+      'Train for the 39-question listening section with the real time pressure in mind: one play, progressive difficulty, and decisions made from meaning—not isolated words.'),
+    tcfTopicNav(url),
+    box(`      <h2>Listening format at a glance</h2>
+      <p>TCF Canada <b>Compréhension orale</b> contains <b>39 multiple-choice questions in 35 minutes</b>. Each recording is played once. On the official test, the question is presented after the audio, so passive listening and answer-key scanning are weak preparation strategies. The items progress from simple everyday exchanges toward longer, more abstract speech.</p>
+      <p style="margin-top:var(--sp-3)">The official result uses a 0–699 scale. IRCC currently maps <b>458–502 to NCLC 7</b>; always verify the current table for your application.</p>`),
+    box(`      <h2>What the section actually tests</h2>
+      <ul style="margin-left:20px;line-height:1.9;margin-top:6px">
+        <li>Identifying a setting, relationship, purpose, or requested action in a short exchange.</li>
+        <li>Following announcements, instructions, interviews, reports, and everyday conversations.</li>
+        <li>Separating a speaker's main point from examples, corrections, and distractors.</li>
+        <li>Recognizing attitude, agreement, hesitation, contrast, and implied meaning.</li>
+        <li>Holding the important details in working memory before seeing the answer choices.</li>
+      </ul>`),
+    box(`      <h2>The review method that makes practice compound</h2>
+      <p>After every set, label each miss before replaying it:</p>
+      <table class="conj-table"><caption class="sr-only">TCF listening error review categories</caption><thead><tr><th scope="col">Error</th><th scope="col">What to do next</th></tr></thead><tbody>
+        <tr><th scope="row">Sound gap</th><td>Transcribe the short phrase; compare liaison, vowel, or reduced speech.</td></tr>
+        <tr><th scope="row">Vocabulary gap</th><td>Save the whole phrase, not a single translated word.</td></tr>
+        <tr><th scope="row">Meaning gap</th><td>State the speaker's purpose in one plain sentence.</td></tr>
+        <tr><th scope="row">Distractor</th><td>Write why the tempting option was mentioned but did not answer the question.</td></tr>
+        <tr><th scope="row">Memory/timing</th><td>Practise summarizing each clip aloud before looking at choices.</td></tr>
+      </tbody></table>`),
+    box(`      <h2>A weekly listening routine</h2>
+      <ol style="margin-left:20px;line-height:1.9;margin-top:6px">
+        <li><b>Three focused days:</b> 15–20 minutes of short clips, dictation, and error review.</li>
+        <li><b>Two immersion days:</b> Radio-Canada, interviews, or podcasts at natural speed; summarize the message aloud.</li>
+        <li><b>One timed section:</b> no transcript, no pause, no replay.</li>
+        <li><b>One repair session:</b> revisit only the clips missed for language reasons.</li>
+      </ol>
+      <p style="margin-top:var(--sp-3)">The site offers 120 focused clips across five exercise types plus 39 original listening questions in the full simulation. Use official FEI samples for final format calibration.</p>`),
+    reviewBox([
+      { href: OFFICIAL.tcf, label: 'France Éducation international — official format' },
+      { href: OFFICIAL.ircc, label: 'IRCC — TCF to NCLC equivalencies' },
+    ]),
+    ctaSpotlight('39 questions · timed', 'Run the free listening simulation',
+      'Hear each original practice recording once, answer without a transcript, and review your raw accuracy afterward.',
+      '/#mock', 'Start the free mock test'),
+    `    <p class="related-guides"><b>Next:</b> <a href="/tcf-canada-reading">Reading practice</a> · <a href="/tcf-canada-score-chart">Score chart</a> · <a href="/tcf-canada-speaking">Speaking practice</a></p>`,
+    backRow(),
+  ].join('\n\n');
+  const graph = [
+    breadcrumbJson([{ name: 'Home', href: '/' }, { name: 'TCF Canada', href: '/tcf-canada' }, { name: 'Listening', href: url }]),
+    authoredArticleJson(title, description, url, [OFFICIAL.tcf, OFFICIAL.ircc]),
+  ];
+  return shell({ urlPath: url, title, description, navExtra: '<a href="/tcf-canada">TCF guide</a>', bodyHtml: body, graph });
+}
+
+function tcfReadingPage() {
+  const url = '/tcf-canada-reading';
+  const title = 'TCF Canada Reading Practice — Free Guide & Mock Test';
+  const description = 'Free TCF Canada reading practice: learn the 39-question, 60-minute format, NCLC 7 target, pacing and review strategies, then open a timed mock test.';
+  const body = [
+    crumbsHtml([{ name: 'Home', href: '/' }, { name: 'TCF Canada', href: '/tcf-canada' }, { name: 'Reading', href: url }]),
+    hero('TCF Canada · Compréhension écrite', 'TCF Canada reading practice',
+      'Build the speed to answer 39 progressively harder questions in 60 minutes without trading away careful inference and document-purpose reading.'),
+    tcfTopicNav(url),
+    box(`      <h2>Reading format at a glance</h2>
+      <p>TCF Canada <b>Compréhension écrite</b> contains <b>39 multiple-choice questions in 60 minutes</b>. The difficulty rises across the section, from familiar notices and messages to longer texts, opinions, and abstract arguments. The official result uses a 0–699 scale; IRCC currently maps <b>453–498 to NCLC 7</b>.</p>
+      <p style="margin-top:var(--sp-3)">There is no benefit in spending equal time on every item. Protect enough time for the later passages while banking the shorter early questions accurately.</p>`),
+    box(`      <h2>Read the document before chasing details</h2>
+      <p>For each text, identify four things first: <b>who wrote it, who it is for, why it exists, and what action or conclusion it supports</b>. This prevents a common mistake: choosing an option that repeats a true detail but misses the author's purpose.</p>
+      <ul style="margin-left:20px;line-height:1.9;margin-top:6px">
+        <li>Notices and advertisements: locate conditions, exclusions, dates, and required action.</li>
+        <li>Emails and letters: track relationship, register, problem, and next step.</li>
+        <li>News and informational texts: separate the main claim from supporting examples.</li>
+        <li>Opinion texts: map position, concession, contrast, cause, and consequence.</li>
+      </ul>`),
+    box(`      <h2>A safe pacing plan</h2>
+      <table class="conj-table"><caption class="sr-only">Suggested TCF Canada reading pacing plan</caption><thead><tr><th scope="col">Checkpoint</th><th scope="col">Target</th><th scope="col">Rule</th></tr></thead><tbody>
+        <tr><th scope="row">First third</th><td>Move quickly through short practical texts</td><td>Do not over-interpret a direct question.</td></tr>
+        <tr><th scope="row">Middle third</th><td>Confirm reference words and paragraph purpose</td><td>Return to the exact sentence that supports the answer.</td></tr>
+        <tr><th scope="row">Final third</th><td>Reserve the largest block for dense texts</td><td>Eliminate by contradiction and scope, not vocabulary alone.</td></tr>
+        <tr><th scope="row">Final minutes</th><td>Answer every remaining item</td><td>Do not leave a question unanswered.</td></tr>
+      </tbody></table>
+      <p style="margin-top:var(--sp-3)">Adjust checkpoints from your own timed results; this is a practice framework, not an official allocation.</p>`),
+    box(`      <h2>How to review a wrong reading answer</h2>
+      <ol style="margin-left:20px;line-height:1.9;margin-top:6px">
+        <li>Underline the smallest passage that proves the correct answer.</li>
+        <li>Name the distractor: copied phrase, reversed meaning, true-but-irrelevant detail, overstatement, or unsupported inference.</li>
+        <li>Rewrite the question in simpler French or English.</li>
+        <li>Save one reusable phrase or connector from the passage.</li>
+        <li>Re-answer the item two days later without looking at the key.</li>
+      </ol>
+      <p style="margin-top:var(--sp-3)">Bonjour! includes 60 graded reading texts across emails, ads, news, brochures, and stories, plus a 39-question timed simulation.</p>`),
+    reviewBox([
+      { href: OFFICIAL.tcf, label: 'France Éducation international — official format' },
+      { href: OFFICIAL.ircc, label: 'IRCC — TCF to NCLC equivalencies' },
+    ]),
+    ctaSpotlight('39 questions · timed', 'Run the free reading simulation',
+      'Practise progressive reading questions under the official section time and keep a transparent raw result.',
+      '/#mock', 'Start the free mock test'),
+    `    <p class="related-guides"><b>Next:</b> <a href="/tcf-canada-listening">Listening practice</a> · <a href="/tcf-canada-score-chart">Score chart</a> · <a href="/tcf-canada-writing">Writing practice</a></p>`,
+    backRow(),
+  ].join('\n\n');
+  const graph = [
+    breadcrumbJson([{ name: 'Home', href: '/' }, { name: 'TCF Canada', href: '/tcf-canada' }, { name: 'Reading', href: url }]),
+    authoredArticleJson(title, description, url, [OFFICIAL.tcf, OFFICIAL.ircc]),
+  ];
+  return shell({ urlPath: url, title, description, navExtra: '<a href="/tcf-canada">TCF guide</a>', bodyHtml: body, graph });
+}
+
+function tcfScorePage() {
+  const url = '/tcf-canada-score-chart';
+  const title = 'TCF Canada Score Chart — NCLC 4–10 Conversion (2026)';
+  const description = 'Use the current TCF Canada score chart to convert listening, reading, speaking and writing results to NCLC 4–10, including the NCLC 7 target.';
+  const body = [
+    crumbsHtml([{ name: 'Home', href: '/' }, { name: 'TCF Canada', href: '/tcf-canada' }, { name: 'Score chart', href: url }]),
+    hero('TCF Canada · IRCC equivalencies', 'TCF Canada score chart: TCF to NCLC',
+      'Convert each TCF Canada ability separately. This reference reproduces the current IRCC equivalency bands for NCLC 4 through 10+.'),
+    tcfTopicNav(url),
+    box(`      <h2>TCF Canada to NCLC conversion table</h2>
+      <div class="table-scroll"><table class="conj-table"><caption>Current IRCC TCF Canada result equivalencies</caption><thead><tr><th scope="col">NCLC</th><th scope="col">Listening /699</th><th scope="col">Reading /699</th><th scope="col">Speaking /20</th><th scope="col">Writing /20</th></tr></thead><tbody>
+        <tr><th scope="row">10+</th><td>549–699</td><td>549–699</td><td>16–20</td><td>16–20</td></tr>
+        <tr><th scope="row">9</th><td>523–548</td><td>524–548</td><td>14–15</td><td>14–15</td></tr>
+        <tr><th scope="row">8</th><td>503–522</td><td>499–523</td><td>12–13</td><td>12–13</td></tr>
+        <tr class="target-row"><th scope="row">7</th><td><b>458–502</b></td><td><b>453–498</b></td><td><b>10–11</b></td><td><b>10–11</b></td></tr>
+        <tr><th scope="row">6</th><td>398–457</td><td>406–452</td><td>7–9</td><td>7–9</td></tr>
+        <tr><th scope="row">5</th><td>369–397</td><td>375–405</td><td>6</td><td>6</td></tr>
+        <tr><th scope="row">4</th><td>331–368</td><td>342–374</td><td>4–5</td><td>4–5</td></tr>
+      </tbody></table></div>`),
+    box(`      <h2>How to read your result correctly</h2>
+      <p>Find each ability in its own column. For example, listening 470, reading 460, speaking 11, and writing 9 convert to NCLC 7, 7, 7, and 6. Your French is therefore <b>not NCLC 7 across all four abilities</b>; writing remains NCLC 6.</p>
+      <p style="margin-top:var(--sp-3)">TCF Canada has no averaged all-skills result for IRCC requirements. Whether you need NCLC 4, 5, 7, or another threshold depends on the program and how French is counted in your profile.</p>`),
+    box(`      <h2>Why NCLC 7 is highlighted</h2>
+      <p>NCLC 7 is a high-intent target because it is relevant to the additional French-language points in Express Entry and to French-language category eligibility, subject to the current IRCC rules. It is not a universal pass mark and it does not guarantee an invitation. Confirm both the score conversion and the immigration rule that applies to you.</p>
+      <p style="margin-top:var(--sp-3)"><a href="/clb-7-french">See what NCLC 7 French ability looks like</a> or compare <a href="/clb-6-vs-clb-7-french">NCLC 6 vs NCLC 7</a>.</p>`),
+    box(`      <h2>Do not convert mock-test percentages into TCF scores</h2>
+      <p>Official listening and reading results are not a simple “correct answers × points” calculation; item difficulty is part of the scoring process. Speaking and writing are rated by trained evaluators. A practice percentage can show a trend, but it cannot certify a TCF result or NCLC band.</p>`),
+    reviewBox([
+      { href: OFFICIAL.ircc, label: 'IRCC — official language-test equivalencies' },
+      { href: OFFICIAL.tcf, label: 'France Éducation international — TCF Canada' },
+    ]),
+    ctaSpotlight('Target one ability at a time', 'Practise toward your weakest score',
+      'Use the free path and full-duration simulation to collect honest practice evidence without inventing an official conversion.',
+      '/#tcfguide', 'Open the score guide'),
+    `    <p class="related-guides"><b>Prepare:</b> <a href="/tcf-canada-listening">Listening</a> · <a href="/tcf-canada-reading">Reading</a> · <a href="/tcf-canada-speaking">Speaking</a> · <a href="/tcf-canada-writing">Writing</a></p>`,
+    backRow(),
+  ].join('\n\n');
+  const graph = [
+    breadcrumbJson([{ name: 'Home', href: '/' }, { name: 'TCF Canada', href: '/tcf-canada' }, { name: 'Score chart', href: url }]),
+    authoredArticleJson(title, description, url, [OFFICIAL.ircc, OFFICIAL.tcf]),
+    {
+      '@type': 'Dataset',
+      name: 'TCF Canada to NCLC score equivalencies',
+      description: 'IRCC equivalency bands for TCF Canada listening, reading, speaking, and writing results.',
+      url: SITE + url,
+      isBasedOn: OFFICIAL.ircc,
+      dateModified: SEO_PUBLISHED,
+      creator: { '@type': 'Organization', name: 'Immigration, Refugees and Citizenship Canada' },
+    },
+  ];
+  return shell({ urlPath: url, title, description, navExtra: '<a href="/tcf-canada">TCF guide</a>', bodyHtml: body, graph });
+}
+
+function aboutPage() {
+  const url = '/about';
+  const title = 'About Bonjour! — Free French Practice for Canada';
+  const description = 'Learn who built Bonjour!, how its French and TCF Canada practice is created and reviewed, what the free course can and cannot assess, and how privacy works.';
+  const body = [
+    crumbsHtml([{ name: 'Home', href: '/' }, { name: 'About', href: url }]),
+    hero('About · Method · Trust', 'About Bonjour!',
+      'An independent, free French-learning project for people building practical communication skills and preparing for Canadian language tests.'),
+    box(`      <h2>Who built it</h2>
+      <p>Bonjour! is built and maintained by <b>Arthik Marasini</b>. The project exists to make structured French practice available without a paywall, account, advertising profile, or email gate. You can <a href="https://www.linkedin.com/in/arthiknepal" target="_blank" rel="noopener">connect with Arthik on LinkedIn</a>.</p>
+      <p style="margin-top:var(--sp-3)">Bonjour! is independent. It is not affiliated with, endorsed by, or an official product of IRCC, France Éducation international, CCI Paris Île-de-France, TCF Canada, or TEF Canada.</p>`),
+    box(`      <h2>How the learning material is made</h2>
+      <p>Lessons are organized around practical Canadian situations and an A1-to-B1 progression. The interactive banks include original dialogues, graded reading, listening, vocabulary, grammar, speaking prompts, and writing tasks. Exam-format pages are checked against the current test-maker documentation, while score equivalencies are checked against IRCC.</p>
+      <p style="margin-top:var(--sp-3)">The practice questions are original learning material. The site does not claim to publish leaked, recalled, or official exam questions. Official provider samples should be part of every candidate's final preparation.</p>`),
+    box(`      <h2>What the course can—and cannot—tell you</h2>
+      <p>The course can show whether you complete representative tasks, which answers you miss, which grammar patterns recur, and whether your practice becomes more consistent under time. It cannot issue an official TCF/TEF score or certify an NCLC level.</p>
+      <p style="margin-top:var(--sp-3)">Listening and reading practice results are reported transparently as raw evidence. Speaking and writing use models, checklists, recording, and limited automated checks; trained human feedback remains necessary for a defensible proficiency judgment.</p>`),
+    box(`      <h2>Privacy by design</h2>
+      <p>No account is required. Learning progress and speaking recordings stay in your browser; recordings are not uploaded by the site. Bonjour! does not use third-party display ads or behavioural analytics. Clearing browser storage can remove local progress, so the app includes a local backup and restore option.</p>`),
+    reviewBox([
+      { href: OFFICIAL.tcf, label: 'France Éducation international — TCF Canada' },
+      { href: OFFICIAL.ircc, label: 'IRCC — language tests and equivalencies' },
+      { href: 'https://www.lefrancaisdesaffaires.fr/en/candidate/test-evaluation-francais/tef-canada/presentation/', label: 'CCI Paris Île-de-France — TEF Canada' },
+    ]),
+    ctaSpotlight('Free · private · independent', 'Use the complete course',
+      'Start with the diagnostic or follow the ordered eight-phase path. No signup and no payment required.',
+      '/#path', 'Open the free course'),
+    backRow(),
+  ].join('\n\n');
+  const graph = [
+    breadcrumbJson([{ name: 'Home', href: '/' }, { name: 'About', href: url }]),
+    {
+      '@type': 'AboutPage', '@id': SITE + url + '#page', url: SITE + url,
+      name: title, description, inLanguage: 'en-CA', dateModified: SEO_PUBLISHED,
+      mainEntity: { '@id': SITE + '/#org' },
+    },
+    {
+      '@type': 'Person', '@id': SITE + '/#arthik', name: 'Arthik Marasini',
+      url: SITE + '/about', sameAs: ['https://www.linkedin.com/in/arthiknepal'],
+      worksFor: { '@id': SITE + '/#org' },
+    },
+    {
+      '@type': 'EducationalOrganization', '@id': SITE + '/#org', name: 'Bonjour!',
+      url: SITE + '/', logo: SITE + '/icon-512.png', founder: { '@id': SITE + '/#arthik' },
+    },
+  ];
+  return shell({ urlPath: url, title, description, navExtra: '<a href="/tcf-canada">TCF guide</a>', bodyHtml: body, graph });
+}
+
 // ── sitemap ──────────────────────────────────────────────────────────────────
 function sitemap(entries) {
-  const urls = entries.map(([loc, priority, freq]) =>
+  const urls = entries.map(([loc]) =>
     `  <url>
     <loc>${SITE}${loc}</loc>
-    <lastmod>${TODAY}</lastmod>
-    <changefreq>${freq || 'monthly'}</changefreq>
-    <priority>${priority}</priority>
+    <lastmod>${lastmodForUrl(loc)}</lastmod>
   </url>`).join('\n');
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urls}
 </urlset>
 `;
+}
+
+function lastmodForUrl(urlPath) {
+  const relative = urlPath === '/'
+    ? 'index.html'
+    : (urlPath.endsWith('/') ? `${urlPath.slice(1)}index.html` : `${urlPath.slice(1)}.html`);
+  try {
+    const status = execFileSync('git', ['status', '--porcelain', '--', relative], {
+      cwd: ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'],
+    }).trim();
+    if (status) return TODAY;
+    const committed = execFileSync('git', ['log', '-1', '--format=%cs', '--', relative], {
+      cwd: ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'],
+    }).trim();
+    return committed || TODAY;
+  } catch (_) {
+    return TODAY;
+  }
 }
 
 // ── write ────────────────────────────────────────────────────────────────────
@@ -480,6 +829,11 @@ scenarios.forEach(sc => write(`scenarios/${sc.id}.html`, scenarioPage(sc, scenar
 write('grammar/index.html', grammarIndex(grammar));
 grammar.forEach(u => write(`grammar/${gSlugMap.get(u.id)}.html`, grammarPage(u, grammar)));
 write('french-connectors.html', connectorsPage(connectors));
+write('tcf-canada.html', tcfHubPage());
+write('tcf-canada-listening.html', tcfListeningPage());
+write('tcf-canada-reading.html', tcfReadingPage());
+write('tcf-canada-score-chart.html', tcfScorePage());
+write('about.html', aboutPage());
 
 // sitemap = landing pages + section indexes + every generated page
 const sitemapEntries = [
@@ -496,4 +850,6 @@ console.log(`Pre-rendered:
   ${scenarios.length} scenario pages + index   → /scenarios/
   ${grammar.length} grammar pages + index      → /grammar/
   1 connectors reference                       → /french-connectors
+  4 TCF Canada intent pages                     → /tcf-canada*
+  1 about / methodology page                    → /about
   sitemap.xml                                  → ${sitemapEntries.length} URLs`);

@@ -17,7 +17,7 @@ Then visit `http://localhost:8765`. Set a different port with `PORT=8000 npm sta
 > Recorded speaking tasks need a modern browser and microphone permission. Shadowing works without a microphone.
 
 ## Deploy
-Static site — drops onto Vercel / Netlify / GitHub Pages with zero config. `vercel.json` included.
+Production is connected to Cloudflare. Pushing `main` deploys the static site to [frenchclb6.ca](https://frenchclb6.ca).
 
 ## Pedagogy
 - **Child-first**: pattern + audio + visuals before explicit grammar.
