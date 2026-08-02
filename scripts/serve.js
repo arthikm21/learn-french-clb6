@@ -25,7 +25,7 @@ http.createServer((req, res) => {
   const fp = path.join(ROOT, clean);
   if (!fp.startsWith(ROOT + path.sep) && fp !== ROOT) { res.writeHead(403); res.end('forbidden'); return; }
 
-  // Mirror Vercel's `cleanUrls` behavior so links like /grammar/articles and
+  // Mirror production's clean-URL routing so links like /grammar/articles and
   // /clb6-french-course are testable locally instead of producing false 404s.
   const candidates = path.extname(fp)
     ? [fp]

@@ -74,7 +74,15 @@
         "name": "Bonjour!",
         "url": "https://frenchclb6.ca/",
         "logo": "https://frenchclb6.ca/icon-512.png",
-        "description": "Free French course for CLB 6 / TCF Canada, built for immigration, workplace, and everyday communication goals."
+        "description": "Free French course for CLB 6 / TCF Canada, built for immigration, workplace, and everyday communication goals.",
+        "founder": { "@id": "https://frenchclb6.ca/#arthik" }
+      },
+      {
+        "@type": "Person",
+        "@id": "https://frenchclb6.ca/#arthik",
+        "name": "Arthik Marasini",
+        "url": "https://frenchclb6.ca/about",
+        "sameAs": ["https://www.linkedin.com/in/arthiknepal"]
       },
       {
         "@type": "Course",
@@ -87,6 +95,7 @@
         "audience": { "@type": "EducationalAudience", "educationalRole": "student" },
         "isAccessibleForFree": true,
         "provider": { "@id": "https://frenchclb6.ca/#org" },
+        "creator": { "@id": "https://frenchclb6.ca/#arthik" },
         "hasCourseInstance": { "@type": "CourseInstance", "courseMode": "Online" },
         "offers": { "@type": "Offer", "price": "0", "priceCurrency": "CAD", "category": "Free" }
       },
@@ -114,10 +123,10 @@
   }
   </script>
 
-  <link rel="stylesheet" href="styles.css?v=202607182006" />
-  <link rel="preload" href="/fonts/inter-latin.woff2?v=202607172209" as="font" type="font/woff2" crossorigin />
-  <link rel="stylesheet" href="fonts/fonts.css?v=202607172209" />
-  <link rel="stylesheet" href="editorial.css?v=202607182006" />
+  <link rel="stylesheet" href="styles.css?v=202608020143" />
+  <link rel="preload" href="/fonts/inter-latin.woff2?v=202608020143" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="fonts/fonts.css?v=202608020143" />
+  <link rel="stylesheet" href="editorial.css?v=202608020143" />
 </head>
 <body>
   <!-- Pre-paint theme: apply saved/system dark BEFORE first render so dark
@@ -238,6 +247,10 @@
 
           <h3>Helpful guides</h3>
           <ul class="seo-links">
+            <li><a href="/tcf-canada">TCF Canada preparation hub</a> — current format, a practical study plan, and links to every skill.</li>
+            <li><a href="/tcf-canada-listening">TCF Canada listening practice</a> — the 39-question format, one-play audio strategy, and error-review method.</li>
+            <li><a href="/tcf-canada-reading">TCF Canada reading practice</a> — pacing, question types, and a 39-question timed simulation.</li>
+            <li><a href="/tcf-canada-score-chart">TCF Canada score chart</a> — current TCF-to-NCLC bands for all four abilities.</li>
             <li><a href="/how-to-score-clb6">How to build toward NCLC 6 in French</a> — current score ranges, realistic timelines, and recurring grammar traps.</li>
             <li><a href="/clb6-french-course">The CLB 6 French course</a> — the full eight-phase path, explained.</li>
             <li><a href="/free-french-course-canada">Free French course for Canada</a> — why it's free and what's inside.</li>
@@ -276,7 +289,8 @@
       </a>
     </aside>
     <nav class="footer-links" aria-label="Footer">
-      <a href="#about">About</a>
+      <a href="/tcf-canada">TCF guide</a>
+      <a href="/about">About &amp; method</a>
       <a href="#privacy">Privacy</a>
       <button id="credit-link" class="footer-credit" type="button">Built by Arthik</button>
     </nav>
@@ -300,27 +314,27 @@
 
   <!-- Fast shell: route-specific course banks and renderers are loaded by
        app.js on first use instead of delaying every learner's home screen. -->
-  <script defer src="data/vocab.js?v=202607172209"></script>
-  <script defer src="data/spoken.js?v=202607172209"></script>
-  <script defer src="data/lessons.js?v=202607172209"></script>
-  <script defer src="modules/settings.js?v=202607172345"></script>
-  <script defer src="modules/sounds.js?v=202607182006"></script>
-  <script defer src="modules/celebrate.js?v=202607172209"></script>
-  <script defer src="modules/cheersquad.js?v=202607172209"></script>
-  <script defer src="modules/storage.js?v=202607172209"></script>
-  <script defer src="modules/mastery.js?v=202607172209"></script>
-  <script defer src="modules/profile.js?v=202607172345"></script>
-  <script defer src="modules/chrome.js?v=202607172209"></script>
-  <script defer src="modules/support.js?v=202607172209"></script>
-  <script defer src="modules/toast.js?v=202607172209"></script>
-  <script defer src="modules/srs.js?v=202607172209"></script>
-  <script defer src="modules/tts.js?v=202607172209"></script>
-  <script defer src="modules/record.js?v=202607172209"></script>
-  <script defer src="modules/wordpop.js?v=202607172209"></script>
-  <script defer src="modules/keyboard.js?v=202607182006"></script>
-  <script defer src="modules/mistakes.js?v=202607172209"></script>
-  <script defer src="modules/router.js?v=202607172209"></script>
-  <script defer src="app.js?v=202607182006"></script>
+  <script defer src="data/vocab.js?v=202608020143"></script>
+  <script defer src="data/spoken.js?v=202608020143"></script>
+  <script defer src="data/lessons.js?v=202608020143"></script>
+  <script defer src="modules/settings.js?v=202608020143"></script>
+  <script defer src="modules/sounds.js?v=202608020143"></script>
+  <script defer src="modules/celebrate.js?v=202608020143"></script>
+  <script defer src="modules/cheersquad.js?v=202608020143"></script>
+  <script defer src="modules/storage.js?v=202608020143"></script>
+  <script defer src="modules/mastery.js?v=202608020143"></script>
+  <script defer src="modules/profile.js?v=202608020143"></script>
+  <script defer src="modules/chrome.js?v=202608020143"></script>
+  <script defer src="modules/support.js?v=202608020143"></script>
+  <script defer src="modules/toast.js?v=202608020143"></script>
+  <script defer src="modules/srs.js?v=202608020143"></script>
+  <script defer src="modules/tts.js?v=202608020143"></script>
+  <script defer src="modules/record.js?v=202608020143"></script>
+  <script defer src="modules/wordpop.js?v=202608020143"></script>
+  <script defer src="modules/keyboard.js?v=202608020143"></script>
+  <script defer src="modules/mistakes.js?v=202608020143"></script>
+  <script defer src="modules/router.js?v=202608020143"></script>
+  <script defer src="app.js?v=202608020143"></script>
   <script>
     // Offline support. Skipped on localhost so local dev never fights a stale
     // service-worker cache.

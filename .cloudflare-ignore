@@ -1,6 +1,5 @@
 node_modules
 .git
-.vercel
 scripts
 tests
 design
@@ -17,7 +16,6 @@ fonts/newsreader-latin-ext.woff2
 fonts/newsreader-latin.woff2
 *.md
 package.json
-vercel.json
 .gitignore
 .cloudflare-ignore
 .DS_Store

@@ -36,12 +36,12 @@ authentic practice outside the app.
 |---|---|
 | Pronunciation | Phonics, minimal pairs, Canadian French neural audio, and browser speech fallback |
 | Vocabulary | SM-2 spaced-repetition flashcards across 10 themed decks |
-| Grammar | 12 units from A1 to B1, with rules, examples, quizzes, and explanations |
+| Grammar | 29 units from A1 to B1, with rules, examples, quizzes, and explanations |
 | Listening | Dictation, graded comprehension, and answer explanations |
 | Speaking | Shadowing, local recording, task rehearsal, pronunciation support, and self-review |
 | Reading | Graded texts and multiple-choice comprehension |
 | Writing | Models, original prompts, slip scans, and structured self-review |
-| Exam preparation | TCF Canada speaking/writing formats, mock practice, TEF guidance, and weak-area review |
+| Exam preparation | Four-skill TCF Canada guides, score conversion, mock practice, TEF guidance, and weak-area review |
 | Scenarios | 50 bilingual dialogues based on everyday situations in Canada |
 | Games | Gender Sort, Conjugation Race, Sentence Builder, and Memory Match |
 
@@ -102,8 +102,8 @@ suite.
 
 ## Deploy
 
-The application is a static site and can be deployed to Cloudflare Pages,
-Vercel, Netlify, or GitHub Pages. `vercel.json`, `_headers`, and the service
+Production is connected to Cloudflare Pages. Pushing `main` deploys the static
+site to [frenchclb6.ca](https://frenchclb6.ca). The `_headers` file and service
 worker contain the current production-oriented configuration.
 
 ## Project status and roadmap

@@ -1783,6 +1783,72 @@ body.dark .path-node.unlocked .num {
   .topbar .nav[aria-label="Primary"] a { width: auto; }
 }
 
+/* Search landing-page topic clusters. These remain ordinary crawlable links;
+   the treatment makes the relationship between the TCF pages clear to people. */
+.topic-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  margin: 0 0 var(--sp-5);
+  padding: var(--sp-3);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--surface-2);
+}
+
+.topic-nav a {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: var(--r-pill);
+  color: var(--ink-2);
+  font-size: var(--fs-14);
+  font-weight: var(--fw-semi);
+  text-decoration: none;
+}
+
+.topic-nav a:hover,
+.topic-nav a:focus-visible {
+  color: var(--bleu);
+  background: var(--surface-3);
+}
+
+.topic-nav a[aria-current="page"] {
+  color: white;
+  background: var(--bleu-fill, var(--bleu));
+}
+
+.source-kicker {
+  margin: 0 0 var(--sp-2);
+  color: var(--accent);
+  font-size: var(--fs-13);
+  font-weight: var(--fw-bold);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.grammar-box a,
+.related-guides a {
+  color: var(--bleu);
+  text-underline-offset: 3px;
+}
+
+.related-guides {
+  margin-top: var(--sp-6);
+  line-height: 1.8;
+}
+
+.table-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.conj-table .target-row {
+  background: color-mix(in srgb, var(--ok) 13%, transparent);
+}
+
 /* Responsive */
 @media (max-width: 1100px) {
   .topbar { padding-inline: 20px; }
@@ -1837,6 +1903,8 @@ body.dark .path-node.unlocked .num {
 }
 
 @media (max-width: 640px) {
+  .topic-nav { gap: 6px; padding: var(--sp-2); }
+  .topic-nav a { min-height: 38px; padding: 7px 10px; font-size: var(--fs-13); }
   .topbar { width: calc(100% - 16px); margin-top: 6px; top: 6px; padding: 8px 12px; border-radius: 18px; }
   .brand { gap: 8px; }
   .brand-name { font-size: 19px; }

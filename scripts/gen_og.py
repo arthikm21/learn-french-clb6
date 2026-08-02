@@ -96,7 +96,7 @@ rounded_rect(draw, (CARD_X + 50, pill_y, CARD_X + 50 + pill_w, pill_y + (th - ty
 draw.text((CARD_X + 50 + pad_x, pill_y + pad_y), pill_text, font=font(22, bold=True), fill=BLEU)
 
 # URL — placed outside card on gradient bg, white bold
-draw.text((CARD_X + 16, CARD_Y + CARD_H + 22), "frenchclb6.vercel.app", font=font(32, bold=True), fill=WHITE)
+draw.text((CARD_X + 16, CARD_Y + CARD_H + 22), "frenchclb6.ca", font=font(32, bold=True), fill=WHITE)
 
 # Right panel — CLB 6 big badge
 RX, RY = 920, 100
