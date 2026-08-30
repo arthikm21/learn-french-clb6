@@ -1362,6 +1362,13 @@ body[data-anim="subtle"] .cheer-popover { transition: opacity 140ms ease; }
 .finish-copy { min-width: 0; }
 .finish-copy .row { justify-content: flex-start !important; }
 .finish-cheer { display: grid; place-items: center; min-height: 220px; }
+/* Graded report under a finish screen (TCF task rubrics, transcripts, score
+   tables). Full width — the copy column is too narrow for tables. Always
+   left-aligned, including on the mobile breakpoint where .finish-layout
+   centres itself. */
+.finish-body { margin-top: var(--sp-6); text-align: left; }
+.finish-body > :first-child { margin-top: 0; }
+.finish-body .row { justify-content: flex-start; }
 .lesson-with-cheer { position: relative; }
 .lesson-cheer-slot { position: absolute; top: 18px; right: 18px; z-index: 2; transform: scale(.86); transform-origin: right top; }
 

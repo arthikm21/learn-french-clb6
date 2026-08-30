@@ -90,13 +90,18 @@ window.DiagnosticModule = (function () {
       else if (score >= 7) focus = 'Core sentence building';
       if (window.Mastery) Mastery.recordAttempt('diagnostic:knowledge-sample', { score: pct, threshold: 80, kind: 'placement-sample' });
 
-      container.innerHTML = `
-        <div class="lesson">
-          <h2>📊 Your placement</h2>
-          <div class="grammar-box" style="border-left-color:var(--good)">
-            <h3>${score} / ${Q.length} correct · focus: <b>${focus}</b></h3>
-            <p>This is a sampled knowledge result, not a language level. Your ordered path remains intact so every capability is demonstrated before it is counted.</p>
-          </div>
+      container.innerHTML = Chrome.finishScreen({
+        back: 'home', crumbs: ['Home', 'Placement', 'Result'],
+        icon: '📊',
+        kicker: '✓ Placement complete',
+        title: 'Your placement',
+        score: { correct: score, total: Q.length },
+        sub: `Focus: <b>${focus}</b>. This is a sampled knowledge result, not a language level — your ordered path stays intact so every capability is demonstrated before it is counted.`,
+        // A placement sample is diagnostic, not an achievement — acknowledge it
+        // without a confetti burst over a low score.
+        celebrate: false,
+        noNext: true,
+        body: `
           ${wrongTopics.length ? `
           <div class="grammar-box">
             <h3>🎯 Focus areas (you got these wrong)</h3>
@@ -107,12 +112,12 @@ window.DiagnosticModule = (function () {
           <div class="grammar-box">
             <h3>✅ Already strong</h3>
             <p>${correctTopics.map(t => `<span class="tag">${t}</span>`).join(' ')}</p>
-          </div>` : ''}
-          <div class="center" style="margin-top:20px">
-            <button class="btn big" onclick="App.go('path')">▶ Go to my Path</button>
-            <button class="btn ghost big" onclick="App.go('home')">← Home</button>
-          </div>
-        </div>`;
+          </div>` : ''}`,
+        actions: [
+          { label: 'Go to my Path', onclick: "App.go('path')", primary: true, arrow: true },
+          { label: 'Home', onclick: "App.go('home')" },
+        ],
+      });
     }
 
     show();

@@ -60,12 +60,27 @@ window.PhonicsModule = (function () {
         TTS.speak(u.sounds[i].word, 0.85);
       };
     });
-    container.querySelector('#done').onclick = () => {
-      App.markLessonDone(`phonics:${u.id}`);
-      App.go('phonics');
-    };
     // If this unit has a minimal-pair drill, add a button to launch it
     const mp = window.MIN_PAIRS && window.MIN_PAIRS[u.id];
+    container.querySelector('#done').onclick = () => {
+      App.markLessonDone(`phonics:${u.id}`);
+      // Previously this bounced straight back to the unit list, so finishing a
+      // unit produced no acknowledgement at all. The ear drill is the natural
+      // next rep when the unit has one.
+      container.innerHTML = Chrome.finishScreen({
+        back: 'phonics', crumbs: ['Phonics', u.title, 'Complete'],
+        icon: '🔊',
+        title: 'Sounds practiced',
+        scoreLine: `You worked through all <b>${u.sounds.length}</b> sounds in ${Chrome.escapeHTML(u.title)}.`,
+        sub: mp
+          ? 'Now prove your ear can tell them apart — the minimal-pair drill is the test.'
+          : 'Say them aloud again tomorrow. Pronunciation sticks through repetition, not recognition.',
+        actions: [
+          ...(mp ? [{ label: 'Minimal-pair ear drill', onclick: `App.go('phonics', { unit: '${u.id}', drill: '1' })`, primary: true, arrow: true }] : []),
+          { label: 'All phonics', onclick: "App.go('phonics')", primary: !mp },
+        ],
+      });
+    };
     if (mp) {
       const btnRow = container.querySelector('.row:last-child');
       const btn = document.createElement('button');
@@ -158,8 +173,15 @@ window.PhonicsModule = (function () {
 
   return {
     render(container, params) {
-      if (params && params.unit) renderUnit(container, params.unit);
-      else renderList(container);
+      if (params && params.unit) {
+        // ?drill=1 deep-links straight into the ear drill — used by the unit's
+        // finish screen so "practiced" flows into "prove it".
+        if (params.drill === '1' && window.MIN_PAIRS && window.MIN_PAIRS[params.unit]) {
+          return renderMinPairDrill(container, params.unit);
+        }
+        return renderUnit(container, params.unit);
+      }
+      renderList(container);
     }
   };
 })();

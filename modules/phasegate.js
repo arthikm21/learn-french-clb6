@@ -231,6 +231,17 @@ window.PhaseGateModule = (function () {
       App.recordAttempt(`gate:phase-${phase.id}`, pct, Math.round(gate.pass * 100), 'phase-check');
       const nextPh = PHASES.find(p => p.id === phase.id + 1);
 
+      // Gates keep their own result screen rather than Chrome.finishScreen, so
+      // they emit the milestone package themselves. Fires on EVERY pass — a
+      // retake that clears the bar is still a pass and still gets the fanfare.
+      if (pass) {
+        try { if (window.Sounds) Sounds.play('gate'); } catch {}
+        try { if (window.CheerSquad) CheerSquad.show('milestone', { force: true, duration: 4200 }); } catch {}
+        try { if (window.Celebrate) Celebrate.confetti({ intensity: 'large' }); } catch {}
+      } else {
+        try { if (window.Sounds) Sounds.play('warn'); } catch {}
+      }
+
       container.innerHTML = `
         ${Chrome.render({ back: 'gate', crumbs: ['Gates', `Phase ${phase.id}`, 'Result'] })}
         <section class="hero ${pass ? 'accent' : ''}">

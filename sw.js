@@ -15,7 +15,7 @@
 //
 // VERSION is stamped by scripts/bump_version.js on every release; activating
 // a new version deletes the previous shell cache (audio cache persists).
-const VERSION = '202608020143';
+const VERSION = '202608301347';
 const SHELL_CACHE = 'shell-' + VERSION;
 const AUDIO_CACHE = 'audio-v1';
 

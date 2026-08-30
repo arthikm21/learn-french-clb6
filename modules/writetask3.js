@@ -70,8 +70,6 @@ window.WriteTask3Module = (function () {
           <span>💾 Auto-saved as you type</span>
         </div>
         <div class="spacer"></div>
-        <div id="wt3-report"></div>
-        <div class="spacer"></div>
         <div class="row" style="justify-content:space-between">
           <button class="btn ghost" onclick="App.go('writetask3')">← Prompts</button>
           <div class="row">
@@ -91,7 +89,7 @@ window.WriteTask3Module = (function () {
     ta.addEventListener('input', updateWC);
     updateWC();
     container.querySelector('#wt3-clear').onclick = () => {
-      if (confirm('Clear your draft?')) { ta.value = ''; updateWC(); container.querySelector('#wt3-report').innerHTML = ''; }
+      if (confirm('Clear your draft?')) { ta.value = ''; updateWC(); }
     };
     container.querySelector('#wt3-check').onclick = () => grade(container, t, id, ta.value);
   }
@@ -144,7 +142,10 @@ window.WriteTask3Module = (function () {
 
     const passColor = score >= 65 ? 'var(--good)' : 'var(--warn)';
     const passBg = score >= 65 ? 'rgba(52,199,89,.12)' : 'rgba(255,159,10,.12)';
-    container.querySelector('#wt3-report').innerHTML = `
+    // Under the 120-word floor the attempt is recorded as 0 above, so the
+    // screen must say the draft is short rather than congratulate a stub.
+    const tooShort = words < 120;
+    const report = `
       <div class="grammar-box" style="background:${passBg};border-left-color:${passColor}">
         <h3>📊 Practice structure check: ${score}/100</h3>
         <p>This automated check covers length, structure, and a limited set of common patterns. It is not a TCF or NCLC score estimate.</p>
@@ -173,6 +174,29 @@ window.WriteTask3Module = (function () {
         <p>If you scored below 7/20: re-read both opinions, write a single sentence summary of each, then choose your side and list 2 reasons before composing your paragraph. Read aloud to catch flow errors.</p>
       </div>
       ${Support.kitCard('writing')}`;
+
+    // Ending the task takes over the page. Previously the report was appended
+    // under the still-open editor, so nothing told the learner the session was
+    // finished. The draft stays autosaved, so "Revise" returns to it intact.
+    container.innerHTML = Chrome.finishScreen({
+      back: 'writetask3', crumbs: ['Writing Task 3', t.title, 'Result'],
+      icon: tooShort ? '📝' : score >= 65 ? '✍️' : '🔁',
+      kicker: tooShort ? 'Draft too short' : '✓ Task complete',
+      kickerTone: tooShort || score < 65 ? 'warn' : 'good',
+      title: tooShort ? 'Keep writing' : score >= 65 ? 'Task 3 structure holds up' : 'Structure needs another pass',
+      scoreLine: `Practice structure check: <b>${score}/100</b> · ${words} words · rubric ${rubricPassed}/${rubricChecks.length}.`,
+      sub: tooShort
+        ? 'TCF Task 3 expects 120–180 words. Anything shorter cannot show the comparison and position the rubric looks for.'
+        : score >= 65
+          ? 'Structure and length are in range. Accuracy and range still need a human rater.'
+          : 'Work the unticked rubric lines below, then re-grade.',
+      celebrate: !tooShort && score >= 65,
+      body: report,
+      actions: [
+        { label: tooShort ? 'Keep writing' : 'Revise my draft', onclick: `App.go('writetask3', { id: '${id}' })`, primary: true, arrow: true },
+        { label: 'Other prompts', onclick: "App.go('writetask3')" },
+      ],
+    });
   }
 
   function rubricKeywordMatch(lower, opinionText) {

@@ -625,7 +625,18 @@ window.GamesModule = (function () {
       window.removeEventListener('hashchange', onHash);
       if (aborted) return;
       App.recordAttempt('games:dictation', Math.round(correct / queue.length * 100), 70, 'timed-game');
-      container.innerHTML = `<div class="lesson center"><div class="empty"><div class="big-icon">📝</div><h1>Dictation Done</h1><p>Correct: <b>${correct}/${queue.length}</b> in ${120 - time}s</p><div class="spacer"></div><button class="btn big" onclick="App.go('games', { game: 'dictation' })">Race Again</button><button class="btn ghost big" onclick="App.go('games')">Other Games</button></div></div>`;
+      // The only one of the nine games that hand-rolled its ending — it had no
+      // completion kicker, sound, confetti or next-up strip.
+      container.innerHTML = Chrome.finishScreen({
+        icon: '📝',
+        title: 'Race complete',
+        score: { correct, total: queue.length },
+        sub: `Finished in ${120 - time}s. Dictation trains ear and spelling together — the slowest gains, the most durable.`,
+        actions: [
+          { label: 'Race Again', onclick: "App.go('games', { game: 'dictation' })", primary: true },
+          { label: 'Other Games', onclick: "App.go('games')" },
+        ],
+      });
     }
     show();
     timer = setInterval(tick, 1000);

@@ -257,7 +257,6 @@ window.SpeakTasksModule = (function () {
         </div>
 
         <div id="rate-panel" style="display:none"></div>
-        <div id="report"></div>
 
         <div class="spacer"></div>
         <div class="row" style="justify-content:space-between">
@@ -272,8 +271,6 @@ window.SpeakTasksModule = (function () {
       maxSeconds: t.targetTime || 60,
       onComplete: () => {
         container.querySelector('#model-panel').style.display = '';
-        // Stale grade no longer reflects the current recording.
-        container.querySelector('#report').innerHTML = '';
         const ratePanel = container.querySelector('#rate-panel');
         ratePanel.style.display = '';
         if (rubricMounted) return; // Preserve user's existing checks + typed text.
@@ -313,8 +310,8 @@ window.SpeakTasksModule = (function () {
     const passColor = total >= 70 ? 'var(--good)' : 'var(--warn)';
     const passBg = total >= 70 ? 'rgba(52,199,89,.12)' : 'rgba(255,159,10,.12)';
 
-    container.querySelector('#report').innerHTML = `
-      <div class="grammar-box" style="background:${passBg};border-left-color:${passColor};margin-top:14px">
+    const report = `
+      <div class="grammar-box" style="background:${passBg};border-left-color:${passColor}">
         <h3>📊 Practice structure check: ${total}/100</h3>
         <div class="row" style="margin-top:8px;flex-wrap:wrap">
           <span class="tag">Self-rubric: ${rubricHits.length}/${rubricMax}</span>
@@ -327,6 +324,28 @@ window.SpeakTasksModule = (function () {
         <p style="margin-top:10px;color:var(--mute);font-size:13px">This cannot estimate a TCF or NCLC level. A trained evaluator also considers pronunciation, intonation, hesitation, grammatical accuracy, range, and task fulfilment from the actual recording.</p>
       </div>
       ${preplyCTA(t.title)}`;
+
+    // Grading ends the task. The report used to be appended under the live
+    // recorder, so nothing marked the session as finished.
+    container.innerHTML = Chrome.finishScreen({
+      back: 'speaktasks', crumbs: ['Speaking Tasks', t.title, 'Result'],
+      icon: total >= 70 ? '🖼️' : '🔁',
+      kicker: '✓ Task complete',
+      kickerTone: total >= 70 ? 'good' : 'warn',
+      title: total >= 70 ? 'Scene described' : 'Describe more of the scene',
+      scoreLine: `Practice structure check: <b>${total}/100</b> · self-rubric ${rubricHits.length}/${rubricMax}${typedScore != null ? ` · ${words}/${t.targetWords} words` : ''}.`,
+      sub: typedScore == null
+        ? 'Type what you said next time — without a transcript this only scores the self-rubric.'
+        : total >= 70
+          ? 'Keyword coverage and length are in range. Pronunciation and fluency still need a human ear.'
+          : 'Reach for the keywords you missed below, then run the task again.',
+      celebrate: total >= 70,
+      body: report,
+      actions: [
+        { label: 'Run it again', onclick: `App.go('speaktasks', { id: '${id}' })`, primary: true, arrow: true },
+        { label: 'Other tasks', onclick: "App.go('speaktasks')" },
+      ],
+    });
   }
 
   // ---------- Q&A ----------
@@ -454,29 +473,44 @@ window.SpeakTasksModule = (function () {
     const total = typedPct != null ? Math.round((rubricPct + typedPct) / 2) : rubricPct;
     App.recordAttempt(`speaktask:${id}`, total, 65, 'speaking-structure-self-check');
 
-    container.innerHTML = `
-      <div class="lesson">
-        <h1>📊 ${Chrome.escapeHTML(t.title)} — Results</h1>
-        <div class="grammar-box" style="background:${total >= 70 ? 'rgba(52,199,89,.12)' : 'rgba(255,159,10,.12)'};border-left-color:${total >= 70 ? 'var(--good)' : 'var(--warn)'}">
-          <h3>Overall: ${total}/100</h3>
-          <div class="row" style="margin-top:8px;flex-wrap:wrap">
-            <span class="tag">Self-rubric: ${rubricTotal}/${rubricMaxTotal}</span>
-            ${typedPct != null ? `<span class="tag">Typed transcripts: ${typedPct}/100</span>` : ''}
-            ${typedPct != null ? `<span class="tag">Words typed: ${typedWords} / target ${typedTarget}</span>` : ''}
-          </div>
+    const skipped = answers.filter(a => a.skipped).length;
+    const report = `
+      <div class="grammar-box" style="background:${total >= 70 ? 'rgba(52,199,89,.12)' : 'rgba(255,159,10,.12)'};border-left-color:${total >= 70 ? 'var(--good)' : 'var(--warn)'}">
+        <h3>Overall: ${total}/100</h3>
+        <div class="row" style="margin-top:8px;flex-wrap:wrap">
+          <span class="tag">Self-rubric: ${rubricTotal}/${rubricMaxTotal}</span>
+          ${typedPct != null ? `<span class="tag">Typed transcripts: ${typedPct}/100</span>` : ''}
+          ${typedPct != null ? `<span class="tag">Words typed: ${typedWords} / target ${typedTarget}</span>` : ''}
         </div>
-        ${answers.map((a, i) => `
-          <div class="grammar-box">
-            <h3>Q${i + 1}: ${Chrome.escapeHTML(a.q)}</h3>
-            ${a.skipped ? '<p><i>Skipped.</i></p>' : ''}
-            ${a.rubricHits ? `<p style="color:var(--mute);font-size:13px">Self-rated ${a.rubricHits.length}/${RUBRIC.qa.length}</p>` : ''}
-            ${a.typedText ? `<p style="font-style:italic;margin-top:6px">"${Chrome.escapeHTML(a.typedText)}"</p>` : ''}
-          </div>`).join('')}
-        ${preplyCTA(t.title)}
-        <div class="center" style="margin-top:14px">
-          <button class="btn big" onclick="App.go('speaktasks')">More tasks</button>
-        </div>
-      </div>`;
+      </div>
+      ${answers.map((a, i) => `
+        <div class="grammar-box">
+          <h3>Q${i + 1}: ${Chrome.escapeHTML(a.q)}</h3>
+          ${a.skipped ? '<p><i>Skipped.</i></p>' : ''}
+          ${a.rubricHits ? `<p style="color:var(--mute);font-size:13px">Self-rated ${a.rubricHits.length}/${RUBRIC.qa.length}</p>` : ''}
+          ${a.typedText ? `<p style="font-style:italic;margin-top:6px">"${Chrome.escapeHTML(a.typedText)}"</p>` : ''}
+        </div>`).join('')}
+      ${preplyCTA(t.title)}`;
+
+    container.innerHTML = Chrome.finishScreen({
+      back: 'speaktasks', crumbs: ['Speaking Tasks', t.title, 'Result'],
+      icon: total >= 70 ? '❓' : '🔁',
+      kicker: '✓ Task complete',
+      kickerTone: total >= 70 ? 'good' : 'warn',
+      title: skipped ? 'Set finished with gaps' : total >= 70 ? 'Answers hold up' : 'Answer at more length',
+      scoreLine: `Answered <b>${answers.length - skipped}/${answers.length}</b> questions · practice structure check <b>${total}/100</b>.`,
+      sub: skipped
+        ? `${skipped} question${skipped === 1 ? '' : 's'} skipped — a real examiner does not let you pass on one.`
+        : total >= 70
+          ? 'Coverage is there. Fluency and accuracy still need a human ear.'
+          : 'Hit the target word count on every answer, then run the set again.',
+      celebrate: total >= 70 && !skipped,
+      body: report,
+      actions: [
+        { label: 'Run it again', onclick: `App.go('speaktasks', { id: '${id}' })`, primary: true, arrow: true },
+        { label: 'More tasks', onclick: "App.go('speaktasks')" },
+      ],
+    });
   }
 
   // ---------- Role-play ----------
@@ -588,30 +622,44 @@ window.SpeakTasksModule = (function () {
     const total = typedPct != null ? Math.round((rubricPct + typedPct) / 2) : rubricPct;
     App.recordAttempt(`speaktask:${id}`, total, 65, 'speaking-structure-self-check');
 
-    container.innerHTML = `
-      <div class="lesson">
-        <h1>🎭 ${Chrome.escapeHTML(t.title)} — Complete</h1>
-        <div class="grammar-box" style="background:${total >= 70 ? 'rgba(52,199,89,.12)' : 'rgba(255,159,10,.12)'};border-left-color:${total >= 70 ? 'var(--good)' : 'var(--warn)'}">
-          <h3>Session score: ${total}/100</h3>
-          <div class="row" style="margin-top:8px;flex-wrap:wrap">
-            <span class="tag">Self-rubric: ${rubricTotal}/${rubricMaxTotal}</span>
-            ${typedPct != null ? `<span class="tag">Typed: ${typedPct}/100</span>` : ''}
-          </div>
-          <p style="margin-top:8px;color:var(--mute);font-size:13px">This is a completeness self-check, not a TCF or NCLC estimate. A trained rater also evaluates fluency, accuracy, pronunciation, range, and appropriate register.</p>
+    const report = `
+      <div class="grammar-box" style="background:${total >= 70 ? 'rgba(52,199,89,.12)' : 'rgba(255,159,10,.12)'};border-left-color:${total >= 70 ? 'var(--good)' : 'var(--warn)'}">
+        <h3>Session score: ${total}/100</h3>
+        <div class="row" style="margin-top:8px;flex-wrap:wrap">
+          <span class="tag">Self-rubric: ${rubricTotal}/${rubricMaxTotal}</span>
+          ${typedPct != null ? `<span class="tag">Typed: ${typedPct}/100</span>` : ''}
         </div>
-        <h3 style="font-variant-numeric:tabular-nums;color:var(--bleu);margin:18px 0 8px">Conversation transcript</h3>
-        ${answers.map((a) => `
-          <div class="dialogue-line">
-            <div class="dl-speaker dl-A">👤 Other</div>
-            <div class="dl-text">${Chrome.escapeHTML(a.other)}</div>
-          </div>
-          <div class="dialogue-line">
-            <div class="dl-speaker dl-B">🎤 You</div>
-            <div class="dl-text">${a.typedText ? Chrome.escapeHTML(a.typedText) : '<i>(audio recorded — not typed)</i>'}</div>
-          </div>`).join('')}
-        ${preplyCTA(t.title)}
-        <div class="center" style="margin-top:14px"><button class="btn big" onclick="App.go('speaktasks')">More tasks</button></div>
-      </div>`;
+        <p style="margin-top:8px;color:var(--mute);font-size:13px">This is a completeness self-check, not a TCF or NCLC estimate. A trained rater also evaluates fluency, accuracy, pronunciation, range, and appropriate register.</p>
+      </div>
+      <h3 style="font-variant-numeric:tabular-nums;color:var(--bleu);margin:18px 0 8px">Conversation transcript</h3>
+      ${answers.map((a) => `
+        <div class="dialogue-line">
+          <div class="dl-speaker dl-A">👤 Other</div>
+          <div class="dl-text">${Chrome.escapeHTML(a.other)}</div>
+        </div>
+        <div class="dialogue-line">
+          <div class="dl-speaker dl-B">🎤 You</div>
+          <div class="dl-text">${a.typedText ? Chrome.escapeHTML(a.typedText) : '<i>(audio recorded — not typed)</i>'}</div>
+        </div>`).join('')}
+      ${preplyCTA(t.title)}`;
+
+    container.innerHTML = Chrome.finishScreen({
+      back: 'speaktasks', crumbs: ['Speaking Tasks', t.title, 'Result'],
+      icon: total >= 70 ? '🎭' : '🔁',
+      kicker: '✓ Role-play complete',
+      kickerTone: total >= 70 ? 'good' : 'warn',
+      title: total >= 70 ? 'You held the conversation' : 'Carry more of each turn',
+      scoreLine: `Played all <b>${answers.length}</b> turns · practice structure check <b>${total}/100</b>.`,
+      sub: total >= 70
+        ? 'Register and turn-taking are there. A rater still judges accuracy and fluency from your voice.'
+        : 'Answer what the other person actually asked, and give the info each turn needs.',
+      celebrate: total >= 70,
+      body: report,
+      actions: [
+        { label: 'Run it again', onclick: `App.go('speaktasks', { id: '${id}' })`, primary: true, arrow: true },
+        { label: 'More tasks', onclick: "App.go('speaktasks')" },
+      ],
+    });
   }
 
   // ---------- Router ----------

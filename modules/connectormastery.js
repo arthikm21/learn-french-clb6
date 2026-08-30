@@ -34,15 +34,21 @@ window.ConnectorMasteryModule = (function () {
       Reinforcement: '✓',
     };
 
+    // The drills already write `connectormastery:<id>` per connector, but the
+    // library never read it back — so mastered connectors looked untouched.
+    const isDone = c => !!(App.state.lessons && App.state.lessons[`connectormastery:${c.id}`]);
+    const doneCount = CONNECTORS.filter(isDone).length;
+
     const blocks = Object.keys(byCat).map(cat => {
       const cards = byCat[cat].map(c => `
         <div class="card" data-id="${escapeHTML(c.id)}">
-          <h3>${escapeHTML(c.word)}</h3>
+          <h3>${escapeHTML(c.word)}${isDone(c) ? ' <span class="tag" style="color:var(--good)">✓</span>' : ''}</h3>
           <p style="color:var(--ink-2);font-size:var(--fs-14);margin-top:4px"><b>${escapeHTML(c.gloss)}</b></p>
           <p style="color:var(--mute);font-size:var(--fs-13);margin-top:var(--sp-2)">${c.when}</p>
         </div>`).join('');
+      const catDone = byCat[cat].filter(isDone).length;
       return `
-        <h2 class="section-h">${CAT_ICON[cat] || '•'} ${escapeHTML(cat)}</h2>
+        <h2 class="section-h">${CAT_ICON[cat] || '•'} ${escapeHTML(cat)} <span class="tag" style="font-variant-numeric:tabular-nums">${catDone}/${byCat[cat].length}</span></h2>
         <div class="grid">${cards}</div>`;
     }).join('');
 
@@ -53,6 +59,7 @@ window.ConnectorMasteryModule = (function () {
         <p class="eyebrow-h">Connector Mastery</p>
         <h1>Fourteen words.<br /> One CLB 6 marker.</h1>
         <p style="margin-top:var(--sp-4)">Using connectors automatically is one of the strongest predictors of CLB 6 speaking and writing. Learn the ${CONNECTORS.length} below — when each one fits, then drill until they appear in your output without thinking.</p>
+        <p style="margin-top:var(--sp-3);font-variant-numeric:tabular-nums"><b>${doneCount} of ${CONNECTORS.length}</b> drilled correctly at least once.</p>
       </section>
 
       <div class="spotlight" style="cursor:pointer" data-drill="mixed">

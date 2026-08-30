@@ -623,6 +623,13 @@ window.MockModule = (function () {
         else Mastery.recordPractice(`simulation:${skill.id}`, { kind: 'full-duration-self-check' });
       }
       session.reportSaved = true;
+      // The report reads as a document, so it deliberately skips the confetti
+      // treatment — but finishing a full four-skill simulation still needs an
+      // audible "that's done". Only on the first paint of a given report.
+      try { if (window.Sounds) Sounds.play(completedAll ? 'gate' : 'complete'); } catch {}
+      if (completedAll) {
+        try { if (window.CheerSquad) CheerSquad.show('milestone', { force: true, duration: 4200 }); } catch {}
+      }
     }
     const inputSkills = scored.filter(s => s.kind === 'input' && !s.missing);
     const inputStrong = inputSkills.length === 2 && inputSkills.every(s => s.sr.pct >= 80);

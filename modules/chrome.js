@@ -102,6 +102,15 @@ window.Chrome = (function () {
   //       { label: 'Back to Path', onclick: "App.go('path')" },
   //     ],
   //   });
+  //
+  // Opt-in fields for sessions that can't use the plain shape:
+  //   kicker: 'Practice recorded'   // overrides "✓ Session complete"
+  //   kickerTone: 'warn'            // 'good' (default) | 'warn' — below-target runs
+  //   body: '<rubric tables…>'      // full-width HTML rendered BELOW the finish
+  //                                 // header, for graded reports that are too wide
+  //                                 // for the narrow copy column (use `extra` for
+  //                                 // small inline blocks that belong beside it)
+  //   soundKey: 'gate'              // overrides the 'complete' fanfare
   function finishScreen(opts) {
     opts = opts || {};
     const icon = opts.icon || '🎉';
@@ -121,10 +130,17 @@ window.Chrome = (function () {
       `<button class="btn ${a.primary ? 'primary' : 'ghost'} big" onclick="${a.onclick || ''}">${escapeHTML(a.label || '')}${a.arrow ? '<span class="arr">→</span>' : ''}</button>`
     ).join('');
 
+    // The session is over the moment this screen renders. Modules that ended
+    // with a live recorder or a playing clip (the TCF speaking tasks) used to
+    // append their report to the running page, so the mic capture indicator
+    // stayed on. Cut both here rather than in every caller.
+    try { if (window.Record && typeof Record.stopAll === 'function') Record.stopAll(); } catch {}
+    try { if (window.TTS && typeof TTS.stop === 'function') TTS.stop(); } catch {}
+
     // Completion feedback — sound always, confetti on strong runs (or when the
     // caller says so). Rendering the finish screen IS the completion moment.
     const celebrate = (opts.celebrate !== undefined) ? opts.celebrate : (pct === null || pct >= 70);
-    try { if (window.Sounds) Sounds.play('complete'); } catch {}
+    try { if (window.Sounds) Sounds.play(opts.soundKey || 'complete'); } catch {}
     if (celebrate && window.Celebrate) {
       try { setTimeout(() => Celebrate.confetti({ intensity: pct !== null && pct >= 90 ? 'large' : 'small' }), 200); } catch {}
     }
@@ -153,12 +169,21 @@ window.Chrome = (function () {
       ? CheerSquad.renderInline(cheerEvent, { placement: 'finish' })
       : '';
 
+    // The kicker is the completion signal itself — it renders on EVERY finish
+    // screen, including below-target runs, which get the warn tone instead of
+    // being left with no acknowledgement that the session ended.
+    const kicker = opts.kicker || '✓ Session complete';
+    const kickerColor = opts.kickerTone === 'warn' ? 'var(--warn)' : 'var(--good)';
+    // Graded reports (rubric tables, transcripts, score charts) are too wide for
+    // the copy column, so they render full-width under the header instead.
+    const bodyHTML = opts.body ? `<div class="finish-body">${opts.body}</div>` : '';
+
     return `
       ${render({ back: opts.back, crumbs: opts.crumbs })}
       <div class="lesson">
         <div class="empty finish-layout">
           <div class="finish-copy">
-            <p style="text-transform:uppercase;letter-spacing:var(--ls-wide);font-size:var(--fs-12);font-weight:var(--fw-semi);color:var(--good);margin-bottom:var(--sp-2)">✓ Session complete</p>
+            <p style="text-transform:uppercase;letter-spacing:var(--ls-wide);font-size:var(--fs-12);font-weight:var(--fw-semi);color:${kickerColor};margin-bottom:var(--sp-2)">${escapeHTML(kicker)}</p>
             <h1>${title}</h1>
             ${scoreHTML}
             ${subHTML}
@@ -169,6 +194,7 @@ window.Chrome = (function () {
           </div>
           <div class="finish-cheer">${cheerHTML || `<div class="big-icon">${icon}</div>`}</div>
         </div>
+        ${bodyHTML}
       </div>`;
   }
 

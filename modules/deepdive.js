@@ -216,6 +216,13 @@ window.DeepDiveModule = (function () {
     return '';
   }
 
+  // Deep dives sit outside LESSON_PATH, so this key is deliberately in its own
+  // namespace — Path.doneKey() never resolves it and course coverage is unmoved.
+  function readKey(t) { return `deepdive:${t.id}`; }
+  function isRead(t) {
+    return !!(window.App && App.state && App.state.lessons && App.state.lessons[readKey(t)]);
+  }
+
   // ───────────────── LIST ─────────────────
   function renderList(container) {
     container.innerHTML = `
@@ -230,7 +237,7 @@ window.DeepDiveModule = (function () {
         ${TOPICS.map(t => `
           <div class="card" data-topic="${t.id}">
             <div class="icon">${t.icon}</div>
-            <h3>${escapeHTML(t.title)} <span class="tag verb">${escapeHTML(t.tag)}</span></h3>
+            <h3>${escapeHTML(t.title)} <span class="tag verb">${escapeHTML(t.tag)}</span>${isRead(t) ? ' <span class="tag" style="color:var(--good)">✓ Read</span>' : ''}</h3>
             <p>${escapeHTML(t.summary)}</p>
           </div>`).join('')}
       </div>
@@ -257,10 +264,29 @@ window.DeepDiveModule = (function () {
       </section>
       ${t.sections.map(sectionHTML).join('')}
       <div class="row" style="justify-content:center;margin-top:var(--sp-7);gap:var(--sp-3)">
-        <button class="btn primary big" onclick="App.go('grammar', { unit: '${t.practiceUnit}' })">Practice quiz<span class="arr">→</span></button>
+        <button class="btn primary big" id="dd-done">I've read this<span class="arr">→</span></button>
+        <button class="btn secondary big" onclick="App.go('grammar', { unit: '${t.practiceUnit}' })">Practice quiz</button>
         <button class="btn ghost big" onclick="App.go('deepdive')">Other deep dives</button>
       </div>
     `;
+    // Deep dives are reading, not a drill — so completion is the learner's own
+    // call. Without this the page just ran out of content and nothing marked it
+    // finished or offered the matching practice.
+    container.querySelector('#dd-done').onclick = () => {
+      App.markLessonDone(readKey(t));
+      container.innerHTML = Chrome.finishScreen({
+        back: 'deepdive', crumbs: ['Deep dives', t.title, 'Complete'],
+        icon: t.icon || '📘',
+        kicker: '✓ Deep dive read',
+        title: 'Now use it',
+        scoreLine: `You worked through <b>${escapeHTML(t.title)}</b>.`,
+        sub: 'Reading a decision tree is not the same as applying it under time pressure. The practice quiz is where it sticks.',
+        actions: [
+          { label: 'Practice quiz', onclick: `App.go('grammar', { unit: '${t.practiceUnit}' })`, primary: true, arrow: true },
+          { label: 'Other deep dives', onclick: "App.go('deepdive')" },
+        ],
+      });
+    };
   }
 
   return {

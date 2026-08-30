@@ -9,16 +9,27 @@ window.ReadModule = (function () {
         <h1>Read it.<br /> Understand it.</h1>
         <p style="margin-top:var(--sp-4)">Short authentic-style texts with comprehension questions, CLB 4 to 6.</p>
       </section>
+      <p class="section-sub" id="r-count"></p>
       <div class="grid" id="r-grid"></div>`;
     const grid = container.querySelector('#r-grid');
-    for (const k of Object.keys(READINGS)) {
+    const keys = Object.keys(READINGS);
+    let doneCount = 0;
+    for (const k of keys) {
       const t = READINGS[k];
+      // The list never showed completion, so a learner coming back had no way
+      // to tell which texts they had already passed.
+      const done = !!(App.state.lessons && App.state.lessons[`read:${k}`]);
+      if (done) doneCount++;
+      const evidence = window.Mastery ? Mastery.get(`read:${k}`) : null;
+      const bestTag = evidence && typeof evidence.best === 'number'
+        ? ` <span class="tag">best ${evidence.best}%</span>` : '';
       const card = document.createElement('div');
       card.className = 'card';
-      card.innerHTML = `<div class="icon">📖</div><h3>${t.title}</h3><p><span class="tag">${t.level}</span></p><p style="margin-top:8px">${t.questions.length} questions</p>`;
+      card.innerHTML = `<div class="icon">📖</div><h3>${t.title}${done ? ' <span class="tag" style="color:var(--good)">✓ Done</span>' : ''}</h3><p><span class="tag">${t.level}</span>${bestTag}</p><p style="margin-top:8px">${t.questions.length} questions</p>`;
       card.onclick = () => App.go('read', { text: k });
       grid.appendChild(card);
     }
+    container.querySelector('#r-count').textContent = `${doneCount} of ${keys.length} texts passed.`;
   }
 
   function renderText(container, key) {

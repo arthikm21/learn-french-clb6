@@ -162,36 +162,35 @@ window.SpeakModule = (function () {
       const complete = coverage >= 80;
       if (complete) App.markLessonDone(`speak:${setKey}`);
       else if (window.Mastery) Mastery.recordPractice(`speak:${setKey}`, { kind: 'partial-shadowing' });
-      try { if (window.Sounds) Sounds.play(complete ? 'complete' : 'warn'); } catch {}
-      container.innerHTML = `
-        ${Chrome.render({ back: 'speak', crumbs: ['Speak', s.title, 'Complete'] })}
-        <div class="lesson center">
-          <div class="empty">
-            <div class="finish-cheer">
-              ${window.CheerSquad
-                ? CheerSquad.renderInline(complete ? 'complete' : 'retry', { placement: 'finish', compact: true })
-                : '<div class="big-icon">🗣️</div>'}
+      // Below the 80% coverage bar this is still a finished session — it gets
+      // the warn-tone kicker rather than no acknowledgement at all.
+      container.innerHTML = Chrome.finishScreen({
+        back: 'speak', crumbs: ['Speak', s.title, 'Complete'],
+        icon: '🗣️',
+        kicker: complete ? '✓ Practice target met' : 'Practice recorded',
+        kickerTone: complete ? 'good' : 'warn',
+        soundKey: complete ? 'complete' : 'warn',
+        cheerEvent: complete ? 'complete' : 'retry',
+        celebrate: complete,
+        title: complete ? 'Shadowing session finished' : 'Finish the spoken reps',
+        scoreLine: `You confirmed <b>${ratedTargets.size}/${items.length}</b> original lines aloud (${coverage}%). ${hardRatings} hard rating${hardRatings === 1 ? '' : 's'} · ${skipped} skip${skipped === 1 ? '' : 's'}.`,
+        sub: complete
+          ? 'Hard lines return sooner through spaced review. Speaking is the only skill the site cannot grade for you — your reps are your reps.'
+          : 'Confirm at least 80% aloud for this path milestone. Skipped lines do not count.',
+        body: `
+          <div class="grammar-box" style="border-left-color:var(--accent)">
+            <h3>🗣️ Want your speaking actually graded?</h3>
+            <p>The site can't hear you — a real tutor can. Live pronunciation feedback is the one thing self-study cannot replace. Availability and pricing vary by tutor.</p>
+            <div class="row" style="margin-top:var(--sp-3)">
+              <a class="btn primary" href="https://preply.sjv.io/c/7425774/1987575/24422" target="_blank" rel="sponsored noopener">Browse French tutors<span class="arr">→</span></a>
             </div>
-            <p style="text-transform:uppercase;letter-spacing:var(--ls-wide);font-size:var(--fs-12);font-weight:var(--fw-semi);color:${complete ? 'var(--good)' : 'var(--warn)'};margin-bottom:var(--sp-2)">${complete ? '✓ Practice target met' : 'Practice recorded'}</p>
-            <h1>${complete ? 'Shadowing session finished' : 'Finish the spoken reps'}</h1>
-            <p>You confirmed <b>${ratedTargets.size}/${items.length}</b> original lines aloud (${coverage}%). ${hardRatings} hard rating${hardRatings === 1 ? '' : 's'} · ${skipped} skip${skipped === 1 ? '' : 's'}.</p>
-            <p style="color:var(--mute);margin-top:var(--sp-2)">${complete ? 'Hard lines return sooner through spaced review.' : 'Confirm at least 80% aloud for this path milestone. Skipped lines do not count.'}</p>
-            <p style="color:var(--mute);margin-top:var(--sp-2)">Speaking is the only skill the site cannot grade for you. Your reps are your reps. Do them aloud.</p>
-            <div class="grammar-box" style="border-left-color:var(--accent);text-align:left;max-width:560px;margin:var(--sp-6) auto 0">
-              <h3>🗣️ Want your speaking actually graded?</h3>
-              <p>The site can't hear you — a real tutor can. Live pronunciation feedback is the one thing self-study cannot replace. Availability and pricing vary by tutor.</p>
-              <div class="row" style="justify-content:center;margin-top:var(--sp-3)">
-                <a class="btn primary" href="https://preply.sjv.io/c/7425774/1987575/24422" target="_blank" rel="sponsored noopener">Browse French tutors<span class="arr">→</span></a>
-              </div>
-              <p style="color:var(--mute);font-size:var(--fs-12);text-align:center;margin-top:var(--sp-3)">Affiliate link · we may earn a commission, at no cost to you.</p>
-            </div>
-            <div class="spacer"></div>
-            <div class="row" style="justify-content:center">
-              <button class="btn primary big" onclick="App.go('speak')">More speaking</button>
-              <button class="btn ghost big" onclick="App.go('path')">Back to Path</button>
-            </div>
-          </div>
-        </div>`;
+            <p style="color:var(--mute);font-size:var(--fs-12);margin-top:var(--sp-3)">Affiliate link · we may earn a commission, at no cost to you.</p>
+          </div>`,
+        actions: [
+          { label: complete ? 'More speaking' : 'Run this set again', onclick: complete ? "App.go('speak')" : `App.go('speak', { set: '${setKey}' })`, primary: true, arrow: true },
+          { label: 'Back to Path', onclick: "App.go('path')" },
+        ],
+      });
     }
 
     show();

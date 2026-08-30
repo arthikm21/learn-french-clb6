@@ -92,7 +92,6 @@ window.SpeakTask2Module = (function () {
         </div>
 
         <div id="rate-panel" style="display:none"></div>
-        <div id="st2-report"></div>
 
         <div class="spacer"></div>
         <div class="row" style="justify-content:space-between">
@@ -106,9 +105,6 @@ window.SpeakTask2Module = (function () {
       timerFormatter: formatTime,
       onComplete: () => {
         container.querySelector('#model-panel').style.display = '';
-        // Stale grade no longer matches the current take.
-        const report = container.querySelector('#st2-report');
-        if (report) report.innerHTML = '';
         const ratePanel = container.querySelector('#rate-panel');
         ratePanel.style.display = '';
         if (rubricMounted) return; // Preserve user's existing checks + typed text.
@@ -167,8 +163,8 @@ window.SpeakTask2Module = (function () {
     const passColor = total >= 65 ? 'var(--good)' : 'var(--warn)';
     const passBg = total >= 65 ? 'rgba(52,199,89,.12)' : 'rgba(255,159,10,.12)';
 
-    container.querySelector('#st2-report').innerHTML = `
-      <div class="grammar-box" style="background:${passBg};border-left-color:${passColor};margin-top:14px">
+    const report = `
+      <div class="grammar-box" style="background:${passBg};border-left-color:${passColor}">
         <h3>📊 Practice structure check: ${total}/100</h3>
         <p>This checks your self-rubric and typed question coverage only. It cannot estimate a TCF or NCLC score from your voice.</p>
         <div class="row" style="margin-top:8px;flex-wrap:wrap">
@@ -188,6 +184,28 @@ window.SpeakTask2Module = (function () {
         </div>` : ''}
       ${Support.kitCard('speaking')}
       ${preplyCTA(t.title)}`;
+
+    // Grading ends the task. The report used to be appended below the still-live
+    // recorder, which left the learner with no signal the session was over.
+    container.innerHTML = Chrome.finishScreen({
+      back: 'speaktask2', crumbs: ['Speaking Task 2', t.title, 'Result'],
+      icon: total >= 65 ? '❓' : '🔁',
+      kicker: '✓ Task complete',
+      kickerTone: total >= 65 ? 'good' : 'warn',
+      title: total >= 65 ? 'Questions land' : 'Ask wider next time',
+      scoreLine: `Practice structure check: <b>${total}/100</b> · self-rubric ${rubricHits.length}/${RUBRIC.length}${typedPct != null ? ` · ${infoMatched.length}/${t.requiredInfo.length} info areas` : ''}.`,
+      sub: typedPct == null
+        ? 'Type your questions next time — without a transcript this only scores the self-rubric.'
+        : total >= 65
+          ? 'Vary the question forms further and a rater will hear range, not just coverage.'
+          : 'Target the unticked info areas below, then run the task again.',
+      celebrate: total >= 65,
+      body: report,
+      actions: [
+        { label: 'Run it again', onclick: `App.go('speaktask2', { id: '${id}' })`, primary: true, arrow: true },
+        { label: 'Other tasks', onclick: "App.go('speaktask2')" },
+      ],
+    });
   }
 
   function formatTime(s) {

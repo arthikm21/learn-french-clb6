@@ -189,21 +189,11 @@ window.App = (function () {
     if (!state.lessons[key]) {
       state.lessons[key] = true;
       save();
-      // Result screens own ordinary completion feedback. Phase gates use a
-      // custom result screen, so their one coordinated milestone package is
-      // emitted here instead of duplicating sound/confetti across two layers.
-      if (key.startsWith('gate:')) {
-        if (window.Sounds && typeof Sounds.play === 'function') {
-          try { Sounds.play('gate'); } catch {}
-        }
-        if (window.CheerSquad) {
-          try { CheerSquad.show('milestone', { force: true, duration: 4200 }); } catch {}
-        }
-        if (window.Celebrate && typeof Celebrate.confetti === 'function') {
-          try { Celebrate.confetti({ intensity: 'large' }); } catch {}
-        }
-      }
     }
+    // Result screens own completion feedback. The gate milestone package used to
+    // live here, inside the first-time branch — so a learner who retook a gate
+    // and passed got total silence. PhaseGateModule.finish() now fires it on
+    // every pass instead.
   }
 
   function recordAttempt(key, score, threshold = 70, kind = 'assessed') {

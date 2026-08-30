@@ -28,19 +28,31 @@ window.ListenModule = (function () {
         <h1>Hear it.<br /> Then type it.</h1>
         <p style="margin-top:var(--sp-4)">Canadian French neural audio. Start slow. Build to natural pace.</p>
       </section>
+      <p class="section-sub" id="l-count"></p>
       <div class="grid" id="l-grid"></div>`;
     const grid = container.querySelector('#l-grid');
+    let total = 0;
+    let doneCount = 0;
     for (const k of Object.keys(LISTENING)) {
       const s = LISTENING[k];
       // TCF mock segments (transcript/questions shape) share this global but
       // belong to the mock test — only dictation sets render here.
       if (!s.items) continue;
+      total++;
+      // The list never showed completion, so a learner coming back had no way
+      // to tell which sets they had already passed.
+      const done = !!(App.state.lessons && App.state.lessons[`listen:${k}`]);
+      if (done) doneCount++;
+      const evidence = window.Mastery ? Mastery.get(`listen:${k}`) : null;
+      const bestTag = evidence && typeof evidence.best === 'number'
+        ? ` <span class="tag">best ${evidence.best}%</span>` : '';
       const card = document.createElement('div');
       card.className = 'card';
-      card.innerHTML = `<div class="icon">🔊</div><h3>${s.title}</h3><p><span class="tag">${s.level}</span></p><p style="margin-top:8px">${s.items.length} items</p>`;
+      card.innerHTML = `<div class="icon">🔊</div><h3>${s.title}${done ? ' <span class="tag" style="color:var(--good)">✓ Done</span>' : ''}</h3><p><span class="tag">${s.level}</span>${bestTag}</p><p style="margin-top:8px">${s.items.length} items</p>`;
       card.onclick = () => App.go('listen', { set: k });
       grid.appendChild(card);
     }
+    container.querySelector('#l-count').textContent = `${doneCount} of ${total} sets passed.`;
   }
 
   function renderSet(container, setKey) {

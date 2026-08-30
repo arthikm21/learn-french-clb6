@@ -107,7 +107,6 @@ window.SpeakTask3Module = (function () {
         </div>
 
         <div id="rate-panel" style="display:none"></div>
-        <div id="st3-report"></div>
 
         <div class="spacer"></div>
         <div class="row" style="justify-content:space-between">
@@ -121,9 +120,6 @@ window.SpeakTask3Module = (function () {
       timerFormatter: formatTime,
       onComplete: () => {
         container.querySelector('#model-panel').style.display = '';
-        // Stale grade no longer matches the current take.
-        const report = container.querySelector('#st3-report');
-        if (report) report.innerHTML = '';
         const ratePanel = container.querySelector('#rate-panel');
         ratePanel.style.display = '';
         if (rubricMounted) return; // Preserve user's existing checks + typed text.
@@ -172,8 +168,8 @@ window.SpeakTask3Module = (function () {
     const passColor = total >= 65 ? 'var(--good)' : 'var(--warn)';
     const passBg = total >= 65 ? 'rgba(52,199,89,.12)' : 'rgba(255,159,10,.12)';
 
-    container.querySelector('#st3-report').innerHTML = `
-      <div class="grammar-box" style="background:${passBg};border-left-color:${passColor};margin-top:14px">
+    const report = `
+      <div class="grammar-box" style="background:${passBg};border-left-color:${passColor}">
         <h3>📊 Practice structure check: ${total}/100</h3>
         <p>This checks your self-rubric and typed structure only. It cannot estimate a TCF or NCLC score from your voice.</p>
         <div class="row" style="margin-top:8px;flex-wrap:wrap">
@@ -196,6 +192,28 @@ window.SpeakTask3Module = (function () {
         </div>` : ''}
       ${Support.kitCard('speaking')}
       ${preplyCTA(t.title)}`;
+
+    // Grading ends the task — take over the page instead of appending the report
+    // under a recorder that is still mounted.
+    container.innerHTML = Chrome.finishScreen({
+      back: 'speaktask3', crumbs: ['Speaking Task 3', t.title, 'Result'],
+      icon: total >= 65 ? '🎙️' : '🔁',
+      kicker: '✓ Task complete',
+      kickerTone: total >= 65 ? 'good' : 'warn',
+      title: total >= 65 ? 'Argument holds together' : 'Build the argument out',
+      scoreLine: `Practice structure check: <b>${total}/100</b> · self-rubric ${rubricHits.length}/${RUBRIC.length}${typedPct != null ? ` · ${words} words typed` : ''}.`,
+      sub: typedPct == null
+        ? 'Type your argument next time — without a transcript this only scores the self-rubric.'
+        : total >= 65
+          ? 'Task 3 is the most-weighted EO task. Structure is there; a rater still judges fluency and accuracy from your voice.'
+          : 'Work the unticked lines below — position, connectors, one concrete example, one counter-argument.',
+      celebrate: total >= 65,
+      body: report,
+      actions: [
+        { label: 'Run it again', onclick: `App.go('speaktask3', { id: '${id}' })`, primary: true, arrow: true },
+        { label: 'Other tasks', onclick: "App.go('speaktask3')" },
+      ],
+    });
   }
 
   function formatTime(s) {
