@@ -7,9 +7,12 @@ window.VocabModule = (function () {
         <div class="flag-stripes"></div>
         <p class="eyebrow-h">Vocabulary</p>
         <h1>Hear it.<br /> Then know it.</h1>
-        <p style="margin-top:var(--sp-4)">Your first finished session saves the ✓ Complete badge. The review bar fills when every card has been reviewed twice in total: your first study plus one revision. We recommend filling it before moving to the next deck.</p>
-        <p style="margin-top:var(--sp-3);color:var(--mute)">For stronger recall, revise on another day and aim for Good or Easy. Rate honestly: choosing Again restarts that card's review count.</p>
+        <p style="margin-top:var(--sp-4)">Pick a deck. Flip each card, listen, and rate how well you remember it.</p>
       </section>
+      <aside aria-label="How the review bar works" style="margin-bottom:var(--sp-5);padding:var(--sp-5);border-left:4px solid var(--accent);border-radius:var(--r-lg);background:color-mix(in srgb,var(--accent) 10%,var(--surface))">
+        <strong style="color:var(--accent)">Study once, revise once, then move on.</strong>
+        <p style="margin-top:var(--sp-2)">Your first session saves the ✓ Complete badge. The bar fills after every card has been reviewed twice in total. We recommend filling it before moving to the next deck, ideally revising on another day. Rate honestly: Again restarts that card's review count.</p>
+      </aside>
       <p id="vocab-count" style="color:var(--mute);margin-bottom:var(--sp-4)"></p>
       <div class="grid" id="deck-grid"></div>`;
     const grid = container.querySelector('#deck-grid');
@@ -28,8 +31,7 @@ window.VocabModule = (function () {
         <div class="icon">${d.icon}</div>
         <h3>${d.name} ${done ? '<span class="tag" style="color:var(--good)">✓ Complete</span>' : ''} ${due > 0 ? `<span class="tag" style="background:rgba(0,85,164,.12);color:var(--bleu)">${due} due</span>` : ''}</h3>
         <p>${d.cards.length} cards · ${p.learned}/${p.total} cards reviewed at least twice</p>
-        <div class="meter" role="progressbar" aria-label="${d.name}: cards reviewed at least twice" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${p.pct}"><div style="width:${p.pct}%"></div></div>
-        <p style="margin-top:var(--sp-3);color:${p.pct === 100 ? 'var(--good)' : 'var(--mute)'}">${p.pct === 100 ? 'Review bar full — ready to move to the next deck.' : done ? 'First session complete. Fill the review bar before moving on.' : 'Study once, then revise to fill the review bar.'}</p>`;
+        <div class="meter" role="progressbar" aria-label="${d.name}: cards reviewed at least twice" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${p.pct}"><div style="width:${p.pct}%"></div></div>`;
       card.onclick = () => App.go('vocab', { deck: key });
       grid.appendChild(card);
     }
