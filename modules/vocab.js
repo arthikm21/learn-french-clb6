@@ -7,25 +7,31 @@ window.VocabModule = (function () {
         <div class="flag-stripes"></div>
         <p class="eyebrow-h">Vocabulary</p>
         <h1>Hear it.<br /> Then know it.</h1>
-        <p style="margin-top:var(--sp-4)">Pick a deck. Flip the card. Rate how easy. SRS schedules your next review automatically.</p>
+        <p style="margin-top:var(--sp-4)">Finish a deck once to mark it complete. Flip each card and rate it honestly; spaced reviews build long-term recall separately.</p>
       </section>
+      <p id="vocab-count" style="color:var(--mute);margin-bottom:var(--sp-4)"></p>
       <div class="grid" id="deck-grid"></div>`;
     const grid = container.querySelector('#deck-grid');
     const dueByDeck = (SRS.dueSummary ? SRS.dueSummary().byDeck : {});
-    for (const key of Object.keys(VOCAB)) {
+    const keys = Object.keys(VOCAB);
+    let doneCount = 0;
+    for (const key of keys) {
       const d = VOCAB[key];
       const p = SRS.progress(`vocab:${key}`, d.cards);
+      const done = !!App.state.lessons[`vocab:${key}`];
+      if (done) doneCount++;
       const due = dueByDeck[`vocab:${key}`] || 0;
       const card = document.createElement('div');
       card.className = 'card';
       card.innerHTML = `
         <div class="icon">${d.icon}</div>
-        <h3>${d.name} ${due > 0 ? `<span class="tag" style="background:rgba(0,85,164,.12);color:var(--bleu)">${due} due</span>` : ''}</h3>
-        <p>${d.cards.length} cards · ${p.learned}/${p.total} learned</p>
+        <h3>${d.name} ${done ? '<span class="tag" style="color:var(--good)">✓ Complete</span>' : ''} ${due > 0 ? `<span class="tag" style="background:rgba(0,85,164,.12);color:var(--bleu)">${due} due</span>` : ''}</h3>
+        <p>${d.cards.length} cards · ${p.learned}/${p.total} learned through spaced review</p>
         <div class="meter"><div style="width:${p.pct}%"></div></div>`;
       card.onclick = () => App.go('vocab', { deck: key });
       grid.appendChild(card);
     }
+    container.querySelector('#vocab-count').textContent = `${doneCount} of ${keys.length} decks complete. Reviews remain available after completion.`;
   }
 
   function renderStudy(container, deckKey) {
@@ -45,6 +51,7 @@ window.VocabModule = (function () {
     function show() {
       if (i >= cards.length) return finish();
       const c = cards[i];
+      let rated = false;
       const genderTag = c.g ? `<span class="tag ${c.g === 'f' ? 'fem' : 'masc'}">${c.g === 'f' ? 'feminine' : 'masculine'}</span>` : '';
       container.innerHTML = `
         ${Chrome.render({
@@ -103,6 +110,8 @@ window.VocabModule = (function () {
       TTS.speakSoon(c.fr, 1.0, 250);
       container.querySelector('#back').onclick = () => App.go('vocab');
       container.querySelectorAll('[data-q]').forEach(b => b.onclick = () => {
+        if (rated) return;
+        rated = true;
         const q = parseInt(b.dataset.q);
         SRS.review(`vocab:${deckKey}`, c.fr, q);
         App.addXP(q >= 4 ? 5 : 2);
@@ -124,7 +133,8 @@ window.VocabModule = (function () {
         back: 'vocab', crumbs: ['Vocab', deck.name, 'Complete'],
         icon: '🎉',
         title: 'Bravo !',
-        scoreLine: `You reviewed <b>${new Set(cards.map(x => x.fr)).size}</b> cards. Come back tomorrow — the system surfaces the cards you need.`,
+        scoreLine: `You reviewed <b>${new Set(cards.map(x => x.fr)).size}</b> cards. This deck is marked complete.`,
+        sub: 'Spaced-review progress grows as you revisit the words over time. You do not need to repeat this session to complete the deck.',
         extra: Support.winNudge(),
         actions: [
           { label: 'More vocab', onclick: "App.go('vocab')", primary: true, arrow: true },

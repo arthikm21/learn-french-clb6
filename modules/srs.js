@@ -2,13 +2,11 @@
 window.SRS = (function () {
   let cache = null;
   let cacheUser = null; // whose data the cache holds — profiles switch without a page reload
-  let saveTimer = null;
   function load() {
     // Profile switched since we cached? Drop the old user's data instead of
     // serving it (or worse, saving it) under the new user's namespace.
     const u = window.Storage.getCurrentUser();
     if (cache && u === cacheUser) return cache;
-    if (saveTimer) { clearTimeout(saveTimer); saveTimer = null; }
     cacheUser = u;
     try { cache = JSON.parse(window.Storage.getItem('srs')) || {}; } catch { cache = {}; }
     return cache;
@@ -16,25 +14,19 @@ window.SRS = (function () {
   function save(s) {
     cache = s;
     cacheUser = window.Storage.getCurrentUser();
-    if (saveTimer) clearTimeout(saveTimer);
-    saveTimer = setTimeout(() => {
-      saveTimer = null;
-      if (window.Storage.getCurrentUser() !== cacheUser) return; // profile switched mid-debounce
-      window.Storage.setItem('srs', JSON.stringify(s));
-    }, 200);
+    // A rating is learner progress: commit before advancing the card. A
+    // debounce could be cancelled by a profile switch or miss an immediate
+    // reload/backup, leaving a just-finished session's last ratings unsaved.
+    if (!window.Storage.setItem('srs', JSON.stringify(s))) {
+      if (window.Toast) Toast.info('Review progress could not be saved. Free up browser storage before leaving.');
+    }
   }
-  // Flush pending write on tab close / hide (mobile back-swipe).
-  if (typeof window !== 'undefined') {
-    const flush = () => {
-      if (saveTimer && cache && window.Storage.getCurrentUser() === cacheUser) {
-        clearTimeout(saveTimer);
-        window.Storage.setItem('srs', JSON.stringify(cache));
-        saveTimer = null;
-      }
-    };
-    window.addEventListener('beforeunload', flush);
-    window.addEventListener('pagehide', flush);
-    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') flush(); });
+
+  // Reset/restore can replace storage without changing the profile name.
+  // App reloads invalidate this cache as well as the completion state.
+  function reload() {
+    cache = null;
+    cacheUser = null;
   }
 
   const SEP = '\u001f';
@@ -128,5 +120,5 @@ window.SRS = (function () {
     return { total, byDeck };
   }
 
-  return { review, getCard, dueCards, progress, dueSummary };
+  return { review, getCard, dueCards, progress, dueSummary, reload };
 })();

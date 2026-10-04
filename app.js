@@ -3,6 +3,8 @@ window.App = (function () {
   const state = {
     lessons: {}, // { 'vocab:greetings': true, ... }
   };
+  let stateUser = '';
+  let progressNeedsSave = false;
 
   // Most course content is route-specific and can be large (the scenario bank
   // alone is almost 300 KB). Keep the app shell small, then load each route's
@@ -157,6 +159,8 @@ window.App = (function () {
   }
 
   function load() {
+    stateUser = window.Storage.getCurrentUser();
+    progressNeedsSave = false;
     state.lessons = {};
     try {
       const saved = JSON.parse(window.Storage.getItem('state'));
@@ -167,14 +171,28 @@ window.App = (function () {
     // localStorage can throw on quota-exceeded (lots of progress) or in private
     // mode. Never let a failed progress write throw out of markLessonDone and
     // break the page mid-lesson — degrade gracefully instead.
+    progressNeedsSave = true;
     try {
-      window.Storage.setItem('state', JSON.stringify({ lessons: state.lessons }));
+      if (!window.Storage.setItem('state', JSON.stringify({ lessons: state.lessons }))) {
+        throw new Error('Progress write failed');
+      }
+      progressNeedsSave = false;
+      return true;
     } catch (e) {
       console.warn('Could not save progress:', e && e.name);
       if (window.Toast && typeof Toast.info === 'function') {
-        try { Toast.info('Storage full — progress may not save. Free up space in your browser.'); } catch {}
+        try { Toast.info('Completion could not be saved. Free up browser storage before leaving; your progress is still visible in this session.'); } catch {}
       }
+      return false;
     }
+  }
+
+  function flushProgress() {
+    // Retry a transient write failure when leaving a view/tab, without asking
+    // the learner to replay the lesson. Never write an old user's state into
+    // the profile they have just switched to.
+    if (!progressNeedsSave || stateUser !== window.Storage.getCurrentUser()) return true;
+    return save();
   }
 
   // Kept as no-op for backwards compatibility with module addXP() calls.
@@ -188,12 +206,15 @@ window.App = (function () {
     }
     if (!state.lessons[key]) {
       state.lessons[key] = true;
-      save();
     }
+    // Retry even when already complete in memory: an earlier write may have
+    // failed, and revisiting completion must not skip persistence forever.
+    const saved = save();
     // Result screens own completion feedback. The gate milestone package used to
     // live here, inside the first-time branch — so a learner who retook a gate
     // and passed got total silence. PhaseGateModule.finish() now fires it on
     // every pass instead.
+    return saved;
   }
 
   function recordAttempt(key, score, threshold = 70, kind = 'assessed') {
@@ -276,6 +297,7 @@ window.App = (function () {
   }
 
   function renderActive() {
+    flushProgress();
     const renderToken = ++routeRenderToken;
     // Stop any audio from the page we're leaving — TTS clips, sequenced
     // dialogues, and scheduled auto-plays — so nothing keeps playing in the
@@ -424,6 +446,7 @@ window.App = (function () {
 
   // Called when user is switched/created/reset. Reload state from storage and re-render.
   function reloadForUser() {
+    if (window.SRS && typeof SRS.reload === 'function') SRS.reload();
     load();
     const target = location.hash.startsWith('#profile') && window.Storage.getCurrentUser()
       ? location.hash
@@ -1144,7 +1167,11 @@ window.App = (function () {
     }
   }
 
+  window.addEventListener('pagehide', flushProgress);
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') flushProgress();
+  });
   document.addEventListener('DOMContentLoaded', init);
 
-  return { state, go, addXP, markLessonDone, recordAttempt, continueNext, nextPathItem, pathDoneCount, svgIcon, phaseIcon, reloadForUser, setTheme, currentThemeMode };
+  return { state, go, addXP, markLessonDone, recordAttempt, flushProgress, continueNext, nextPathItem, pathDoneCount, svgIcon, phaseIcon, reloadForUser, setTheme, currentThemeMode };
 })();
