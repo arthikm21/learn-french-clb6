@@ -7,7 +7,8 @@ window.VocabModule = (function () {
         <div class="flag-stripes"></div>
         <p class="eyebrow-h">Vocabulary</p>
         <h1>Hear it.<br /> Then know it.</h1>
-        <p style="margin-top:var(--sp-4)">Finish a deck once to mark it complete. Flip each card and rate it honestly; spaced reviews build long-term recall separately.</p>
+        <p style="margin-top:var(--sp-4)">Your first finished session saves the ✓ Complete badge. The review bar fills when every card has been reviewed twice in total: your first study plus one revision. We recommend filling it before moving to the next deck.</p>
+        <p style="margin-top:var(--sp-3);color:var(--mute)">For stronger recall, revise on another day and aim for Good or Easy. Rate honestly: choosing Again restarts that card's review count.</p>
       </section>
       <p id="vocab-count" style="color:var(--mute);margin-bottom:var(--sp-4)"></p>
       <div class="grid" id="deck-grid"></div>`;
@@ -26,8 +27,9 @@ window.VocabModule = (function () {
       card.innerHTML = `
         <div class="icon">${d.icon}</div>
         <h3>${d.name} ${done ? '<span class="tag" style="color:var(--good)">✓ Complete</span>' : ''} ${due > 0 ? `<span class="tag" style="background:rgba(0,85,164,.12);color:var(--bleu)">${due} due</span>` : ''}</h3>
-        <p>${d.cards.length} cards · ${p.learned}/${p.total} learned through spaced review</p>
-        <div class="meter"><div style="width:${p.pct}%"></div></div>`;
+        <p>${d.cards.length} cards · ${p.learned}/${p.total} cards reviewed at least twice</p>
+        <div class="meter" role="progressbar" aria-label="${d.name}: cards reviewed at least twice" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${p.pct}"><div style="width:${p.pct}%"></div></div>
+        <p style="margin-top:var(--sp-3);color:${p.pct === 100 ? 'var(--good)' : 'var(--mute)'}">${p.pct === 100 ? 'Review bar full — ready to move to the next deck.' : done ? 'First session complete. Fill the review bar before moving on.' : 'Study once, then revise to fill the review bar.'}</p>`;
       card.onclick = () => App.go('vocab', { deck: key });
       grid.appendChild(card);
     }
@@ -129,15 +131,20 @@ window.VocabModule = (function () {
     }
     function finish() {
       App.markLessonDone(`vocab:${deckKey}`);
+      const progress = SRS.progress(`vocab:${deckKey}`, deck.cards);
+      const ready = progress.pct === 100;
       container.innerHTML = Chrome.finishScreen({
         back: 'vocab', crumbs: ['Vocab', deck.name, 'Complete'],
         icon: '🎉',
         title: 'Bravo !',
         scoreLine: `You reviewed <b>${new Set(cards.map(x => x.fr)).size}</b> cards. This deck is marked complete.`,
-        sub: 'Spaced-review progress grows as you revisit the words over time. You do not need to repeat this session to complete the deck.',
+        sub: ready
+          ? 'Review bar full: every card has been reviewed at least twice. You are ready to move to the next deck. Keep revisiting these words when reviews are due.'
+          : `Your completion is saved. ${progress.learned} of ${progress.total} cards have been reviewed at least twice. We recommend filling the review bar before moving to the next deck; come back for a revision, ideally on another day.`,
         extra: Support.winNudge(),
         actions: [
-          { label: 'More vocab', onclick: "App.go('vocab')", primary: true, arrow: true },
+          { label: ready ? 'Next deck' : 'Review this deck', onclick: ready ? "App.go('vocab')" : `App.go('vocab', { deck: '${deckKey}' })`, primary: true, arrow: true },
+          ...(!ready ? [{ label: 'All decks', onclick: "App.go('vocab')" }] : []),
           { label: 'Back to Path', onclick: "App.go('path')" },
         ],
       });

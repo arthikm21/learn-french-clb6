@@ -92,7 +92,7 @@ test('vocabulary completes on the first full session and stays complete after re
   fresh.VocabModule.render(host, {});
   assert.match(host.querySelector('#deck-grid').children[0].innerHTML, /✓ Complete/);
   assert.match(host.querySelector('#vocab-count').textContent, /1 of 1 decks complete/);
-  assert.match(host.querySelector('#deck-grid').children[0].innerHTML, /0\/2 learned through spaced review/);
+  assert.match(host.querySelector('#deck-grid').children[0].innerHTML, /0\/2 cards reviewed at least twice/);
   assert.equal(fresh.SRS.getCard('vocab:greetings', 'merci').reps, 1);
 });
 
